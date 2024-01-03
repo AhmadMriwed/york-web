@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --primary-color1: #01989F;
+  --primary-color2: #00D4D4;
+  --light-color: #DADEE7;
+  --dark-color: #13181E;
+  --secondary-color-blue: #16FACD;
+  --secondary-color-red: #CC4C4C;
+}
+
+.dark_gradient_background {
+  background: linear-gradient(180deg, #212A34 0%, #13181E 100%);;
+}
+
+.btn {
+  background: linear-gradient(107deg, #00D4D4 13.39%, #FF5F36 77.64%);;
+}
+.btn:hover {
+  background: linear-gradient(107deg, #FF5F36 13.39%, #00D4D4 77.64%);;
+}
+
+
