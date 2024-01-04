@@ -11,15 +11,25 @@
   --secondary-color-red: #CC4C4C;
 }
 
+/* sidebar background color */
 .dark_gradient_background {
   background: linear-gradient(180deg, #212A34 0%, #13181E 100%);;
+}
+
+
+/* header background and text color */
+.dark_mode {
+  background: rgba(134, 133, 133, 0.15);
+  color: #fff;
+}
+.light_mode {
+  background: rgba(134, 133, 133, 0.15);
+  color: #3D3D3D;
 }
 
 .btn {
   background: linear-gradient(107deg, #00D4D4 13.39%, #FF5F36 77.64%);;
 }
-.btn:hover {
-  background: linear-gradient(107deg, #FF5F36 13.39%, #00D4D4 77.64%);;
-}
+
 
 

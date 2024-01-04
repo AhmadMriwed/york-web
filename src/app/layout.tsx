@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { Inter, Montserrat } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
+import 'rsuite/dist/rsuite.min.css'
 import './globals.css'
 
 // const inter = Inter({ subsets: ['latin'] });
