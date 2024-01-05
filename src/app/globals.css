@@ -2,24 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer {
+   .container {
+      @apply px-[30px] mx-auto;
+   }
+   .element-center {
+      @apply flex justify-center items-center;
+   }
+}
+
 :root {
-  --primary-color1: #01989F;
-  --primary-color2: #00D4D4;
-  --light-color: #DADEE7;
-  --dark-color: #13181E;
-  --secondary-color-blue: #16FACD;
-  --secondary-color-red: #CC4C4C;
+   --primary-color1: #01989f;
+   --primary-color2: #00d4d4;
+   --light-color: #dadee7;
+   --dark-color: #13181e;
+   --secondary-color-blue: #16facd;
+   --secondary-color-red: #cc4c4c;
 }
 
 .dark_gradient_background {
-  background: linear-gradient(180deg, #212A34 0%, #13181E 100%);;
+   background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
 }
 
 .btn {
-  background: linear-gradient(107deg, #00D4D4 13.39%, #FF5F36 77.64%);;
+   background: linear-gradient(107deg, #00d4d4 13.39%, #ff5f36 77.64%);
 }
 .btn:hover {
-  background: linear-gradient(107deg, #FF5F36 13.39%, #00D4D4 77.64%);;
+   background: linear-gradient(107deg, #ff5f36 13.39%, #00d4d4 77.64%);
 }
 
+/* width */
+::-webkit-scrollbar {
+   width: 6px;
+   height: 6px;
+   cursor: pointer;
+}
 
+/* Track */
+::-webkit-scrollbar-track {
+   background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+   background: #18073b;
+   border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+   background: #433266;
+}
+
+@media (prefers-color-scheme: light) {
+   html {
+      color-scheme: light;
+   }
+}
+.theme {
+   transition: 0.7s all ease-in-out;
+}
+
+.light {
+   background-color: var(--light-color);
+   color: var(--dark-color);
+}
+
+.dark {
+   background-color: var(--dark-color);
+   color: var(--light-color);
+}

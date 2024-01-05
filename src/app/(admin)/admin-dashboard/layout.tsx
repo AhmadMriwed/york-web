@@ -1,15 +1,14 @@
-import Sidbar from '@/app/components/Pars/Sidbar';
-import Topbar from '@/app/components/Pars/Topbar';
-import React from 'react';
+import Sidebar from "@/components/Pars/Sidebar";
+import Topbar from "@/components/Pars/Topbar";
 
-const Layout = ({ children,}: {children: React.ReactNode}) => {
-  return (
-    <div>
-      <Topbar/>
-      <main className='md:ml-[270px] xl:ml-[300px] mt-[70px] p-4'>{children}</main>
-      <Sidbar/>
-    </div>
-  );
+const Layout = ({ children }: { children: React.ReactNode }) => {
+   return (
+      <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+         <Sidebar />
+         <Topbar />
+         {children}
+      </section>
+   );
 };
 
 export default Layout;
