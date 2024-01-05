@@ -20,8 +20,19 @@
    --secondary-color-red: #cc4c4c;
 }
 
+/* sidebar background color */
 .dark_gradient_background {
    background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
+}
+
+/* header background and text color */
+.dark_mode {
+   background: rgba(134, 133, 133, 0.15);
+   color: #fff;
+}
+.light_mode {
+   background: rgba(134, 133, 133, 0.15);
+   color: #3d3d3d;
 }
 
 .btn {
@@ -29,13 +40,6 @@
 }
 .btn:hover {
    background: linear-gradient(107deg, #ff5f36 13.39%, #00d4d4 77.64%);
-}
-
-/* width */
-::-webkit-scrollbar {
-   width: 6px;
-   height: 6px;
-   cursor: pointer;
 }
 
 /* Track */
