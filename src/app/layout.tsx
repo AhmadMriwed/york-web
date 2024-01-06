@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable}`}>{children}</body>
+      <body className='font-montserrat'>{children}</body>
     </html>
   )
 }

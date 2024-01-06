@@ -31,5 +31,23 @@
   background: linear-gradient(107deg, #00D4D4 13.39%, #FF5F36 77.64%);;
 }
 
+.costum_form input {
+  background: inherit !important;
+  border: 1px solid #fff !important;
+  width: 100% !important;
+  height: 45px !important;
+  margin-bottom: 20px !important;
+}
+.costum_form input:last-of-type {
+  margin-bottom: 5px !important;
+
+}
+
+.languag-btn button:hover,
+.languag-btn button:focus {
+  color: #13181E;
+}
+
+
 
 
