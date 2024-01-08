@@ -104,22 +104,22 @@ const Sidebar = () => {
       {
          id: 1,
          title: "Users",
-         url: "",
+         url: "users",
       },
       {
          id: 2,
          title: "Trainers",
-         url: "",
+         url: "trainers",
       },
       {
          id: 3,
          title: "Trainees",
-         url: "",
+         url: "trainees",
       },
       {
          id: 4,
          title: "Supervisors",
-         url: "",
+         url: "supervisors",
       },
       {
          id: 5,

@@ -1,45 +1,76 @@
 "use client";
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
+import AddSupervisorModal from "@/components/accounts/supervisors/AddSupervisorModal";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
 import { useState } from "react";
-
-const Roles = () => {
+export default function Supervisors() {
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
-
    const data = [
       {
-         ID: "1",
-         Name: "Role 1",
+         id: "1",
+         name: "super 1",
+         email: "role1@gmail.com",
+         photo: "----",
+         role: "Role 1",
+         status: "active",
       },
       {
-         ID: "2",
-         Name: "Role 2",
+         id: "2",
+         name: "super 2",
+         email: "role2@gmail.com",
+         photo: "----",
+         role: "Role 2",
+         status: "active",
       },
       {
-         ID: "3",
-         Name: "Role 3",
+         id: "3",
+         name: "super 3",
+         email: "role3@gmail.com",
+         photo: "----",
+         role: "Role 3",
+         status: "active",
       },
    ];
 
    const columns = [
       {
          name: "ID",
-         selector: (row: any) => row.ID,
+         selector: (row: any) => row.id,
          sortable: true,
       },
       {
          name: "Name",
-         selector: (row: any) => row.Name,
+         selector: (row: any) => row.name,
+         sortable: true,
+      },
+      {
+         name: "Email",
+         selector: (row: any) => row.email,
+         sortable: true,
+      },
+      {
+         name: "Photo",
+         selector: (row: any) => row.photo,
+         sortable: true,
+      },
+      {
+         name: "Role",
+         selector: (row: any) => row.role,
+         sortable: true,
+      },
+      {
+         name: "Status",
+         selector: (row: any) => row.status,
          sortable: true,
       },
       {
          name: "Action",
          selector: (row: any) => (
             <Action
-               id={row.ID}
+               id={row.id}
                handleEdit={() => setOpenEdit(true)}
                handleVisible={() => setOpenvisible(true)}
             />
@@ -52,21 +83,21 @@ const Roles = () => {
          <CrudLayout
             columns={columns}
             dataTabel={data}
-            interfaceName="Roles"
             openAdd={openAdd}
             setOpenAdd={setOpenAdd}
+            interfaceName="Supervisors"
             isThereAdd={true}
          />
-         <ModalOperation
+         <AddSupervisorModal
             open={openAdd}
             setOpen={setOpenAdd}
-            requestType="Add Roel"
+            requestType="Add Supervisor"
             operation="Save"
          />
          <ModalOperation
             open={openEdit}
             setOpen={setOpenEdit}
-            requestType="Edit Role"
+            requestType="Edit Supervisor"
             operation="Update"
          />
          <ModalOperation
@@ -77,6 +108,4 @@ const Roles = () => {
          />
       </main>
    );
-};
-
-export default Roles;
+}

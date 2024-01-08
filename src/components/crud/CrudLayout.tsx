@@ -1,5 +1,11 @@
 "use client";
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, {
+   ReactNode,
+   useCallback,
+   useContext,
+   useMemo,
+   useState,
+} from "react";
 import DataTable from "react-data-table-component";
 import { Loader, Pagination } from "rsuite";
 import CrudHeader from "./CrudHeader";
@@ -8,15 +14,27 @@ import { ThemeContext } from "../Pars/ThemeContext";
 
 interface CrudLayoutType {
    columns: any;
+   interfaceName: string;
+   openAdd: boolean;
+   setOpenAdd: any;
    dataTabel?: any;
+   isThereAdd?: boolean;
+   children?: ReactNode;
 }
 
-export default function CrudLayout({ columns, dataTabel }: CrudLayoutType) {
+export default function CrudLayout({
+   columns,
+   interfaceName,
+   openAdd,
+   setOpenAdd,
+   dataTabel,
+   isThereAdd,
+   children,
+}: CrudLayoutType) {
    // pagination config
    const count = 10;
    const perPage = 3;
    const [activePage, setActivePage] = useState(1);
-   const [open, setOpen] = useState(false);
    const [selectedRows, setSelectedRows] = useState([]);
    const [toggleCleared, setToggleCleared] = useState(false);
    const [data, setData] = useState(dataTabel);
@@ -36,7 +54,7 @@ export default function CrudLayout({ columns, dataTabel }: CrudLayoutType) {
          <button
             key="delete"
             onClick={handleDelete}
-            className="text-white bg-red-500 text-center w-[100px] p-2 rounded-[4px] mr-6 hover:bg-red-600 transition-all delay-200"
+            className="text-red-500 border border-red-800  bg-white text-center w-[100px] p-2 rounded-[4px] mr-6 hover:bg-red-600 transition-all delay-200"
          >
             Delete
          </button>
@@ -77,9 +95,17 @@ export default function CrudLayout({ columns, dataTabel }: CrudLayoutType) {
    };
 
    return (
-      <main className="relative h-full [&>div:first-child]:!p-0">
+      <main className="relative h-full [&>div:first-child]:!p-0 [&>div:first-child]:!overflow-visible">
          <DataTable
-            title={<CrudHeader crudName="Roles" setOpen={setOpen} />}
+            title={
+               <CrudHeader
+                  crudName={interfaceName}
+                  setOpen={setOpenAdd}
+                  isThereAdd={isThereAdd}
+               >
+                  {children}
+               </CrudHeader>
+            }
             columns={columns}
             data={dataTabel}
             customStyles={customStyles}
@@ -111,12 +137,6 @@ export default function CrudLayout({ columns, dataTabel }: CrudLayoutType) {
                [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!bg-blue-400
                [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!text-white
                "
-         />
-         <ModalOperation
-            open={open}
-            setOpen={setOpen}
-            requestType="Add Role"
-            operation="Save"
          />
       </main>
    );

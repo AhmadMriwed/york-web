@@ -42,22 +42,6 @@
    background: linear-gradient(107deg, #ff5f36 13.39%, #00d4d4 77.64%);
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-   background: #f1f1f1;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-   background: #18073b;
-   border-radius: 5px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-   background: #433266;
-}
-
 @media (prefers-color-scheme: light) {
    html {
       color-scheme: light;
@@ -75,4 +59,20 @@
 .dark {
    background-color: var(--dark-color);
    color: var(--light-color);
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+   background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+   background: #18073b;
+   border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+   background: #433266;
 }
