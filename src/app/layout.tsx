@@ -20,6 +20,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+
   return (
     <html lang="en">
       <body className='font-montserrat'>{children}</body>

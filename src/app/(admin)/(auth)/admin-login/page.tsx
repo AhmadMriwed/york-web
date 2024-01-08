@@ -1,66 +1,138 @@
 'use client'
-import SplashLoading from '@/components/loading/SplashLoading'
 import Image from 'next/image'
-import React, { useState } from 'react'
-import './adminlogin.css'
-import { Dropdown, Input } from 'rsuite'
+import React, { ChangeEvent, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Cookies from 'universal-cookie'
+import axios, { AxiosError } from 'axios'
+import { baseURL } from '@/utils/api'
+import SplashLoading from '@/components/loading/SplashLoading'
+import Link from 'next/link'
+
+
 
 const AdminLogin = () => {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    language: 'english',
+});
+
+const router = useRouter();
+const [loading, setLoading] = useState(true);
+const cookie = new Cookies();
+const [error, setErr] = useState("");
+
+
+
+useEffect(() => {
+  const timeoutId = setTimeout(() => {
+    setLoading(false);
+  }, 2000);
+
+  return () => clearTimeout(timeoutId);
+}, []);
+
+const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setForm({...form, [e.target.name] : e.target.value});
+};
+const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  setForm({...form, [e.target.name] : e.target.value});
+};
+
+// const handleSubmit = () => {
+//   dispatch(
+//     addNewCourse({
+//       titleLess,
+//       describtion,
+//       start_at,
+//       end_at,
+//       author_name,
+//       priceLess,
+//       lessonNumber,
+//       cardImg,
+//       rating,
+//       button
+//     })
+//   ).then(res => {
+//           router.push('/courses')
+//   });
+// };
+
+// async function handleSubmite (e: React.FormEvent<HTMLFormElement>) {
+//   e.preventDefault();
+//   setLoading(true);
+//   try{
+//       const res = await axios.post(`${baseURL}/`, form);
+//       console.log(res);
+      
+//       // setLoading(false);
+//       // const token = res.data.token;
+//       // cookie.set('bearer', token);
+//       //router.push('/dashboard/users');
+//   }catch (err: any) {
+//       setLoading(false);
+//       if (err.response.status === 401){
+//           setErr("wrong email or password");
+//       }else {
+//           setErr("Internal server error");
+//       }
+//   }
+// }
 
   return (
-    <div className='w-screen h-screen relative'>
+    <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />
-      <div className='w-full h-full absolute top-0 left-0 bg-[#00d4d494] mix-blend-color z-[-1]'></div>
+      {loading? (
+          <SplashLoading/>
+      ):(
+      <>
+      <div className='w-full h-full absolute top-0 left-0 bg-[rgba(0,212,212,0.58)] mix-blend-color z-[-1]'></div>
+        
       <div className='flex items-start justify-between p-8'>
         <div className='hidden md:block'>
           <Image src='/logo.png' alt='logo' width={100} height={100}/>
         </div>
-        <div className='flex items-center justify-center absolute w-full h-full top-0 right-0  md:top-[50%] md:right-[10.75rem] md:translate-y-[-50%]  md:w-[450px] md:h-[calc(100vh-8rem)] md:rounded-[9px] bg-[#13181ef3] backdrop-blur-[3px]'>
+        <div className='flex items-center justify-center absolute w-full h-full top-0 right-0  md:top-[50%] md:right-[10.75rem] md:translate-y-[-50%]  md:w-[450px] md:h-[calc(100vh-8rem)] md:rounded-[9px] bg-[rgba(19,24,30,0.9)]'>
           <div className='flex flex-col items-center md:items-start w-[calc(100%-4rem)] h-[calc(100%-4rem)] py-8 px-8 text-[#fff]'>
             <div className=' md:hidden pb-4'>
               <Image src='/logo.png' alt='logo' width={100} height={100}/>
             </div>
             <span className='text-base tracking-widest'>welcome to</span>
             <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
-            <form action="" className='grid w-full costum_form'>
+
+            <form  action="" className='grid w-full costum_form'>
               <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
-              <Input type='email' placeholder="Enter Your Email" id='email' required />
-              <Input type='password' placeholder="Enter Your Password" id='email' required />
-              <span className='justify-self-end text-sm tracking-widest leading-8 text-[#16FACD] cursor-pointer'>Forgot Your Password ? </span>
-              <button className='justify-self-center bg-[#01989F] text-white w-[150px] h-[44px] px-4 py-2 rounded-[6px] mt-11'>Sign In</button>
-              <Dropdown title="Select Lang" placement="topEnd" className='absolute right-0 bottom-0 px-2 py-2 languag-btn'>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Arabic</Dropdown.Item>
-              </Dropdown>
-              {/* <select className='absolute left-0 bottom-0'
-                  value={priority} onChange={(e) => setPriority(e.target.value)}
-              >
+              <input type='email' placeholder="Enter Your Email" id='email' 
+                      className='login-input'
+                      name="email"
+                      value={form.email}
+                      onChange ={onChange } 
+                      required />
+              <input type='password' placeholder="Enter Your Password" id='password' 
+                      className='login-input'
+                      name="password"
+                      value={form.password} 
+                      onChange ={onChange } 
+                      required />
+              <Link href='/admin-login/recoverpassword' className='justify-self-end'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
+              <button type='submit' className='colored-btn'>Sign In</button>
+
+              {error !== "" && <span className="error">{error}</span>}
+              <select className='absolute right-8 bottom-4 text-[#13181E] rounded-md h-6 max-w-[70px] text-base'
+                  value={form.language} 
+                  name='language'
+                  onChange ={onSelect } 
+                  >
                 <option disabled value="">Select Lng</option>
                 <option value="english">En</option>
                 <option value="arabic">Ar</option>
-              </select> */}
+              </select>
             </form>
           </div>
         </div>
       </div>
-
-      
-        {/* <div className='logo_splash'>
-          <SplashLoading/>
-        </div> */}
-    
+      </>
+      )}
     </div>
   )
 }
