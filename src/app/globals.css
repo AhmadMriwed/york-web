@@ -41,6 +41,55 @@
 .btn:hover {
    background: linear-gradient(107deg, #ff5f36 13.39%, #00d4d4 77.64%);
 }
+.colored-btn {
+  justify-self: center;
+  background-color: #01989F;
+  color: #fff;
+  font-size: 16px;
+  width: 150px;
+  height: 44px;
+  padding: 8px 16px;
+  margin-top: 44px;
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+}
+@media(max-width: 767px) {
+  .colored-btn {
+    width: 100%;
+  }
+}
+
+.colored-btn:hover {
+  background-color: #01979fcc;
+}
+
+.login-input {
+  background: inherit !important;
+  border: 1px solid #fff !important;
+  width: 100% !important;
+  height: 45px !important;
+  font-size: 16px;
+  padding: 10px 20px;
+  margin-bottom: 20px !important;
+  border-radius: 9px !important;
+  -webkit-border-radius: 9px !important;
+  -moz-border-radius: 9px !important;
+  -ms-border-radius: 9px !important;
+  -o-border-radius: 9px !important;
+}
+.login-input:last-of-type {
+  margin-bottom: 5px !important;
+
+}
+
+/* .languag-btn button:hover,
+.languag-btn button:focus {
+  color: #13181E;
+} */
+
 
 @media (prefers-color-scheme: light) {
    html {

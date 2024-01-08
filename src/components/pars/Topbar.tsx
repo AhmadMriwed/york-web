@@ -3,6 +3,8 @@ import Image from "next/image";
 import React, { useContext, useState } from "react";
 import { Badge, Toggle } from "rsuite";
 import Drawer from "./Drawer";
+import CheckIcon from "@rsuite/icons/Check";
+import CloseIcon from "@rsuite/icons/Close";
 import { ThemeContext } from "./ThemeContext";
 import NoticeIcon from "@rsuite/icons/Notice";
 import profile from "../../../public/avatar.png";

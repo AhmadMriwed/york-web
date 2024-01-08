@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
    return (
       <html lang="en">
-         <body className={`${montserrat.variable}`}>
+         <body className="font-montserrat">
             <ThemeProvider>
                <Provider store={store}>{children} </Provider>
             </ThemeProvider>
