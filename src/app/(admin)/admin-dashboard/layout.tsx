@@ -1,7 +1,8 @@
-'use client'
-import Sidbar from '@/components/pars/Sidbar';
-import Topbar from '@/components/pars/Topbar';
-import React from 'react';
+"use client";
+import Sidebar from "@/components/Pars/Sidebar";
+import Topbar from "@/components/Pars/Topbar";
+
+import React from "react";
 // import ReduxProvider from '@/store/provider'
 
 // interface UserResponse {
@@ -9,45 +10,41 @@ import React from 'react';
 //   error: AxiosError | null;
 // }
 
-const Layout = ({ children,}: {children: React.ReactNode}) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
+   // const [isSuccess, setIsSuccess] = useState<boolean>(false);
+   // const { push } = useRouter();
+   // useEffect(() => {
+   //   (async () => {
+   //     const { user, error } = await getUser();
 
-  // const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  // const { push } = useRouter();
-  // useEffect(() => {
-  //   (async () => {
-  //     const { user, error } = await getUser();
+   //     if (error) {
+   //       push("/admin-login");
+   //       return;
+   //     }
 
-  //     if (error) {
-  //       push("/admin-login");
-  //       return;
-  //     }
+   //     // if the error did not happen, if everything is alright
+   //     setIsSuccess(true);
+   //   })();
+   // }, [push]);
 
-  //     // if the error did not happen, if everything is alright
-  //     setIsSuccess(true);
-  //   })();
-  // }, [push]);
+   // if (!isSuccess) {
+   //   return <p>Loading...</p>;
+   // }
 
-  // if (!isSuccess) {
-  //   return <p>Loading...</p>;
-  // }
-
-  return (
-    
-    <div>
-      {/* <ReduxProvider> */}
-        <div><Topbar/></div>
-        <div>{children}</div>
-        <div> <Sidbar/></div>
-      {/* </ReduxProvider> */}
-    </div>
-    
-  );
-
+   return (
+      <div>
+         {/* <ReduxProvider> */}
+         <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+            <Sidebar />
+            <Topbar />
+            {children}
+         </section>
+         {/* </ReduxProvider> */}
+      </div>
+   );
 };
-  
 
-
-// export default Layout;
+export default Layout;
 
 // async function getUser(): Promise<UserResponse> {
 //   try {

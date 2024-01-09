@@ -1,9 +1,5 @@
-import React from 'react'
-
 const AdminAccounts = () => {
-  return (
-    <div>AdminAccounts</div>
-  )
-}
+   return <main>Accounts main page</main>;
+};
 
-export default AdminAccounts
+export default AdminAccounts;
