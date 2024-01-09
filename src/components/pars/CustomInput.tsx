@@ -1,4 +1,3 @@
-'use client'
 import { useField } from "formik";
 
 interface CustomInputProps {

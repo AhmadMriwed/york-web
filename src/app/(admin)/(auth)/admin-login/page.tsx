@@ -114,7 +114,7 @@ const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
                       value={form.password} 
                       onChange ={onChange } 
                       required />
-              <Link href='/admin-login/recoverpassword' className='justify-self-end'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
+              <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
               <button type='submit' className='colored-btn'>Sign In</button>
 
               {error !== "" && <span className="error">{error}</span>}

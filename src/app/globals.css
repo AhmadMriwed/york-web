@@ -67,6 +67,7 @@
 }
 
 .login-input {
+   width: 100%;
   background: inherit !important;
   border: 1px solid #fff !important;
   width: 100% !important;
@@ -84,6 +85,11 @@
 .login-input:last-of-type {
   margin-bottom: 5px !important;
 
+}
+@media(max-width: 767px){
+   .login-input {
+      width: 350px;
+   }
 }
 
 /* .languag-btn button:hover,
