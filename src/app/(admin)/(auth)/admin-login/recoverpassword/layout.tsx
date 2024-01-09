@@ -8,12 +8,12 @@ const PasswordLayout = ({
     children: React.ReactNode
   }) => {
   return (
-    <div className='bg-[#13181E] mix-blend-multiply'>
-        <div className='flex items-center justify-between w-[100vw] h-[70px] px-4 py-2'>
+    <div className='bg-[#13181E] mix-blend-multiply px-4'>
+        <div className='flex items-center justify-between h-[70px] py-2'>
             <BackBtn textColor='text-white'/>
             <Image src='/logo.png' alt='' width={55} height={55} />
         </div>
-        <div className='w-[100vw] px-4 min-h-[calc(100vh-70px)]'>
+        <div className='min-h-[calc(100vh-70px)]'>
             {children}
         </div>
     </div>
