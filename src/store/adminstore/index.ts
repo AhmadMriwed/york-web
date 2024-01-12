@@ -1,15 +1,11 @@
-// import { applyMiddleware, configureStore } from "@reduxjs/toolkit";
-// import reduxThunk from "redux-thunk";
-// import coursesSlice from "./slices/courses.slice";
-// import authSlice from "./slices/auth.slice";
+import { configureStore } from "@reduxjs/toolkit";
 
-// const reducers = {
-//   reducer: {
-//     courses: coursesSlice,
-//     auth: authSlice,
-//   },
-// };
+import authSlice from "./slices/auth.slice";
+import permissions from "./slices/permissionsSlice";
 
-// const store = configureStore(reducers, applyMiddleware(reduxThunk));
-
-// export default store;
+export default configureStore({
+   reducer: {
+      auth: authSlice,
+      permissions,
+   },
+});

@@ -1,6 +1,7 @@
 "use client";
 import Sidebar from "@/components/Pars/Sidebar";
 import Topbar from "@/components/Pars/Topbar";
+import { ThemeProvider } from "@/components/Pars/ThemeContext";
 
 import React from "react";
 // import ReduxProvider from '@/store/provider'
@@ -33,13 +34,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
    return (
       <div>
-         {/* <ReduxProvider> */}
-         <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
-            <Sidebar />
-            <Topbar />
-            {children}
-         </section>
-         {/* </ReduxProvider> */}
+         <ThemeProvider>
+            {/* <ReduxProvider> */}
+            <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+               <Sidebar />
+               <Topbar />
+               {children}
+            </section>
+            {/* </ReduxProvider> */}
+         </ThemeProvider>
       </div>
    );
 };

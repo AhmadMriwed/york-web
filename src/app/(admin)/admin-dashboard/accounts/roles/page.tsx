@@ -2,12 +2,19 @@
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
-import { useState } from "react";
+import { getRoles } from "@/store/adminstore/slices/roles.slice";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 const Roles = () => {
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
+
+   const dispatch: any = useDispatch();
+   useEffect(() => {
+      dispatch(getRoles());
+   }, [dispatch]);
 
    const data = [
       {
@@ -60,7 +67,7 @@ const Roles = () => {
          <ModalOperation
             open={openAdd}
             setOpen={setOpenAdd}
-            requestType="Add Roel"
+            requestType="Add Role"
             operation="Save"
          />
          <ModalOperation
