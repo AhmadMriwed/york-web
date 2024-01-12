@@ -92,6 +92,12 @@
    }
 }
 
+.error-mesage {
+   padding: 5px;
+   color: var(--secondary-color-red);
+   font-size: 16px;
+}
+
 /* .languag-btn button:hover,
 .languag-btn button:focus {
   color: #13181E;
