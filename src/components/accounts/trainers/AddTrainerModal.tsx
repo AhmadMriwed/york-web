@@ -15,7 +15,7 @@ interface ModalType {
    serviceId?: any;
 }
 
-const addSupervisorSchema = yup.object().shape({
+const addTrainerSchema = yup.object().shape({
    fullName: yup.string().required("Please add the Your full Name"),
    email: yup.string().email("Invalid email").required("Email Is Required"),
    password: yup
@@ -131,7 +131,7 @@ export default function AddTrainerModal({
                   categories: [],
                   location: "defualt value",
                }}
-               validationSchema={addSupervisorSchema}
+               validationSchema={addTrainerSchema}
                onSubmit={submithandler}
             >
                {(props) => (
