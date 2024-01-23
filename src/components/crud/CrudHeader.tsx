@@ -33,10 +33,7 @@ export default function CrudHeader({
          </header>
 
          <div className="p-2">
-            <div className="flex gap-[3px] flex-col crudCustom2:flex-row relative">
-               {/* <button className="bg-btnColor text-white h-[40px] w-fit px-[10px] text-[14px] rounded-[6px]">
-                  sort & filter
-               </button> */}
+            <div className="flex gap-[6px] flex-col crudCustom2:flex-row relative">
                {children}
                <div className="flex h-[38px]  w-fit rounded-[6px]">
                   <input

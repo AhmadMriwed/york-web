@@ -7,10 +7,12 @@ function Action({
    id,
    handleEdit,
    handleVisible,
+   handleDelete,
 }: {
    id: number | string;
    handleEdit: any;
    handleVisible: any;
+   handleDelete: any;
 }) {
    const handleAction = (type: "visible" | "edit" | "delete") => {
       console.log("clicked", id);
@@ -22,6 +24,7 @@ function Action({
          handleEdit();
       } else if (type === "delete") {
          console.log("delete");
+         handleDelete();
       }
    };
 

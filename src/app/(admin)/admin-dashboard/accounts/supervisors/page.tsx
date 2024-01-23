@@ -1,69 +1,74 @@
 "use client";
+import AlertModal from "@/components/Pars/AlertModal";
+import Loading from "@/components/Pars/Loading";
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddSupervisorModal from "@/components/accounts/supervisors/AddSupervisorModal";
+import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
-import { useState } from "react";
+import {
+   completedSupervisorOperation,
+   deleteSupervisor,
+   getSupervisors,
+} from "@/store/adminstore/slices/accounts/supervisorsSlice";
+import { GlobalState } from "@/types/storeTypes";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Pagination } from "rsuite";
 export default function Supervisors() {
+   // pagination config
+
+   const [activePage, setActivePage] = useState(1);
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
-   const data = [
-      {
-         id: "1",
-         name: "super 1",
-         email: "role1@gmail.com",
-         photo: "----",
-         role: "Role 1",
-         status: "active",
-      },
-      {
-         id: "2",
-         name: "super 2",
-         email: "role2@gmail.com",
-         photo: "----",
-         role: "Role 2",
-         status: "active",
-      },
-      {
-         id: "3",
-         name: "super 3",
-         email: "role3@gmail.com",
-         photo: "----",
-         role: "Role 3",
-         status: "active",
-      },
-   ];
+   const [openDelete, setOpenDelete] = useState(false);
+   const [userId, setUserId] = useState<number>(0);
+
+   const dispatch: any = useDispatch();
+
+   const { isLoading, error, supervisors, status, perPage, total } =
+      useSelector((state: GlobalState) => state.supervisors);
+
+   console.log("supervisors", supervisors);
 
    const columns = [
       {
          name: "ID",
-         selector: (row: any) => row.id,
+         selector: (row: any) => row.user_id,
          sortable: true,
       },
       {
          name: "Name",
-         selector: (row: any) => row.name,
+         selector: (row: any) => row.first_name + " " + row.last_name,
          sortable: true,
+         grow: 2,
       },
       {
          name: "Email",
          selector: (row: any) => row.email,
          sortable: true,
+         grow: 2,
       },
       {
          name: "Photo",
-         selector: (row: any) => row.photo,
+         selector: (row: any) =>
+            row.image ? (
+               <Image src={row.image} alt="user photo" width={50} height={50} />
+            ) : (
+               "No Image Available"
+            ),
          sortable: true,
       },
       {
          name: "Role",
-         selector: (row: any) => row.role,
+         selector: (row: any) => row.role.name,
          sortable: true,
       },
       {
          name: "Status",
-         selector: (row: any) => row.status,
+         selector: (row: any) => row.status?.status || "No Status ",
          sortable: true,
       },
       {
@@ -71,40 +76,99 @@ export default function Supervisors() {
          selector: (row: any) => (
             <Action
                id={row.id}
-               handleEdit={() => setOpenEdit(true)}
-               handleVisible={() => setOpenvisible(true)}
+               handleEdit={() => {
+                  setOpenEdit(true);
+                  setUserId(row.id);
+               }}
+               handleVisible={() => {
+                  setOpenvisible(true);
+                  setUserId(row.id);
+               }}
+               handleDelete={() => {
+                  setOpenDelete(true);
+                  setUserId(row.id);
+               }}
             />
          ),
       },
    ];
 
+   useEffect(() => {
+      dispatch(getSupervisors(activePage));
+   }, [dispatch, activePage]);
    return (
-      <main className="pt-0 overflow-x-auto max-w-full">
-         <CrudLayout
-            columns={columns}
-            dataTabel={data}
-            openAdd={openAdd}
-            setOpenAdd={setOpenAdd}
-            interfaceName="Supervisors"
-            isThereAdd={true}
-         />
+      <main className="pt-0 overflow-x-auto max-w-full overflow-y-clip">
+         {isLoading && <Loading />}
+
+         {!isLoading && supervisors.length > 0 && (
+            <>
+               <CrudLayout
+                  columns={columns}
+                  dataTabel={supervisors}
+                  openAdd={openAdd}
+                  setOpenAdd={setOpenAdd}
+                  interfaceName="Supervisors"
+                  isThereAdd={true}
+                  isLoading={isLoading}
+               />
+
+               {total > perPage && (
+                  <Pagination
+                     prev
+                     next
+                     size="sm"
+                     total={total}
+                     limit={perPage}
+                     maxButtons={3}
+                     activePage={activePage}
+                     onChangePage={setActivePage}
+                     className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
+               [&>div_.rs-pagination-btn]:!bg-white
+               [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn]:!mx-[5px]
+               [&>div_.rs-pagination-btn]:!rounded-[50%]
+               [&>div_.rs-pagination-btn]:!border-none
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!bg-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!text-white
+               "
+                  />
+               )}
+            </>
+         )}
+
          <AddSupervisorModal
             open={openAdd}
             setOpen={setOpenAdd}
-            requestType="Add Supervisor"
-            operation="Save"
+            requestType="create"
+            label="Add Supervisor"
+            operation="Add"
          />
-         <ModalOperation
+
+         <AddSupervisorModal
             open={openEdit}
             setOpen={setOpenEdit}
-            requestType="Edit Supervisor"
+            requestType="edit"
             operation="Update"
+            label="Edit Supervisor"
+            id={userId}
          />
-         <ModalOperation
+
+         <ShowUserProfileModal
             open={openVisible}
             setOpen={setOpenvisible}
-            requestType="Role"
-            operation="visible"
+            id={userId}
+            userType="supervisor"
+         />
+
+         <AlertModal
+            open={openDelete}
+            setOpen={setOpenDelete}
+            requestType="delete"
+            id={userId}
+            status={status}
+            completed={completedSupervisorOperation}
+            deleteAction={deleteSupervisor}
+            label="Are you sure you want to delete the selected supervisor ?"
          />
       </main>
    );

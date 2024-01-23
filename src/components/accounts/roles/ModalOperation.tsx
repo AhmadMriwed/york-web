@@ -2,38 +2,136 @@
 
 import { Modal, Button, Checkbox } from "rsuite";
 import { ThemeContext } from "../../Pars/ThemeContext";
-import { useContext, useRef, useState } from "react";
-import { getPermissions } from "@/store/adminstore/slices/permissionsSlice";
+import { useContext, useState } from "react";
+import { getPermissions } from "@/store/adminstore/slices/accounts/permissionsSlice";
+import { FaCheck } from "react-icons/fa";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
+import { Form, Formik } from "formik";
+import * as yup from "yup";
+import {
+   completedRoleOperation,
+   createRole,
+   updateRole,
+} from "@/store/adminstore/slices/accounts/rolesSlice";
 import {
    PermissionsState,
    PermissionsType,
-} from "@/types/adminTypes/accounts/roles/rolesTypes";
-import { Form, Formik } from "formik";
-import * as yup from "yup";
+   SingleRoleState,
+} from "@/types/adminTypes/accounts/accountsTypes";
+import Loading from "@/components/Pars/Loading";
+import { getSingleRole } from "@/store/adminstore/slices/accounts/singleRoleSlice";
 
 interface ModalType {
    open: boolean;
    setOpen: any;
-   requestType: string;
+   requestType: "create" | "read" | "edit";
    operation: string;
-   serviceId?: any;
+   label: string;
+   roleId?: number;
+   operationStatus?: boolean;
 }
 
 const roleSchema = yup.object().shape({
-   name: yup.string().required("Please add the Your Role Name"),
+   name: yup.string().required("Please add the Role Name"),
    permissions: yup.array(),
 });
+
+const OperationContent = ({
+   isLoading,
+   permissions,
+   requestType,
+   handleChecked,
+   singleRole,
+}: {
+   isLoading: boolean;
+   permissions: PermissionsType[];
+
+   requestType: "create" | "read" | "edit";
+   singleRole?: SingleRoleState;
+   handleChecked?: any;
+}) => {
+   return (
+      <div className="flex mt-5 gap-[20px] flex-wrap ">
+         {isLoading && <Loading />}
+         {!isLoading &&
+            permissions &&
+            permissions.map((permission: PermissionsType) => {
+               return (
+                  <div
+                     key={permission.name}
+                     className="border border-[#3c417c] min-w-[280px] rounded-[6px] min-h-[255px] pe-2"
+                  >
+                     <h3 className="ms-[10px] text-[18px]">
+                        {permission.name}
+                     </h3>
+                     <div className="">
+                        {permission.permissions.map(
+                           (permission: {
+                              id: number;
+                              name: string;
+                              enabled?: boolean;
+                           }) => {
+                              if (
+                                 requestType === "create" ||
+                                 requestType === "edit"
+                              ) {
+                                 return (
+                                    <Checkbox
+                                       key={permission.id}
+                                       className="block [&>.rs-checkbox-checker]:!py-0 [&>.rs-checkbox-checker]:!min-h-[26px] [&>.rs-checkbox-checker_label_.rs-checkbox-wrapper]:!top-0"
+                                       onChange={(value, checked: boolean) => {
+                                          handleChecked(
+                                             value,
+                                             checked,
+                                             permission.id
+                                          );
+                                       }}
+                                    >
+                                       {" "}
+                                       {permission.name}
+                                    </Checkbox>
+                                 );
+                              } else if (requestType === "read") {
+                                 return (
+                                    <div
+                                       key={permission.id}
+                                       className="flex items-center gap-3 px-3 mb-1"
+                                    >
+                                       {" "}
+                                       <FaCheck
+                                          style={{
+                                             color: "var(--primary-color2)",
+                                             fontSize: "14px",
+                                             marginInlineEnd: "3px",
+                                          }}
+                                       />{" "}
+                                       <p>{permission.name}</p>
+                                    </div>
+                                 );
+                              }
+                           }
+                        )}
+                     </div>
+                  </div>
+               );
+            })}
+      </div>
+   );
+};
 
 export default function ModalOperation({
    open,
    setOpen,
    requestType,
    operation,
+   label,
+   roleId,
+   operationStatus,
 }: ModalType) {
    const [permissionsIds, setPermissionsIds] = useState<any[]>([]);
+   const [singleRoleIds, setSingleRoleIds] = useState<any[]>();
    const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
    const dispatch: any = useDispatch();
 
@@ -41,13 +139,37 @@ export default function ModalOperation({
       (state: GlobalState) => state.permissions
    );
 
+   const {
+      isLoading: roleLoading,
+      error: roleError,
+
+      singleRole,
+   }: SingleRoleState = useSelector((state: GlobalState) => state.singleRole);
+
    const submithandler = async (values: any, actions: any) => {
-      const data = { ...values, permissions: permissionsIds };
-      console.log(data);
+      const data = { name: values.name, permissions_ids: permissionsIds };
+      console.log("data from create", data);
+
+      dispatch(createRole(data));
+   };
+
+   const editRoleHandler = () => {
+      console.log("clicked edit");
+
+      let deleted_permissions_ids = singleRoleIds?.filter(
+         (id) => !permissionsIds.includes(id)
+      );
+      let new_permissions_ids = permissionsIds;
+
+      const data = {
+         name: singleRole.name,
+         deleted_permissions_ids,
+         new_permissions_ids,
+      };
+      dispatch(updateRole({ id: roleId, data: data }));
    };
 
    const handleChecked = (value: any, checked: boolean, id: number) => {
-      console.log(value, checked, id);
       if (checked) {
          setPermissionsIds((prev: number[]) => {
             return [...prev, id];
@@ -60,13 +182,43 @@ export default function ModalOperation({
       }
    };
 
+   console.log(permissionsIds);
+
    useEffect(() => {
       if (open) {
-         dispatch(getPermissions());
+         if (requestType === "create") {
+            setPermissionsIds([]);
+            dispatch(getPermissions());
+         } else if (requestType === "read") {
+            dispatch(getSingleRole(roleId));
+         } else if (requestType === "edit") {
+            setPermissionsIds([]);
+            dispatch(getPermissions());
+            dispatch(getSingleRole(roleId));
+         }
       }
-   }, [dispatch, open]);
+   }, [dispatch, open, requestType, roleId]);
 
-   console.log("all", permissionsIds);
+   useEffect(() => {
+      if (operationStatus && open) {
+         dispatch(completedRoleOperation());
+         setOpen(false);
+      }
+   }, [operationStatus, dispatch, setOpen, open]);
+
+   useEffect(() => {
+      if (requestType === "edit" && singleRole.name) {
+         const ids: any[] = [];
+         singleRole.role_permissions.map((role) => {
+            role.permissions.map((per) => {
+               ids.push(per.id);
+            });
+         });
+         setSingleRoleIds(ids);
+      }
+   }, [requestType, singleRole.role_permissions, singleRole.name]);
+
+   console.log("role ids", singleRoleIds);
 
    return (
       <Modal
@@ -83,98 +235,125 @@ export default function ModalOperation({
                   mode === "dark" ? "text-light" : "text-dark"
                } font-bold`}
             >
-               {requestType}
+               {label}
             </Modal.Title>
          </Modal.Header>
 
          <Modal.Body
             className={`${mode === "dark" ? "text-light" : "text-dark"}`}
          >
-            <Formik
-               initialValues={{
-                  name: "",
-                  permissions: [],
-               }}
-               validationSchema={roleSchema}
-               onSubmit={submithandler}
-            >
-               {(props) => (
-                  <Form className="">
-                     <label className="block">Role Name</label>
-                     <input
-                        type="text"
-                        className="w-[calc(100%_-_12px)] max-w-[880px] border-none outline-none px-2 py-1 my-1 mr-3 rounded-[4px] text-black"
-                        placeholder="role name"
-                        name="name"
-                        onChange={(e) => (props.values.name = e.target.value)}
-                     />
-                     {props.errors.name && props.touched.name && (
-                        <div className="pl-[5px] ml-[10px] mb-[10px] text-red-600">
-                           {props.errors.name}
-                        </div>
-                     )}
-                     <div className="flex mt-5 gap-[20px] flex-wrap ">
-                        {isLoading && "loading"}
-                        {!isLoading &&
-                           permissions.map((permission: PermissionsType) => {
-                              return (
-                                 <div
-                                    key={permission.name}
-                                    className="border border-[#3c417c] min-w-[280px] rounded-[6px] min-h-[255px] pe-2"
-                                 >
-                                    <h3 className="ms-[10px]">
-                                       {permission.name}
-                                    </h3>
-                                    <div className="">
-                                       {permission.permissions.map(
-                                          (permission: {
-                                             id: number;
-                                             name: string;
-                                          }) => {
-                                             return (
-                                                <Checkbox
-                                                   key={permission.id}
-                                                   className="block [&>.rs-checkbox-checker]:!py-0 [&>.rs-checkbox-checker]:!min-h-[26px] [&>.rs-checkbox-checker_label_.rs-checkbox-wrapper]:!top-0"
-                                                   onChange={(
-                                                      value,
-                                                      checked: boolean
-                                                   ) => {
-                                                      handleChecked(
-                                                         value,
-                                                         checked,
-                                                         permission.id
-                                                      );
-                                                   }}
-                                                >
-                                                   {" "}
-                                                   {permission.name}
-                                                </Checkbox>
-                                             );
-                                          }
-                                       )}
-                                    </div>
-                                 </div>
-                              );
-                           })}
-                     </div>
+            {requestType === "create" && (
+               <Formik
+                  initialValues={{
+                     name: "",
+                     permissions: [],
+                  }}
+                  validationSchema={roleSchema}
+                  onSubmit={submithandler}
+               >
+                  {(props) => (
+                     <Form className="">
+                        <label className="block">Role Name</label>
+                        <input
+                           type="text"
+                           className="w-[calc(100%_-_12px)] max-w-[880px] border-none outline-none px-2 py-1 my-1 mr-3 rounded-[4px] text-black"
+                           placeholder="role name"
+                           name="name"
+                           onChange={(e) =>
+                              (props.values.name = e.target.value)
+                           }
+                        />
+                        {props.errors.name && props.touched.name && (
+                           <div className="pl-[5px] ml-[10px] mb-[10px] text-red-600">
+                              {props.errors.name}
+                           </div>
+                        )}
 
-                     {operation !== "visible" && (
+                        <OperationContent
+                           isLoading={isLoading}
+                           permissions={permissions}
+                           handleChecked={handleChecked}
+                           requestType={requestType}
+                        />
+
+                        {operation !== "visible" && (
+                           <div className="element-center flex-col gap-3 mt-3">
+                              <p className="capitalize text-red-500 p-2">
+                                 you have to check / un check fields exept the
+                                 old checked fields
+                              </p>
+                              <Button
+                                 type="submit"
+                                 className="w-fit py-[6px] px-[25px] text-center rounded-[6px] text-white bg-[#3c417c]"
+                              >
+                                 {operation}
+                              </Button>
+                           </div>
+                        )}
+                     </Form>
+                  )}
+               </Formik>
+            )}
+
+            {requestType === "read" && (
+               <>
+                  {roleLoading && <Loading />}
+                  {!roleLoading && (
+                     <>
+                        <div className="flex items-center gap-2">
+                           {" "}
+                           <label>Role Name : </label>
+                           <p className="text-[var(--primary-color2)] text-[18px]">
+                              {singleRole.name}
+                           </p>
+                        </div>
+
+                        <OperationContent
+                           isLoading={roleLoading}
+                           permissions={singleRole.role_permissions}
+                           requestType={requestType}
+                        />
+                     </>
+                  )}
+               </>
+            )}
+
+            {requestType === "edit" && (
+               <>
+                  {roleLoading && <Loading />}
+                  {!roleLoading && (
+                     <>
+                        <div className="flex items-center gap-2">
+                           {" "}
+                           <label>Role Name : </label>
+                           <p className="text-[var(--primary-color2)] text-[18px]">
+                              {singleRole.name}
+                           </p>
+                        </div>
+
+                        <OperationContent
+                           isLoading={roleLoading}
+                           permissions={permissions}
+                           requestType={requestType}
+                           handleChecked={handleChecked}
+                        />
+
                         <div className="element-center flex-col gap-3 mt-3">
                            <p className="capitalize text-red-500 p-2">
-                              you have to check / un check fields exept the old
-                              checked fields
+                              you have to check the only fields you want (any
+                              field is not checked will not be added)
                            </p>
                            <Button
-                              type="submit"
                               className="w-fit py-[6px] px-[25px] text-center rounded-[6px] text-white bg-[#3c417c]"
+                              onClick={editRoleHandler}
                            >
                               {operation}
                            </Button>
                         </div>
-                     )}
-                  </Form>
-               )}
-            </Formik>
+                     </>
+                  )}
+               </>
+            )}
          </Modal.Body>
       </Modal>
    );

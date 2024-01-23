@@ -9,8 +9,8 @@ const config: Config = {
    theme: {
       extend: {
          screens: {
-            crudCustom1: "920px",
-            crudCustom2: "540px",
+            crudCustom1: "1020px",
+            crudCustom2: "860px",
          },
          backgroundImage: {
             "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

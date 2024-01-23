@@ -9,5 +9,6 @@ export const Axios = axios.create({
    baseURL: baseURL,
    headers: {
       Authorization: `Bearer 2|Ny4IIA3LqYFV7KudK2v7yAIx8OhxkdmozKL52Hx49c973274`,
+      // Cookie: "cookiesession1=678B28FFUVWXYZABCDFGHIJKLMNO80B0",
    },
 });

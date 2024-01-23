@@ -3,7 +3,11 @@ import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddTraineeModal from "@/components/accounts/trainees/AddTraineeModal";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
-import { useState } from "react";
+import { getTrainees } from "@/store/adminstore/slices/accounts/traineeSlice";
+import { GlobalState } from "@/types/storeTypes";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Dropdown } from "rsuite";
 
 export default function Trainees() {
@@ -46,19 +50,26 @@ export default function Trainees() {
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
+   const [openDelete, setOpenDelete] = useState(false);
    const [data, setData] = useState(basicData);
    const [filteredUserType, setFilteredUserType] = useState("all");
    const [filteredUserStatus, setFilteredUserStatus] = useState("all");
 
+   const { isLoading, error, trainees } = useSelector(
+      (state: GlobalState) => state.trainees
+   );
+
+   console.log(trainees);
+
    const columns = [
       {
          name: "ID",
-         selector: (row: any) => row.id,
+         selector: (row: any) => row.user_id,
          sortable: true,
       },
       {
          name: "Name",
-         selector: (row: any) => row.name,
+         selector: (row: any) => row.first_name + " " + row.last_name,
          sortable: true,
       },
       {
@@ -68,18 +79,20 @@ export default function Trainees() {
       },
       {
          name: "Photo",
-         selector: (row: any) => row.photo,
+         selector: (row: any) => (
+            <Image src={row.image} width={50} height={50} alt="user photo" />
+         ),
          sortable: true,
       },
 
       {
          name: "Status",
-         selector: (row: any) => row.status,
+         selector: (row: any) => row.account_status,
          sortable: true,
       },
       {
          name: "User Type",
-         selector: (row: any) => row.userType,
+         selector: (row: any) => row.account_type,
          sortable: true,
       },
       {
@@ -89,6 +102,7 @@ export default function Trainees() {
                id={row.id}
                handleEdit={() => setOpenEdit(true)}
                handleVisible={() => setOpenvisible(true)}
+               handleDelete={() => () => setOpenDelete(true)}
             />
          ),
       },
@@ -138,19 +152,25 @@ export default function Trainees() {
       setData(filterdData);
    };
 
+   const dispatch: any = useDispatch();
+
+   useEffect(() => {
+      dispatch(getTrainees());
+   }, [dispatch]);
    return (
-      <main className="pt-0 overflow-x-auto max-w-full">
+      <main className="pt-0 overflow-x-auto overflow-y-clip max-w-full">
          <CrudLayout
             columns={columns}
-            dataTabel={data}
+            dataTabel={trainees}
             openAdd={openAdd}
             setOpenAdd={setOpenAdd}
-            interfaceName="Trainee"
+            interfaceName="Trainees"
             isThereAdd={true}
+            isLoading={isLoading}
          >
             {" "}
             <Dropdown
-               className="w-[115px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
+               className="w-[125px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left"
                title={
                   filteredUserType === "all" ? "Trainee Type" : filteredUserType
                }
@@ -171,7 +191,7 @@ export default function Trainees() {
                })}
             </Dropdown>
             <Dropdown
-               className="w-[115px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
+               className="w-[125px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left"
                title={
                   filteredUserStatus === "all"
                      ? "Trainee Status"
@@ -202,14 +222,16 @@ export default function Trainees() {
          <ModalOperation
             open={openEdit}
             setOpen={setOpenEdit}
-            requestType="Edit Supervisor"
+            requestType="edit"
             operation="Update"
+            label="Edit Trainee"
          />
          <ModalOperation
             open={openVisible}
             setOpen={setOpenvisible}
-            requestType="Role"
+            requestType="read"
             operation="visible"
+            label="Trainee Role "
          />
       </main>
    );

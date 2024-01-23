@@ -1,109 +1,104 @@
 "use client";
+import AlertModal from "@/components/Pars/AlertModal";
+import Loading from "@/components/Pars/Loading";
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddTraineeModal from "@/components/accounts/trainees/AddTraineeModal";
+import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
+import {
+   completedUserOperation,
+   deleteUser,
+   getUsers,
+   getUsersByType,
+} from "@/store/adminstore/slices/accounts/usersSlice";
+import { GlobalState } from "@/types/storeTypes";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Dropdown } from "rsuite";
+import { useDispatch, useSelector } from "react-redux";
+import { Dropdown, Pagination } from "rsuite";
 
 export default function Users() {
-   const basicData = [
-      {
-         id: "1",
-         name: "super 1",
-         email: "role1@gmail.com",
-         photo: "----",
-         status: "active",
-         userType: "client",
-      },
-      {
-         id: "2",
-         name: "super 2",
-         email: "role2@gmail.com",
-         photo: "----",
-         status: "inactive",
-         userType: "Trainee",
-      },
-      {
-         id: "3",
-         name: "super 3",
-         email: "role3@gmail.com",
-         photo: "----",
-         status: "active",
-         userType: "Trainer",
-      },
-      {
-         id: "4",
-         name: "super 1",
-         email: "role1@gmail.com",
-         photo: "----",
-         status: "inactive",
-         userType: "client",
-      },
-      {
-         id: "5",
-         name: "super 2",
-         email: "role2@gmail.com",
-         photo: "----",
-         status: "active",
-         userType: "Trainee",
-      },
-      {
-         id: "6",
-         name: "super 3",
-         email: "role3@gmail.com",
-         photo: "----",
-         status: "inactive",
-         userType: "Trainer",
-      },
-   ];
-
+   // pagination config
+   const count = 10;
+   const perPage = 3;
+   const [activePage, setActivePage] = useState(1);
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
+   const [openDelete, setOpenDelete] = useState(false);
    const [filteredUserType, setFilteredUserType] = useState("all");
    const [filteredUserStatus, setFilteredUserStatus] = useState("all");
-   const [data, setData] = useState(basicData);
+   const [userId, setUserId] = useState<number>(0);
+
+   const dispatch: any = useDispatch();
+   const { isLoading, error, users, status } = useSelector(
+      (state: GlobalState) => state.users
+   );
 
    const columns = [
       {
+         id: "id",
          name: "ID",
-         selector: (row: any) => row.id,
+         selector: (row: any) => row.user_id,
          sortable: true,
       },
       {
+         id: "name",
          name: "Name",
-         selector: (row: any) => row.name,
+         selector: (row: any) => row.first_name + " " + row.last_name,
          sortable: true,
       },
       {
+         id: "email",
          name: "Email",
          selector: (row: any) => row.email,
          sortable: true,
+         grow: 2,
       },
       {
+         id: "photo",
          name: "Photo",
-         selector: (row: any) => row.photo,
+         selector: (row: any) =>
+            row.image ? (
+               <Image src={row.image} alt="user photo" width={50} height={50} />
+            ) : (
+               "no image available"
+            ),
          sortable: true,
       },
 
       {
+         id: "status",
          name: "Status",
-         selector: (row: any) => row.status,
+         selector: (row: any) => row.status || "",
          sortable: true,
       },
       {
+         id: "user type",
+
          name: "User Type",
-         selector: (row: any) => row.userType,
+         selector: (row: any) => row.account_type,
          sortable: true,
       },
       {
+         id: "action",
          name: "Action",
          selector: (row: any) => (
             <Action
-               id={row.id}
-               handleEdit={() => setOpenEdit(true)}
-               handleVisible={() => setOpenvisible(true)}
+               id={row.user_id}
+               handleEdit={() => {
+                  setOpenEdit(true);
+                  setUserId(row.user_id);
+               }}
+               handleVisible={() => {
+                  setOpenvisible(true);
+                  setUserId(row.user_id);
+               }}
+               handleDelete={() => {
+                  setOpenDelete(true);
+                  setUserId(row.user_id);
+               }}
             />
          ),
       },
@@ -113,18 +108,17 @@ export default function Users() {
       {
          id: 1,
          title: "client",
+         type: "Client",
       },
       {
          id: 2,
          title: "trainee",
+         type: "Trainee",
       },
       {
          id: 3,
          title: "trainer",
-      },
-      {
-         id: 4,
-         title: "all",
+         type: "Trainer",
       },
    ];
    const filterUserStatusBy = [
@@ -142,91 +136,128 @@ export default function Users() {
       },
    ];
 
-   const handleFilteration = (
-      statusFilterFactor: string,
-      typeFilterFactor: string
-   ) => {
-      const filterdData = basicData.filter(
-         (row) =>
-            (statusFilterFactor === "all" ||
-               row.status.toLowerCase() === statusFilterFactor.toLowerCase()) &&
-            (typeFilterFactor === "all" ||
-               row.userType.toLowerCase() === typeFilterFactor.toLowerCase())
-      );
-      setData(filterdData);
-   };
+   useEffect(() => {
+      console.log("re- rendering");
+      dispatch(getUsers(activePage));
+   }, [dispatch, activePage]);
 
    return (
-      <main className="pt-0 overflow-x-auto max-w-full">
-         <CrudLayout
-            columns={columns}
-            dataTabel={data}
-            openAdd={openAdd}
-            setOpenAdd={setOpenAdd}
-            interfaceName="Users"
-            isThereAdd={false}
-         >
-            <Dropdown
-               className="w-[115px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-               title={
-                  filteredUserType === "all" ? "User Type" : filteredUserType
-               }
-            >
-               {filterUserTypeBy.map((filter) => {
-                  return (
+      <main className="pt-0 overflow-x-auto max-w-full overflow-y-clip relative">
+         {isLoading && <Loading />}
+
+         {!isLoading && users.length > 0 && (
+            <>
+               <CrudLayout
+                  columns={columns}
+                  dataTabel={users}
+                  openAdd={openAdd}
+                  setOpenAdd={setOpenAdd}
+                  interfaceName="Users"
+                  isThereAdd={false}
+                  isLoading={isLoading}
+               >
+                  <Dropdown
+                     className="w-[115px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
+                     title={
+                        filteredUserType === "all"
+                           ? "User Type"
+                           : filteredUserType
+                     }
+                  >
+                     {filterUserTypeBy.map((filter) => {
+                        return (
+                           <Dropdown.Item
+                              key={filter.id}
+                              onClick={() => {
+                                 dispatch(getUsersByType(filter.type));
+                              }}
+                              className="text-white capitalize"
+                           >
+                              {filter.title}
+                           </Dropdown.Item>
+                        );
+                     })}
                      <Dropdown.Item
-                        key={filter.id}
                         onClick={() => {
-                           setFilteredUserType(filter.title);
-                           handleFilteration(filteredUserStatus, filter.title);
+                           dispatch(getUsers(activePage));
                         }}
                         className="text-white capitalize"
                      >
-                        {filter.title}
+                        All
                      </Dropdown.Item>
-                  );
-               })}
-            </Dropdown>
-            <Dropdown
-               className="w-[115px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-               title={
-                  filteredUserStatus === "all"
-                     ? "User Status"
-                     : filteredUserStatus
-               }
-            >
-               {filterUserStatusBy.map((filter) => {
-                  return (
-                     <Dropdown.Item
-                        key={filter.id}
-                        onClick={() => {
-                           setFilteredUserStatus(filter.title);
-                           handleFilteration(filter.title, filteredUserType);
-                        }}
-                        className="text-white capitalize"
-                     >
-                        {filter.title}
-                     </Dropdown.Item>
-                  );
-               })}
-            </Dropdown>
-         </CrudLayout>
-         <AddTraineeModal
-            open={openAdd}
-            setOpen={setOpenAdd}
-            requestType="Add Trainee"
+                  </Dropdown>
+                  <Dropdown
+                     className="w-[115px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
+                     title={
+                        filteredUserStatus === "all"
+                           ? "User Status"
+                           : filteredUserStatus
+                     }
+                  >
+                     {filterUserStatusBy.map((filter) => {
+                        return (
+                           <Dropdown.Item
+                              key={filter.id}
+                              className="text-white capitalize"
+                           >
+                              {filter.title}
+                           </Dropdown.Item>
+                        );
+                     })}
+                  </Dropdown>
+               </CrudLayout>
+               <Pagination
+                  prev
+                  next
+                  size="sm"
+                  total={count}
+                  limit={perPage}
+                  maxButtons={3}
+                  activePage={activePage}
+                  onChangePage={setActivePage}
+                  className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
+               [&>div_.rs-pagination-btn]:!bg-white
+               [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn]:!mx-[5px]
+               [&>div_.rs-pagination-btn]:!rounded-[50%]
+               [&>div_.rs-pagination-btn]:!border-none
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!bg-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!text-white
+               "
+               />
+            </>
+         )}
+
+         <ShowUserProfileModal
+            open={openVisible}
+            setOpen={setOpenvisible}
+            id={userId}
+            userType="user"
          />
+
          <ModalOperation
             open={openEdit}
             setOpen={setOpenEdit}
-            requestType="Edit Supervisor"
+            requestType="edit"
             operation="Update"
+            label="Update User data"
          />
-         <ModalOperation
+         {/* <ModalOperation
             open={openVisible}
             setOpen={setOpenvisible}
-            requestType="Role"
+            requestType="read"
             operation="visible"
+            label="User Profile"
+         /> */}
+         <AlertModal
+            open={openDelete}
+            setOpen={setOpenDelete}
+            requestType="delete"
+            id={userId}
+            status={status}
+            completed={completedUserOperation}
+            deleteAction={deleteUser}
+            label="Are you sure you want to delete the selected user ?"
          />
       </main>
    );

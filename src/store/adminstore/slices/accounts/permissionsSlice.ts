@@ -12,9 +12,9 @@ export const getPermissions = createAsyncThunk(
          if (res.status === 200) {
             return res.data.data;
          }
-      } catch (error) {
+      } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error);
+         return rejectWithValue(error.message);
       }
    }
 );

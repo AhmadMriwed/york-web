@@ -131,30 +131,37 @@ const Sidebar = () => {
       {
          id: 1,
          title: "Categories",
+         url: "categories",
       },
       {
          id: 2,
          title: "Venues",
+         url: "venues",
       },
       {
          id: 3,
          title: "Trainer Types",
+         url: "trainer-types",
       },
       {
          id: 4,
          title: "Request Types",
+         url: "request-types",
       },
       {
          id: 5,
          title: "Exam Types",
+         url: "exam-types",
       },
       {
          id: 6,
          title: "Question Types",
+         url: "question-types",
       },
       {
          id: 7,
          title: "Course Types",
+         url: "course-types",
       },
    ];
 
@@ -162,7 +169,7 @@ const Sidebar = () => {
       <aside
          className={`${
             expanded ? "w-[220px]" : "w-fit"
-         } transition-transform duration-[1s] h-full md:static col-start-1 row-span-2 `}
+         } transition-transform duration-[1s] min-h-screen h-fit sticky top-0 left-0 col-start-1 row-span-2 `}
       >
          <Image
             src={"/logo.png"}
@@ -420,6 +427,8 @@ const Sidebar = () => {
                                     />
                                  }
                                  className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
+                                 as={NavLink}
+                                 href={`/admin-dashboard/enums/${item.url}`}
                               >
                                  {item.title}
                               </Nav.Item>
