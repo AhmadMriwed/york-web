@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const AdminTrainingSession = () => {
-  return (
-    <div>AdminTrainingSession</div>
-  )
-}
+  return <div>AdminTrainingSession</div>;
+};
 
-export default AdminTrainingSession
+export default AdminTrainingSession;
