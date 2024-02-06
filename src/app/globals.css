@@ -55,6 +55,16 @@
    -ms-border-radius: 6px;
    -o-border-radius: 6px;
 }
+.btn-wrap{
+   background-color: #01989f;
+   text-align: center;
+   color: white;
+  
+   width: 250px;
+   height: 50px;
+  
+   
+}
 @media (max-width: 767px) {
    .colored-btn {
       width: 100%;

@@ -1,9 +1,12 @@
-// "use client";
+"use client";
 // import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "rsuite/dist/rsuite.min.css";
-import "./globals.css";
+
 import StoreProvider from "@/store/adminstore/StoreProvider";
+import { ChakraProvider } from "@chakra-ui/react"
+
+import "./globals.css";
 
 const montserrat = Montserrat({
    weight: ["400", "500", "600", "700", "800", "900"],
@@ -18,9 +21,18 @@ export default function RootLayout({
 }) {
    return (
       <html lang="en">
-         <body className="font-montserrat">
-            <StoreProvider>{children} </StoreProvider>
+         <body className="h-[100vh]">
+
+            <ChakraProvider >
+               <StoreProvider> {children}</StoreProvider>
+            </ChakraProvider>
+
+
+
+
+
          </body>
+
       </html>
    );
 }
