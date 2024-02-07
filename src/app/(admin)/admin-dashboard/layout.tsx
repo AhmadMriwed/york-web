@@ -2,10 +2,9 @@
 import Sidebar from "@/components/Pars/Sidebar";
 import Topbar from "@/components/Pars/Topbar";
 import { ThemeProvider } from "@/components/Pars/ThemeContext";
-import { useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SessionSlidebar from "@/components/sessions/SessionSlidebar";
+import { usePathname } from "next/navigation";
 // import ReduxProvider from '@/store/provider'
 
 // interface UserResponse {
@@ -14,9 +13,14 @@ import SessionSlidebar from "@/components/sessions/SessionSlidebar";
 // }
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const sessionSlidebarIsVisible = useSelector(
-    (state: GlobalState) => state.sessionSlidebar.sessionSlidebarIsVisible
-  );
+  const [sessionSlidebarIsVisible, setSessionSlidebarIsVisible] =
+    useState<boolean>(false);
+  const pathName: string = usePathname();
+  useEffect(() => {
+    if (pathName.includes("/session-information"))
+      setSessionSlidebarIsVisible(true);
+    else setSessionSlidebarIsVisible(false);
+  }, [pathName]);
 
   // const [isSuccess, setIsSuccess] = useState<boolean>(false);
   // const { push } = useRouter();

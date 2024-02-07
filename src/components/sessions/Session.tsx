@@ -18,13 +18,10 @@ import { Admin } from "@rsuite/icons"; // -- TEMP --
 import image from "@/../public/register.png"; // -- TEMP --
 import Image from "next/image";
 import SessionListItem from "./SessionListItem";
-import { useDispatch } from "react-redux";
-import { toggleSlidebar } from "@/store/adminstore/slices/sessions/sessionSlidebarSlice";
 
 const Session = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
-  const dispatch = useDispatch();
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -57,7 +54,6 @@ const Session = () => {
               router.push(
                 "/admin-dashboard/courses/training-session/session-information"
               );
-              dispatch(toggleSlidebar());
             }}
           >
             Show Details

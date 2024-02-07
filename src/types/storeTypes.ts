@@ -9,7 +9,6 @@ import {
   UsersState,
 } from "./adminTypes/accounts/accountsTypes";
 import { RequestTypesState, VenuesState } from "./adminTypes/enums/enumsTypes";
-import { sessionSlidebarState } from "@/store/adminstore/slices/sessions/sessionSlidebarSlice";
 
 export interface ThemeState {
   theme: "light" | "dark";
@@ -27,5 +26,4 @@ export interface GlobalState {
   singleRole: SingleRoleState;
   requestTypes: RequestTypesState;
   venues: VenuesState;
-  sessionSlidebar: sessionSlidebarState;
 }

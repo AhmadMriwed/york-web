@@ -14,8 +14,6 @@ import {
   FaStarOfLife,
 } from "react-icons/fa";
 import { PiStudentLight } from "react-icons/pi";
-import { useDispatch } from "react-redux";
-import { toggleSlidebar } from "@/store/adminstore/slices/sessions/sessionSlidebarSlice";
 
 interface NavLinkProps {
   as: string;
@@ -35,7 +33,6 @@ const SessionSlidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleResize = () => {
@@ -224,7 +221,6 @@ const SessionSlidebar = () => {
               className="!bg-inherit !py-[10px] !text-[14px]"
               as={NavLink}
               href="/admin-dashboard/courses/training-session"
-              onClick={() => dispatch(toggleSlidebar())}
             >
               Home
             </Nav.Item>
