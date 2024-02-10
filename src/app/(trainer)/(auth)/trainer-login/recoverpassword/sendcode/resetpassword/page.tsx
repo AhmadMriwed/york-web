@@ -54,7 +54,7 @@ const ResetPassword = () => {
       <Flex justifyContent={"center"} alignItems={"center"} className='h-[calc(100vh-142px)]'>
         <Box   className='lg:border-l-2 border-[#01989F] p-8'>
           <Flex direction={{base:"column",md:"row"}}  justifyContent={"space-between"} alignItems={"center"} gap={2}>
-         
+          {/* className='flex flex-col md:flex-row justify-between gap-2' */}
             <Box marginBottom={3}><Text  color={"white"} display={{base:"block",md:"none"}} fontSize={"sm"} textAlign={"center"}>Password Recovery:  </Text>
             <Text display={{base:"block",md:"none"}} fontSize={"md"} textAlign={"center"} color={"white"} >Password Change</Text></Box>
               <Box><FormLabel display={{base:"none",md:"block"}} htmlFor="" className='text-base text-white'>Password</FormLabel>
@@ -94,7 +94,7 @@ const ResetPassword = () => {
           
           </Flex>
          
-          <Button color={"white"} backgroundColor={"#01989f"} marginTop={5} marginLeft={1} width={{base:300,md:150}}>setUp</Button>
+          <Button  backgroundColor={"#01989f"} marginTop={5} marginLeft={1} width={{base:300,md:150}}>setUp</Button>
         </Box>
       </Flex>
     </>

@@ -74,6 +74,7 @@ const TrainerSignupPage = () => {
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
+                    <Text display={{base:"block",md:"none"}} color={"white"} fontWeight={"bold"} fontSize={"small"} onClick={()=>setForm({ ...form, Image: "" }) }>Delete Image</Text>
                     <Flex direction={"column"} marginLeft={{ md: 2 }} marginRight={{ base: "", md: "auto" }}>
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
@@ -122,19 +123,23 @@ const TrainerSignupPage = () => {
                         </Flex>
                         <Flex direction={"column"} gap={{ md: 4, lg: 8, xl: 4 }} justifyContent={{ base: "center" }}  >
                             <Flex gap={{ md: 4, lg: 4, xl: 2 }} justifyContent={{ md: "center" }} marginTop={{ md: 5 }}>
-                                <Box border={"1px solid gray"} display={{ base: "none", md: "block" }} bg={"white"} borderRadius={20} padding={3} width={200} height={200} >
-                                    <SignatureCanvas canvasProps={{ width: 200, height: 200, className: 'sigCanvas' }} ref={data => setSign(data)} />
+                                <Box border={"1px solid gray"}  margin={{base:"auto",md:0}} bg={"white"} borderRadius={20} padding={3} width={150} height={150} >
+                                    <SignatureCanvas canvasProps={{ width: 120, height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
                                 </Box >
-                                <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "block" }} textAlign={"center"} borderRadius={20} width={200} height={200}>
-                                    {form.Image ? <Image src={form.Image} alt="" objectFit="center" width={300} height={300} style={{ position: "absolute", borderRadius: 20 }} /> : <Text onClick={() => inputRef?.current?.click()} padding={6} cursor={"pointer"} color={"green"} fontSize={"md"} fontWeight={"bold"}>Choose your Image</Text>}
-                                </Box>
+                                <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
+                            {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
+                        </Box>
                             </Flex>
-                            <Box gap={2} display={{ md: "flex", base: "none" }} justifyContent={{ md: "center", lg: "center" }} >
-                                <Text color={"white"} fontWeight={"bold"} marginRight={{ xl: "auto", md: 10 }} fontSize={"md"}>Digital signature</Text>
-                                <Button size={"sm"} w={100} onClick={() => setForm({ ...form, Image: "" })}>delete image</Button>
-                                <Button onClick={() => inputRef?.current?.click()} size={"sm"} w={100}>update image</Button>
-                            </Box>
-                            <Button w={{ base: "full", md: 200, lg: 200 }} onClick={() => resumeRef?.current?.click()} color={"black"}
+                          
+                           
+                               <Box display={"flex"} justifyContent={"center"} alignItems={"center"} gap={2}>
+                               <Button  size={"xs"} w={100} onClick={()=>sign.clear()} marginBottom={{base:3}} marginTop={1}>clear</Button>
+                                <Button size={"xs"} w={100} onClick={() => setForm({ ...form, Image: "" })} display={{base:"none",md:"block"}}>delete image</Button>
+                              
+                                <Button onClick={() => inputRef?.current?.click()} size={"xs"} display={{base:"none",md:"block"}} >update image</Button>
+                               </Box>
+                       
+                            <Button w={{ base: "full", md: 150, lg: 150 }} onClick={() => resumeRef?.current?.click()} color={"black"}
                                 marginRight={{ md: "auto", lg: "auto", xl: 0 }}
                                 marginLeft={"auto"}
                                 textAlign={"center"}
@@ -142,15 +147,19 @@ const TrainerSignupPage = () => {
                                 fontSize={14}>Upload Resume</Button>
                         </Flex>
                     </Flex>
-                    <Center>
-                        <Button w={{ base: "full", md: 300, lg: 500 }}
+                  
+                        <Box w={"full"} display={"flex"} justifyContent={{base:"center",md:"center",lg:"flex-end"}}  >
+                        <Button
                             onClick={HandleSubmit}
                             colorScheme="blue"
                             marginTop={{ base: 5, md: 20 }}
                             textAlign={"center"}
+                            w={{base:"full",md:"full",lg:200}}
                             size={"lg"}
+                            m={{xl:20}}
                             fontSize={14}>Create Account</Button>
-                    </Center>
+             
+                        </Box>
                 </Container>
             </Box>
         </>

@@ -12,8 +12,8 @@ const SendCode = () => {
         <Box className='lg:border-l-2 border-[#01989F] md:w-[450px] p-8'>
           <FormLabel htmlFor="" className='text-base text-white'>Enter The Code</FormLabel>
           <Input type="email" width={300} backgroundColor={"white"} color={"black"} />
-          <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"}>
-            <Button width={{ base: 300, lg: 200 }} backgroundColor={"#01989f"} marginTop={3} onClick={() => router.push("/user-login/recoverpassword/sendcode/resetpassword")}>confirm</Button>
+          <Flex direction={{base:"column",md:"row"}} justifyContent={"space-between"}>
+            <Button width={{base:300,lg:200}} backgroundColor={"#01989f"}  marginTop={3} onClick={() => router.push("/trainer-login/recoverpassword/sendcode/resetpassword")}>confirm</Button>
             <button className='self-end text-base text-[#01989F] underline mt-3 md:mt-0'>Resend code</button>
           </Flex>
         </Box>
