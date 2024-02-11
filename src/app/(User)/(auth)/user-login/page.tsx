@@ -10,7 +10,6 @@ import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 
 
-
 const UserLogin = () => {
 
     const [form, setForm] = useState({
@@ -40,7 +39,11 @@ const UserLogin = () => {
     const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
+  
 
+
+
+   
 
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
@@ -50,16 +53,20 @@ const UserLogin = () => {
             ) : (
                 <>
                     <div className='w-full h-full absolute top-0 left-0 bg-[rgba(0,212,212,0.58)] mix-blend-color z-[-1]'></div>
-
+                   
                     <div className='flex items-start justify-between px-8 py-4'>
+                  
                         <div className='hidden md:block'>
                             <Image src='/logo.png' alt='logo' width={100} height={100} />
+                           
                         </div>
                         <div className='flex items-center justify-center absolute w-full h-full top-0 right-0  md:top-[50%] md:right-[10.75rem] md:translate-y-[-50%]  md:w-[450px] md:h-[calc(100vh-2rem)] md:rounded-[9px] bg-[rgba(19,24,30,0.9)]'>
                             <div className='flex flex-col items-center md:items-start w-[calc(100%-4rem)] h-[calc(100%-4rem)] py-8 px-8 text-[#fff]'>
                                 <div className=' md:hidden pb-4'>
                                     <Image src='/logo.png' alt='logo' width={100} height={100} />
+                               
                                 </div>
+                               
                                 <span className='text-base tracking-widest'>welcome to</span>
                                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
 
@@ -101,9 +108,13 @@ const UserLogin = () => {
                                         <option value="english">En</option>
                                         <option value="arabic">Ar</option>
                                     </select>
+                                   
+                                    
                                 </form>
+                           
                             </div>
                         </div>
+                       
                     </div>
                 </>
             )}

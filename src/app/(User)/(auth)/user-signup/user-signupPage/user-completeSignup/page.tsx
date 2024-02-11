@@ -1,13 +1,17 @@
 "use client"
-import { Container, Flex, Text, Input, FormLabel, Box, Select, Button, Avatar } from "@chakra-ui/react"
+import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Select as Selecter } from "@chakra-ui/react"
 import Image from "next/image"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
 import moment from "moment"
 import React, { useRef, useState } from "react"
 import Link from "next/link"
+import Select from "react-select"
+import { categories } from "@/utils/categories"
+
 const UserCompleteSignup = () => {
     const inputRef = useRef()
+
     const [form, setForm] = useState({
         Gender: "Male",
         phone: "",
@@ -18,6 +22,8 @@ const UserCompleteSignup = () => {
         location: "",
         Website: ""
     })
+
+    console.log(form.Category)
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -35,6 +41,22 @@ const UserCompleteSignup = () => {
     const HandleSubmit = async () => {
         console.log(form)
     }
+    const customStyles = {
+        control: base => ({
+            ...base,
+            height: 50,
+        })
+    };
+
+    const categori = categories.map(category => ({
+        value: category.value.toLowerCase(),
+        label: (
+            <Flex alignItems='center' gap='0.5rem'>
+                <Avatar src={category.image} size={"sm"} />
+                <Text fontSize={"small"} >{category.title}</Text>
+            </Flex>
+        ),
+    }));
     return (
         <>
             <Box overflow={"auto"} maxH={"100vh"}>
@@ -53,10 +75,10 @@ const UserCompleteSignup = () => {
                         <Flex gap={6} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center" }}   >
                             <Box >
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                <Select height={50} onChange={onSelect} value={form.Gender} id="Gender" name="Gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                <Selecter height={50} onChange={onSelect} id="Gender" name="Gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
                                     <option value='Famle'>Famle</option>
                                     <option value='Male'>Male</option>
-                                </Select>
+                                </Selecter>
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
                                 <PhoneInput onChange={(value) => setForm({ ...form, phone: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={form.Country}></PhoneInput>
                                 <Input type="file" name="image" onChange={(e) => setForm({ ...form, Image: URL.createObjectURL(e.target.files[0]) })} hidden ref={inputRef} />
@@ -69,17 +91,13 @@ const UserCompleteSignup = () => {
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Location</FormLabel>
                                 <Input height={50} required type="text" name="location" value={form.location} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Category</FormLabel>
-                                <Select height={50} value={form.Category} name="Category" onChange={onSelect} required color={"black"} bg={"white"} fontSize={14} size='md' w={350} >
-                                    <option value='Science'>
-                                        Science
-                                    </option>
-                                    <option style={{ width: 20 }} value='physics'>physics</option>
-                                    
-                                        <option value='technology'><img width={5} height={5} src="/logo.png"/>{"      "}<p>technology</p></option>
-                                
+                                <Select  menuPortalTarget={document.body} styles={customStyles} options={categori}
+                                    onChange={(choice) => setForm({ ...form, Category: choice.value })}
+                                    name='Category'
+                                    id='Category'
+                                    components={{ IndicatorSeparator: () => null }}
 
-                                    <option value='litarature'>litarature'</option>
-                                </Select>
+                                />
                             </Box>
                         </Flex>
                         <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
