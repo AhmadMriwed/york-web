@@ -2,8 +2,9 @@
 import Sidebar from "@/components/Pars/Sidebar";
 import Topbar from "@/components/Pars/Topbar";
 import { ThemeProvider } from "@/components/Pars/ThemeContext";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
+import SessionSlidebar from "@/components/sessions/SessionSlidebar";
+import { usePathname } from "next/navigation";
 // import ReduxProvider from '@/store/provider'
 
 // interface UserResponse {
@@ -12,39 +13,48 @@ import React from "react";
 // }
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-   // const [isSuccess, setIsSuccess] = useState<boolean>(false);
-   // const { push } = useRouter();
-   // useEffect(() => {
-   //   (async () => {
-   //     const { user, error } = await getUser();
+  const [sessionSlidebarIsVisible, setSessionSlidebarIsVisible] =
+    useState<boolean>(false);
+  const pathName: string = usePathname();
+  useEffect(() => {
+    if (pathName.includes("/session-information"))
+      setSessionSlidebarIsVisible(true);
+    else setSessionSlidebarIsVisible(false);
+  }, [pathName]);
 
-   //     if (error) {
-   //       push("/admin-login");
-   //       return;
-   //     }
+  // const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  // const { push } = useRouter();
+  // useEffect(() => {
+  //   (async () => {
+  //     const { user, error } = await getUser();
 
-   //     // if the error did not happen, if everything is alright
-   //     setIsSuccess(true);
-   //   })();
-   // }, [push]);
+  //     if (error) {
+  //       push("/admin-login");
+  //       return;
+  //     }
 
-   // if (!isSuccess) {
-   //   return <p>Loading...</p>;
-   // }
+  //     // if the error did not happen, if everything is alright
+  //     setIsSuccess(true);
+  //   })();
+  // }, [push]);
 
-   return (
-      <div>
-         <ThemeProvider>
-            {/* <ReduxProvider> */}
-            <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
-               <Sidebar />
-               <Topbar />
-               {children}
-            </section>
-            {/* </ReduxProvider> */}
-         </ThemeProvider>
-      </div>
-   );
+  // if (!isSuccess) {
+  //   return <p>Loading...</p>;
+  // }
+
+  return (
+    <div>
+      <ThemeProvider>
+        {/* <ReduxProvider> */}
+        <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+          {sessionSlidebarIsVisible ? <SessionSlidebar /> : <Sidebar />}
+          <Topbar />
+          {children}
+        </section>
+        {/* </ReduxProvider> */}
+      </ThemeProvider>
+    </div>
+  );
 };
 
 export default Layout;

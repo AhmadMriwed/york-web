@@ -13,17 +13,17 @@ import singleRole from "./slices/accounts/singleRoleSlice";
 // import venues from "./slices/enums/venuesSlice";
 
 export default configureStore({
-   reducer: {
-      auth: authSlice,
-      permissions,
-      roles,
-      supervisors,
-      trainees,
-      trainers,
-      users,
-      singleUser,
-      singleRole,
-      // requestTypes,
-      // venues,
-   },
+  reducer: {
+    auth: authSlice,
+    permissions,
+    roles,
+    supervisors,
+    trainees,
+    trainers,
+    users,
+    singleUser,
+    singleRole,
+    // requestTypes,
+    // venues,
+  },
 });
