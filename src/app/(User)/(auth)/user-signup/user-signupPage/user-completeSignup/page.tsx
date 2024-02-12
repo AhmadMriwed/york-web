@@ -8,10 +8,11 @@ import React, { useRef, useState } from "react"
 import Link from "next/link"
 import Select from "react-select"
 import { categories } from "@/utils/categories"
+import LocationModal from "@/components/accounts/trainers/LocationModal"
 
 const UserCompleteSignup = () => {
     const inputRef = useRef()
-
+    const [openLocationModal, setOpenLocationModal] = useState(false);
     const [form, setForm] = useState({
         Gender: "Male",
         phone: "",
@@ -68,6 +69,7 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
+                    <Text display={{ base: "block", md: "none" }} color={"white"} fontWeight={"bold"} fontSize={"small"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
@@ -89,14 +91,17 @@ const UserCompleteSignup = () => {
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input height={50} onChange={onChangeDate} value={form.BirthDate} id="BirthDate" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Location</FormLabel>
-                                <Input height={50} required type="text" name="location" value={form.location} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input height={50} required cursor={"pointer"} name="location" onClick={() => setOpenLocationModal(true)} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Category</FormLabel>
-                                <Select  menuPortalTarget={document.body} styles={customStyles} options={categori}
+                          <Select   menuPortalTarget={document.body} styles={customStyles} options={categori}
                                     onChange={(choice) => setForm({ ...form, Category: choice.value })}
                                     name='Category'
                                     id='Category'
                                     components={{ IndicatorSeparator: () => null }}
-
+                                />
+                                <LocationModal
+                                    open={openLocationModal}
+                                    setOpen={setOpenLocationModal}
                                 />
                             </Box>
                         </Flex>

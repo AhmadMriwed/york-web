@@ -22,15 +22,9 @@ export default function RootLayout({
    return (
       <html lang="en">
          <body className="h-[100vh]">
-
             <ChakraProvider >
                <StoreProvider> {children}</StoreProvider>
             </ChakraProvider>
-
-
-
-
-
          </body>
 
       </html>
