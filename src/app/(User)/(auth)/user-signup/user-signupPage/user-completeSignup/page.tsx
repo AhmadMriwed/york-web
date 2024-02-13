@@ -69,7 +69,7 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
-                    <Text display={{ base: "block", md: "none" }} color={"white"} fontWeight={"bold"} fontSize={"small"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>
+                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
@@ -93,7 +93,7 @@ const UserCompleteSignup = () => {
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Location</FormLabel>
                                 <Input height={50} required cursor={"pointer"} name="location" onClick={() => setOpenLocationModal(true)} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={2} color={"white"} fontWeight={"bold"}>Category</FormLabel>
-                          <Select   menuPortalTarget={document.body} styles={customStyles} options={categori}
+                                <Select menuPortalTarget={document.body} styles={customStyles} options={categori}
                                     onChange={(choice) => setForm({ ...form, Category: choice.value })}
                                     name='Category'
                                     id='Category'
@@ -105,18 +105,22 @@ const UserCompleteSignup = () => {
                                 />
                             </Box>
                         </Flex>
-                        <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
-                            {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
-                        </Box>
+                        <Flex direction={"column"} justifyContent={"center"} alignItems={"center"} gap={3}>
+                            <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
+                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
+                            </Box>
+                            <Box display={"flex"} gap={2}><Button colorScheme="red" onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }}>Delete Image</Button>
+                                <Button colorScheme={"blue"} onClick={() => inputRef?.current?.click()} display={{ base: "none", md: "block" }}>Update Image</Button></Box>
+                        </Flex>
                     </Flex>
                     <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >
                         <Button w={200}
                             onClick={HandleSubmit}
-                            colorScheme="green"
+                            backgroundColor={"#16facd"}
                             textAlign={"center"}
                             size={"md"}
                             fontSize={14}>Complete Account</Button>
-                        <Link style={{ width: 100, color: "green", fontSize: 15, fontWeight: "bold" }} href={"/"}
+                        <Link style={{ width: 100, color: "#16facd", fontSize: 15, fontWeight: "bold" }} href={"/"}
                         >Skip</Link>
                     </Flex>
                 </Container>

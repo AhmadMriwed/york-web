@@ -34,6 +34,7 @@ const UserSignupPage = () => {
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
+                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Center>
@@ -43,7 +44,7 @@ const UserSignupPage = () => {
                     </Box>
                 </Center>
                 <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={4}>
-                    <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={"center"}>
+                    <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
                         <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center" }}   >
                             <Box >
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>First Name</FormLabel>
@@ -60,25 +61,17 @@ const UserSignupPage = () => {
 
                             </Box>
                         </Flex>
-                        <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
-                            {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
-                        </Box>
-
+                        <Flex direction={"column"} justifyContent={"center"} alignItems={"center"} gap={3}>
+                            <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
+                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
+                            </Box>
+                            <Box display={"flex"} gap={2}><Button colorScheme="red" onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }}>Delete Image</Button>
+                                <Button colorScheme={"blue"} onClick={() => inputRef?.current?.click()} display={{ base: "none", md: "block" }}>Update Image</Button></Box>
+                        </Flex>
                     </Flex>
-
-
-
-
-
-
-
-
-
                 </Container>
-                <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{base:5,md:20}} gap={5}>
-
-                    
-                    <Box  marginLeft={{base:0,md:20}} w={{ base: 350, md: 200 }} backgroundColor={"brown"} className=" rounded-[5px] text-sm text-white p-2  ">
+                <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
+                    <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} backgroundColor={"brown"} className=" rounded-[5px] text-sm text-white p-2  ">
                         <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                             <div>
                                 <FaGoogle />
@@ -88,12 +81,10 @@ const UserSignupPage = () => {
                             </p>
                         </Link>
                     </Box>
-                    <Box  marginRight={{base:0,md:20}} >
-                        <Button onClick={()=>router.push("/user-signup/user-signupPage/user-completeSignup")} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#01989f"}>Create account</Button>
+                    <Box marginRight={{ base: 0, md: 20 }} >
+                        <Button onClick={() => router.push("/user-signup/user-signupPage/user-completeSignup")} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#01989f"}>Create account</Button>
                     </Box>
                 </Flex>
-
-
             </Box>
         </>
     )

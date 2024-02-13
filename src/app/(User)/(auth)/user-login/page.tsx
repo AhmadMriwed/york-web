@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie'
 import axios, { AxiosError } from 'axios'
 import { baseURL } from '@/utils/api'
+import { Languages } from '@/utils/categories'
 import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
-
-
+import {ReactCountryFlag} from "react-country-flag"
+import Select from "react-select"
+import { Flex,Text } from '@chakra-ui/react'
 const UserLogin = () => {
 
     const [form, setForm] = useState({
@@ -39,12 +41,28 @@ const UserLogin = () => {
     const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-  
 
 
 
-   
 
+
+    const customStyles = {
+        control: base => ({
+            ...base,
+            height: 40,
+            width: 150
+        })
+    };
+
+    const Language = Languages.map(language => ({
+        value: language.value.toLowerCase(),
+        label: (
+            <Flex alignItems='center' gap='0.5rem'>
+                <ReactCountryFlag countryCode={language.countryCode} svg />
+                <Text fontSize={"small"} >{language.name}</Text>
+            </Flex>
+        ),
+    }));
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -53,23 +71,17 @@ const UserLogin = () => {
             ) : (
                 <>
                     <div className='w-full h-full absolute top-0 left-0 bg-[rgba(0,212,212,0.58)] mix-blend-color z-[-1]'></div>
-                   
                     <div className='flex items-start justify-between px-8 py-4'>
-                  
                         <div className='hidden md:block'>
                             <Image src='/logo.png' alt='logo' width={100} height={100} />
-                           
                         </div>
                         <div className='flex items-center justify-center absolute w-full h-full top-0 right-0  md:top-[50%] md:right-[10.75rem] md:translate-y-[-50%]  md:w-[450px] md:h-[calc(100vh-2rem)] md:rounded-[9px] bg-[rgba(19,24,30,0.9)]'>
                             <div className='flex flex-col items-center md:items-start w-[calc(100%-4rem)] h-[calc(100%-4rem)] py-8 px-8 text-[#fff]'>
                                 <div className=' md:hidden pb-4'>
                                     <Image src='/logo.png' alt='logo' width={100} height={100} />
-                               
                                 </div>
-                               
                                 <span className='text-base tracking-widest'>welcome to</span>
                                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
-
                                 <form action="" className='grid w-full costum_form'>
                                     <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                                     <input type='email' placeholder="Enter Your Email" id='email'
@@ -97,29 +109,30 @@ const UserLogin = () => {
                                     </div>
                                     <button type='submit' className='colored-btn'>Sign In</button>
                                     <p className='justify-self-center mt-2'>Not a Member ? <Link href='/user-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
-
                                     {error !== "" && <span className="error">{error}</span>}
-                                    <select className='absolute right-8 bottom-4 text-[#13181E] rounded-md h-6 max-w-[70px] text-base'
+                                    {/* <select className='absolute right-8 bottom-4 text-[#13181E] rounded-md h-6 max-w-[70px] text-base'
                                         value={form.language}
                                         name='language'
-                                        onChange={onSelect}
-                                    >
+                                        onChange={onSelect}>
                                         <option disabled value="">Select Lng</option>
                                         <option value="english">En</option>
                                         <option value="arabic">Ar</option>
-                                    </select>
-                                   
-                                    
+                                    </select> */}
+                                    <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
+                                        <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
+                                            onChange={(e) => setForm({ ...form, language: e.value })}
+                                            name='Category'
+                                            id='Category'
+                                            components={{ IndicatorSeparator: () => null }}
+                                        />
+                                    </div>
                                 </form>
-                           
                             </div>
                         </div>
-                       
                     </div>
                 </>
             )}
         </div>
     )
 }
-
 export default UserLogin

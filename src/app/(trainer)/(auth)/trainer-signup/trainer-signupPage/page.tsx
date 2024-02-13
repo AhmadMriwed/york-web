@@ -101,7 +101,7 @@ const TrainerSignupPage = () => {
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
-                    <Text display={{ base: "block", md: "none" }} color={"white"} fontWeight={"bold"} fontSize={"small"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>
+                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
                     <Flex direction={"column"} marginLeft={{ md: 2 }} marginRight={{ base: "", md: "auto" }}>
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
@@ -115,14 +115,14 @@ const TrainerSignupPage = () => {
                                 <FormLabel color={"white"} fontWeight={"bold"}>First Name</FormLabel>
                                 <Input placeholder="Enter Your Full Name" type="text" value={form.firstName} required onChange={onChange} name="firstName" id="firstName" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>email</FormLabel>
-                                <Input  placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
+                                <Input placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
-                                <Input  placeholder="Enter Your Password" required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input placeholder="Enter Your Password" required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>Location</FormLabel>
-                                <Input  placeholder="Enter Your Location" name="location" required cursor={"pointer"} type="text" onClick={() => setOpenLocationModal(true)} id="location" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input placeholder="Enter Your Location" name="location" required cursor={"pointer"} type="text" onClick={() => setOpenLocationModal(true)} id="location" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <Input type="file" name="resume" ref={resumeRef} id="resume" onChange={(e) => setForm({ ...form, resume: e.target.files[0] })} hidden />
                                 <FormLabel color={"white"} fontWeight={"bold"}>Category</FormLabel>
-                                <Select   styles={customStyles} options={categori}
+                                <Select styles={customStyles} options={categori}
                                     onChange={(choice) => setForm({ ...form, Category: choice.value })}
                                     name='Category'
                                     id='Category'
@@ -135,11 +135,11 @@ const TrainerSignupPage = () => {
                             </Box>
                             <Box>
                                 <FormLabel color={"white"} fontWeight={"bold"}>Last Name</FormLabel>
-                                <Input  placeholder="Enter Your Last Name" required type="text" value={form.lastName} id="lastName" onChange={onChange} name="lastName" color={"black"} bg={"white"} size='md' w={350} />
+                                <Input placeholder="Enter Your Last Name" required type="text" value={form.lastName} id="lastName" onChange={onChange} name="lastName" color={"black"} bg={"white"} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>Phone</FormLabel>
                                 <PhoneInput onChange={(value) => setForm({ ...form, phone: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 45 }} country={form.Country}></PhoneInput>
                                 <FormLabel color={"white"} fontWeight={"bold"}>ConfirmPassword</FormLabel>
-                                <Input  placeholder="Confirm Your Password" required type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input placeholder="Confirm Your Password" required type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input onChange={onChangeDate} value={form.BirthDate} id="BirthDate" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <Input required type="file" ref={inputRef} hidden name="image" onChange={(e) => setForm({ ...form, Image: URL.createObjectURL(e.target.files[0]) })} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
@@ -180,11 +180,11 @@ const TrainerSignupPage = () => {
                     <Box w={"full"} display={"flex"} justifyContent={{ base: "center", md: "center", lg: "flex-end" }}  >
                         <Button
                             onClick={HandleSubmit}
-                            colorScheme="blue"
+                            backgroundColor="#16facd"
                             marginTop={{ base: 5, md: 20 }}
                             textAlign={"center"}
                             w={{ base: "full", md: "full", lg: 200 }}
-                            size={"lg"}
+                            size={{base:"lg",md:"sm"}}
                             m={{ xl: 20 }}
                             fontSize={14}>Create Account</Button>
 
