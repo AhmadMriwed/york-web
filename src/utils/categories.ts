@@ -1,5 +1,3 @@
-
-
 export const categories = [
     {
         title: 'Science',
@@ -23,3 +21,13 @@ export const categories = [
     }
 
 ]
+
+ export const Languages=[{
+    name:"English",
+    countryCode:"us",
+    value:"English"
+},{
+    name:"Arabic",
+    countryCode:"sy",
+    value:"Arabic"
+}]
