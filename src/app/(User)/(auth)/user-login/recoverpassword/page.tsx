@@ -14,10 +14,8 @@ const RecoverPassword1 = () => {
   }
 
   return (
-
     <>
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8 ' display={{ base: "none", md: "block" }}  >Password Recovery:  Email</Text>
-
       <Flex w={"full"} alignItems={"center"} direction={{ base: "column", md: "row" }} justifyContent={"center"} className="h-[calc(100vh-142px)]">
         <Box className='lg:border-l-2 border-[#01989F]  p-8 '>
           <Box width={"full"}>
@@ -30,18 +28,13 @@ const RecoverPassword1 = () => {
               color={"black"}
             />
           </Box>
-
           <Box width={"full"}>
             <Link href={{ pathname: '/user-login/recoverpassword/sendcode', query: { emaile: email } }}  >
               <Text className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>Confirm</Text>
             </Link>
           </Box>
-
-
-
         </Box>
       </Flex>
-
     </>
 
   )

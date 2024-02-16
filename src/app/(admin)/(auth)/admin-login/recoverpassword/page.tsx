@@ -38,7 +38,7 @@ const RecoverPassword1 = () => {
   //   });
 
   return (
-    <RecoverPassword title='Email'/>
+    <RecoverPassword title='Email' />
     // <>
     // <p className='py-5 text-xl font-bold text-white tracking-wider leading-8'>Password Recovery: Email</p>
     // <div className='flex items-center justify-center h-[calc(100vh-142px)]'>

@@ -28,9 +28,9 @@ const UserSignupPage = () => {
     }
     return (
         <>
-            <Box overflow={"auto"} maxH={"100vh"}>
-                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
-                <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
+            <Box overflow={"auto"} maxH={"100vh"} >
+                <Image src='/register.png' alt='' fill className='object-cover z-[-1]  '  style={{backgroundColor:"black"}}/>
+                <div className='w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
@@ -58,20 +58,19 @@ const UserSignupPage = () => {
                                 <Input height={50} required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>ConfirmPassword</FormLabel>
                                 <Input height={50} required type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-
                             </Box>
                         </Flex>
-                        <Flex direction={"column"} justifyContent={"center"} alignItems={"center"} gap={3}>
-                            <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
-                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
+                        <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
+                            <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
+
+                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
-                            <Box display={"flex"} gap={2}><Button colorScheme="red" onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }}>Delete Image</Button>
-                                <Button colorScheme={"blue"} onClick={() => inputRef?.current?.click()} display={{ base: "none", md: "block" }}>Update Image</Button></Box>
+                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>
                     </Flex>
                 </Container>
                 <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
-                    <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} backgroundColor={"brown"} className=" rounded-[5px] text-sm text-white p-2  ">
+                    <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }}  className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2  ">
                         <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                             <div>
                                 <FaGoogle />

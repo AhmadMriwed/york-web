@@ -105,12 +105,12 @@ const UserCompleteSignup = () => {
                                 />
                             </Box>
                         </Flex>
-                        <Flex direction={"column"} justifyContent={"center"} alignItems={"center"} gap={3}>
-                            <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
-                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
+                        <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
+                            <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
+
+                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
-                            <Box display={"flex"} gap={2}><Button colorScheme="red" onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }}>Delete Image</Button>
-                                <Button colorScheme={"blue"} onClick={() => inputRef?.current?.click()} display={{ base: "none", md: "block" }}>Update Image</Button></Box>
+                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>
                     </Flex>
                     <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >

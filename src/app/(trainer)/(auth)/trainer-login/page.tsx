@@ -109,7 +109,7 @@ const TrainerLogin = () => {
                   <button type='submit' className='colored-btn'>Sign In</button>
                   <p className='justify-self-center mt-2'>Not a Member ? <Link href='/trainer-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
                   {error !== "" && <span className="error">{error}</span>}
-              
+
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
                       onChange={(e) => setForm({ ...form, language: e.value })}

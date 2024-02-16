@@ -1,20 +1,26 @@
 "use client"
 import BackBtn from "@/components/backbtn/BackBtn"
-import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Center } from "@chakra-ui/react"
+import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Center, Spinner, Circle, CloseButton } from "@chakra-ui/react"
 import Image from "next/image"
+import Location from "@rsuite/icons/Location"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
 import moment from "moment"
 import SignatureCanvas from "react-signature-canvas"
 import Select from "react-select"
 import { categories } from "@/utils/categories"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 // import axios from "axios"
 import { useSearchParams } from "next/navigation"
 const TrainerSignupPage = () => {
+    const [long, setLong] = useState("")
+    const [address, setAddress] = useState("")
+    const [lat, setLat] = useState("")
+    console.log(address)
     const [sign, setSign] = useState()
     const inputRef = useRef()
+    const [loading, setLoading] = useState(false)
     const resumeRef = useRef()
     const searchParams = useSearchParams().get("trainer")
     const [openLocationModal, setOpenLocationModal] = useState(false);
@@ -28,18 +34,17 @@ const TrainerSignupPage = () => {
         Country: "us",
         Image: "",
         location: "",
-        Category: "technology",
+        Category: "",
         digitalSign: "",
         Gender: "Male",
         BirthDate: moment().format('YYYY-MM-DD'),
         resume: null,
         type: searchParams
     })
-
     const customStyles = {
         control: base => ({
             ...base,
-            height: 40,
+            width: 350
         })
     };
 
@@ -47,11 +52,13 @@ const TrainerSignupPage = () => {
     const categori = categories.map(category => ({
         value: category.value.toLowerCase(),
         label: (
+
             <Flex alignItems='center' gap='0.5rem'>
-                <Avatar src={category.image} size={"sm"} />
+                <Avatar src={category.image} size={"xs"} />
                 <Text fontSize={"small"} >{category.title}</Text>
             </Flex>
-        ),
+
+        )
     }));
 
 
@@ -81,53 +88,71 @@ const TrainerSignupPage = () => {
         //     onUploadProgress:(ProgressEvent)=>{console.log(ProgressEvent.progress*100)},
         //     headers:{
         //         "Custome Header":"value"
+
         //     }
         // }).then((res)=>console.log(res.data))
         // .catch((err)=>console.log(err))
 
+
         console.log(form)
 
     }
+    const fileUpload = () => {
+        resumeRef?.current?.click()
+    }
 
-
-
-
-
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { longitude, latitude } = pos.coords
+            console.log(latitude, longitude)
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            fetch(url).then(res => res.json()).then(data => setAddress(data.address))
+        })
+    }, [])
     return (
         <>
-            <Box overflow={{ base: "auto", lg: "hidden" }} h={{ base: "100vh" }} >
-                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
+            <Box overflow={"auto"} h={"full"}  >
+                <Image src='/register.png' alt='' fill className='object-cover z-[-1]  ' style={{ backgroundColor: "ThreeDDarkShadow" }} />
                 <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
                     {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
                     <Flex direction={"column"} marginLeft={{ md: 2 }} marginRight={{ base: "", md: "auto" }}>
-                        <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
-                        <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
+                        <Text color={"white"} fontSize={"medium"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
+                        <Text color={"white"} fontSize={{ base: "medium", md: "x-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Flex>
-                    <Image src={"/logo.png"} alt="" width={100} height={100} />
+                    <Image src={"/logo.png"} alt="" width={90} height={90} />
                 </Flex>
                 <Container maxW={"container"} padding={{ lg: 20, xl: 0 }} my={4}>
-                    <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={4} justifyContent={{ base: "center", md: "space-evenly" }}>
-                        <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center" }}   >
-                            <Box >
+                    <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={4} justifyContent={{ base: "center", xl: "space-around" }} alignItems={{ base: "center", xl: "start" }} >
+                        <Flex gap={4} direction={{ base: "column-reverse", md: "row" }} alignItems={"start"}   >
+                            <Box  >
                                 <FormLabel color={"white"} fontWeight={"bold"}>First Name</FormLabel>
                                 <Input placeholder="Enter Your Full Name" type="text" value={form.firstName} required onChange={onChange} name="firstName" id="firstName" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>email</FormLabel>
                                 <Input placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
                                 <Input placeholder="Enter Your Password" required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <FormLabel color={"white"} fontWeight={"bold"}>Location</FormLabel>
-                                <Input placeholder="Enter Your Location" name="location" required cursor={"pointer"} type="text" onClick={() => setOpenLocationModal(true)} id="location" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <FormLabel color={"white"} fontWeight={"bold"}>Gender</FormLabel>
+                                <Selecter onChange={onSelect} value={form.Gender} id="Gender" name="Gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                    <option value='Famle'>Famle</option>
+                                    <option value='Male'>Male</option>
+                                </Selecter>
                                 <Input type="file" name="resume" ref={resumeRef} id="resume" onChange={(e) => setForm({ ...form, resume: e.target.files[0] })} hidden />
-                                <FormLabel color={"white"} fontWeight={"bold"}>Category</FormLabel>
+                                <FormLabel color={"white"} fontWeight={"bold"}>category</FormLabel>
                                 <Select styles={customStyles} options={categori}
-                                    onChange={(choice) => setForm({ ...form, Category: choice.value })}
+                                    onChange={(choice) => setForm({ ...form, Category: choice })}
                                     name='Category'
                                     id='Category'
-                                    components={{ IndicatorSeparator: () => null }}
+                                    isMulti
                                 />
+                                <Box className='lg:border-l-2 border-[#01989F]  p-8 mt-3 '  >
+                                    <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
+                                        {address.country} <span style={{ color: "#01989F", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                    <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#01989F"} cursor={"pointer"}> Upload your resume  </Text>
+                                    {form.resume && <Text fontWeight={"bold"} > FileName : {form?.resume?.name} , FileSize :  {form?.resume?.size}</Text>}
+                                </Box>
                                 <LocationModal
                                     open={openLocationModal}
                                     setOpen={setOpenLocationModal}
@@ -143,58 +168,36 @@ const TrainerSignupPage = () => {
                                 <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input onChange={onChangeDate} value={form.BirthDate} id="BirthDate" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <Input required type="file" ref={inputRef} hidden name="image" onChange={(e) => setForm({ ...form, Image: URL.createObjectURL(e.target.files[0]) })} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <FormLabel color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                <Selecter onChange={onSelect} value={form.Gender} id="Gender" name="Gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
-                                    <option value='Famle'>Famle</option>
-                                    <option value='Male'>Male</option>
-                                </Selecter>
+                                <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
+                                <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
+                                    <SignatureCanvas canvasProps={{ width: "full", height: "full", className: 'sigCanvas' }} ref={data => setSign(data)} />
+                                    <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={() => sign.clear()} />
+                                </Box >
                             </Box>
                         </Flex>
-                        <Flex direction={"column"} gap={{ md: 4, lg: 8, xl: 4 }} justifyContent={{ base: "center" }}  >
-                            <Flex gap={{ md: 4, lg: 4, xl: 2 }} justifyContent={{ md: "center" }} marginTop={{ md: 5 }}>
-                                <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} borderRadius={20} padding={3} width={150} height={150} >
-                                    <SignatureCanvas canvasProps={{ width: 120, height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
-                                </Box >
-                                <Box border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={150} height={150}>
-                                    {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text onClick={() => inputRef?.current?.click()} cursor={"pointer"} color={"green"} fontWeight={"bold"}>Choose your Image</Text>}
-                                </Box>
-                            </Flex>
+                        <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
+                            <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-
-                            <Box display={"flex"} justifyContent={"center"} alignItems={"center"} gap={2}>
-                                <Button size={"xs"} w={100} onClick={() => sign.clear()} marginBottom={{ base: 3 }} marginTop={1}>clear</Button>
-                                <Button size={"xs"} w={100} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }}>delete image</Button>
-
-                                <Button onClick={() => inputRef?.current?.click()} size={"xs"} display={{ base: "none", md: "block" }} >update image</Button>
+                                {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
-
-                            <Button w={{ base: "full", md: 150, lg: 150 }} onClick={() => resumeRef?.current?.click()} color={"black"}
-                                marginRight={{ md: "auto", lg: "auto", xl: 0 }}
-                                marginLeft={"auto"}
-                                textAlign={"center"}
-                                size={"lg"}
-                                fontSize={14}>Upload Resume</Button>
+                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>
                     </Flex>
-
-                    <Box w={"full"} display={"flex"} justifyContent={{ base: "center", md: "center", lg: "flex-end" }}  >
-                        <Button
-                            onClick={HandleSubmit}
-                            backgroundColor="#16facd"
-                            marginTop={{ base: 5, md: 20 }}
-                            textAlign={"center"}
-                            w={{ base: "full", md: "full", lg: 200 }}
-                            size={{base:"lg",md:"sm"}}
-                            m={{ xl: 20 }}
-                            fontSize={14}>Create Account</Button>
-
+                    <Box display={"flex"} justifyContent={{ base: "center", xl: "flex-end" }} alignItems={"center"} marginTop={{ md: 10, xl: 0 }} padding={{ base: 0, md: 20 }} w={"full"}>
+                        <Button backgroundColor="#01989F"
+                            textColor={"white"}
+                            size={{ base: "lg", md: "sm" }}
+                            w={{ base: "full", md: 300, lg: 200 }}
+                        >Create Account</Button>
                     </Box>
+
+
                 </Container>
+
             </Box>
         </>
     )
 }
-
 
 
 export default TrainerSignupPage
