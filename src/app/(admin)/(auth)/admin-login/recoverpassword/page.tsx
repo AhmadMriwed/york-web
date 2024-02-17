@@ -1,63 +1,38 @@
+"use client"
 import RecoverPassword from '@/components/RecoverPassword/RecoverPassword'
+import { FormLabel, Input, Text } from '@chakra-ui/react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
-// import { useFormik } from 'formik';
-// import * as Yup from 'yup';
-
-// interface FormValues {
-//   email: string;
-// }
-
+import Link from 'next/link'
+import { Flex, Box } from '@chakra-ui/react'
 const RecoverPassword1 = () => {
-
-  // const [submitting, setSubmitting] = useState(false);
-
-  // const validationSchema = Yup.object().shape({
-  //   email: Yup.string().email('Invalid email').required('Email is required'),
-  //   });
-
-  //   const handleSubmit = async (values: FormValues) => {
-  //     try {
-  //       setSubmitting(true);
-  //       // Perform form submission logic here
-  //       console.log(values);
-  //       // Set submitting to false after successful submission
-  //       setSubmitting(false);
-  //     } catch (error) {
-  //       // Handle form submission error
-  //       console.error(error);
-  //       setSubmitting(false);
-  //     }
-  //   };
-
-  //   const formik = useFormik({
-  //     initialValues: {
-  //       email: '',
-  //     },
-  //     validationSchema,
-  //     onSubmit: handleSubmit,
-  //   });
-
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const HandleSubmit = () => {
+  }
   return (
-    <RecoverPassword title='Email' />
-    // <>
-    // <p className='py-5 text-xl font-bold text-white tracking-wider leading-8'>Password Recovery: Email</p>
-    // <div className='flex items-center justify-center h-[calc(100vh-142px)]'>
-    //   <form onSubmit={formik.handleSubmit} className='border-l-2 border-[#01989F] md:w-[450px] p-8'>
-    //     <label htmlFor="" className='text-base text-white'>Email</label>
-    //     <input className='login-input' 
-    //         type="email"
-    //         id="email"
-    //         name="email"
-    //         value={formik.values.email}
-    //         onChange={formik.handleChange}
-    //     />
-    //      {formik.touched.email && formik.errors.email && (
-    //         <div className="error">{formik.errors.email}</div>
-    //       )}
-    //     <button className='colored-btn'>confirm</button>
-    //   </form>
-    // </div>
-    // </>
+    <>
+      <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8 ' display={{ base: "none", md: "block" }}  >Password Recovery:  Email</Text>
+      <Flex w={"full"} alignItems={"center"} direction={{ base: "column", md: "row" }} justifyContent={"center"} className="h-[calc(100vh-142px)]">
+        <Box className='lg:border-l-2 border-[#01989F]  p-8 '>
+          <Box width={"full"}>
+            <FormLabel display={{ base: "none", md: "block" }} color={"white"}>Email</FormLabel>
+            <Box marginBottom={3}><Text color={"white"} display={{ base: "block", md: "none" }} textAlign={"center"}>Password Recovery:  </Text>
+              <Text display={{ base: "block", md: "none" }} textAlign={"center"} color={"white"} >Email</Text></Box>
+            <Input
+              width={300}
+              backgroundColor={"white"}
+              color={"black"}
+            />
+          </Box>
+          <Box width={"full"}>
+            <Link href={{ pathname: '/admin-login/recoverpassword/sendcode', query: { email: email } }}  >
+              <Text className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>Confirm</Text>
+            </Link>
+          </Box>
+        </Box>
+      </Flex>
+    </>
   )
 }
 

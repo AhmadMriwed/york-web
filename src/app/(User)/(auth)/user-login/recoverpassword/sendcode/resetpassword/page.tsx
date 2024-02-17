@@ -94,7 +94,7 @@ const ResetPassword = () => {
 
           </Flex>
 
-          <Button color={"white"} backgroundColor={"#01989f"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>setUp</Button>
+          <Button textColor={"white"} variant={"black"} backgroundColor={"#11cdef"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>setUp</Button>
         </Box>
       </Flex>
     </>

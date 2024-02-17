@@ -26,6 +26,9 @@
    background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
 }
 
+.adel{
+   background-color: #3d3d3d;
+}
 /* header background and text color */
 .dark_mode {
    background: rgba(134, 133, 133, 0.15);

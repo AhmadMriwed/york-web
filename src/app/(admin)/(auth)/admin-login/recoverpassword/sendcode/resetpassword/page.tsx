@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { Input, FormLabel, Box, Text, Button, Flex } from '@chakra-ui/react';
 
 interface FormValues {
   password: string;
@@ -49,72 +50,43 @@ const ResetPassword = () => {
 
   return (
     <>
-      <p className='py-5 text-xl font-bold text-white tracking-wider leading-8'>Password Recovery: Password Change</p>
-      <div className='flex items-center justify-center h-[calc(100vh-142px)]'>
-        <form onSubmit={formik.handleSubmit} className='border-l-2 border-[#01989F] md:w-[750px] p-8'>
-          <div className='flex flex-col md:flex-row justify-between gap-2'>
-            <div>
-              <label htmlFor="" className='text-base text-white'>Password</label>
-              <div className='relative w-full md:w-[350px]'>
-                <input className='login-input'
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                />
-                <div className="absolute right-0 top-[50%] -translate-y-1/2 w-[40px] element-center">
-                  {showPassword ? (
-                    <FiEye
-                      onClick={() => setShowPassword(false)}
-                      className="text-[18px]"
-                    />
-                  ) : (
-                    <FiEyeOff
-                      onClick={() => setShowPassword(true)}
-                      className="text-[18px]"
-                    />
-                  )}
-                </div>
-              </div>
-              {formik.touched.password && formik.errors.password && (
-                <div className="error">{formik.errors.password}</div>
-              )}
-            </div>
-            <div>
-              <label htmlFor="" className='text-base text-white'>Confirm Password</label>
-              <div className='relative w-full md:w-[350px]'>
-                <input className='login-input'
-                  type={showPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formik.values.confirmPassword}
-                  onChange={formik.handleChange}
-                />
-                <div className="absolute right-0 w-[40px] top-[50%] -translate-y-1/2 element-center">
-                  {showPassword ? (
-                    <FiEye
-                      onClick={() => setShowPassword(false)}
-                      className="text-[18px]"
-                    />
-                  ) : (
-                    <FiEyeOff
-                      onClick={() => setShowPassword(true)}
-                      className="text-[18px]"
-                    />
-                  )}
-                </div>
-              </div>
-              {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                <div className="error">{formik.errors.confirmPassword}</div>
-              )}
-            </div>
-          </div>
-          <button className='colored-btn'>submit</button>
-        </form>
-      </div>
+      <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8' display={{ base: "none", md: "block" }}>Password Recovery: Password Change</Text>
+      <Flex justifyContent={"center"} alignItems={"center"} className='h-[calc(100vh-142px)]'>
+        <Box className='lg:border-l-2 border-[#01989F] p-8'>
+          <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} gap={2}>
+            <Box marginBottom={3}><Text color={"white"} display={{ base: "block", md: "none" }} fontSize={"sm"} textAlign={"center"}>Password Recovery:  </Text>
+              <Text display={{ base: "block", md: "none" }} fontSize={"md"} textAlign={"center"} color={"white"} >Password Change</Text></Box>
+            <Box><FormLabel display={{ base: "none", md: "block" }} htmlFor="" className='text-base text-white'>Password</FormLabel>
+              <Input
+                backgroundColor={"white"}
+                width={300}
+                placeholder='Password'
+                type='password'
+                id="password"
+                name="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+              />
+            </Box>
+            <Box>
+              <FormLabel display={{ base: "none", md: "block" }} htmlFor="" className='text-base text-white'>Confirm Password</FormLabel>
+              <Input
+                width={300}
+                placeholder='Confirm Password<'
+                backgroundColor={"white"}
+                color={"black"}
+                type='password'
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+              />
+            </Box>
+          </Flex>
+          <Button backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>setUp</Button>
+        </Box>
+      </Flex>
     </>
   )
 }
-
 export default ResetPassword

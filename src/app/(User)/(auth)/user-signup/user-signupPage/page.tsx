@@ -29,7 +29,7 @@ const UserSignupPage = () => {
     return (
         <>
             <Box overflow={"auto"} maxH={"100vh"} >
-                <Image src='/register.png' alt='' fill className='object-cover z-[-1]  '  style={{backgroundColor:"black"}}/>
+                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
                 <div className='w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
@@ -70,7 +70,7 @@ const UserSignupPage = () => {
                     </Flex>
                 </Container>
                 <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
-                    <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }}  className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2  ">
+                    <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
                         <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                             <div>
                                 <FaGoogle />
@@ -81,7 +81,7 @@ const UserSignupPage = () => {
                         </Link>
                     </Box>
                     <Box marginRight={{ base: 0, md: 20 }} >
-                        <Button onClick={() => router.push("/user-signup/user-signupPage/user-completeSignup")} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#01989f"}>Create account</Button>
+                        <Button onClick={() => router.push("/user-signup/user-signupPage/user-completeSignup")} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>Create account</Button>
                     </Box>
                 </Flex>
             </Box>

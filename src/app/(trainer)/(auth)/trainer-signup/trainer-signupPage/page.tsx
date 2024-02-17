@@ -112,8 +112,8 @@ const TrainerSignupPage = () => {
     return (
         <>
             <Box overflow={"auto"} h={"full"}  >
-                <Image src='/register.png' alt='' fill className='object-cover z-[-1]  ' style={{ backgroundColor: "ThreeDDarkShadow" }} />
-                <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
+                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background'  />
+                <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1] ' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
@@ -147,10 +147,10 @@ const TrainerSignupPage = () => {
                                     id='Category'
                                     isMulti
                                 />
-                                <Box className='lg:border-l-2 border-[#01989F]  p-8 mt-3 '  >
+                                <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                     <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
-                                        {address.country} <span style={{ color: "#01989F", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
-                                    <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#01989F"} cursor={"pointer"}> Upload your resume  </Text>
+                                        {address.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                    <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#11cdef"} cursor={"pointer"}> Upload your resume  </Text>
                                     {form.resume && <Text fontWeight={"bold"} > FileName : {form?.resume?.name} , FileSize :  {form?.resume?.size}</Text>}
                                 </Box>
                                 <LocationModal
@@ -184,7 +184,7 @@ const TrainerSignupPage = () => {
                         </Flex>
                     </Flex>
                     <Box display={"flex"} justifyContent={{ base: "center", xl: "flex-end" }} alignItems={"center"} marginTop={{ md: 10, xl: 0 }} padding={{ base: 0, md: 20 }} w={"full"}>
-                        <Button backgroundColor="#01989F"
+                        <Button backgroundColor="#11cdef"
                             textColor={"white"}
                             size={{ base: "lg", md: "sm" }}
                             w={{ base: "full", md: 300, lg: 200 }}

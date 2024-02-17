@@ -29,7 +29,7 @@ const RecoverPassword1 = () => {
             />
           </Box>
           <Box width={"full"}>
-            <Link href={{ pathname: '/user-login/recoverpassword/sendcode', query: { emaile: email } }}  >
+            <Link href={{ pathname: '/user-login/recoverpassword/sendcode', query: { email: email } }}  >
               <Text className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>Confirm</Text>
             </Link>
           </Box>
