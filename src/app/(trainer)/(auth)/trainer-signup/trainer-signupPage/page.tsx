@@ -100,6 +100,17 @@ const TrainerSignupPage = () => {
     const fileUpload = () => {
         resumeRef?.current?.click()
     }
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files[0]) {
+            setForm({ ...form, Image: URL.createObjectURL(event.target.files[0]) });
+        }
+    }
+
+    const handleOnImageRemoveClick = () => {
+        setForm({ ...form, Image: "" })
+        inputRef.current.value = ""
+
+    };
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
@@ -112,12 +123,12 @@ const TrainerSignupPage = () => {
     return (
         <>
             <Box overflow={"auto"} h={"full"}  >
-                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background'  />
+                <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background' />
                 <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1] ' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
-                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
+                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Flex direction={"column"} marginLeft={{ md: 2 }} marginRight={{ base: "", md: "auto" }}>
                         <Text color={"white"} fontSize={"medium"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "medium", md: "x-large" }} fontWeight={"bold"}>York British Academy</Text>
@@ -151,7 +162,15 @@ const TrainerSignupPage = () => {
                                     <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                         {address.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
                                     <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#11cdef"} cursor={"pointer"}> Upload your resume  </Text>
-                                    {form.resume && <Text fontWeight={"bold"} > FileName : {form?.resume?.name} , FileSize :  {form?.resume?.size}</Text>}
+                                    <Box width={300} padding={3}>
+                                        {form.resume &&
+                                            <>
+                                                <Text fontWeight={"bold"} > FileName : {form?.resume?.name} </Text>
+                                                <Text fontWeight={"bold"}> FileSize :  {form?.resume?.size}</Text>
+                                            </>
+
+                                        }
+                                    </Box>
                                 </Box>
                                 <LocationModal
                                     open={openLocationModal}
@@ -167,10 +186,10 @@ const TrainerSignupPage = () => {
                                 <Input placeholder="Confirm Your Password" required type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input onChange={onChangeDate} value={form.BirthDate} id="BirthDate" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <Input required type="file" ref={inputRef} hidden name="image" onChange={(e) => setForm({ ...form, Image: URL.createObjectURL(e.target.files[0]) })} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input required type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
                                 <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
-                                    <SignatureCanvas canvasProps={{ width: "full", height: "full", className: 'sigCanvas' }} ref={data => setSign(data)} />
+                                    <SignatureCanvas canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
                                     <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={() => sign.clear()} />
                                 </Box >
                             </Box>
@@ -180,7 +199,7 @@ const TrainerSignupPage = () => {
 
                                 {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
-                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }} >Delete</Text>
+                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>
                     </Flex>
                     <Box display={"flex"} justifyContent={{ base: "center", xl: "flex-end" }} alignItems={"center"} marginTop={{ md: 10, xl: 0 }} padding={{ base: 0, md: 20 }} w={"full"}>

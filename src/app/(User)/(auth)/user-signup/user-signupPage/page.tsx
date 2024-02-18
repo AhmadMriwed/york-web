@@ -22,6 +22,17 @@ const UserSignupPage = () => {
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
+    const handleImageChange = (event) => {
+        if (event.target.files && event.target.files[0]) {
+            setForm({ ...form, Image: URL.createObjectURL(event.target.files[0]) });
+        }
+    }
+
+    const handleOnImageRemoveClick = () => {
+        setForm({ ...form, Image: "" })
+        inputRef.current.value = ""
+
+    };
     const HandleSubmit = async () => {
         console.log(form)
         router.push("/user-signup/user-signupPage/user-completeSignup")
@@ -34,7 +45,7 @@ const UserSignupPage = () => {
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
-                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })}>Delete Image</Text>}
+                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Center>
@@ -51,7 +62,7 @@ const UserSignupPage = () => {
                                 <Input height={50} type="text" value={form.firstName} required onChange={onChange} name="firstName" id="firstName" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>email</FormLabel>
                                 <Input height={50} required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
-                                <Input type="file" name="image" onChange={(e) => setForm({ ...form, Image: URL.createObjectURL(e.target.files[0]) })} hidden ref={inputRef} />
+                                <Input type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
                             </Box>
                             <Box display={"flex"} flexDirection={"column"}>
                                 <FormLabel color={"white"} fontWeight={"bold"} padding={1}>Password</FormLabel>
@@ -65,7 +76,7 @@ const UserSignupPage = () => {
 
                                 {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
-                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={() => setForm({ ...form, Image: "" })} display={{ base: "none", md: "block" }} >Delete</Text>
+                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>
                     </Flex>
                 </Container>
