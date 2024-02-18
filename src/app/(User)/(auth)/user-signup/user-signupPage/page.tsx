@@ -62,7 +62,7 @@ const UserSignupPage = () => {
                                 <Input height={50} type="text" value={form.firstName} required onChange={onChange} name="firstName" id="firstName" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>email</FormLabel>
                                 <Input height={50} required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
-                                <Input type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+                                <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
                             </Box>
                             <Box display={"flex"} flexDirection={"column"}>
                                 <FormLabel color={"white"} fontWeight={"bold"} padding={1}>Password</FormLabel>

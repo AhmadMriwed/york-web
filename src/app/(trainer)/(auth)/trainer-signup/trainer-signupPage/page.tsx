@@ -186,7 +186,7 @@ const TrainerSignupPage = () => {
                                 <Input placeholder="Confirm Your Password" required type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input onChange={onChangeDate} value={form.BirthDate} id="BirthDate" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <Input required type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input accept="image/png, image/gif, image/jpeg" required type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
                                 <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
                                     <SignatureCanvas canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />

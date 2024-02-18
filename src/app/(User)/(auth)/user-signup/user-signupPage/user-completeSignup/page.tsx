@@ -107,7 +107,7 @@ const UserCompleteSignup = () => {
                                 </Selecter>
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
                                 <PhoneInput onChange={(value) => setForm({ ...form, phone: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={form.Country}></PhoneInput>
-                                <Input type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+                                <Input accept="image/png, image/gif, image/jpeg"  type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
                                 <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                     <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                         {address.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
