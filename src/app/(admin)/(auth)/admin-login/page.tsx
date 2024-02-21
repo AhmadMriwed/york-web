@@ -14,117 +14,47 @@ import * as Yup from 'yup';
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
-import { Flex, Avatar, Text } from '@chakra-ui/react'
-interface FormValues {
-  email: string;
-  password: string;
-}
-
-
-
+import { Flex, Avatar, Text, Spinner } from '@chakra-ui/react'
+import { useDispatch, useSelector } from 'react-redux'
+import { loginAdmin } from '@/store/adminstore/slices/authSlice'
+import { GlobalState } from '@/types/storeTypes'
 const AdminLogin = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const validationSchema = Yup.object().shape({
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-  });
-
-  const handleSubmit = async (values: FormValues) => {
-    try {
-      setSubmitting(true);
-      // Perform form submission logic here
-      console.log(values);
-      // Set submitting to false after successful submission
-      setSubmitting(false);
-    } catch (error) {
-      // Handle form submission error
-      console.error(error);
-      setSubmitting(false);
-    }
-  };
-
-  const formik = useFormik({
-    initialValues: {
-      email: '',
-      password: '',
-      language: 'english',
-    },
-    validationSchema,
-    onSubmit: handleSubmit,
-  });
-
-
+  const dispatch: any = useDispatch()
+  const router = useRouter()
+  const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
+  console.log(error, loading, admin)
   const [form, setForm] = useState({
     email: "",
     password: "",
     language: 'english',
   });
-
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const cookie = new Cookies();
-  const [error, setErr] = useState("");
-
-
-
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setLoading(false);
+      setIsLoading(false);
     }, 2000);
 
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setForm({...form, [e.target.name] : e.target.value});
-  // };
-  // const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setForm({...form, [e.target.name] : e.target.value});
-  // };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  // const handleSubmit = () => {
-  //   dispatch(
-  //     addNewCourse({
-  //       titleLess,
-  //       describtion,
-  //       start_at,
-  //       end_at,
-  //       author_name,
-  //       priceLess,
-  //       lessonNumber,
-  //       cardImg,
-  //       rating,
-  //       button
-  //     })
-  //   ).then(res => {
-  //           router.push('/courses')
-  //   });
-  // };
-
-  // async function handleSubmite (e: React.FormEvent<HTMLFormElement>) {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   try{
-  //       const res = await axios.post(`${baseURL}/`, form);
-  //       console.log(res);
-
-  //       // setLoading(false);
-  //       // const token = res.data.token;
-  //       // cookie.set('bearer', token);
-  //       //router.push('/dashboard/users');
-  //   }catch (err: any) {
-  //       setLoading(false);
-  //       if (err.response.status === 401){
-  //           setErr("wrong email or password");
-  //       }else {
-  //           setErr("Internal server error");
-  //       }
-  //   }
-  // }
+  const handleSubmit = async () => {
+    try {
+      let data = { email: form.email, password: form.password }
+      dispatch(loginAdmin(data)).then((res) => {
+        if (res.payload) {
+          router.push("/")
+        }
+      })
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  };
   const customStyles = {
     control: base => ({
       ...base,
@@ -143,11 +73,10 @@ const AdminLogin = () => {
     ),
   }));
 
-
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />
-      {loading ? (
+      {isLoading ? (
         <SplashLoading />
       ) : (
         <>
@@ -165,18 +94,18 @@ const AdminLogin = () => {
                 <span className='text-base tracking-widest'>welcome to</span>
                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
 
-                <form onSubmit={formik.handleSubmit} className='grid w-full costum_form'>
+                <form onSubmit={handleSubmit} className='grid w-full costum_form'>
                   <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                   <input
                     className='login-input'
                     type="email"
                     id="email"
                     name="email"
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
+                    value={form.email}
+                    onChange={onChange}
                   />
-                  {formik.touched.email && formik.errors.email && (
-                    <div className="error-mesage">{formik.errors.email}</div>
+                  {error && (
+                    <div className="error-mesage">{error}</div>
                   )}
                   <div className='relative w-full md:w-[350px] mt-1'>
                     <input
@@ -184,8 +113,8 @@ const AdminLogin = () => {
                       type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
+                      value={form.password}
+                      onChange={onChange}
                     />
                     <div className="absolute right-0 top-[50%] -translate-y-1/2 w-[40px] element-center">
                       {showPassword ? (
@@ -201,8 +130,8 @@ const AdminLogin = () => {
                       )}
                     </div>
                   </div>
-                  {formik.touched.password && formik.errors.password && (
-                    <div className="error-mesage">{formik.errors.password}</div>
+                  {error && (
+                    <div className="error-mesage">{error}</div>
                   )}
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
@@ -215,7 +144,7 @@ const AdminLogin = () => {
                       </p>
                     </Link>
                   </div>
-                  <button type='submit' disabled={submitting} className='colored-btn'>Sign In</button>
+                  <button type='button' onClick={handleSubmit} disabled={submitting} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
                   {error !== "" && <span className="error">{error}</span>}
 

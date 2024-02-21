@@ -168,7 +168,6 @@ const TrainerSignupPage = () => {
                                                 <Text fontWeight={"bold"} > FileName : {form?.resume?.name} </Text>
                                                 <Text fontWeight={"bold"}> FileSize :  {form?.resume?.size}</Text>
                                             </>
-
                                         }
                                     </Box>
                                 </Box>
@@ -209,10 +208,7 @@ const TrainerSignupPage = () => {
                             w={{ base: "full", md: 300, lg: 200 }}
                         >Create Account</Button>
                     </Box>
-
-
                 </Container>
-
             </Box>
         </>
     )
