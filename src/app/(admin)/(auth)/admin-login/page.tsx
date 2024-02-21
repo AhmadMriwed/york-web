@@ -24,8 +24,9 @@ const AdminLogin = () => {
   const [submitting, setSubmitting] = useState(false);
   const dispatch: any = useDispatch()
   const router = useRouter()
-  const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
-  console.log(error, loading, admin)
+ 
+  const {  error,loading, admin } = useSelector((state: GlobalState) => state.authSlice)
+  console.log(loading, admin)
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -44,10 +45,11 @@ const AdminLogin = () => {
   };
 
   const handleSubmit = async () => {
+    let data = { email: form.email, password: form.password }
+  
     try {
-      let data = { email: form.email, password: form.password }
-      dispatch(loginAdmin(data)).then((res) => {
-        if (res.payload) {
+      dispatch(loginAdmin(data)).then((res)=>{
+        if(res.payload){
           router.push("/")
         }
       })
@@ -55,6 +57,7 @@ const AdminLogin = () => {
       console.log(error.message)
     }
   };
+
   const customStyles = {
     control: base => ({
       ...base,
@@ -104,9 +107,9 @@ const AdminLogin = () => {
                     value={form.email}
                     onChange={onChange}
                   />
-                  {error && (
+                  {/* {error !== ""&& (
                     <div className="error-mesage">{error}</div>
-                  )}
+                  )} */}
                   <div className='relative w-full md:w-[350px] mt-1'>
                     <input
                       className='login-input'
@@ -130,9 +133,9 @@ const AdminLogin = () => {
                       )}
                     </div>
                   </div>
-                  {error && (
+                  {/* {error!=="" && (
                     <div className="error-mesage">{error}</div>
-                  )}
+                  )} */}
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
@@ -146,7 +149,7 @@ const AdminLogin = () => {
                   </div>
                   <button type='button' onClick={handleSubmit} disabled={submitting} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
-                  {error !== "" && <span className="error">{error}</span>}
+                  {/* {error !== "" && <span className="error">{error}</span>} */}
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
