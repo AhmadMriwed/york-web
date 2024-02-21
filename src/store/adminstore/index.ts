@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import authSlice from "./slices/auth.slice";
+import authSlice from "./slices/authSlice";
 import permissions from "./slices/accounts/permissionsSlice";
 import roles from "./slices/accounts/rolesSlice";
 import supervisors from "./slices/accounts/supervisorsSlice";
@@ -14,7 +14,7 @@ import singleRole from "./slices/accounts/singleRoleSlice";
 
 export default configureStore({
   reducer: {
-    auth: authSlice,
+    authSlice,
     permissions,
     roles,
     supervisors,
