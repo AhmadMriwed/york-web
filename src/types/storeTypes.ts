@@ -1,4 +1,5 @@
 import {
+  AdminState,
   PermissionsState,
   RolesState,
   SingleRoleState,
@@ -26,4 +27,5 @@ export interface GlobalState {
   singleRole: SingleRoleState;
   requestTypes: RequestTypesState;
   venues: VenuesState;
+  authSlice: AdminState
 }

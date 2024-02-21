@@ -66,6 +66,12 @@ export interface SupervisorsState {
    singleSupervisor: SupervisorsType;
 }
 
+//admin Type
+export interface AdminType {
+   loading:Boolean,
+   error:null|any,
+   admin:any
+}
 // Trainers Type
 
 export interface TrainersType {
@@ -85,6 +91,12 @@ export interface TrainersState {
    perPage: number;
    trainers: TrainersType[];
    singleTrainer: any;
+}
+export interface AdminState {
+   loading: boolean;
+   error: null | any;
+   admin:any
+  
 }
 
 // Trainees Type
