@@ -13,10 +13,13 @@ import LocationModal from "@/components/accounts/trainers/LocationModal"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
+import Cookies from "universal-cookie"
 const UserCompleteSignup = () => {
     const params = useParams()
     console.log(params)
+    const cookie = new Cookies()
     const dispatch: any = useDispatch()
+
     const inputRef = useRef()
     const [lon, setLon] = useState()
     const [lat, setLat] = useState()
@@ -42,7 +45,7 @@ const UserCompleteSignup = () => {
         url: ""
     })
 
-    console.log(form.location)
+    console.log(form.categories)
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -69,13 +72,17 @@ const UserCompleteSignup = () => {
     };
     const HandleSubmit = async () => {
         console.log(form)
+        const token = cookie.get("userSignUp_token")
         let data = { url: form.url, birth_date: form.birth_date, phone_number: form.phone_number, gender: form.gender, Image: form.image, categories: form.categories }
         try {
-            dispatch(updateUserProfile({ id:12, data: data }))
+            dispatch(updateUserProfile({ token, data: data })).then((res) => {
+                
+                console.log(res, "success")
+            })
         } catch (error: any) {
             console.log(error.mesage)
         }
-       
+
     }
     const customStyles = {
         control: base => ({
@@ -98,6 +105,7 @@ const UserCompleteSignup = () => {
         )
     }));
 
+
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
             const { longitude, latitude } = pos.coords
@@ -105,7 +113,9 @@ const UserCompleteSignup = () => {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => setLoc(data.address))
         })
+
     }, [])
+
     return (
         <>
             <Box overflow={{ base: "auto", md: "hidden" }} maxH={"100vh"}>
@@ -148,7 +158,7 @@ const UserCompleteSignup = () => {
 
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>category</FormLabel>
                                 <Select styles={customStyles} options={categori}
-                                    onChange={(choice) => setForm({ ...form, categories: choice })}
+                                    onChange={(value) => setForm({ ...form, categories: value.map((i) => i.value) })}
                                     name='categories'
                                     id='categories'
                                     isMulti

@@ -26,7 +26,7 @@ const TrainerLogin = () => {
   const cookie = new Cookies();
   const [error, setErr] = useState("");
 
-
+console.log(form)
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {

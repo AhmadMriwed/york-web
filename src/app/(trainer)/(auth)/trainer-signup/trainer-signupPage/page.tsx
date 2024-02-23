@@ -8,7 +8,7 @@ import "react-phone-input-2/lib/style.css"
 import moment from "moment"
 import SignatureCanvas from "react-signature-canvas"
 import Select from "react-select"
-import { categories } from "@/utils/categories"
+import { categorie } from "@/utils/categories"
 import React, { useEffect, useRef, useState } from "react"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 // import axios from "axios"
@@ -47,9 +47,9 @@ const TrainerSignupPage = () => {
             width: 350
         })
     };
+    console.log(form)
 
-
-    const categori = categories.map(category => ({
+    const categori = categorie.map(category => ({
         value: category.value.toLowerCase(),
         label: (
 
@@ -153,7 +153,7 @@ const TrainerSignupPage = () => {
                                 <Input type="file" name="resume" ref={resumeRef} id="resume" onChange={(e) => setForm({ ...form, resume: e.target.files[0] })} hidden />
                                 <FormLabel color={"white"} fontWeight={"bold"}>category</FormLabel>
                                 <Select styles={customStyles} options={categori}
-                                    onChange={(choice) => setForm({ ...form, Category: choice })}
+                                    onChange={(choice) => setForm({ ...form, Category: choice.map((i) => i.value) })}
                                     name='Category'
                                     id='Category'
                                     isMulti

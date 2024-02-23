@@ -13,6 +13,7 @@ import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
 import { Flex, Spinner, Text } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
 const UserLogin = () => {
 
@@ -22,23 +23,17 @@ const UserLogin = () => {
         language: 'english',
     });
 
+    console.log(form)
     const router = useRouter();
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
-    const { error, loading, user } = useSelector((state) => state.userSlice)
+    const { error, loading, user } = useSelector((state:any) => state.userSlice)
     console.log(error, loading, user.access_token)
 
 
 
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            setisLoading(false);
-        }, 2000);
-
-        return () => clearTimeout(timeoutId);
-    }, []);
-
+    
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -49,7 +44,7 @@ const UserLogin = () => {
         let data = { email: form.email, password: form.password }
         try {
             dispatch(userLogin(data)).then((res) => {
-            console.log(res,"success")
+                console.log(res, "success")
             })
         } catch (error: any) {
             console.log(error.message)
@@ -75,6 +70,23 @@ const UserLogin = () => {
             </Flex>
         ),
     }));
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setisLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timeoutId);
+    }, []);
+
+    useEffect(() => {
+        console.log(cookie.get("user_token"))
+        const token = cookie.get("user_token")
+        if (token) {
+            dispatch(getUserProfile(token)).then(() => {
+                router.push("/")
+            })
+        }
+    }, [])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -94,7 +106,7 @@ const UserLogin = () => {
                                 </div>
                                 <span className='text-base tracking-widest'>welcome to</span>
                                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
-                                <form  action="" className='grid w-full costum_form'>
+                                <form action="" className='grid w-full costum_form'>
                                     <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                                     <input type='email' placeholder="Enter Your Email" id='email'
                                         className='login-input'

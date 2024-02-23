@@ -16,7 +16,7 @@ import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
 import { Flex, Avatar, Text, Spinner } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
-import { loginAdmin } from '@/store/adminstore/slices/authSlice'
+import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice'
 import { GlobalState } from '@/types/storeTypes'
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -24,9 +24,9 @@ const AdminLogin = () => {
   const [submitting, setSubmitting] = useState(false);
   const dispatch: any = useDispatch()
   const router = useRouter()
-
+  const cookies = new Cookies();
   const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
-  console.log(error, loading, admin.access_token)
+  console.log(error, loading, admin)
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -49,7 +49,8 @@ const AdminLogin = () => {
 
     let data = { email: form.email, password: form.password }
     try {
-      dispatch(loginAdmin(data)).then(() => {
+      dispatch(loginAdmin(data)).then((res) => {
+        console.log(res)
         console.log("logged in success")
       })
     } catch (error: any) {
@@ -74,7 +75,17 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
+  useEffect(() => {
+    console.log(cookies.get("token"))
+    const token = cookies.get("token")
+    if (token) {
+      dispatch(getAdminProfile(token)).then(() => {
+        router.push("/")
+      })
 
+    }
+
+  }, [])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />

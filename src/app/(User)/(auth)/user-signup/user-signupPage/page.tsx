@@ -57,9 +57,10 @@ const UserSignupPage = () => {
             return
 
         }
+        let data = { last_name: "Mriwed", email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
         try {
-            let data = {last_name:"alashkar", email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
-            dispatch(userRegister(data)).then(() => {
+            dispatch(userRegister(data)).then((res) => {
+                console.log(res)
                 toast({
                     title: 'Account created',
                     description: "we have created your account successfully.",
@@ -68,7 +69,7 @@ const UserSignupPage = () => {
                     isClosable: true,
                     position: "top"
                 })
-                router.push(`/user-signup/user-signupPage/user-completeSignup`)
+                // router.push(`/user-signup/user-signupPage/user-completeSignup`)
             })
 
         } catch (error) {
@@ -99,7 +100,7 @@ const UserSignupPage = () => {
                     </Box>
                 </Center>
                 <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={4}>
-                    <form onSubmit={HandleSubmit}>
+                    <form >
                         <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
                             <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center" }}   >
                                 <Box >
@@ -143,7 +144,7 @@ const UserSignupPage = () => {
 
 
                             <Box marginRight={{ base: 0, md: 20 }} >
-                                <Button type="submit" textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>
+                                <Button type="button" onClick={HandleSubmit} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>
                             </Box>
                         </Flex>
                     </form>
