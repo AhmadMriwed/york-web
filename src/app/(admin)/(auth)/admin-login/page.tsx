@@ -24,9 +24,9 @@ const AdminLogin = () => {
   const [submitting, setSubmitting] = useState(false);
   const dispatch: any = useDispatch()
   const router = useRouter()
- 
-  const {  error,loading, admin } = useSelector((state: GlobalState) => state.authSlice)
-  console.log(loading, admin)
+
+  const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
+  console.log(error, loading, admin.access_token)
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -44,14 +44,13 @@ const AdminLogin = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
     let data = { email: form.email, password: form.password }
-  
     try {
-      dispatch(loginAdmin(data)).then((res)=>{
-        if(res.payload){
-          router.push("/")
-        }
+      dispatch(loginAdmin(data)).then(() => {
+        console.log("logged in success")
       })
     } catch (error: any) {
       console.log(error.message)
@@ -104,10 +103,11 @@ const AdminLogin = () => {
                     type="email"
                     id="email"
                     name="email"
+                    required
                     value={form.email}
                     onChange={onChange}
                   />
-                  {/* {error !== ""&& (
+                  {/* {error && (
                     <div className="error-mesage">{error}</div>
                   )} */}
                   <div className='relative w-full md:w-[350px] mt-1'>
@@ -117,6 +117,7 @@ const AdminLogin = () => {
                       id="password"
                       name="password"
                       value={form.password}
+                      required
                       onChange={onChange}
                     />
                     <div className="absolute right-0 top-[50%] -translate-y-1/2 w-[40px] element-center">
@@ -133,7 +134,7 @@ const AdminLogin = () => {
                       )}
                     </div>
                   </div>
-                  {/* {error!=="" && (
+                  {/* {error && (
                     <div className="error-mesage">{error}</div>
                   )} */}
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
@@ -147,9 +148,9 @@ const AdminLogin = () => {
                       </p>
                     </Link>
                   </div>
-                  <button type='button' onClick={handleSubmit} disabled={submitting} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                  <button type='submit' disabled={submitting} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
-                  {/* {error !== "" && <span className="error">{error}</span>} */}
+                  {error && <span className="error">{error}</span>}
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}

@@ -11,7 +11,9 @@ import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
-import { Flex, Text } from '@chakra-ui/react'
+import { Flex, Spinner, Text } from '@chakra-ui/react'
+import { useDispatch, useSelector } from 'react-redux'
+import { userLogin } from '@/store/userStore/slices/userSlice'
 const UserLogin = () => {
 
     const [form, setForm] = useState({
@@ -21,15 +23,17 @@ const UserLogin = () => {
     });
 
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
-    const [error, setErr] = useState("");
+    const dispatch: any = useDispatch()
+    const { error, loading, user } = useSelector((state) => state.userSlice)
+    console.log(error, loading, user.access_token)
 
 
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            setLoading(false);
+            setisLoading(false);
         }, 2000);
 
         return () => clearTimeout(timeoutId);
@@ -40,7 +44,17 @@ const UserLogin = () => {
     };
 
 
-
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        let data = { email: form.email, password: form.password }
+        try {
+            dispatch(userLogin(data)).then((res) => {
+            console.log(res,"success")
+            })
+        } catch (error: any) {
+            console.log(error.message)
+        }
+    }
 
 
 
@@ -64,7 +78,7 @@ const UserLogin = () => {
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
-            {loading ? (
+            {isLoading ? (
                 <SplashLoading />
             ) : (
                 <>
@@ -80,7 +94,7 @@ const UserLogin = () => {
                                 </div>
                                 <span className='text-base tracking-widest'>welcome to</span>
                                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
-                                <form action="" className='grid w-full costum_form'>
+                                <form  action="" className='grid w-full costum_form'>
                                     <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                                     <input type='email' placeholder="Enter Your Email" id='email'
                                         className='login-input'
@@ -105,9 +119,9 @@ const UserLogin = () => {
                                             </p>
                                         </Link>
                                     </div>
-                                    <button type='submit' className='colored-btn'>Sign In</button>
+                                    <button type='button' onClick={handleSubmit} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                                     <p className='justify-self-center mt-2'>Not a Member ? <Link href='/user-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
-                                    {error !== "" && <span className="error">{error}</span>}
+                                    {error && <span className="error">{error}</span>}
 
                                     <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                                         <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
