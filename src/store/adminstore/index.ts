@@ -9,6 +9,7 @@ import trainers from "./slices/accounts/trainersSlice";
 import users from "./slices/accounts/usersSlice";
 import singleUser from "./slices/accounts/singleUserSlice";
 import singleRole from "./slices/accounts/singleRoleSlice";
+import userSlice from "../userStore/slices/userSlice";
 // import requestTypes from "./slices/enums/requestTypesSlice";
 // import venues from "./slices/enums/venuesSlice";
 
@@ -23,6 +24,7 @@ export default configureStore({
     users,
     singleUser,
     singleRole,
+    userSlice
     // requestTypes,
     // venues,
   },
