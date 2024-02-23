@@ -1,14 +1,18 @@
+import Cookies from "universal-cookie";
 import { baseURL } from "@/utils/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-export const loginAdmin = createAsyncThunk('login', async (data: any,thunkAPI) => {
+export const loginAdmin = createAsyncThunk('login', async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     console.log("data", data);
+    const cookies = new Cookies();
     try {
         const res = await axios.post(`${baseURL}admin/login`, data)
         console.log(res.status)
         if (res.status === 200) {
             console.log("success")
+            const token = res.data.data.access_token
+            cookies.set("token", token)
             return res.data.data
         }
 
@@ -18,6 +22,21 @@ export const loginAdmin = createAsyncThunk('login', async (data: any,thunkAPI) =
     }
 })
 
+export const getAdminProfile = createAsyncThunk("getProfile", async (token:string, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    try {
+        const res = await axios.get(`${baseURL}admin`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        console.log("Error", error.message)
+        return rejectWithValue(error.message)
+    }
+})
 
 const initialState = {
     loading: false,
@@ -45,7 +64,18 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-
+            .addCase(getAdminProfile.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(getAdminProfile.fulfilled, (state, action: any) => {
+                state.loading = false;
+                state.admin = action.payload;
+                state.error = null
+            })
+            .addCase(getAdminProfile.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
     }
 });
 
