@@ -22,7 +22,8 @@ const UserSignupPage = () => {
         password: "",
         password_confirmation: "",
         Image: "",
-        type: searchParams
+        type: searchParams,
+        last_name: ""
     })
     const dispatch: any = useDispatch()
 
@@ -55,12 +56,21 @@ const UserSignupPage = () => {
                 position: "top"
             })
             return
+         
 
         }
-        let data = { last_name: "Mriwed", email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
+      
+        let data = { last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
         try {
+           
             dispatch(userRegister(data)).then((res) => {
                 console.log(res)
+                if(error){
+console.log(error)
+return
+                }else{
+
+               
                 toast({
                     title: 'Account created',
                     description: "we have created your account successfully.",
@@ -69,11 +79,20 @@ const UserSignupPage = () => {
                     isClosable: true,
                     position: "top"
                 })
-                // router.push(`/user-signup/user-signupPage/user-completeSignup`)
-            })
+                router.push(`/user-signup/user-signupPage/user-completeSignup`)
+            }
+            }) 
 
-        } catch (error) {
-            console.log(error)
+        } catch (error:any) {
+            console.log(error.mesage)
+            toast({
+                title: 'Error',
+                description: "we Can not  create your account .",
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+                position: "top"
+            })
 
         }
 
@@ -98,24 +117,35 @@ const UserSignupPage = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
+                 
                 </Center>
-                <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={4}>
+                <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
                     <form >
-                        <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
-                            <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center" }}   >
-                                <Box >
-                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>First Name</FormLabel>
-                                    <Input height={50} type="text" value={form.first_name} required onChange={onChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>email</FormLabel>
-                                    <Input height={50} required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
-                                    <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
-                                </Box>
-                                <Box display={"flex"} flexDirection={"column"}>
-                                    <FormLabel color={"white"} fontWeight={"bold"} padding={1}>Password</FormLabel>
-                                    <Input height={50} required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>ConfirmPassword</FormLabel>
-                                    <Input height={50} required type="password" name="password_confirmation" value={form.password_confirmation} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
+                        <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
+                            <Flex direction={"column"} alignItems={"center"} gap={2}>
+                                <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
+                                    <Box >
+                                        <FormLabel padding={1} color={"white"} fontWeight={"bold"}>First Name</FormLabel>
+                                        <Input height={50} type="text" value={form.first_name} required onChange={onChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                        <FormLabel padding={1} color={"white"} fontWeight={"bold"}>email</FormLabel>
+                                        <Input height={50} required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
+                                        <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+
+
+                                    </Box>
+                                    <Box display={"flex"} flexDirection={"column"}>
+                                        <FormLabel padding={1} color={"white"} fontWeight={"bold"}>last_name</FormLabel>
+                                        <Input height={50} required type="text" name="last_name" value={form.last_name} id="last_name" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='' size='md' w={350} />
+                                        <FormLabel color={"white"} fontWeight={"bold"} padding={1}>Password</FormLabel>
+                                        <Input height={50} required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+
+                                    </Box>
+
+                                </Flex>
+                                <Box >
+                                    <FormLabel padding={1} color={"white"} textAlign={{ base: "start", md: "center" }} fontWeight={"bold"}>ConfirmPassword</FormLabel>
+                                    <Input height={50} required type="password" name="password_confirmation" value={form.password_confirmation} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
@@ -126,8 +156,11 @@ const UserSignupPage = () => {
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>
                         </Flex>
+
+
                         <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
                             <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
+
                                 <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                                     <div>
                                         <FaGoogle />

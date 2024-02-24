@@ -1,5 +1,5 @@
 "use client"
-import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Select as Selecter, Spinner } from "@chakra-ui/react"
+import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Select as Selecter, Spinner, useToast } from "@chakra-ui/react"
 import Image from "next/image"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
@@ -15,6 +15,7 @@ import { useParams } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 const UserCompleteSignup = () => {
+    const toast = useToast()
     const params = useParams()
     console.log(params)
     const cookie = new Cookies()
@@ -27,7 +28,7 @@ const UserCompleteSignup = () => {
 
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
-    const id = user?.id
+
     console.log(user)
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const [form, setForm] = useState({
@@ -36,7 +37,7 @@ const UserCompleteSignup = () => {
         birth_date: moment().format('YYYY-MM-DD'),
         image: "",
         Country: "us",
-        categories: "",
+        categories: [1,2],
         location: {
             address: "address",
             latitude: 3,
@@ -72,15 +73,34 @@ const UserCompleteSignup = () => {
     };
     const HandleSubmit = async () => {
         console.log(form)
-        const token = cookie.get("userSignUp_token")
+
         let data = { url: form.url, birth_date: form.birth_date, phone_number: form.phone_number, gender: form.gender, Image: form.image, categories: form.categories }
         try {
+            const token = await cookie.get("userSignUp_token")
+            console.log(token)
             dispatch(updateUserProfile({ token, data: data })).then((res) => {
-                
                 console.log(res, "success")
+                toast({
+                    title: 'Success',
+                    description: "Account is Updated successfully.",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                    position: "top"
+                })
+
+
             })
         } catch (error: any) {
             console.log(error.mesage)
+            toast({
+                title: 'Error',
+                description: "Account is not Updated .",
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+                position: "top"
+            })
         }
 
     }
@@ -90,6 +110,7 @@ const UserCompleteSignup = () => {
             width: 350
         })
     };
+    console.log("new user", user)
 
 
 
@@ -113,6 +134,7 @@ const UserCompleteSignup = () => {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => setLoc(data.address))
         })
+
 
     }, [])
 

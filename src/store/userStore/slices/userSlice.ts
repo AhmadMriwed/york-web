@@ -27,7 +27,7 @@ export const userRegister = createAsyncThunk("userRegister", async (data: any, t
     const cookies = new Cookies();
     try {
         const res = await axios.post(`${baseURL}user/register`, data)
-        if(res.status === 200){
+        if (res.status === 201) {
             console.log(res, "user register")
             let token = res.data.data.access_token
             cookies.set("userSignUp_token", token)
@@ -61,7 +61,7 @@ export const updateUserProfile = createAsyncThunk("updateProfile", async (params
         console.log(res, "user edit");
         if (res.status === 200) {
             console.log("updated successfully");
-            return params.data;
+            return res.data.data;
         }
     } catch (error: any) {
         console.log("Error", error.message)

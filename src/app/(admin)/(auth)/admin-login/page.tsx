@@ -75,17 +75,17 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  useEffect(() => {
-    console.log(cookies.get("token"))
-    const token = cookies.get("token")
-    if (token) {
-      dispatch(getAdminProfile(token)).then(() => {
-        router.push("/")
-      })
+  // useEffect(() => {
+  //   console.log(cookies.get("token"))
+  //   const token = cookies.get("token")
+  //   if (token) {
+  //     dispatch(getAdminProfile(token)).then(() => {
+  //       router.push("/")
+  //     })
 
-    }
+  //   }
 
-  }, [])
+  // }, [admin])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />

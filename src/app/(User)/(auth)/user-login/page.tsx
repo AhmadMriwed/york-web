@@ -23,13 +23,13 @@ const UserLogin = () => {
         language: 'english',
     });
 
-    console.log(form)
+    // console.log(form)
     const router = useRouter();
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
     const { error, loading, user } = useSelector((state:any) => state.userSlice)
-    console.log(error, loading, user.access_token)
+    console.log(error, loading, user)
 
 
 
@@ -78,15 +78,15 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    useEffect(() => {
-        console.log(cookie.get("user_token"))
-        const token = cookie.get("user_token")
-        if (token) {
-            dispatch(getUserProfile(token)).then(() => {
-                router.push("/")
-            })
-        }
-    }, [])
+    // useEffect(() => {
+    //     console.log(cookie.get("user_token"))
+    //     const token = cookie.get("user_token")
+    //     if (token) {
+    //         dispatch(getUserProfile(token)).then(() => {
+    //             router.push("/")
+    //         })
+    //     }
+    // }, [user])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
