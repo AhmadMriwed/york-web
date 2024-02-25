@@ -30,8 +30,11 @@ export const getAdminProfile = createAsyncThunk("getProfile", async (token: stri
                 Authorization: `Bearer ${token}`
             }
         })
-        console.log(res)
-        return res.data.data
+        if (res.status === 200) {
+            console.log(res)
+            return res.data.data
+        }
+
     } catch (error: any) {
         console.log("Error", error.message)
         return rejectWithValue(error.message)
@@ -42,7 +45,10 @@ export const adminForgotPassword = createAsyncThunk("forgotpassword", async (dat
 
     try {
         const res = await axios.post(`${baseURL}admin/forgot-password`, data)
-        return res.data
+        if (res.status === 200) {
+            console.log(res, "success")
+            return res.data.data
+        }
     } catch (error: any) {
         return rejectWithValue(error.message)
     }
@@ -51,9 +57,22 @@ export const adminValidateForgotPassword = createAsyncThunk("validatePassword", 
     const { rejectWithValue } = thunkAPI
     console.log("data", data)
     try {
-        const res = await axios.post(`${baseURL}admin\validate-forgot-password-otp`,data)
-        return res.data
+        const res = await axios.post(`${baseURL}admin/validate-forgot-password-otp`, data)
+        console.log(res)
+        return res.data.data
     } catch (error: any) {
+        return rejectWithValue(error.message)
+    }
+})
+export const adminResetPassword = createAsyncThunk("resetPassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", data)
+    try {
+        const res = await axios.post(`${baseURL}admin/reset-password`, data)
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        console.log(error.message)
         return rejectWithValue(error.message)
     }
 })
@@ -101,24 +120,36 @@ const authSlice = createSlice({
             .addCase(adminForgotPassword.fulfilled, (state, action: any) => {
                 state.loading = false
                 state.error = null
-                state.msg = action.payload
+                state.msg = action.payload.message
 
             })
             .addCase(adminForgotPassword.rejected, (state, action: any) => {
                 state.error = action.payload
                 state.loading = false
             })
-            .addCase(adminValidateForgotPassword.pending,(state)=>{
-                state.loading=true
+            .addCase(adminValidateForgotPassword.pending, (state) => {
+                state.loading = true
             })
-            .addCase(adminValidateForgotPassword.fulfilled,(state,action:any)=>{
-                state.error=null
-                state.loading=false
-                state.msg=action.payload
+            .addCase(adminValidateForgotPassword.fulfilled, (state, action: any) => {
+                state.error = null
+                state.loading = false
+                state.msg = action.payload.message
             })
-            .addCase(adminValidateForgotPassword.rejected,(state,action:any)=>{
-                state.loading=false
-                state.error=action.payload
+            .addCase(adminValidateForgotPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
+            .addCase(adminResetPassword.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(adminResetPassword.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.admin = action.payload
+            })
+            .addCase(adminResetPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
             })
     }
 });

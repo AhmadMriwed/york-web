@@ -46,8 +46,11 @@ export const getUserProfile = createAsyncThunk("getProfile", async (token: strin
                 Authorization: `Bearer ${token}`
             }
         })
-        console.log(res)
-        return res.data.data
+        if (res.status === 200) {
+            console.log(res)
+            return res.data.data
+        }
+
     } catch (error: any) {
         console.log("Error", error.message)
         return rejectWithValue(error.message)
@@ -69,11 +72,48 @@ export const updateUserProfile = createAsyncThunk("updateProfile", async (params
     }
 
 })
+export const userForgotPassword = createAsyncThunk("forgotpassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
 
+    try {
+        const res = await axios.post(`${baseURL}user/forgot-password`, data)
+        if (res.status === 200) {
+            console.log(res, "success")
+            return res.data.data
+        }
+    } catch (error: any) {
+        return rejectWithValue(error.message)
+    }
+})
+export const userValidateForgotPassword = createAsyncThunk("validatePassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", data)
+    try {
+        const res = await axios.post(`${baseURL}user/validate-forgot-password-otp`, data)
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        return rejectWithValue(error.message)
+    }
+})
+export const userResetPassword = createAsyncThunk("resetPassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", data)
+    try {
+        const res = await axios.post(`${baseURL}user/reset-password`, data)
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        console.log(error.message)
+        return rejectWithValue(error.message)
+    }
+})
 const initialState = {
     user: "",
     error: null,
-    loading: false
+    loading: false,
+    msg: "",
+
 }
 
 export const userSlice = createSlice({
@@ -81,6 +121,7 @@ export const userSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) => {
+        //user login
         builder
             .addCase(userLogin.pending, (state) => {
                 state.loading = true
@@ -94,6 +135,7 @@ export const userSlice = createSlice({
                 state.error = action.payload
                 state.loading = false
             })
+            //user register
             .addCase(userRegister.pending, (state) => {
                 state.loading = true
             })
@@ -106,6 +148,7 @@ export const userSlice = createSlice({
                 state.error = action.payload
                 state.loading = false
             })
+            //update user profile
             .addCase(updateUserProfile.pending, (state) => {
                 state.loading = true
             })
@@ -118,6 +161,7 @@ export const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            //get singleUserProfile
             .addCase(getUserProfile.pending, (state) => {
                 state.loading = true
             })
@@ -127,6 +171,46 @@ export const userSlice = createSlice({
                 state.user = action.payload
             })
             .addCase(getUserProfile.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
+            //user forgot password
+            .addCase(userForgotPassword.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(userForgotPassword.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.msg = action.payload.message
+
+            })
+            .addCase(userForgotPassword.rejected, (state, action: any) => {
+                state.error = action.payload
+                state.loading = false
+            })
+            //user validatePassword
+            .addCase(userValidateForgotPassword.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(userValidateForgotPassword.fulfilled, (state, action: any) => {
+                state.error = null
+                state.loading = false
+                state.msg = action.payload.message
+            })
+            .addCase(userValidateForgotPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
+            //user reset password
+            .addCase(userResetPassword.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(userResetPassword.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.user = action.payload
+            })
+            .addCase(userResetPassword.rejected, (state, action: any) => {
                 state.loading = false
                 state.error = action.payload
             })
