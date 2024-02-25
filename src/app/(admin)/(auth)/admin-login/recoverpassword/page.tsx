@@ -2,6 +2,7 @@
 import RecoverPassword from '@/components/RecoverPassword/RecoverPassword'
 import { FormLabel, Input, Spinner, Text, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
+
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Flex, Box } from '@chakra-ui/react'
@@ -9,15 +10,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { adminForgotPassword } from '@/store/adminstore/slices/authSlice'
 const RecoverPassword1 = () => {
   const router = useRouter()
+
   const [email, setEmail] = useState("")
   const { error, loading, msg } = useSelector((state: any) => state.authSlice)
-  // /
+  
   console.log(msg)
   const dispatch: any = useDispatch()
   console.log(error, loading, error)
   const toast = useToast()
   const HandleSubmit = async () => {
+    
+
     try {
+
       let data = { email: email }
       dispatch(adminForgotPassword(data)).then((res) => {
         if (error) {
@@ -32,8 +37,17 @@ const RecoverPassword1 = () => {
           })
           return
         } else {
-          console.log(res)
+          toast({
+            title: 'success',
+            description: msg,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
           router.push(`/admin-login/recoverpassword/sendcode?email=${email}`)
+          console.log(res)
+
         }
 
       })
@@ -63,9 +77,9 @@ const RecoverPassword1 = () => {
             />
           </Box>
           <Box width={"full"}>
-            <Link href={""}  >
-              <Text onClick={HandleSubmit} className="hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>{loading ? <Spinner color='red' size={"sm"} /> : "Confirm"}</Text>
-            </Link>
+
+            <Text cursor={"pointer"} onClick={HandleSubmit} className="hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>{loading ? <Spinner color='red' size={"sm"} /> : "Confirm"}</Text>
+
           </Box>
         </Box>
       </Flex>

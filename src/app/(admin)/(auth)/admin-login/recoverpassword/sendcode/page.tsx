@@ -1,22 +1,46 @@
 "use client"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
-import { Flex, Box, FormLabel, Input, Button } from '@chakra-ui/react'
+import { Flex, Box, FormLabel, Input, Button, useToast } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
+import { adminValidateForgotPassword } from '@/store/adminstore/slices/authSlice'
+
 const SendCode = () => {
   const [code, setCode] = useState("")
-  const router = useRouter()
-  const dispatch = useDispatch()
-  const {error,loading,msg}=useSelector((state:any)=>state.authSlice)
-  console.log(error,loading,msg)
-  // () => router.push("/admin-login/recoverpassword/sendcode/resetpassword")
-  const handleSubmit=()=>{
-console.log(code)
-try {
-  
-} catch (error:any) {
-  console.log(error.mesage)
-}
+  const router = useRouter();
+
+  const toast = useToast()
+  const dispatch: any = useDispatch()
+  const { error, loading, msg } = useSelector((state: any) => state.authSlice)
+  console.log(error, loading, msg)
+  const email = useSearchParams().get("email")
+  console.log(email)
+  const handleSubmit = () => {
+    console.log(code)
+
+    let data = { email: email, code: code }
+    try {
+      dispatch(adminValidateForgotPassword(data)).then((res) => {
+        console.log(res)
+        if (error) {
+          console.log(error)
+          return
+        } else {
+          toast({
+            title: 'Success.',
+            description: msg,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
+          router.push(`/admin-login/recoverpassword/sendcode/resetpassword?email=${email}&code=${code}`)
+
+        }
+      })
+    } catch (error: any) {
+      console.log(error.mesage)
+    }
   }
   return (
     <>

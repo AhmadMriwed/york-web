@@ -10,7 +10,6 @@ import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
@@ -75,17 +74,17 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  // useEffect(() => {
-  //   console.log(cookies.get("token"))
-  //   const token = cookies.get("token")
-  //   if (token) {
-  //     dispatch(getAdminProfile(token)).then(() => {
-  //       router.push("/")
-  //     })
+  useEffect(() => {
+    console.log(cookies.get("token"))
+    const token = cookies.get("token")
+    if (token) {
+      dispatch(getAdminProfile(token)).then(() => {
+        router.push("/")
+      })
 
-  //   }
+    }
 
-  // }, [admin])
+  }, [admin])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />

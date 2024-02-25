@@ -37,7 +37,7 @@ const UserCompleteSignup = () => {
         birth_date: moment().format('YYYY-MM-DD'),
         image: "",
         Country: "us",
-        categories: [1,2],
+        categories: [1, 2],
         location: {
             address: "address",
             latitude: 3,
@@ -74,7 +74,7 @@ const UserCompleteSignup = () => {
     const HandleSubmit = async () => {
         console.log(form)
 
-        let data = { url: form.url, birth_date: form.birth_date, phone_number: form.phone_number, gender: form.gender, Image: form.image, categories: form.categories }
+        let data = { about_me: "about", url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, Image: form.image, categories: form.categories }
         try {
             const token = await cookie.get("userSignUp_token")
             console.log(token)

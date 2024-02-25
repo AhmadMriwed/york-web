@@ -1,15 +1,54 @@
 "use client"
 import RecoverPassword from '@/components/RecoverPassword/RecoverPassword'
-import { FormLabel, Input, Text } from '@chakra-ui/react'
+import { FormLabel, Input, Spinner, Text, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Flex, Box } from '@chakra-ui/react'
+import { userForgotPassword } from '@/store/userStore/slices/userSlice'
+import { useDispatch, useSelector } from 'react-redux'
 const RecoverPassword1 = () => {
+  const dispatch: any = useDispatch()
 
+  const { error, loading, msg } = useSelector((state: any) => state.userSlice)
+  const toast = useToast()
   const router = useRouter()
   const [email, setEmail] = useState("")
-  const HandleSubmit = () => {
+  const HandleSubmit = async () => {
+    try {
+      let data = { email: email }
+      dispatch(userForgotPassword(data)).then((res) => {
+        console.log(res)
+        if (error) {
+          console.log(error)
+          toast({
+            title: 'Error.',
+            description: error,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
+          return
+        } else {
+          toast({
+            title: 'success',
+            description: msg,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
+          router.push(`/user-login/recoverpassword/sendcode?email=${email}`)
+
+
+        }
+
+      })
+    } catch (error: any) {
+      console.log(error.mesage)
+    }
+
 
   }
 
@@ -26,12 +65,16 @@ const RecoverPassword1 = () => {
               width={300}
               backgroundColor={"white"}
               color={"black"}
+              value={email}
+              type='email'
+              onChange={(e) => setEmail(e.target.value)}
+              name='email'
             />
           </Box>
           <Box width={"full"}>
-            <Link href={{ pathname: '/user-login/recoverpassword/sendcode', query: { email: email } }}  >
-              <Text className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>Confirm</Text>
-            </Link>
+
+            <Text onClick={HandleSubmit} cursor={"pointer"} className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>{loading ? <Spinner color='red' size={"sm"} /> : "Confirm"}</Text>
+
           </Box>
         </Box>
       </Flex>

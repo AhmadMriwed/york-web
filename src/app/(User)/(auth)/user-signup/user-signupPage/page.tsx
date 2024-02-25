@@ -56,34 +56,34 @@ const UserSignupPage = () => {
                 position: "top"
             })
             return
-         
+
 
         }
-      
+
         let data = { last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
         try {
-           
+
             dispatch(userRegister(data)).then((res) => {
                 console.log(res)
-                if(error){
-console.log(error)
-return
-                }else{
+                if (error) {
+                    console.log(error)
+                    return
+                } else {
 
-               
-                toast({
-                    title: 'Account created',
-                    description: "we have created your account successfully.",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                    position: "top"
-                })
-                router.push(`/user-signup/user-signupPage/user-completeSignup`)
-            }
-            }) 
 
-        } catch (error:any) {
+                    toast({
+                        title: 'Account created',
+                        description: "we have created your account successfully.",
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top"
+                    })
+                    router.push(`/user-signup/user-signupPage/user-completeSignup`)
+                }
+            })
+
+        } catch (error: any) {
             console.log(error.mesage)
             toast({
                 title: 'Error',
@@ -117,7 +117,7 @@ return
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-                 
+
                 </Center>
                 <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
                     <form >

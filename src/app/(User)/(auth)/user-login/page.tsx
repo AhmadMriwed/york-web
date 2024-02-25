@@ -78,15 +78,15 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    // useEffect(() => {
-    //     console.log(cookie.get("user_token"))
-    //     const token = cookie.get("user_token")
-    //     if (token) {
-    //         dispatch(getUserProfile(token)).then(() => {
-    //             router.push("/")
-    //         })
-    //     }
-    // }, [user])
+    useEffect(() => {
+        console.log(cookie.get("user_token"))
+        const token = cookie.get("user_token")
+        if (token) {
+            dispatch(getUserProfile(token)).then(() => {
+                router.push("/")
+            })
+        }
+    }, [user])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />

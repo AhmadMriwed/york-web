@@ -1,52 +1,72 @@
 'use client'
 import React, { useState } from 'react'
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { Input, FormLabel, Box, Text, Button, Flex } from '@chakra-ui/react';
 
-interface FormValues {
-  password: string;
-  confirmPassword: string;
-}
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
+import { useSearchParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
+import { userResetPassword } from '@/store/userStore/slices/userSlice';
+
+
 
 const ResetPassword = () => {
+  const email = useSearchParams().get("email")
+  const code = useSearchParams().get("code")
+  const toast = useToast()
 
-  const [submitting, setSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const dispatch: any = useDispatch()
+  const { user, error, loading } = useSelector((state: any) => state.userSlice)
+  console.log(error, loading, user)
+  console.log(email, code)
+  const [form, setForm] = useState({
+    email: email,
+    code: code,
+    password: "",
+    password_confirmation: "",
 
+  })
 
-  const validationSchema = Yup.object().shape({
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password')], 'Passwords must match')
-      .required('Confirm Password is required'),
-  });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = async () => {
+    let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
-      setSubmitting(true);
-      // Perform form submission logic here
-      console.log(values);
-      // Set submitting to false after successful submission
-      setSubmitting(false);
-    } catch (error) {
-      // Handle form submission error
-      console.error(error);
-      setSubmitting(false);
-    }
-  };
+      dispatch(userResetPassword(data)).then((res) => {
+        console.log(res)
+        if (error) {
+          console.log(error)
+          return
+        } else {
+          toast({
+            title: 'Success.',
+            description: 'Password reset success',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top",
 
-  const formik = useFormik({
-    initialValues: {
-      password: '',
-      confirmPassword: '',
-    },
-    validationSchema,
-    onSubmit: handleSubmit,
-  });
+          })
+        }
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error.',
+        description: 'failed to reset password',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      })
+
+      console.error(error.message);
+    }
+
+
+  }
+
 
   return (
     <>
@@ -54,11 +74,9 @@ const ResetPassword = () => {
       <Flex justifyContent={"center"} alignItems={"center"} className='h-[calc(100vh-142px)]'>
         <Box className='lg:border-l-2 border-[#01989F] p-8'>
           <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} gap={2}>
-
             <Box marginBottom={3}><Text color={"white"} display={{ base: "block", md: "none" }} fontSize={"sm"} textAlign={"center"}>Password Recovery:  </Text>
               <Text display={{ base: "block", md: "none" }} fontSize={"md"} textAlign={"center"} color={"white"} >Password Change</Text></Box>
             <Box><FormLabel display={{ base: "none", md: "block" }} htmlFor="" className='text-base text-white'>Password</FormLabel>
-
               <Input
                 backgroundColor={"white"}
                 width={300}
@@ -66,39 +84,29 @@ const ResetPassword = () => {
                 type='password'
                 id="password"
                 name="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
+                value={form.password}
+                onChange={handleChange}
               />
             </Box>
-
-
-
-            <Box >
-
+            <Box>
               <FormLabel display={{ base: "none", md: "block" }} htmlFor="" className='text-base text-white'>Confirm Password</FormLabel>
-
               <Input
                 width={300}
                 placeholder='Confirm Password<'
                 backgroundColor={"white"}
                 color={"black"}
                 type='password'
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
+                id="password_confirmation"
+                name="password_confirmation"
+                value={form.password_confirmation}
+                onChange={handleChange}
               />
-
             </Box>
-
-
           </Flex>
-
-          <Button textColor={"white"} variant={"black"} backgroundColor={"#11cdef"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>setUp</Button>
+          <Button onClick={handleSubmit} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>{loading ? <Spinner color='red' size={"sm"} /> : "SetUp"}</Button>
         </Box>
       </Flex>
     </>
   )
 }
-
 export default ResetPassword
