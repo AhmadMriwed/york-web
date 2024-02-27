@@ -10,6 +10,12 @@ import {
   UsersState,
 } from "./adminTypes/accounts/accountsTypes";
 import { RequestTypesState, VenuesState } from "./adminTypes/enums/enumsTypes";
+import {
+  sessionsState,
+  joinedUsersState,
+  attendanceState,
+} from "./adminTypes/sessions/sessionsTypes";
+import { singleCourseState } from "./adminTypes/courses/coursesTypes";
 
 export interface ThemeState {
   theme: "light" | "dark";
@@ -27,5 +33,9 @@ export interface GlobalState {
   singleRole: SingleRoleState;
   requestTypes: RequestTypesState;
   venues: VenuesState;
-  authSlice: AdminState
+  authSlice: AdminState;
+  sessions: sessionsState;
+  joinedUsers: joinedUsersState;
+  attendanceRequests: attendanceState;
+  singleCourse: singleCourseState;
 }

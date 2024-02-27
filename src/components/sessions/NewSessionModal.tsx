@@ -1,29 +1,45 @@
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  duplicateSession,
+  getAllSessions,
+} from "@/store/adminstore/slices/sessions/sessionsActions";
+import { sessionType } from "@/types/adminTypes/sessions/sessionsTypes";
+import { GlobalState } from "@/types/storeTypes";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Modal } from "rsuite";
-import MiniSession from "./MiniSession";
+import Session from "./Session";
+import Loading from "../Pars/Loading";
 
-// testing values
-const values = {
-  code: "",
-  title: "",
-  dateFrom: null,
-  dateEnd: null,
-  hours: 0,
-  image: null,
-  status: "",
-  outline: "",
-  description: "",
-  files: [],
-  training_sessions_type: "",
-  url: "",
-};
+const NewSessionModal = ({ modalOpen, setModalOpen }: any) => {
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedSession, setSelectedSession] = useState<null | number>(null);
 
-const NewSessionModal = ({
-  mode,
-  modalOpen,
-  setModalOpen,
-  submithandler,
-}: any) => {
-  const handleClose = () => setModalOpen(false);
+  const { isLoading, allSessions } = useSelector((state: GlobalState) => {
+    return state.sessions;
+  });
+  const dispatch: any = useDispatch();
+
+  const handleClose = () => {
+    setModalOpen(false);
+    setSelectedSession(null);
+    setSearchTerm("");
+  };
+
+  const sessions = useMemo(() => {
+    if (searchTerm)
+      return allSessions.filter((session: sessionType) =>
+        session.title
+          .toLocaleLowerCase()
+          .includes(searchTerm.toLocaleLowerCase())
+      );
+    return allSessions;
+  }, [allSessions, searchTerm]);
+
+  useEffect(() => {
+    dispatch(getAllSessions());
+  }, [dispatch]);
 
   return (
     <Modal
@@ -48,29 +64,45 @@ const NewSessionModal = ({
         </Modal.Title>
         <div className="mt-4">
           <input
-            placeholder="Search"
-            className="rounded-[20px] py-2 px-3 w-[200px] sm:w-[300px] bg-white border-none outline-none"
+            type="text"
+            placeholder={`Search from ${allSessions.length} items`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="rounded-full py-2 px-3 w-[200px] sm:w-[300px] bg-white text-[#888] border-none outline-none"
           />
         </div>
       </Modal.Header>
       <Modal.Body>
-        <div className="flex flex-col gap-3 px-3">
-          {[1, 2, 3].map((session: any, index: number) => (
-            <div key={index} className="cursor-pointer">
-              <MiniSession pickable />
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <div className="flex flex-col gap-3 px-3">
+            {sessions.map((session: any, index: number) => (
+              <div
+                key={index}
+                onClick={() => setSelectedSession(session.id)}
+                className={`cursor-pointer rounded-[16px] box-border ${
+                  selectedSession && session.id === selectedSession
+                    ? "border-[1px] border-[var(--primary-color1)] opacity-[.9]"
+                    : ""
+                }`}
+              >
+                <Session pickable session={session} />
+              </div>
+            ))}
+          </div>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <button
+          disabled={!selectedSession}
           onClick={() => {
-            submithandler(values);
+            if (selectedSession) dispatch(duplicateSession(selectedSession));
             handleClose();
           }}
-          className="colored-btn"
+          className={`colored-btn ${!selectedSession ? "opacity-[0.6]" : ""}`}
         >
-          Add
+          Add Session
         </button>
       </Modal.Footer>
     </Modal>

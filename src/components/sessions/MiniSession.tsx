@@ -1,52 +1,69 @@
 import { useContext } from "react";
+import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { Location, Peoples, Calendar } from "@rsuite/icons";
+import { Location, Calendar } from "@rsuite/icons";
+import { FaClock } from "react-icons/fa";
 
-const MiniSession = ({ pickable }: any) => {
+const MiniSession = ({ session, course }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
   return (
     <div
-      className={`flex flex-1 justify-between items-end p-3 rounded-[16px]
-      ${
-        pickable
-          ? `${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`
-          : `${
-              mode === "dark"
-                ? "bg-[var(--dark-color)]"
-                : "bg-[var(--light-color)]"
-            }`
-      }`}
+      className={`p-3 rounded-[16px] lg:max-w-[350px]
+              ${
+                mode === "dark"
+                  ? "bg-[var(--dark-color)]"
+                  : "bg-[var(--light-color)]"
+              }`}
     >
-      <div className="flex flex-col gap-2">
-        <h6 className="text-[14px] font-bold">03. SQL Principles</h6>
-        <p className="text-[12px]">Data Science Course , ID : #342</p>
-        <span
-          className="bg-[var(--primary-color1)] text-[var(--light-color)] text-[10px]
-            text-center rounded-full px-[4px] py-[2px] w-fit"
-        >
-          Web Development
-        </span>
-        <div
-          className={`${
-            mode === "dark"
-              ? "bg-[var(--light-color)] text-[var(--dark-color)]"
-              : "bg-[var(--dark-color)] text-[var(--light-color)]"
-          } w-fit px-[12px] py-[3px] flex justify-center items-center gap-1
-        rounded-full`}
-        >
-          <Location />
-          <p className="text-[10px]">Rome</p>
+      <p className="text-[12px] sm:text-[14px] font-bold mb-3">
+        {session.title && session.title}
+      </p>
+      <div className="flex flex-1 justify-between items-end">
+        <div className="flex flex-col gap-2">
+          <p className="text-[12px] max-w-[150px]">{`${
+            course?.title && course.title
+          }, Code: ${course?.code && course.code}`}</p>
+          <span
+            className="bg-[var(--primary-color1)] text-white text-[12px]
+            text-center rounded-full px-[6px] py-[4px] w-fit font-bold"
+          >
+            {session.status && session.status}
+          </span>
+          {course?.location && (
+            <div
+              className={`${
+                mode === "dark"
+                  ? "bg-[var(--light-color)] text-[var(--dark-color)]"
+                  : "bg-[var(--dark-color)] text-[var(--light-color)]"
+              } w-fit px-[12px] py-[3px] flex justify-center items-center gap-1
+            rounded-full cursor-pointer`}
+            >
+              <Location />
+              <p className="text-[12px]">{course.location}</p>
+            </div>
+          )}
         </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="text-[10px] flex items-center gap-1 self-end text-end">
-          <Peoples />
-          <p>5600 Students</p>
-        </div>
-        <div className="text-[10px] flex items-center gap-1 self-end text-end">
-          <Calendar />
-          <p>23 May, 2023 to 05 Oct, 2023</p>
+
+        <div className="flex flex-col gap-2">
+          <div className="text-[12px] flex items-center gap-1 self-end text-end">
+            <FaClock />
+            <p>
+              {session.date_from &&
+                session.date_to &&
+                `${calculateHours(session.date_from, session.date_to)} hr`}
+            </p>
+          </div>
+          <div className="text-[12px] flex items-center gap-1 self-end text-end">
+            <Calendar />
+            <p>
+              {session.date_from &&
+                session.date_to &&
+                `${getLocalDate(session.date_from)} - ${getLocalDate(
+                  session.date_to
+                )}`}
+            </p>
+          </div>
         </div>
       </div>
     </div>
