@@ -8,7 +8,6 @@ import {
 import L from "leaflet";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import markerIcon from "../../../../public/assets/map-marker.png";
-
 import { Button, Modal } from "rsuite";
 import "leaflet/dist/leaflet.css";
 import { useState } from "react";
@@ -48,7 +47,7 @@ export default function LocationModal({ open, setOpen }: ModalType) {
    return (
       <Modal open={open} onClose={() => setOpen(false)} size="md">
          <Modal.Header>
-            <Modal.Title>Modal Title</Modal.Title>
+            <Modal.Title>Location</Modal.Title>
          </Modal.Header>
          <Modal.Body>
             <MapContainer

@@ -13,11 +13,11 @@ interface FormValues {
 type PasswordTitleProps = {
     title: 'Email' | 'Code Verification' | 'Password Change';
 }
-
+import { useRouter } from 'next/navigation';
 const RecoverPassword = ({title }: PasswordTitleProps) => {
-    // const [submitting, setSubmitting] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
+const router = useRouter()
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
@@ -32,15 +32,18 @@ const RecoverPassword = ({title }: PasswordTitleProps) => {
 
     const handleSubmit = async (values: FormValues) => {
         try {
-        //   setSubmitting(true);
+          
           // Perform form submission logic here
+          router.push("/")
+        
+
           console.log(values);
           // Set submitting to false after successful submission
         //   setSubmitting(false);
         } catch (error) {
           // Handle form submission error
           console.error(error);
-        //   setSubmitting(false);
+          setSubmitting(false);
         }
       };
 
@@ -73,7 +76,7 @@ const RecoverPassword = ({title }: PasswordTitleProps) => {
             {formik.touched.email && formik.errors.email && (
                 <div className="error">{formik.errors.email}</div>
             )}
-            <button type='submit' className='colored-btn'>confirm</button>
+            <button type='submit' className='colored-btn' >confirm</button>
 
             </>
           }
