@@ -10,9 +10,13 @@ import users from "./slices/accounts/usersSlice";
 import singleUser from "./slices/accounts/singleUserSlice";
 import singleRole from "./slices/accounts/singleRoleSlice";
 import userSlice from "../userStore/slices/userSlice";
-import trainerSlice from "../trainerStore/slices/trainerSlice"
+import trainerSlice from "../trainerStore/slices/trainerSlice";
 // import requestTypes from "./slices/enums/requestTypesSlice";
 // import venues from "./slices/enums/venuesSlice";
+import sessions from "./slices/sessions/trainingSessionsSlice";
+import singleCourse from "./slices/courses/singleCourseSlice";
+import joinedUsers from "./slices/sessions/joinedUsersSlice";
+import attendanceRequests from "./slices/sessions/attendanceRequestsSlice";
 
 export default configureStore({
   reducer: {
@@ -26,8 +30,12 @@ export default configureStore({
     singleUser,
     singleRole,
     userSlice,
-    trainerSlice
+    trainerSlice,
     // requestTypes,
     // venues,
+    sessions: sessions,
+    joinedUsers: joinedUsers,
+    attendanceRequests: attendanceRequests,
+    singleCourse: singleCourse,
   },
 });

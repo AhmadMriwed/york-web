@@ -1,35 +1,46 @@
-import { Avatar } from "rsuite";
-import { Admin } from "@rsuite/icons";
+import { useContext } from "react";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import EmailIcon from "@rsuite/icons/Email";
 import PhoneIcon from "@rsuite/icons/Phone";
-import { FaInfoCircle } from "react-icons/fa";
+import { PiInfo } from "react-icons/pi";
+import { Avatar } from "rsuite";
 
-const TrainerInfo = () => {
+const TrainerInfo = ({ trainer }: any) => {
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
   return (
-    <div>
-      <div className="bg-[var(--primary-color1)] py-1 px-3 flex gap-3 items-center w-fit rounded-full">
-        <Avatar size="sm" circle>
-          <Admin />
-        </Avatar>
-        <p className="text-white">Simon Minter</p>
+    <div
+      className={`p-4 rounded-[16px] ${
+        mode === "dark" ? "bg-[var(--dark-color)]" : "bg-[var(--light-color)]"
+      }`}
+    >
+      <div className="bg-[var(--primary-color1)] py-1 px-2 flex gap-2 items-center w-fit rounded-full">
+        {trainer?.image && <Avatar src={trainer?.image} size="sm" circle />}
+        <p className="text-white font-bold">
+          {trainer?.first_name &&
+            trainer?.last_name &&
+            trainer?.id &&
+            `${trainer.id}. ${trainer?.first_name} ${trainer.last_name}`}
+        </p>
       </div>
-      <div className="flex gap-1 items-center mt-6 text-[18px] text-[#888]">
-        <FaInfoCircle />
-        <h6>About</h6>
-      </div>
-      <p className="max-w-[300px] mt-2 text-[12px]">
-        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Doloribus quod
-        corporis necessitatibus suscipit praesentium aliquid aperiam veniam
-        quasi, ad saepe nesciunt? Rem praesentium eius perspiciatis repellendus
-        corporis ex earum minus!
+      <h6 className="mt-3 text-[14px] font-bold flex items-center gap-2">
+        <PiInfo /> About
+      </h6>
+
+      <p className="max-w-[300px] mt-1 text-[12px]">
+        {trainer?.about_me && trainer.about_me}
       </p>
-      <div className="text-[#888] mt-6 flex gap-2 items-center">
+      <div className="mt-3 flex gap-2 items-center">
         <EmailIcon />
-        <p>jake@gmail.com</p>
+        <p className="text-[12px] sm:text-[14px]">
+          {trainer?.email && trainer.email}
+        </p>
       </div>
-      <div className="text-[#888] mt-3 flex gap-2 items-center">
+      <div className="mt-3 flex gap-2 items-center">
         <PhoneIcon />
-        <p>00 000 00 00</p>
+        <p className="text-[12px] sm:text-[14px]">
+          {trainer?.phone_number && trainer.phone_number}
+        </p>
       </div>
     </div>
   );

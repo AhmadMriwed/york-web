@@ -17,7 +17,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     useState<boolean>(false);
   const pathName: string = usePathname();
   useEffect(() => {
-    if (pathName.includes("/session-information"))
+    if (
+      pathName.includes("courses/training-session") &&
+      (pathName.includes("session-info") ||
+        pathName.includes("life-session") ||
+        pathName.includes("joined-users") ||
+        pathName.includes("attendance-requests"))
+    )
       setSessionSlidebarIsVisible(true);
     else setSessionSlidebarIsVisible(false);
   }, [pathName]);
