@@ -5,6 +5,7 @@ import Image from "next/image"
 import Location from "@rsuite/icons/Location"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
+import aa from "../../../../../../public/adminlogin.png"
 import moment from "moment"
 import SignatureCanvas from "react-signature-canvas"
 import Select from "react-select"
@@ -39,7 +40,7 @@ const TrainerSignupPage = () => {
         Country: "us",
         image: "",
         location: "",
-        Category: "",
+        Category: [1, 2],
         digital_signature: "",
         gender: "Male",
         birth_date: moment().format('YYYY-MM-DD'),
@@ -52,7 +53,7 @@ const TrainerSignupPage = () => {
             width: 350
         })
     };
-    console.log(form)
+    console.log(form.image)
 
     const categori = categorie.map(category => ({
         value: category.value.toLowerCase(),
@@ -80,15 +81,16 @@ const TrainerSignupPage = () => {
 
     };
 
-
     const fileUpload = () => {
         resumeRef?.current?.click()
     }
     const handleImageChange = (event) => {
         if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) });
+
+            setForm({ ...form, image: URL.createObjectURL((event.target.files[0])) });
         }
     }
+    // 
 
     const handleOnImageRemoveClick = () => {
         setForm({ ...form, image: "" })
@@ -114,7 +116,7 @@ const TrainerSignupPage = () => {
 
         }
 
-        let data = { gender: form.gender, trainer_type_id: form.type, image: form.image, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
+        let data = { gender: form.gender, trainer_type_id: form.type, image: aa, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
         try {
 
             dispatch(trainerRegister(data)).then((res) => {
@@ -229,7 +231,7 @@ const TrainerSignupPage = () => {
                                 <Input placeholder="Confirm Your Password" required type="password" name="password_confirmation" value={form.password_confirmation} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                 <Input onChange={onChangeDate} value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <Input accept="image/png, image/gif, image/jpeg, image/png" required type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Input accept="image/png, image/gif, image/jpeg" required type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                 <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
                                 <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
                                     <SignatureCanvas canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
@@ -248,6 +250,7 @@ const TrainerSignupPage = () => {
                     <Box display={"flex"} justifyContent={{ base: "center", xl: "flex-end" }} alignItems={"center"} marginTop={{ md: 10, xl: 0 }} padding={{ base: 0, md: 20 }} w={"full"}>
                         <Button backgroundColor="#11cdef"
                             textColor={"white"}
+                            variant={"black"}
                             onClick={HandleSubmit}
                             size={{ base: "lg", md: "sm" }}
                             w={{ base: "full", md: 300, lg: 200 }}

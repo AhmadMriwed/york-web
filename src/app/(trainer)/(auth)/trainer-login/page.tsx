@@ -8,14 +8,16 @@ import { baseURL } from '@/utils/api'
 import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
-import { Flex, Spinner, Text } from '@chakra-ui/react'
+import { Flex, Spinner, Text ,useDisclosure} from '@chakra-ui/react'
 import { Languages } from "@/utils/categories"
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
 import { getTrainerProfile, trainerLogin } from '@/store/trainerStore/slices/trainerSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import AddTrainerModal from '@/components/trainer/AddTrainerModal'
 
 const TrainerLogin = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
   const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
   const [form, setForm] = useState({
@@ -75,17 +77,17 @@ const TrainerLogin = () => {
     ),
   }));
 
-  useEffect(() => {
-    console.log(cookies.get("trainer_token"))
-    const token = cookies.get("trainer_token")
-    if (token) {
-      dispatch(getTrainerProfile(token)).then(() => {
-        router.push("/")
-      })
+  // useEffect(() => {
+  //   console.log(cookies.get("trainer_token"))
+  //   const token = cookies.get("trainer_token")
+  //   if (token) {
+  //     dispatch(getTrainerProfile(token)).then(() => {
+  //       router.push("/")
+  //     })
 
-    }
+  //   }
 
-  }, [trainer])
+  // }, [trainer])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -121,6 +123,10 @@ const TrainerLogin = () => {
                     onChange={onChange}
                     required />
                   <Link href='/trainer-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
+                  <div className='justify-self-end' >
+                    <AddTrainerModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                    <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
+                  </div>
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>

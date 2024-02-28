@@ -37,7 +37,7 @@ const UserCompleteSignup = () => {
         birth_date: moment().format('YYYY-MM-DD'),
         image: "",
         Country: "us",
-        categories: [1, 2],
+        categories: [],
         location: {
             address: "address",
             latitude: 3,
@@ -115,6 +115,7 @@ const UserCompleteSignup = () => {
 
 
     const categori = categorie.map(category => ({
+        id: category.id,
         value: category.value.toLowerCase(),
         label: (
 
@@ -180,7 +181,7 @@ const UserCompleteSignup = () => {
 
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>category</FormLabel>
                                 <Select styles={customStyles} options={categori}
-                                    onChange={(value) => setForm({ ...form, categories: value.map((i) => i.value) })}
+                                    onChange={(value) => setForm({ ...form, categories: value.map((i) => i.id) })}
                                     name='categories'
                                     id='categories'
                                     isMulti

@@ -1,7 +1,7 @@
 "use client"
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
-import { Flex, Box, FormLabel, Input, Button, useToast } from '@chakra-ui/react'
+import { Flex, Box, FormLabel, Input, Button, useToast, Spinner } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { adminValidateForgotPassword } from '@/store/adminstore/slices/authSlice'
 
@@ -50,7 +50,7 @@ const SendCode = () => {
           <FormLabel htmlFor="" className='text-base text-white'>Enter The Code</FormLabel>
           <Input type="number" width={300} backgroundColor={"white"} color={"black"} onChange={(e) => setCode(e.target.value)} />
           <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"}>
-            <Button width={{ base: 300, lg: 200 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>confirm</Button>
+            <Button width={{ base: 300, lg: 200 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>{loading ? <Spinner size={"sm"} color='red' /> : "Confirm"}</Button>
             <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0'>Resend code</button>
           </Flex>
         </Box>

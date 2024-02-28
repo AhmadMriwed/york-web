@@ -3,19 +3,19 @@ import Image from 'next/image'
 import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie'
-import axios, { AxiosError } from 'axios'
-import { baseURL } from '@/utils/api'
 import { Languages } from '@/utils/categories'
 import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
-import { Flex, Spinner, Text } from '@chakra-ui/react'
+import { Flex, Spinner, Text, useDisclosure } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
+import AddUserModal from '@/components/user/AddUserModal'
 const UserLogin = () => {
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const [form, setForm] = useState({
         email: "",
@@ -28,12 +28,12 @@ const UserLogin = () => {
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
-    const { error, loading, user } = useSelector((state:any) => state.userSlice)
+    const { error, loading, user } = useSelector((state: any) => state.userSlice)
     console.log(error, loading, user)
 
 
 
-    
+
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -78,15 +78,16 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    useEffect(() => {
-        console.log(cookie.get("user_token"))
-        const token = cookie.get("user_token")
-        if (token) {
-            dispatch(getUserProfile(token)).then(() => {
-                router.push("/")
-            })
-        }
-    }, [user])
+    // useEffect(() => {
+    //     console.log(cookie.get("user_token"))
+    //     const token = cookie.get("user_token")
+    //     if (token) {
+    //         dispatch(getUserProfile(token)).then((res) => {
+    //             console.log(res)
+    //             router.push("/")
+    //         })
+    //     }
+    // }, [user])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -120,7 +121,14 @@ const UserLogin = () => {
                                         value={form.password}
                                         onChange={onChange}
                                         required />
-                                    <Link href='/user-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
+                                    <Link href='/user-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>  </Link>
+                                    <div className='justify-self-end' >
+                                        <AddUserModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                                        <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
+                                    </div>
+
+
+
                                     <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                                         <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                                             <div>

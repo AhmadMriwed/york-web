@@ -13,12 +13,15 @@ import { useFormik } from 'formik';
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
-import { Flex, Avatar, Text, Spinner } from '@chakra-ui/react'
+import { Flex, Button, Text, Spinner, useDisclosure } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice'
 import { GlobalState } from '@/types/storeTypes'
+import AddAdminModal from '@/components/admin/AddAdminModal'
+import { Email } from '@rsuite/icons'
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false)
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const dispatch: any = useDispatch()
@@ -26,6 +29,7 @@ const AdminLogin = () => {
   const cookies = new Cookies();
   const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
   console.log(error, loading, admin)
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -51,7 +55,10 @@ const AdminLogin = () => {
       dispatch(loginAdmin(data)).then((res) => {
         console.log(res)
         console.log("logged in success")
+        router.push("/")
+
       })
+      setForm({ email: "", password: "", language: "" })
     } catch (error: any) {
       console.log(error.message)
     }
@@ -74,17 +81,19 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  useEffect(() => {
-    console.log(cookies.get("token"))
-    const token = cookies.get("token")
-    if (token) {
-      dispatch(getAdminProfile(token)).then(() => {
-        router.push("/")
-      })
+  // useEffect(() => {
+  //   console.log(cookies.get("token"))
+  //   const token = cookies.get("token")
+  //   if (token) {
+  //     dispatch(getAdminProfile(token)).then(() => {
+  //       router.push("/")
+  //     })
 
-    }
+  //   }
 
-  }, [admin])
+  // }, [admin])
+
+
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -147,7 +156,14 @@ const AdminLogin = () => {
                   {/* {error && (
                     <div className="error-mesage">{error}</div>
                   )} */}
-                  <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
+
+                  <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
+                  </Link>
+                  <div className='justify-self-end' >
+                    <AddAdminModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                    <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
+                  </div>
+
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
@@ -176,8 +192,10 @@ const AdminLogin = () => {
           </div>
         </>
       )}
+
     </div>
   )
 }
+
 
 export default AdminLogin

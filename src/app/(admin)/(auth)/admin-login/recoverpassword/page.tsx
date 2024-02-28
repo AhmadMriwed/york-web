@@ -13,13 +13,13 @@ const RecoverPassword1 = () => {
 
   const [email, setEmail] = useState("")
   const { error, loading, msg } = useSelector((state: any) => state.authSlice)
-  
+
   console.log(msg)
   const dispatch: any = useDispatch()
-  console.log(error, loading, error)
+  console.log(error, loading, msg)
   const toast = useToast()
   const HandleSubmit = async () => {
-    
+
 
     try {
 
