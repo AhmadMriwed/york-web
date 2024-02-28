@@ -55,10 +55,47 @@ export const getTrainerProfile = createAsyncThunk("getProfile", async (token: st
         return rejectWithValue(error.message)
     }
 })
+export const trainerUpdatePassword = createAsyncThunk("updatePassword", async (params: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", params)
+    try {
+        const res = await axios.put(`${baseURL}trainer/updatePassword`,
+            params.data, {
+            headers: {
+                Authorization: `Bearer ${params.token}`
+            }
+        })
+        if (res.status === 200) {
+            console.log(res, "password updated successfully")
+            return res.data.data
+        }
 
+    } catch (error: any) {
+        console.log("Error", error.message)
+        return rejectWithValue(error.message)
+    }
+})
+export const trainerLogOut = createAsyncThunk("trainerLogout", async (token, thunAPI) => {
+    const { rejectWithValue } = thunAPI
+    try {
+        const res = await axios.delete(`${baseURL}trainer/logout`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        let cookie = new Cookies()
+        cookie.remove("trainer_token")
+        return res.data
+    } catch (error: any) {
+        console.log(error.message)
+        return rejectWithValue(error.message)
+    }
+})
 const initialState = {
     loading: false,
     error: null,
+    loadingPass: false,
+    errorPass: null,
     trainer: ""
 
 }
@@ -107,6 +144,18 @@ export const trainerSlice = createSlice({
             .addCase(getTrainerProfile.rejected, (state, action: any) => {
                 state.loading = false
                 state.error = action.payload
+            })
+            .addCase(trainerUpdatePassword.pending, (state) => {
+                state.loadingPass = true;
+            })
+            .addCase(trainerUpdatePassword.fulfilled, (state, action: any) => {
+                state.loadingPass = false
+                state.errorPass = null
+                state.trainer = action.payload
+            })
+            .addCase(trainerUpdatePassword.rejected, (state, action: any) => {
+                state.loadingPass = false
+                state.errorPass = action.payload
             })
     }
 })

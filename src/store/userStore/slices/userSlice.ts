@@ -108,12 +108,50 @@ export const userResetPassword = createAsyncThunk("resetPassword", async (data: 
         return rejectWithValue(error.message)
     }
 })
+export const userUpdatePassword = createAsyncThunk("updatePassword", async (params: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", params)
+    try {
+        const res = await axios.put(`${baseURL}user/updatePassword`,
+            params.data, {
+            headers: {
+                Authorization: `Bearer ${params.token}`
+            }
+        })
+        if (res.status === 200) {
+            console.log(res, "password updated successfully")
+            return res.data.data
+        }
+
+    } catch (error: any) {
+        console.log("Error", error.message)
+        return rejectWithValue(error.message)
+    }
+})
+
+export const userLogOut = createAsyncThunk("userLogout", async (token, thunAPI) => {
+    const { rejectWithValue } = thunAPI
+    try {
+        const res = await axios.delete(`${baseURL}user/logout`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        let cookie = new Cookies()
+        cookie.remove("user_token")
+        return res.data
+    } catch (error: any) {
+        console.log(error.message)
+        return rejectWithValue(error.message)
+    }
+})
 const initialState = {
     user: "",
     error: null,
     loading: false,
     msg: "",
-
+    loadingPass: false,
+    errorPass: null
 }
 
 export const userSlice = createSlice({
@@ -181,7 +219,7 @@ export const userSlice = createSlice({
             .addCase(userForgotPassword.fulfilled, (state, action: any) => {
                 state.loading = false
                 state.error = null
-                state.msg = action.payload.message
+                state.msg = action.payload
 
             })
             .addCase(userForgotPassword.rejected, (state, action: any) => {
@@ -195,7 +233,7 @@ export const userSlice = createSlice({
             .addCase(userValidateForgotPassword.fulfilled, (state, action: any) => {
                 state.error = null
                 state.loading = false
-                state.msg = action.payload.message
+                state.msg = action.payload
             })
             .addCase(userValidateForgotPassword.rejected, (state, action: any) => {
                 state.loading = false
@@ -213,6 +251,19 @@ export const userSlice = createSlice({
             .addCase(userResetPassword.rejected, (state, action: any) => {
                 state.loading = false
                 state.error = action.payload
+            })
+            //userUpdatePassword
+            .addCase(userUpdatePassword.pending, (state) => {
+                state.loadingPass = true;
+            })
+            .addCase(userUpdatePassword.fulfilled, (state, action: any) => {
+                state.loadingPass = false
+                state.errorPass = null
+                state.user = action.payload
+            })
+            .addCase(userUpdatePassword.rejected, (state, action: any) => {
+                state.loadingPass = false
+                state.errorPass = action.payload
             })
     }
 })
