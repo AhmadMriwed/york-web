@@ -24,6 +24,7 @@ const TrainerSignupPage = () => {
     console.log(address)
     const [sign, setSign] = useState()
     const inputRef = useRef()
+    const [file, setFile] = useState("")
     const resumeRef = useRef()
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
@@ -85,9 +86,15 @@ const TrainerSignupPage = () => {
         resumeRef?.current?.click()
     }
     const handleImageChange = (event) => {
+
         if (event.target.files && event.target.files[0]) {
 
+
             setForm({ ...form, image: URL.createObjectURL((event.target.files[0])) });
+
+            setFile(event.target.files[0])
+
+
         }
     }
     // 
@@ -99,6 +106,7 @@ const TrainerSignupPage = () => {
     };
     const HandleSubmit = async (e) => {
         e.preventDefault()
+
         await setForm({ ...form, digital_signature: sign.getTrimmedCanvas().toDataURL("image/svg") })
         console.log(form)
 
@@ -116,7 +124,8 @@ const TrainerSignupPage = () => {
 
         }
 
-        let data = { gender: form.gender, trainer_type_id: form.type, image: aa, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
+
+        let data = { gender: form.gender, trainer_type_id: form.type, image: form.image, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
         try {
 
             dispatch(trainerRegister(data)).then((res) => {

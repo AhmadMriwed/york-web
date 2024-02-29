@@ -8,7 +8,7 @@ import { baseURL } from '@/utils/api'
 import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
-import { Flex, Spinner, Text ,useDisclosure} from '@chakra-ui/react'
+import { Flex, Spinner, Text, useDisclosure } from '@chakra-ui/react'
 import { Languages } from "@/utils/categories"
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
