@@ -167,24 +167,21 @@ const Sidebar = () => {
 
    return (
       <aside
-         className={`${
-            expanded ? "w-[220px]" : "w-fit"
-         } transition-transform duration-[1s] min-h-screen h-fit sticky top-0 left-0 col-start-1 row-span-2 `}
+         className={`${expanded ? "w-[220px]" : "w-fit"
+            } transition-transform duration-[1s] min-h-screen h-fit sticky top-0 left-0 col-start-1 row-span-2 `}
       >
          <Image
             src={"/logo.png"}
             alt=""
             width={90}
             height={90}
-            className={`max-w-[130px] mx-auto mt-2 hidden md:block ${
-               expanded ? "!block" : "!hidden"
-            } transition-all duration-500 `}
+            className={`max-w-[130px] mx-auto mt-2 hidden md:block ${expanded ? "!block" : "!hidden"
+               } transition-all duration-500 `}
          />
 
          <Sidenav
-            className={`${
-               mode === "dark" ? "!bg-dark" : "!bg-light"
-            } !mt-[10px] transition-all duration-500 !text-inherit`}
+            className={`${mode === "dark" ? "!bg-dark" : "!bg-light"
+               } !mt-[10px] transition-all duration-500 !text-inherit`}
             expanded={expanded}
          >
             <Sidenav.Body

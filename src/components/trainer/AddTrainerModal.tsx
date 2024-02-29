@@ -61,7 +61,6 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                         <Input name='old_password' value={data.old_password} onChange={handleChange} type='password' />
                         <FormLabel>new password</FormLabel>
                         <Input onChange={handleChange} value={data.new_password} name='new_password' type='password' />
-
                     </FormControl>
                     <Button type='button' onClick={handleUpdatePass} colorScheme='blue' w={"full"} mt={3} >
                         {loadingPass ? <Spinner color='red' size={"sm"} /> : "Submit"}

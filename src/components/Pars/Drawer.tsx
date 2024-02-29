@@ -6,6 +6,11 @@ import { Ref, forwardRef, useContext } from "react";
 import Image from "next/image";
 import profile from "../../../public/avatar.png";
 import { ThemeContext } from "./ThemeContext";
+import { useDispatch, useSelector } from "react-redux";
+import { Spinner } from "@chakra-ui/react";
+import { adminLogOut } from "@/store/adminstore/slices/authSlice";
+import Cookies from "universal-cookie";
+import { useRouter } from "next/navigation";
 
 interface NavLinkProps {
    as: string;
@@ -21,6 +26,7 @@ const NavLink = forwardRef(
 
 NavLink.displayName = "NavLink";
 
+
 export default function Drawer({
    expanded,
    setExpanded,
@@ -30,14 +36,27 @@ export default function Drawer({
 }) {
    const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
       useContext(ThemeContext);
-
+   const { error, loading, admin } = useSelector((state: any) => state.authSlice)
+   console.log(error, loading, admin)
+   const dispatch: any = useDispatch()
+   const router = useRouter()
+   const HandleLogOut = () => {
+      let cookie = new Cookies()
+      let token = cookie.get("token")
+      try {
+         dispatch(adminLogOut(token)).then((res) => {
+            console.log(res)
+            router.push("/")
+         })
+      } catch (error: any) {
+         console.log(error.mesage)
+      }
+   }
    return (
       <aside
-         className={`${expanded ? "block" : "hidden"} ${
-            mode === "dark" ? "!bg-dark" : "!bg-light"
-         } ${
-            mode === "dark" ? "!text-light" : "!text-dark"
-         } absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
+         className={`${expanded ? "block" : "hidden"} ${mode === "dark" ? "!bg-dark" : "!bg-light"
+            } ${mode === "dark" ? "!text-light" : "!text-dark"
+            } absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
       >
          <Sidenav
             className="!bg-inherit !text-inherit !mt-[10px] transition-all duration-500"
@@ -120,12 +139,13 @@ export default function Drawer({
                   </Nav.Menu>{" "}
                   <hr className="mt-[70px] mb-[30px] w-[calc(100%_-_40px)] border-[#777] mx-auto" />
                   <Nav.Item
+                     onClick={HandleLogOut}
                      eventKey="5"
                      className="!bg-transparent text-center  !text-inherit !py-[10px] !text-[14px] !w-fit !left-[50%] translate-x-[-50%]"
                      icon={<ExitIcon style={{ top: "11px" }} />}
                      style={{ marginInline: "auto !important" }}
                   >
-                     Log out
+                     {loading ? <Spinner size={"sm"} color="red" /> : " Log out"}
                   </Nav.Item>
                </Nav>
             </Sidenav.Body>
