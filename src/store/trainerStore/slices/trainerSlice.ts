@@ -145,6 +145,7 @@ export const trainerSlice = createSlice({
                 state.loading = false
                 state.error = action.payload
             })
+            //trainer update password
             .addCase(trainerUpdatePassword.pending, (state) => {
                 state.loadingPass = true;
             })
@@ -156,6 +157,19 @@ export const trainerSlice = createSlice({
             .addCase(trainerUpdatePassword.rejected, (state, action: any) => {
                 state.loadingPass = false
                 state.errorPass = action.payload
+            })
+            //trainer logout
+            .addCase(trainerLogOut.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(trainerLogOut.fulfilled, (state, action: any) => {
+                state.error = null
+                state.loading = false
+                state.trainer = ""
+            })
+            .addCase(trainerLogOut.rejected, (state, action: any) => {
+                state.error = action.payload
+                state.loading = false
             })
     }
 })

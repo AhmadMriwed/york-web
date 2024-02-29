@@ -100,7 +100,7 @@ export const adminUpdatePassword = createAsyncThunk("updatePassword", async (par
     }
 })
 
-export const adminLogOut = createAsyncThunk("adminLogout", async (token, thunAPI) => {
+export const adminLogOut = createAsyncThunk("adminLogout", async (token: String, thunAPI) => {
     const { rejectWithValue } = thunAPI
     try {
         const res = await axios.delete(`${baseURL}admin/logout`, {
@@ -205,6 +205,18 @@ const authSlice = createSlice({
             .addCase(adminUpdatePassword.rejected, (state, action: any) => {
                 state.loadingPass = false
                 state.errorPass = action.payload
+            })
+            .addCase(adminLogOut.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(adminLogOut.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.admin = ""
+            })
+            .addCase(adminLogOut.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
             })
     }
 });
