@@ -163,7 +163,7 @@ const JoinedUsers = ({ params }: any) => {
     );
 
   return (
-    <section className="px-2 pt-2 lg:px-14 lg:pt-4">
+    <section className="px-2 pt-6 lg:px-6">
       <ConfirmModal
         open={confirmOpen}
         setOpen={setConfirmOpen}
@@ -175,12 +175,12 @@ const JoinedUsers = ({ params }: any) => {
         title="Joined Users"
         description="Manage all the users who have joined the session."
       />
-      <div className="mt-10 border-b-[1px] border-[#303030]">
+      <div className="mt-7 border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
         {filteringBtns.map((btnName) => (
           <button
             key={btnName}
             onClick={() => setFilterBy(btnName)}
-            className={`py-2 px-2 sm:px-4 text-[14px] sm:text-[16px] ${
+            className={`py-2 sm:px-4 text-[14px] sm:text-[16px] ${
               filterBy === btnName
                 ? "border-b-2 border-[var(--primary-color1)]"
                 : ""

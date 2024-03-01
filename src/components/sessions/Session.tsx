@@ -82,7 +82,7 @@ const Session = ({ pickable, session }: any) => {
 
   return (
     <article
-      className={`relative w-full p-6 flex flex-col sm:flex-row gap-4
+      className={`relative p-3 sm:p-6 flex flex-col sm:flex-row gap-4
       rounded-[16px] ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
     >
       <AlertModal
@@ -97,7 +97,7 @@ const Session = ({ pickable, session }: any) => {
         deleteLoading={operationLoading}
       />
       {!pickable && (
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-2 right-2">
           <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
             <Dropdown.Item
               icon={<Paragraph />}
@@ -163,59 +163,58 @@ const Session = ({ pickable, session }: any) => {
           )}
         </div>
       )}
-      <div className="flex flex-1 justify-between items-end">
-        <div className="h-full flex flex-col justify-between gap-6">
-          <div className="flex flex-col">
-            <h6 className="text-[20px] font-bold max-w-xs">
-              {`${session.title && session.title} `}
-              <span
-                className="bg-[var(--primary-color1)] text-white text-[12px]
+      <div className="flex-1">
+        <h6 className="text-[18px] sm:text-[20px] font-bold max-w-xs">
+          {`${session.title && session.title} `}
+          <span
+            className="bg-[var(--primary-color1)] text-white text-[12px]
             text-center rounded-full px-3 py-1"
-              >
-                {session.status && session.status}
-              </span>
-            </h6>
-            {session.code && (
-              <p className="text-[14px] sm:text-[16px] text-[#888] mt-1">
-                <span className="font-bold">Session code: </span>
-                {session.code}
+          >
+            {session.status && session.status}
+          </span>
+        </h6>
+        <div className="flex flex-1 justify-between items-end">
+          <div className="flex flex-col justify-between gap-4 h-full">
+            <div className="flex flex-col">
+              {session.code && (
+                <p className="text-[14px] sm:text-[16px] text-[#888] mt-2">
+                  {`code: ${session.code}`}
+                </p>
+              )}
+              {session.training_session_type && (
+                <p className="text-[14px] max-w-xs text-[#888]">
+                  {`type: ${session.training_session_type.name}`}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <Avatar
+                src={session.owner.image && session.owner.image}
+                alt="Trainer Image"
+                size="xs"
+                circle
+              />
+              <p className="text-[14px]">
+                {session.owner.first_name + " " + session.owner.last_name}
               </p>
-            )}
-            {session.training_session_type && (
-              <p className="text-[14px] max-w-xs text-[#888] mt-2 sm:mt-2">
-                <span className="font-bold">Type: </span>
-
-                {session.training_session_type.name}
-              </p>
-            )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Avatar
-              src={session.owner.image && session.owner.image}
-              alt="Trainer Image"
-              size="xs"
-              circle
+          <div className="flex items-end xl:items-center flex-col xl:flex-row gap-2 sm:gap-4">
+            <ListItem
+              icon={<FaClock />}
+              text={`${calculateHours(session.date_from, session.date_to)} hr`}
             />
-            <p className="text-[16px]">
-              {session.owner.first_name + " " + session.owner.last_name}
-            </p>
+            <ListItem
+              icon={<Calendar />}
+              text={
+                session.date_from &&
+                session.date_to &&
+                `${getLocalDate(session.date_from)} - ${getLocalDate(
+                  session.date_to
+                )}`
+              }
+            />
           </div>
-        </div>
-        <div className="flex items-end xl:items-center flex-col xl:flex-row gap-2 sm:gap-3">
-          <ListItem
-            icon={<FaClock />}
-            text={`${calculateHours(session.date_from, session.date_to)} hr`}
-          />
-          <ListItem
-            icon={<Calendar />}
-            text={
-              session.date_from &&
-              session.date_to &&
-              `${getLocalDate(session.date_from)} - ${getLocalDate(
-                session.date_to
-              )}`
-            }
-          />
         </div>
       </div>
     </article>

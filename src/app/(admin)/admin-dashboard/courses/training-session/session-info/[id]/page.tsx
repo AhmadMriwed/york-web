@@ -107,7 +107,7 @@ const SessionInfo = ({ params }: any) => {
     );
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-2 sm:px-6 py-4">
       <AlertModal
         open={deleteModal}
         setOpen={setDeleteModal}
@@ -128,29 +128,23 @@ const SessionInfo = ({ params }: any) => {
         completed={sessionOperationCompleted}
       />
       {/* TOP BAR */}
-      <div className="flex justify-between items-center flex-wrap">
-        <h3 className="text-[20px] font-bold flex items-center gap-3">
-          <BackBtn textColor="" />
-          Actions:
-        </h3>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-between items-center">
+        <BackBtn textColor="" />
+        <div className="my-2 flex gap-1">
           <button
             className="outlined-btn flex justify-center items-center gap-1"
-            style={{ marginBlock: "1rem", width: "fit-content" }}
             onClick={handleEdit}
           >
             <CiEdit /> Edit
           </button>
           <button
             className="outlined-btn flex justify-center items-center gap-1"
-            style={{ marginBlock: "1rem", width: "fit-content" }}
             onClick={handleDelete}
           >
             <PiTrash /> Delete
           </button>
           <button
             className="outlined-btn flex justify-center items-center gap-1"
-            style={{ marginBlock: "1rem", width: "fit-content" }}
             onClick={handleActivation}
           >
             {sessionInfo?.status === "Active" ? (
@@ -163,39 +157,39 @@ const SessionInfo = ({ params }: any) => {
         </div>
       </div>
       {/* ROW1 */}
-      <div className="flex flex-col xl:flex-row gap-3">
+      <div className="flex flex-col xl:flex-row gap-2">
         <div
-          className={`xl:flex-1 flex justify-between items-center gap-8 flex-wrap-reverse lg:flex-nowrap p-3 sm:p-6 rounded-[16px]
+          className={`xl:flex-1 flex justify-between items-center gap-2 sm:gap-4 flex-wrap-reverse sm:flex-nowrap p-3 sm:p-6 rounded-[16px]
         ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
         >
-          <div className="flex flex-col">
-            <h6 className="font-bold text-[20px] sm:text-[22px] leading-[1.6rem]">
+          <div className="flex flex-col max-w-lg">
+            <h6 className="font-bold text-[16px] sm:text-[18px] leading-[1.6rem]">
               {sessionInfo?.title && `${sessionInfo?.title} `}
-              <span className="px-2 py-1 text-[14px] bg-[var(--primary-color1)] text-white rounded-full">
+              <span className="p-1 text-[14px] bg-[var(--primary-color1)] text-white rounded-full">
                 {sessionInfo?.status && sessionInfo?.status}
               </span>
-              <span className="px-2 py-1 text-[14px] border-[1px] border-[var(--primary-color1)] rounded-full ml-1">
+              <span className="p-1 text-[14px] border-[1px] border-[var(--primary-color1)] rounded-full ml-1">
                 {sessionInfo?.classification_session &&
                   sessionInfo?.classification_session}
               </span>
             </h6>
-            <p className="text-[16px] sm:text-[18px] text-[#888] mt-1">
-              {`${courseInfo?.title && courseInfo.title}, Code: ${
+            <p className="text-[16px] text-[#888] mt-2">
+              {`${courseInfo?.title && courseInfo.title}, code: ${
                 courseInfo?.code && courseInfo.code
               }`}
             </p>
             {sessionInfo?.code && (
-              <p className="text-[14px] mt-6">{`Code: ${sessionInfo.code}`}</p>
+              <p className="text-[14px] mt-4">{`code: ${sessionInfo.code}`}</p>
             )}
             {sessionInfo?.training_session_type && (
               <p className="text-[14px] mt-1">
-                {`Type: ${sessionInfo.training_session_type.name}`}
+                {`type: ${sessionInfo.training_session_type.name}`}
               </p>
             )}
             <div className="flex items-center flex-wrap gap-2 mt-1">
               {courseInfo?.venue.title && (
                 <p className="text-[14px]">
-                  {`Venue: ${courseInfo.venue.title}`}
+                  {`venue: ${courseInfo.venue.title}`}
                 </p>
               )}
               <div
@@ -212,7 +206,7 @@ const SessionInfo = ({ params }: any) => {
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3 items-center mt-6">
+            <div className="flex gap-4 items-center mt-4">
               <ListItem
                 icon={<FaClock />}
                 text={
@@ -221,7 +215,7 @@ const SessionInfo = ({ params }: any) => {
                   `${calculateHours(
                     sessionInfo.date_from,
                     sessionInfo.date_to
-                  )} hr`
+                  )}hr`
                 }
               />
               <ListItem
@@ -240,7 +234,7 @@ const SessionInfo = ({ params }: any) => {
               />
             </div>
           </div>
-          <div className="bg-slate-400 w-[200px] h-[200px] rounded-[8px]">
+          <div className="bg-slate-400 min-w-[200px] w-[90%] sm:w-fit min-h-[200px] rounded-[8px] mx-auto sm:mx-0 self-start">
             {sessionInfo?.image && (
               <Image
                 src={sessionInfo.image}
@@ -258,10 +252,10 @@ const SessionInfo = ({ params }: any) => {
           </div>
         </div>
         <div
-          className={`flex flex-wrap justify-center sm:justify-between items-center gap-3 sm:gap-9 px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
+          className={`flex flex-wrap justify-center sm:justify-between items-center gap-2 sm:gap-7 px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
         ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
         >
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <h6 className="w-fit text-[14px] px-2 py-1 rounded-full bg-[var(--primary-color1)] text-white">
               Currently Available
             </h6>
@@ -272,7 +266,7 @@ const SessionInfo = ({ params }: any) => {
               </p>
             </div>
           </div>
-          <div className="mt-3 flex flex-col justify-center gap-3">
+          <div className="mt-2 sm:mt-0 flex flex-col justify-center gap-4">
             <div>
               <h6 className="text-[var(--primary-color1)] text-[16px] mb-1">
                 Assignments:
@@ -313,7 +307,7 @@ const SessionInfo = ({ params }: any) => {
         </div>
       </div>
       {/* ROW2 */}
-      <div className="mt-3 flex flex-col xl:flex-row gap-3">
+      <div className="mt-2 flex flex-col xl:flex-row gap-2">
         <div
           className={`flex-1 flex flex-col lg:flex-row p-3 sm:p-6 rounded-[16px] ${
             mode === "dark" ? "bg-[#212A34]" : "bg-white"

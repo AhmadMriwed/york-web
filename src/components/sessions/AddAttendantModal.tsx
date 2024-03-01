@@ -7,7 +7,7 @@ import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { Formik, Form } from "formik";
 import * as yup from "yup";
-import { Modal } from "rsuite";
+import { Avatar, Modal } from "rsuite";
 import CustomInput from "./CustomInput";
 import Loading from "../Pars/Loading";
 
@@ -37,7 +37,15 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
   );
 
   const usersData = attendUsers.map((user: unattendUserType) => ({
-    label: `${user.first_name} ${user.last_name}`,
+    label: (
+      <div className="flex items-center gap-2">
+        <Avatar src={user.image} size="xs" alt="User Image" />
+        <div className="flex gap-2 items-end">
+          <p className="m-0">{`${user.first_name} ${user.last_name}`}</p>
+          <p className="m-0 text-[10px] text-[#888]">Id:{user.user_id}</p>
+        </div>
+      </div>
+    ),
     value: user.user_id,
   }));
 
