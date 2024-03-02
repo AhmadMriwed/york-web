@@ -77,17 +77,17 @@ const TrainerLogin = () => {
     ),
   }));
 
-  // useEffect(() => {
-  //   console.log(cookies.get("trainer_token"))
-  //   const token = cookies.get("trainer_token")
-  //   if (token) {
-  //     dispatch(getTrainerProfile(token)).then(() => {
-  //       router.push("/")
-  //     })
+  useEffect(() => {
+    console.log(cookies.get("trainer_token"))
+    const token = cookies.get("trainer_token")
+    if (token) {
+      dispatch(getTrainerProfile(token)).then(() => {
+        router.push("/")
+      })
 
-  //   }
+    }
 
-  // }, [trainer])
+  }, [trainer])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />

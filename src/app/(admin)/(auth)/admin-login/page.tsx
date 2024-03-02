@@ -47,22 +47,34 @@ const AdminLogin = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-
     let data = { email: form.email, password: form.password }
     try {
       dispatch(loginAdmin(data)).then((res) => {
         console.log(res)
-        console.log("logged in success")
-        router.push("/")
-
+        if (res.error) {
+          console.log("request rejected")
+          return
+        } else if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/admin-login/confirmemail")
+        }
       })
       setForm({ email: "", password: "", language: "" })
-    } catch (error: any) {
-      console.log(error.message)
+
+    } catch (error) {
+      console.log(error)
     }
-  };
+
+
+
+
+
+
+  }
+
 
   const customStyles = {
     control: base => ({
@@ -81,18 +93,23 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  // useEffect(() => {
-  //   console.log(cookies.get("token"))
-  //   const token = cookies.get("token")
-  //   if (token) {
-  //     dispatch(getAdminProfile(token)).then(() => {
-  //       router.push("/")
-  //     })
+  useEffect(() => {
+    console.log(cookies.get("token"))
+    const token = cookies.get("token")
+    if (token !== undefined) {
+      dispatch(getAdminProfile(token)).then((res) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/admin-login/confirmemail")
+        }
 
-  //   }
+      })
 
-  // }, [admin])
+    }
 
+  }, [])
 
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>

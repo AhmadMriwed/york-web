@@ -10,11 +10,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { adminForgotPassword } from '@/store/adminstore/slices/authSlice'
 const RecoverPassword1 = () => {
   const router = useRouter()
-
   const [email, setEmail] = useState("")
   const { error, loading, msg } = useSelector((state: any) => state.authSlice)
-
-  console.log(msg)
   const dispatch: any = useDispatch()
   console.log(error, loading, msg)
   const toast = useToast()
@@ -25,13 +22,14 @@ const RecoverPassword1 = () => {
 
       let data = { email: email }
       dispatch(adminForgotPassword(data)).then((res) => {
-        if (error) {
+        console.log(res)
+        if (res.error) {
           console.log(error)
           toast({
             title: 'Error.',
             description: error,
             status: 'error',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top"
           })
@@ -39,14 +37,13 @@ const RecoverPassword1 = () => {
         } else {
           toast({
             title: 'success',
-            description: msg,
+            description: "code has been sent successfully",
             status: 'success',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top"
           })
           router.push(`/admin-login/recoverpassword/sendcode?email=${email}`)
-          console.log(res)
 
         }
 

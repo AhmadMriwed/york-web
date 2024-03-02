@@ -28,7 +28,7 @@ const SendCode = () => {
         } else {
           toast({
             title: 'Success.',
-            description: msg,
+            description: "code has been verified successfully",
             status: 'success',
             duration: 9000,
             isClosable: true,

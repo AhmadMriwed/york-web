@@ -4,7 +4,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
 
@@ -14,7 +14,7 @@ const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
   const toast = useToast()
-
+  const router = useRouter()
   const dispatch: any = useDispatch()
   const { admin, error, loading } = useSelector((state: any) => state.authSlice)
   console.log(error, loading, admin)
@@ -31,11 +31,23 @@ const ResetPassword = () => {
   }
 
   const handleSubmit = async () => {
+    if (form.password !== form.password_confirmation) {
+      toast({
+        title: 'Error.',
+        description: 'password must match',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+
+      })
+      return
+    }
     let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
       dispatch(adminResetPassword(data)).then((res) => {
         console.log(res)
-        if (error) {
+        if (res.error) {
           console.log(error)
           return
         } else {
@@ -48,6 +60,7 @@ const ResetPassword = () => {
             position: "top",
 
           })
+          router.push("/admin-login")
         }
       })
     } catch (error: any) {

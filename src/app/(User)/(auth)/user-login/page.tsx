@@ -9,14 +9,14 @@ import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
-import { Flex, Spinner, Text, useDisclosure } from '@chakra-ui/react'
+import { Flex, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
 import AddUserModal from '@/components/user/AddUserModal'
 const UserLogin = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
-
+    const toast = useToast()
     const [form, setForm] = useState({
         email: "",
         password: "",
@@ -40,14 +40,39 @@ const UserLogin = () => {
 
 
     const handleSubmit = (e) => {
+        if (!form.email || !form.password) {
+            toast({
+                title: 'Error',
+                description: "please fill the data .",
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+                position: "top"
+            })
+            return
+        }
         e.preventDefault()
         let data = { email: form.email, password: form.password }
+
         try {
             dispatch(userLogin(data)).then((res) => {
-                console.log(res, "success")
+                console.log(res)
+                if (res.error) {
+                    console.log(error)
+                    return
+                }
+                else if (res.payload.is_verified) {
+                    console.log("logged in success")
+                    router.push("/")
+                } else {
+                    router.push("/user-login/confirmemail")
+                }
+
+
             })
         } catch (error: any) {
             console.log(error.message)
+
         }
     }
 
@@ -78,16 +103,22 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    // useEffect(() => {
-    //     console.log(cookie.get("user_token"))
-    //     const token = cookie.get("user_token")
-    //     if (token) {
-    //         dispatch(getUserProfile(token)).then((res) => {
-    //             console.log(res)
-    //             router.push("/")
-    //         })
-    //     }
-    // }, [user])
+    useEffect(() => {
+        console.log(cookie.get("user_token"))
+        const token = cookie.get("user_token")
+        if (token !== undefined) {
+            dispatch(getUserProfile(token)).then((res) => {
+                console.log(res.payload.is_verified)
+                if (res.payload.is_verified) {
+                    router.push("/")
+                } else {
+                    router.push("/user-login/confirmemail")
+                }
+
+
+            })
+        }
+    }, [])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
