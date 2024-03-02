@@ -15,22 +15,13 @@ import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import {
   calculateHours,
-  getLocalDate,
   getLocalTimezoneDate,
   getLocalISODate,
 } from "@/utils/dateFuncs";
 /* icons */
-import { Location, Calendar } from "@rsuite/icons";
-import {
-  FaLanguage,
-  FaClock,
-  FaRegFile,
-  FaLink,
-  FaChartLine,
-} from "react-icons/fa";
+import { FaRegFile, FaLink, FaChartLine } from "react-icons/fa";
 import { PiInfoBold } from "react-icons/pi";
 /* components */
-import ListItem from "@/components/sessions/ListItem";
 import MiniSession from "@/components/sessions/MiniSession";
 import BackBtn from "@/components/backbtn/BackBtn";
 import { Loader } from "rsuite";
@@ -38,8 +29,8 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import Timer from "@/components/sessions/Timer";
 import SessionState from "@/components/sessions/SessionState";
-import Image from "next/image";
 import ConfirmModal from "@/components/Pars/ConfirmModal";
+import SessionDetails from "@/components/sessions/SessionDetails";
 
 const LifeSession = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -98,9 +89,9 @@ const LifeSession = ({ params }: any) => {
         completed={sessionOperationCompleted}
       />
       {/* TOP BAR */}
-      <div className="flex flex-wrap justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center my-2">
         <BackBtn textColor="" />
-        <div className="my-2 flex gap-1">
+        <div className="flex gap-1">
           {sessionInfo && (
             <>
               {!sessionInfo.session_status ||
@@ -150,147 +141,54 @@ const LifeSession = ({ params }: any) => {
       </div>
       {/* ROW1 */}
       <div className="flex flex-col xl:flex-row gap-2">
+        <SessionDetails
+          sessionInfo={sessionInfo}
+          courseInfo={courseInfo}
+          life
+        />
         <div
-          className={`xl:flex-1 flex justify-between items-center gap-2 sm:gap-4 flex-wrap-reverse sm:flex-nowrap p-3 sm:p-6 rounded-[16px]
-        ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
+          className="px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
+        bg-[#212A34] text-[var(--light-color)]"
         >
-          <div className="flex flex-col max-w-lg">
-            <h6 className="font-bold text-[16px] sm:text-[18px] leading-[1.6rem]">
-              {sessionInfo?.title && `${sessionInfo?.title} `}
-              <span className="p-1 text-[14px] bg-[var(--primary-color1)] text-white rounded-full">
-                {sessionInfo?.status && sessionInfo?.status}
-              </span>
-              <span className="p-1 text-[14px] border-[1px] border-[var(--primary-color1)] rounded-full ml-1">
-                {sessionInfo?.session_status && sessionInfo?.session_status}
-              </span>
-            </h6>
-            <p className="text-[16px] text-[#888] mt-2">
-              {`${courseInfo?.title && courseInfo.title}, code: ${
-                courseInfo?.code && courseInfo.code
-              }`}
-            </p>
-            {sessionInfo?.code && (
-              <p className="text-[14px] mt-4">{`code: ${sessionInfo.code}`}</p>
-            )}
-            {sessionInfo?.training_session_type && (
-              <p className="text-[14px] mt-1">
-                {`type: ${sessionInfo.training_session_type.name}`}
-              </p>
-            )}
-            <div className="flex items-center flex-wrap gap-2 mt-1">
-              {courseInfo?.venue.title && (
-                <p className="text-[14px]">
-                  {`venue: ${courseInfo.venue.title}`}
-                </p>
-              )}
-              <div
-                className={`${
-                  mode === "dark"
-                    ? "bg-[var(--light-color)] text-[var(--dark-color)]"
-                    : "bg-[var(--dark-color)] text-[var(--light-color)]"
-                } w-fit px-[12px] py-[3px] flex justify-center items-center gap-1
-            rounded-full cursor-pointer`}
-              >
-                <Location />
-                <p className="text-[12px]">
-                  {courseInfo?.location ? courseInfo.location : "Rome"}
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-4 items-center mt-4">
-              <ListItem
-                icon={<FaClock />}
-                text={
-                  sessionInfo?.date_from &&
-                  sessionInfo?.date_to &&
-                  `${calculateHours(
-                    sessionInfo.date_from,
-                    sessionInfo.date_to
-                  )}hr`
-                }
-              />
-              <ListItem
-                icon={<FaLanguage />}
-                text={courseInfo?.lang && courseInfo.lang}
-              />
-              <ListItem
-                icon={<Calendar />}
-                text={
-                  sessionInfo?.date_from &&
-                  sessionInfo?.date_to &&
-                  `${getLocalDate(sessionInfo.date_from)} - ${getLocalDate(
-                    sessionInfo.date_from
-                  )}`
-                }
-              />
-            </div>
-          </div>
-          <div className="bg-slate-400 min-w-[200px] w-[90%] sm:w-fit min-h-[200px] rounded-[8px] mx-auto sm:mx-0 self-start">
-            {sessionInfo?.image && (
-              <Image
-                src={sessionInfo.image}
-                alt="Session Image"
-                width={400}
-                height={400}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-            )}
-          </div>
-        </div>
-        <div
-          className={`px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
-        ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
-        >
-          <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-2 sm:gap-7">
+          <div className="flex flex-col sm:flex-row justify-center sm:justify-between gap-2 sm:gap-7">
             <div className="flex flex-col gap-4">
               <h6 className="w-fit text-[14px] px-2 py-1 rounded-full bg-[var(--primary-color1)] text-white">
                 Currently Available
               </h6>
               <div className="flex flex-col">
                 <p className="text-[16px] font-bold">Session Topics:</p>
-                <p className="max-w-[200px] text-[12px] text-[#888]">
+                <p className="sm:max-w-[225px] text-[12px] text-[#888]">
                   {sessionInfo?.outline && sessionInfo.outline}
                 </p>
               </div>
             </div>
-            <div className="mt-2 sm:mt-0 flex flex-col justify-center gap-4">
+            <div className="mt-2 sm:mt-0 flex sm:flex-col justify-between sm:justify-center items-center gap-4">
               <div>
-                <h6 className="text-[var(--primary-color1)] text-[16px] mb-1">
+                <p className="text-[var(--primary-color1)] text-[12px] sm:text-[16px] mb-1">
                   Assignments:
-                </h6>
-                <ListItem
-                  gap={2}
-                  icon={<FaRegFile />}
-                  text={
-                    sessionInfo?.count_assignments &&
-                    `${sessionInfo.count_assignments} Files`
-                  }
-                />
+                </p>
+                <div className="text-[12px] sm:text-[14px] flex items-center gap-2">
+                  <FaRegFile />
+                  <p>
+                    {sessionInfo?.count_assignments &&
+                      `${sessionInfo.count_assignments} Files`}
+                  </p>
+                </div>
               </div>
               <div>
-                <h6 className="text-[var(--primary-color1)] text-[16px] mb-1">
+                <p className="text-[var(--primary-color1)] text-[12px] sm:text-[16px] mb-1">
                   Attached Files:
-                </h6>
-                <ListItem
-                  gap={2}
-                  icon={<FaRegFile />}
-                  text={
-                    sessionInfo?.files && `${sessionInfo.files.length} Files`
-                  }
-                />
+                </p>
+                <div className="text-[12px] sm:text-[14px] flex items-center gap-2">
+                  <FaRegFile />
+                  <p>
+                    {sessionInfo?.files && `${sessionInfo.files.length} Files`}
+                  </p>
+                </div>
               </div>
               <div
-                className={`text-[var(--primary-color1)] font-bold flex items-center gap-2
-            rounded-full py-1 px-2 ${
-              mode === "dark"
-                ? "bg-[var(--dark-color)]"
-                : "bg-[var(--light-color)]"
-            }`}
+                className="text-[var(--primary-color1)] text-[12px] font-bold flex items-center gap-2
+            rounded-full p-1 sm:py-1 sm:px-2 bg-[var(--dark-color)]"
               >
                 <FaLink />
                 <a href={sessionInfo?.url} target="_blank">
@@ -299,7 +197,7 @@ const LifeSession = ({ params }: any) => {
               </div>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
+          <div className="mt-2 flex flex-wrap sm:flex-nowrap justify-between items-center gap-2">
             <div>
               <p className="font-bold text-[12px] sm:text-[14px]">
                 {sessionInfo?.start_time &&
@@ -357,12 +255,8 @@ const LifeSession = ({ params }: any) => {
           <div>
             {sessionInfo?.session_status &&
             sessionInfo.session_status === "Expierd" ? (
-              //TMP
-              <div
-                className="p-6 w-[150px] h-[150px] bg-slate-400 rounded-[8px]
-              flex justify-center items-center font-bold text-[18px] mx-auto"
-              >
-                GIF
+              <div className="p-6 w-[100px] h-[100px] bg-slate-400 rounded-[8px] mx-auto">
+                {/* GIF */}
               </div>
             ) : (
               <>
@@ -371,7 +265,7 @@ const LifeSession = ({ params }: any) => {
                     <PiInfoBold />
                     <h3 className="font-bold">About The Session</h3>
                   </div>
-                  <p className="max-w-[300px] text-[12px] text-[#888]">
+                  <p className="sm:max-w-[325px] text-[12px] text-[#888]">
                     {sessionInfo?.description && sessionInfo.description}
                   </p>
                 </div>

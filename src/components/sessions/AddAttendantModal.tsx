@@ -156,7 +156,7 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
                     formikErrors={props.errors.cuase}
                     formikTouched={props.touched.cuase}
                   />
-                  <button type="submit" className="colored-btn !w-full">
+                  <button type="submit" className="colored-btn !w-full mt-4">
                     Add
                   </button>
                 </div>

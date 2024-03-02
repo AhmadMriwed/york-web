@@ -100,7 +100,9 @@ const NewSessionModal = ({ modalOpen, setModalOpen }: any) => {
             if (selectedSession) dispatch(duplicateSession(selectedSession));
             handleClose();
           }}
-          className={`colored-btn ${!selectedSession ? "opacity-[0.6]" : ""}`}
+          className={`colored-btn m-4 ${
+            !selectedSession ? "opacity-[0.6]" : ""
+          }`}
         >
           Add Session
         </button>

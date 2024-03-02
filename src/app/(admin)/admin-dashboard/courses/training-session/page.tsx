@@ -60,17 +60,23 @@ const TrainingSession = () => {
       <Header
         title="Sessions"
         description="Schedule all your Sessions , edit and track your teaching process."
-        btnTitle="Add Session"
-        btnAction={() =>
-          router.push("/admin-dashboard/courses/training-session/add")
-        }
       />
-      <div className="flex gap-1 items-center flex-wrap mt-7">
-        <button className="outlined-btn flex justify-center items-center gap-2">
-          <CiImport /> Import
-        </button>
-        <button className="outlined-btn flex justify-center items-center gap-2">
-          <CiExport /> Export
+      <div className="flex flex-wrap-reverse gap-2 justify-between items-center mt-7">
+        <div className="flex items-center gap-1">
+          <button className="outlined-btn flex justify-center items-center gap-2">
+            <CiImport /> Import
+          </button>
+          <button className="outlined-btn flex justify-center items-center gap-2">
+            <CiExport /> Export
+          </button>
+        </div>
+        <button
+          className="colored-btn !w-fit"
+          onClick={() =>
+            router.push("/admin-dashboard/courses/training-session/add")
+          }
+        >
+          Add Session
         </button>
       </div>
       {error ? (

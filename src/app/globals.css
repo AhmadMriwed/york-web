@@ -29,6 +29,7 @@
 .adel {
   background-color: #0f0f0f17;
 }
+
 /* header background and text color */
 .dark_mode {
   background: rgba(134, 133, 133, 0.15);
@@ -55,8 +56,8 @@
   font-size: 16px;
   /* width: 150px; */
   /* height: 40px; */
-  padding: 12px 24px;
-  margin-top: 44px;
+  padding: 10px 24px;
+  /* margin-top: 44px; */
   border-radius: 4px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -67,8 +68,8 @@
 .outlined-btn {
   justify-self: center;
   border: 1px solid #01989fcc;
-  font-size: 14px;
-  padding: 8px 16px;
+  font-size: 16px;
+  padding: 9px 24px;
   border-radius: 4px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -76,24 +77,15 @@
   -o-border-radius: 4px;
 }
 
-@media (max-width: 467px) {
-  .outlined-btn {
-    padding: 6px 12px;
-  }
-}
-
-.btn-wrap {
-  background-color: #01989f;
-  text-align: center;
-  color: white;
-
-  width: 250px;
-  height: 50px;
-}
-
 @media (max-width: 767px) {
   .colored-btn {
+    padding: 8px 16px;
+    font-size: 14px;
     width: 100%;
+  }
+  .outlined-btn {
+    padding: 7px 16px;
+    font-size: 14px;
   }
 }
 
@@ -104,6 +96,14 @@
 .outlined-btn:hover {
   background-color: #01979fcc;
   color: #fff;
+}
+
+.btn-wrap {
+  background-color: #01989f;
+  text-align: center;
+  color: white;
+  width: 250px;
+  height: 50px;
 }
 
 .login-input {
