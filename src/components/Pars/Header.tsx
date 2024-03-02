@@ -17,29 +17,30 @@ const Header = ({
   const router = useRouter();
 
   return (
-    <div className="flex justify-between flex-col md:flex-row">
-      <div className="flex items-center gap-5 sm:gap-7">
-        <IoArrowBackSharp
-          style={{
-            fontSize: "28px",
-            color: "var(--primary-color1)",
-            cursor: "pointer",
-          }}
-          onClick={() => router.back()}
-        />
-        <div>
-          <h3 className="font-[700] text-[24px] sm:text-[32px] text-[var(--primary-color1)]">
+    <div className="flex justify-between items-start sm:items-center flex-wrap gap-4 flex-col sm:flex-row">
+      <div>
+        <div className="flex items-center gap-2">
+          <IoArrowBackSharp
+            style={{
+              fontSize: "28px",
+              color: "var(--primary-color1)",
+              cursor: "pointer",
+            }}
+            onClick={() => router.back()}
+          />
+          <h3 className="font-bold text-[24px] sm:text-[32px] text-[var(--primary-color1)]">
             {title}
           </h3>
-          <p className="text-[16px] mt-2">{description}</p>
         </div>
+        <p className="text-[14px] sm:text-[16px] mt-2">{description}</p>
       </div>
       {btnTitle && btnAction && (
-        <div className="w-[60%] sm:w-fit">
-          <button className="colored-btn" onClick={btnAction}>
-            {btnTitle}
-          </button>
-        </div>
+        <button
+          className="colored-btn !m-0 !py-2 sm:!py-[12px] !w-fit"
+          onClick={btnAction}
+        >
+          {btnTitle}
+        </button>
       )}
     </div>
   );

@@ -47,7 +47,7 @@ const TrainingSession = () => {
   }, [dispatch]);
 
   return (
-    <section className="px-2 pt-2 lg:px-14 lg:pt-4">
+    <section className="px-2 pt-6 lg:px-6">
       <ConfirmModal
         open={duplicateOpen}
         setOpen={setDuplicateOpen}
@@ -65,17 +65,13 @@ const TrainingSession = () => {
           router.push("/admin-dashboard/courses/training-session/add")
         }
       />
-      <div className="flex gap-3 items-center flex-wrap mt-7">
-        <div>
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiImport /> Import
-          </button>
-        </div>
-        <div>
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiExport /> Export
-          </button>
-        </div>
+      <div className="flex gap-1 items-center flex-wrap mt-7">
+        <button className="outlined-btn flex justify-center items-center gap-2">
+          <CiImport /> Import
+        </button>
+        <button className="outlined-btn flex justify-center items-center gap-2">
+          <CiExport /> Export
+        </button>
       </div>
       {error ? (
         <ErrorMessage msg="Oops! There was an error, please try again later." />
@@ -83,12 +79,12 @@ const TrainingSession = () => {
         <Loading />
       ) : (
         <div>
-          <div className="mt-10 border-b-[1px] border-[#303030]">
+          <div className="mt-7 border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
             {filteringBtns.map((btnName) => (
               <button
                 key={btnName}
                 onClick={() => setFilterBy(btnName)}
-                className={`py-2 px-2 sm:px-4 text-[14px] sm:text-[16px] ${
+                className={`py-2 sm:px-4 text-[14px] sm:text-[16px] ${
                   filterBy === btnName
                     ? "border-b-2 border-[var(--primary-color1)]"
                     : ""

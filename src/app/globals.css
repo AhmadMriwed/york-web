@@ -76,6 +76,12 @@
   -o-border-radius: 4px;
 }
 
+@media (max-width: 467px) {
+  .outlined-btn {
+    padding: 6px 12px;
+  }
+}
+
 .btn-wrap {
   background-color: #01989f;
   text-align: center;

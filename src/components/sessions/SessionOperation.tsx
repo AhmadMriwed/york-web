@@ -124,9 +124,9 @@ const SessionOperation = ({
       onSubmit={submitHandler}
     >
       {(props) => (
-        <Form className="flex flex-col md:flex-row justify-between items center">
+        <Form className="flex flex-col md:flex-row justify-between">
           <div
-            className={`my-7 w-[100%] sm:w-[75%] md:w-[50%] p-[15px] sm:p-[30px]
+            className={`my-7 w-[100%] md:w-[50%] p-[15px] sm:p-[30px]
               rounded-[10px] ${mode === "dark" ? "bg-light" : "bg-white"}`}
           >
             {/* CODE */}
@@ -280,10 +280,10 @@ const SessionOperation = ({
               )}
             </button>
           </div>
-          <div className="flex flex-col sm:flex-row md:flex-col gap-2 order-[-1] md:order-[1]">
+          <div className="mt-7 flex flex-col gap-4 order-[-1] md:order-[1]">
             {/* IMAGE */}
             <div
-              className={`text-black h-[312px] mt-7 lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto
+              className={`text-black h-[312px] lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto
                 lg:mx-0  ${mode === "dark" ? "bg-light" : "bg-white"}`}
             >
               <button
@@ -291,7 +291,7 @@ const SessionOperation = ({
                 onClick={() => {
                   imageInput.current && imageInput.current.click();
                 }}
-                className="block mx-auto py-[10px] px-[30px] w-[50%] bg-[var(--primary-color1)]
+                className="block mx-auto py-[10px] px-[30px] w-[75%] bg-[var(--primary-color1)]
                   hover:bg-[var(--primary-color2)] transition-all duration-200 text-white rounded-[0px_0px_10px_10px]"
               >
                 Send Image (optional)
@@ -353,7 +353,7 @@ const SessionOperation = ({
             </div>
             {/* FILES */}
             <div
-              className={`text-black h-[312px] mt-7 lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto lg:mx-0  ${
+              className={`text-black h-[312px] lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto lg:mx-0  ${
                 mode === "dark" ? "bg-light" : "bg-white"
               }`}
             >
@@ -362,7 +362,7 @@ const SessionOperation = ({
                 onClick={() => {
                   filesInput.current && filesInput.current.click();
                 }}
-                className="block mx-auto py-[10px] px-[30px] w-[50%] bg-[var(--primary-color1)]
+                className="block mx-auto py-[10px] px-[30px] w-[75%] bg-[var(--primary-color1)]
                   hover:bg-[var(--primary-color2)] transition-all duration-200 text-white rounded-[0px_0px_10px_10px]"
               >
                 Send Files (optional)
@@ -388,16 +388,26 @@ const SessionOperation = ({
                 {fileNames.length > 0 &&
                   fileNames.map((fileName: any, index: number) => {
                     return (
-                      <div key={index} className="flex items-center gap-3 mt-3">
-                        <div className="min-w-5 min-h-5 rounded-[50%] bg-[#bb9be6] element-center">
-                          <IoMdAttach
-                            style={{
-                              color: "white",
-                              fontSize: "16px",
-                            }}
-                          />
+                      <div
+                        key={index}
+                        className="flex justify-between items-center gap-1 mt-3"
+                      >
+                        <div className="flex items-center gap-1 overflow-hidden">
+                          <div className="w-5 h-5 rounded-[50%] bg-[#bb9be6] element-center">
+                            <IoMdAttach
+                              style={{
+                                color: "white",
+                                fontSize: "16px",
+                              }}
+                            />
+                          </div>
+                          <div
+                            className="overflow-hidden"
+                            style={{ wordWrap: "break-word" }}
+                          >
+                            {fileName}
+                          </div>
                         </div>
-                        {fileName}
                         <button
                           type="button"
                           className="rounded-full flex justidy-center items-center p-1
