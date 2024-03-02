@@ -17,7 +17,12 @@ export const userLogin = createAsyncThunk("userLogin", async (data: any, thunkAP
         }
     } catch (error: any) {
         console.log("Error", error.message)
-        return rejectWithValue(error.message)
+        if (error.response.status === 403) {
+            return rejectWithValue("invalid email or password");
+        }
+        else {
+            return rejectWithValue("internel server error")
+        }
     }
 })
 
@@ -201,7 +206,7 @@ export const userSlice = createSlice({
             })
             //get singleUserProfile
             .addCase(getUserProfile.pending, (state) => {
-                state.loading = true
+                // state.loading = true
             })
             .addCase(getUserProfile.fulfilled, (state, action: any) => {
                 state.loading = false

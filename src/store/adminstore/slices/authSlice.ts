@@ -9,17 +9,23 @@ export const loginAdmin = createAsyncThunk('login', async (data: any, thunkAPI) 
     const cookies = new Cookies();
     try {
         const res = await axios.post(`${baseURL}admin/login`, data)
-        console.log(res.status)
+        console.log(res)
         if (res.status === 200) {
             console.log("success")
-            const token = res.data.data.access_token
+            let token = res.data.data.access_token
             cookies.set("token", token)
             return res.data.data
         }
 
     } catch (error: any) {
         console.log("Error", error.message)
-        return rejectWithValue(error.message);
+        if (error.response.status === 403) {
+            return rejectWithValue("invalid email or password");
+        }
+        else {
+            return rejectWithValue("internel server error")
+        }
+
     }
 })
 
@@ -46,12 +52,18 @@ export const adminForgotPassword = createAsyncThunk("forgotpassword", async (dat
 
     try {
         const res = await axios.post(`${baseURL}admin/forgot-password`, data)
+        console.log(res)
         if (res.status === 200) {
             console.log(res, "success")
-            return res.data.data
+            return res.data
         }
     } catch (error: any) {
-        return rejectWithValue(error.message)
+        if (error.response.status === 422) {
+            return rejectWithValue("invalid email")
+        } else {
+            return rejectWithValue("internel server error")
+        }
+
     }
 })
 export const adminValidateForgotPassword = createAsyncThunk("validatePassword", async (data: any, thunkAPI) => {
@@ -146,7 +158,7 @@ const authSlice = createSlice({
                 state.error = action.payload;
             })
             .addCase(getAdminProfile.pending, (state) => {
-                state.loading = true
+                // state.loading = true
             })
             .addCase(getAdminProfile.fulfilled, (state, action: any) => {
                 state.loading = false;
@@ -188,7 +200,7 @@ const authSlice = createSlice({
             .addCase(adminResetPassword.fulfilled, (state, action: any) => {
                 state.loading = false
                 state.error = null
-                state.admin = action.payload
+                state.msg = action.payload
             })
             .addCase(adminResetPassword.rejected, (state, action: any) => {
                 state.loading = false
