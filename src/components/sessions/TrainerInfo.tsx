@@ -27,7 +27,7 @@ const TrainerInfo = ({ trainer }: any) => {
         <PiInfo /> About
       </h6>
 
-      <p className="max-w-[300px] mt-1 text-[12px]">
+      <p className="sm:max-w-[325px] mt-1 text-[12px]">
         {trainer?.about_me && trainer.about_me}
       </p>
       <div className="mt-3 flex gap-2 items-center">

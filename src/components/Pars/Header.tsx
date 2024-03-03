@@ -35,10 +35,7 @@ const Header = ({
         <p className="text-[14px] sm:text-[16px] mt-2">{description}</p>
       </div>
       {btnTitle && btnAction && (
-        <button
-          className="colored-btn !m-0 !py-2 sm:!py-[12px] !w-fit"
-          onClick={btnAction}
-        >
+        <button className="colored-btn !w-fit" onClick={btnAction}>
           {btnTitle}
         </button>
       )}

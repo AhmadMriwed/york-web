@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { ThemeContext } from "../Pars/ThemeContext";
+import React, { useState, useEffect } from "react";
 import { FiClock } from "react-icons/fi";
 
 const Timer = ({ startTime, endTime }: any) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
@@ -29,12 +27,8 @@ const Timer = ({ startTime, endTime }: any) => {
 
   return (
     <div
-      className={`text-[var(--primary-color1)] font-bold flex items-center gap-2
-            rounded-full py-1 px-2 border-[1px] border-[var(--primary-color1)] ${
-              mode === "dark"
-                ? "bg-[var(--dark-color)]"
-                : "bg-[var(--light-color)]"
-            }`}
+      className="text-[var(--primary-color1)] text-[12px] font-bold flex items-center gap-2
+            rounded-full p-1 sm:py-1 sm:px-2 bg-[var(--dark-color)] border border-[var(--primary-color1)]"
     >
       <FiClock />
       {timeLeft}
