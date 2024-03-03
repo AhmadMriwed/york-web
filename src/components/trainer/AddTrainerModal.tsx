@@ -12,7 +12,7 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
     const [data, setData] = useState({
         old_password: "",
         new_password: "",
-
+        new_password_confirmation: ""
 
     })
     const handleChange = (e) => {
@@ -24,8 +24,12 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
         let cookie = new Cookies()
         let token = await cookie.get("trainer_token")
         console.log(token)
-        if (!data.new_password || !data.old_password) {
+        if (!data.new_password || !data.old_password || !data.new_password_confirmation) {
             alert("please fill data")
+            return
+        }
+        if (data.new_password !== data.new_password_confirmation) {
+            alert("password must much")
             return
         }
 
@@ -41,7 +45,7 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                     position: "top"
                 })
             })
-            setData({ new_password: "", old_password: "" })
+            setData({ new_password: "", old_password: "", new_password_confirmation: "" })
         } catch (error: any) {
             console.log(error.message)
         }
@@ -60,7 +64,11 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                         <FormLabel>old password</FormLabel>
                         <Input name='old_password' value={data.old_password} onChange={handleChange} type='password' />
                         <FormLabel>new password</FormLabel>
+
+
                         <Input onChange={handleChange} value={data.new_password} name='new_password' type='password' />
+                        <FormLabel>confirm password</FormLabel>
+                        <Input onChange={handleChange} value={data.new_password_confirmation} name='new_password_confirmation' type='password' />
                     </FormControl>
                     <Button type='button' onClick={handleUpdatePass} colorScheme='blue' w={"full"} mt={3} >
                         {loadingPass ? <Spinner color='red' size={"sm"} /> : "Submit"}

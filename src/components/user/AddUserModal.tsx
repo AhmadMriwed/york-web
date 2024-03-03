@@ -29,7 +29,10 @@ const AddUserModal = ({ isOpen, onClose, onOpen }) => {
             alert("please fill data")
             return
         }
-
+        if (data.new_password !== data.new_password_confirmation) {
+            alert("password must much")
+            return
+        }
         try {
             dispatch(userUpdatePassword({ token, data: data })).then((res) => {
                 console.log(res)
