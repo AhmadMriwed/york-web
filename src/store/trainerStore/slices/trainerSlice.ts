@@ -34,7 +34,13 @@ export const trainerLogin = createAsyncThunk("trainerLogin", async (data: any, t
         }
     } catch (error: any) {
         console.log("Error", error.message)
-        return rejectWithValue(error.message)
+        if (error.response.status === 403) {
+            return rejectWithValue("invalid email or password");
+        }
+        else {
+            return rejectWithValue("internel server error")
+        }
+
     }
 })
 export const getTrainerProfile = createAsyncThunk("getProfile", async (token: string, thunkAPI) => {
@@ -75,6 +81,48 @@ export const trainerUpdatePassword = createAsyncThunk("updatePassword", async (p
         return rejectWithValue(error.message)
     }
 })
+export const trainerForgotPassword = createAsyncThunk("forgotpassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+
+    try {
+        const res = await axios.post(`${baseURL}trainer/forgot-password`, data)
+        console.log(res)
+        if (res.status === 200) {
+            console.log(res, "success")
+            return res.data
+        }
+    } catch (error: any) {
+        if (error.response.status === 422) {
+            return rejectWithValue("invalid email")
+        } else {
+            return rejectWithValue("internel server error")
+        }
+
+    }
+})
+export const trainerValidateForgotPassword = createAsyncThunk("validatePassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", data)
+    try {
+        const res = await axios.post(`${baseURL}trainer/validate-forgot-password-otp`, data)
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        return rejectWithValue(error.message)
+    }
+})
+export const trainerResetPassword = createAsyncThunk("resetPassword", async (data: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    console.log("data", data)
+    try {
+        const res = await axios.post(`${baseURL}trainer/reset-password`, data)
+        console.log(res)
+        return res.data.data
+    } catch (error: any) {
+        console.log(error.message)
+        return rejectWithValue(error.message)
+    }
+})
 export const trainerLogOut = createAsyncThunk("trainerLogout", async (token, thunAPI) => {
     const { rejectWithValue } = thunAPI
     try {
@@ -96,7 +144,8 @@ const initialState = {
     error: null,
     loadingPass: false,
     errorPass: null,
-    trainer: ""
+    trainer: "",
+    msg: ""
 
 }
 
@@ -134,7 +183,7 @@ export const trainerSlice = createSlice({
             })
             //get trainer profile
             .addCase(getTrainerProfile.pending, (state) => {
-                state.loading = true
+                // state.loading = true
             })
             .addCase(getTrainerProfile.fulfilled, (state, action: any) => {
                 state.loading = false
@@ -170,6 +219,43 @@ export const trainerSlice = createSlice({
             .addCase(trainerLogOut.rejected, (state, action: any) => {
                 state.error = action.payload
                 state.loading = false
+            })
+            .addCase(trainerForgotPassword.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(trainerForgotPassword.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.msg = action.payload
+
+            })
+            .addCase(trainerForgotPassword.rejected, (state, action: any) => {
+                state.error = action.payload
+                state.loading = false
+            })
+            .addCase(trainerValidateForgotPassword.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(trainerValidateForgotPassword.fulfilled, (state, action: any) => {
+                state.error = null
+                state.loading = false
+                state.msg = action.payload
+            })
+            .addCase(trainerValidateForgotPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
+            .addCase(trainerResetPassword.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(trainerResetPassword.fulfilled, (state, action: any) => {
+                state.loading = false
+                state.error = null
+                state.msg = action.payload
+            })
+            .addCase(trainerResetPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
             })
     }
 })

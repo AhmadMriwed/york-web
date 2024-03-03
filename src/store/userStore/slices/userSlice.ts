@@ -84,10 +84,14 @@ export const userForgotPassword = createAsyncThunk("forgotpassword", async (data
         const res = await axios.post(`${baseURL}user/forgot-password`, data)
         if (res.status === 200) {
             console.log(res, "success")
-            return res.data.data
+            return res.data
         }
     } catch (error: any) {
-        return rejectWithValue(error.message)
+        if (error.response.status === 422) {
+            return rejectWithValue("invalid email")
+        } else {
+            return rejectWithValue("internel server error")
+        }
     }
 })
 export const userValidateForgotPassword = createAsyncThunk("validatePassword", async (data: any, thunkAPI) => {
