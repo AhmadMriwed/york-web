@@ -12,14 +12,26 @@ const RecoverPassword1 = () => {
 
   const { error, loading, msg } = useSelector((state: any) => state.userSlice)
   const toast = useToast()
+  console.log(error, loading, msg)
   const router = useRouter()
   const [email, setEmail] = useState("")
   const HandleSubmit = async () => {
+    if (!email) {
+      toast({
+        title: 'Error',
+        description: "please fill the data .",
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
     try {
       let data = { email: email }
       dispatch(userForgotPassword(data)).then((res) => {
         console.log(res)
-        if (error) {
+        if (res.error) {
           console.log(error)
           toast({
             title: 'Error.',
@@ -33,7 +45,7 @@ const RecoverPassword1 = () => {
         } else {
           toast({
             title: 'success',
-            description: msg,
+            description: 'code has been sent successfully',
             status: 'success',
             duration: 9000,
             isClosable: true,

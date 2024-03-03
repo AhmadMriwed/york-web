@@ -30,7 +30,7 @@ const TrainerLogin = () => {
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
 
-
+  console.log(trainer, loading, error)
 
 
   useEffect(() => {
@@ -62,6 +62,14 @@ const TrainerLogin = () => {
       dispatch(trainerLogin(data)).then((res) => {
         console.log(res)
         console.log("logged in success")
+        if (res.error) {
+          console.log("request rejected")
+          return
+        } else if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/trainer-login/confirmemail")
+        }
       })
     } catch (error: any) {
       console.log(error.message)
@@ -80,14 +88,19 @@ const TrainerLogin = () => {
   useEffect(() => {
     console.log(cookies.get("trainer_token"))
     const token = cookies.get("trainer_token")
-    if (token) {
-      dispatch(getTrainerProfile(token)).then(() => {
-        router.push("/")
+    if (token !== undefined) {
+      dispatch(getTrainerProfile(token)).then((res) => {
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/trainer-login/confirmemail")
+        }
+
       })
 
     }
 
-  }, [trainer])
+  }, [])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -139,7 +152,7 @@ const TrainerLogin = () => {
                   </div>
                   <button type='submit' className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                   <p className='justify-self-center mt-2'>Not a Member ? <Link href='/trainer-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
-                  {/* {error !== "" && <span className="error">{error}</span>} */}
+                  {error && <span className="error">{error}</span>}
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}

@@ -3,50 +3,83 @@ import React, { useState } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { Input, FormLabel, Box, Text, Button, Flex } from '@chakra-ui/react';
+import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
+import { trainerResetPassword } from '@/store/trainerStore/slices/trainerSlice';
 
-interface FormValues {
-  password: string;
-  confirmPassword: string;
-}
+
 
 const ResetPassword = () => {
+  const email = useSearchParams().get("email")
+  const code = useSearchParams().get("code")
+  const toast = useToast()
+  const router = useRouter()
+  const dispatch: any = useDispatch()
+  const { admin, error, loading } = useSelector((state: any) => state.authSlice)
+  console.log(error, loading, admin)
+  const [form, setForm] = useState({
+    email: email,
+    code: code,
+    password: "",
+    password_confirmation: "",
 
-  const [submitting, setSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  })
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
-  const validationSchema = Yup.object().shape({
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password')], 'Passwords must match')
-      .required('Confirm Password is required'),
-  });
+  const handleSubmit = async () => {
+    if (form.password !== form.password_confirmation) {
+      toast({
+        title: 'Error.',
+        description: 'password must match',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
 
-  const handleSubmit = async (values: FormValues) => {
-    try {
-      setSubmitting(true);
-      // Perform form submission logic here
-      console.log(values);
-      // Set submitting to false after successful submission
-      setSubmitting(false);
-    } catch (error) {
-      // Handle form submission error
-      console.error(error);
-      setSubmitting(false);
+      })
+      return
     }
-  };
+    let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
+    try {
+      dispatch(trainerResetPassword(data)).then((res) => {
+        console.log(res)
+        if (res.error) {
+          console.log(error)
+          return
+        } else {
+          toast({
+            title: 'Success.',
+            description: 'Password reset success',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top",
 
-  const formik = useFormik({
-    initialValues: {
-      password: '',
-      confirmPassword: '',
-    },
-    validationSchema,
-    onSubmit: handleSubmit,
-  });
+          })
+          router.push("/trainer-login")
+        }
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error.',
+        description: 'failed to reset password',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      })
+
+      console.error(error.message);
+    }
+
+
+  }
+
 
   return (
     <>
@@ -64,8 +97,8 @@ const ResetPassword = () => {
                 type='password'
                 id="password"
                 name="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
+                value={form.password}
+                onChange={handleChange}
               />
             </Box>
             <Box>
@@ -76,14 +109,14 @@ const ResetPassword = () => {
                 backgroundColor={"white"}
                 color={"black"}
                 type='password'
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
+                id="password_confirmation"
+                name="password_confirmation"
+                value={form.password_confirmation}
+                onChange={handleChange}
               />
             </Box>
           </Flex>
-          <Button backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>setUp</Button>
+          <Button onClick={handleSubmit} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>{loading ? <Spinner color='red' size={"sm"} /> : "SetUp"}</Button>
         </Box>
       </Flex>
     </>

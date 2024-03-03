@@ -65,12 +65,10 @@ const UserSignupPage = () => {
 
             dispatch(userRegister(data)).then((res) => {
                 console.log(res)
-                if (error) {
+                if (res.error) {
                     console.log(error)
                     return
                 } else {
-
-
                     toast({
                         title: 'Account created',
                         description: "we have created your account successfully.",

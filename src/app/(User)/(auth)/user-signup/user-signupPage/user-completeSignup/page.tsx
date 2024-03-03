@@ -11,16 +11,17 @@ import Select from "react-select"
 import { categorie } from "@/utils/categories"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 import { useDispatch, useSelector } from "react-redux"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 const UserCompleteSignup = () => {
     const toast = useToast()
+    const [img, setImg] = useState("")
     const params = useParams()
     console.log(params)
     const cookie = new Cookies()
     const dispatch: any = useDispatch()
-
+    const router = useRouter()
     const inputRef = useRef()
     const [lon, setLon] = useState()
     const [lat, setLat] = useState()
@@ -46,7 +47,7 @@ const UserCompleteSignup = () => {
         url: ""
     })
 
-    console.log(form.categories)
+    console.log(img)
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -61,10 +62,14 @@ const UserCompleteSignup = () => {
 
     };
     const handleImageChange = (event) => {
+
         if (event.target.files && event.target.files[0]) {
             setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) });
+
+
         }
     }
+
 
     const handleOnImageRemoveClick = () => {
         setForm({ ...form, image: "" })
@@ -72,22 +77,31 @@ const UserCompleteSignup = () => {
 
     };
     const HandleSubmit = async () => {
-        console.log(form)
 
-        let data = { about_me: "about", url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, Image: form.image, categories: form.categories }
+        let data = { about_me: "about", url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, image: form.image.name, categories: form.categories }
         try {
             const token = await cookie.get("userSignUp_token")
             console.log(token)
             dispatch(updateUserProfile({ token, data: data })).then((res) => {
                 console.log(res, "success")
-                toast({
-                    title: 'Success',
-                    description: "Account is Updated successfully.",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                    position: "top"
-                })
+                if (res.error) {
+                    console.log(error)
+                    return
+                }
+                else if (res.payload.is_verified) {
+                    toast({
+                        title: 'Success',
+                        description: "Account is Updated successfully.",
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top"
+                    })
+                    router.push("/")
+                } else {
+                    router.push("/user-login/confirmemail")
+                }
+
 
 
             })
@@ -149,7 +163,7 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
+                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.image} />
                     {form.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>

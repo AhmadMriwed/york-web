@@ -4,11 +4,64 @@ import { FormLabel, Input, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Flex, Box } from '@chakra-ui/react'
+import { Flex, Box, useToast,Spinner } from '@chakra-ui/react'
+import { useDispatch, useSelector } from 'react-redux'
+import { trainerForgotPassword } from '@/store/trainerStore/slices/trainerSlice'
+
 const RecoverPassword1 = () => {
   const router = useRouter()
+  const dispatch: any = useDispatch()
+  const toast = useToast()
+  const { error, loading, msg } = useSelector((state: any) => state.trainerSlice)
+  console.log(error, msg, loading)
   const [email, setEmail] = useState("")
-  const HandleSubmit = () => {
+  const HandleSubmit = async () => {
+    if (!email) {
+      toast({
+        title: 'Error',
+        description: "please fill the data .",
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
+    try {
+
+      let data = { email: email }
+      dispatch(trainerForgotPassword(data)).then((res) => {
+        console.log(res)
+        if (res.error) {
+          console.log(error)
+          toast({
+            title: 'Error.',
+            description: error,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          })
+          return
+        } else {
+          toast({
+            title: 'success',
+            description: "code has been sent successfully",
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          })
+          router.push(`/trainer-login/recoverpassword/sendcode?email=${email}`)
+
+        }
+
+      })
+    } catch (error: any) {
+      console.log(error.mesage)
+    }
+
+
   }
   return (
     <>
@@ -23,12 +76,16 @@ const RecoverPassword1 = () => {
               width={300}
               backgroundColor={"white"}
               color={"black"}
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+              name='email'
+              id='email'
             />
           </Box>
           <Box width={"full"}>
-            <Link href={{ pathname: '/trainer-login/recoverpassword/sendcode', query: { email: email } }}  >
-              <Text className=" hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>Confirm</Text>
-            </Link>
+
+            <Text cursor={"pointer"} onClick={HandleSubmit} className="hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>{loading ? <Spinner color='red' size={"sm"} /> : "Confirm"}</Text>
+
           </Box>
         </Box>
       </Flex>

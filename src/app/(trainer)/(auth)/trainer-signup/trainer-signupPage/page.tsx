@@ -13,7 +13,7 @@ import { categorie } from "@/utils/categories"
 import React, { useEffect, useRef, useState } from "react"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 // import axios from "axios"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { trainerRegister } from "@/store/trainerStore/slices/trainerSlice"
 const TrainerSignupPage = () => {
@@ -24,13 +24,13 @@ const TrainerSignupPage = () => {
     console.log(address)
     const [sign, setSign] = useState()
     const inputRef = useRef()
-    const [file, setFile] = useState("")
     const resumeRef = useRef()
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
     const searchParams = useSearchParams().get("trainer")
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const toast = useToast()
+    const router =useRouter()
     const [form, setForm] = useState({
         email: "",
         first_name: "",
@@ -41,7 +41,7 @@ const TrainerSignupPage = () => {
         Country: "us",
         image: "",
         location: "",
-        Category: [1, 2],
+        Category: [],
         digital_signature: "",
         gender: "Male",
         birth_date: moment().format('YYYY-MM-DD'),
@@ -54,9 +54,10 @@ const TrainerSignupPage = () => {
             width: 350
         })
     };
-    console.log(form.image)
+
 
     const categori = categorie.map(category => ({
+        id: category.id,
         value: category.value.toLowerCase(),
         label: (
 
@@ -88,27 +89,21 @@ const TrainerSignupPage = () => {
     const handleImageChange = (event) => {
 
         if (event.target.files && event.target.files[0]) {
-
-
-            setForm({ ...form, image: URL.createObjectURL((event.target.files[0])) });
-
-            setFile(event.target.files[0])
-
-
+            setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) })
         }
     }
-    // 
+
 
     const handleOnImageRemoveClick = () => {
         setForm({ ...form, image: "" })
         inputRef.current.value = ""
 
     };
-    const HandleSubmit = async (e) => {
+    const HandleSubmit = (e) => {
         e.preventDefault()
 
-        await setForm({ ...form, digital_signature: sign.getTrimmedCanvas().toDataURL("image/svg") })
-        console.log(form)
+        setForm({ ...form, digital_signature: sign.getTrimmedCanvas().toDataURL("image/svg") })
+
 
         if (form.password !== form.password_confirmation) {
             toast({
@@ -127,15 +122,12 @@ const TrainerSignupPage = () => {
 
         let data = { gender: form.gender, trainer_type_id: form.type, image: form.image, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
         try {
-
             dispatch(trainerRegister(data)).then((res) => {
                 console.log(res)
-                if (error) {
+                if (res.error) {
                     console.log(error)
                     return
-                } else {
-
-
+                } else  if(res.payload.is_verified){
                     toast({
                         title: 'Account created',
                         description: "we have created your account successfully.",
@@ -144,7 +136,9 @@ const TrainerSignupPage = () => {
                         isClosable: true,
                         position: "top"
                     })
-                    // router.push(`/user-signup/user-signupPage/user-completeSignup`)
+                    router.push("/") 
+                }else{
+                    router.push("/trainer-login/confirmemail")
                 }
             })
 
@@ -208,7 +202,7 @@ const TrainerSignupPage = () => {
                                 <Input type="file" name="resume" ref={resumeRef} id="resume" onChange={(e) => setForm({ ...form, resume: e.target.files[0] })} hidden />
                                 <FormLabel color={"white"} fontWeight={"bold"}>category</FormLabel>
                                 <Select styles={customStyles} options={categori}
-                                    onChange={(choice) => setForm({ ...form, Category: choice.map((i) => i.value) })}
+                                    onChange={(choice) => setForm({ ...form, Category: choice.map((i) => i.id) })}
                                     name='Category'
                                     id='Category'
                                     isMulti

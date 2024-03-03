@@ -17,7 +17,17 @@ const RecoverPassword1 = () => {
   const toast = useToast()
   const HandleSubmit = async () => {
 
-
+    if (!email) {
+      toast({
+        title: 'Error',
+        description: "please fill the data .",
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
     try {
 
       let data = { email: email }

@@ -53,7 +53,6 @@ const UserLogin = () => {
         }
         e.preventDefault()
         let data = { email: form.email, password: form.password }
-
         try {
             dispatch(userLogin(data)).then((res) => {
                 console.log(res)

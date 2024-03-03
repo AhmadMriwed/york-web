@@ -17,12 +17,23 @@ const SendCode = () => {
   console.log(email)
   const handleSubmit = () => {
     console.log(code)
+    if (!code) {
 
+      toast({
+        title: 'Error.',
+        description: "please fill the data",
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
     let data = { email: email, code: code }
     try {
       dispatch(adminValidateForgotPassword(data)).then((res) => {
         console.log(res)
-        if (error) {
+        if (res.error) {
           console.log(error)
           return
         } else {

@@ -16,25 +16,35 @@ const SendCode = () => {
   const email = useSearchParams().get("email")
   console.log(email)
   const handleSubmit = () => {
-    
+    if (!code) {
+      toast({
+        title: 'Error.',
+        description: "please fill the data",
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
     let data = { email: email, code: code }
     try {
       dispatch(userValidateForgotPassword(data)).then((res) => {
         console.log(res)
-        if (error) {
+        if (res.error) {
           console.log(error)
           return
         } else {
           toast({
             title: 'Success.',
-            description: msg,
+            description: "code has been verified successfully",
             status: 'success',
             duration: 9000,
             isClosable: true,
             position: "top"
           })
           router.push(`/user-login/recoverpassword/sendcode/resetpassword?email=${email}&code=${code}`)
-          
+
 
         }
       })

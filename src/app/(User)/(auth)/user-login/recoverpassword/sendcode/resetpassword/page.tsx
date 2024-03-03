@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
 import { userResetPassword } from '@/store/userStore/slices/userSlice';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -14,7 +15,7 @@ const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
   const toast = useToast()
-
+  const router = useRouter()
   const dispatch: any = useDispatch()
   const { user, error, loading } = useSelector((state: any) => state.userSlice)
   console.log(error, loading, user)
@@ -32,6 +33,17 @@ const ResetPassword = () => {
   }
 
   const handleSubmit = async () => {
+    if (!form.password || !form.password_confirmation) {
+      toast({
+        title: 'Error.',
+        description: "please fill the data",
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top"
+      })
+      return
+    }
     let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
       dispatch(userResetPassword(data)).then((res) => {
@@ -49,6 +61,7 @@ const ResetPassword = () => {
             position: "top",
 
           })
+          router.push("/user-login")
         }
       })
     } catch (error: any) {
