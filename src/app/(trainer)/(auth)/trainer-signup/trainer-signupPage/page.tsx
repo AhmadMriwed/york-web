@@ -23,14 +23,14 @@ const TrainerSignupPage = () => {
     const [lat, setLat] = useState("")
     console.log(address)
     const [sign, setSign] = useState()
-    const inputRef = useRef()
-    const resumeRef = useRef()
+    const inputRef: any = useRef()
+    const resumeRef: any = useRef()
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
     const searchParams = useSearchParams().get("trainer")
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const toast = useToast()
-    const router =useRouter()
+    const router = useRouter()
     const [form, setForm] = useState({
         email: "",
         first_name: "",
@@ -42,7 +42,7 @@ const TrainerSignupPage = () => {
         image: "",
         location: "",
         Category: [],
-        digital_signature: "",
+        digital_signature: "aaaa",
         gender: "Male",
         birth_date: moment().format('YYYY-MM-DD'),
         resume: null,
@@ -84,9 +84,9 @@ const TrainerSignupPage = () => {
     };
 
     const fileUpload = () => {
-        resumeRef?.current?.click()
+        resumeRef.current.click()
     }
-    const handleImageChange = (event) => {
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
         if (event.target.files && event.target.files[0]) {
             setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) })
@@ -118,7 +118,8 @@ const TrainerSignupPage = () => {
 
 
         }
-
+        let datata = new FormData()
+        datata.append('image', form.image)
 
         let data = { gender: form.gender, trainer_type_id: form.type, image: form.image, domains: "ddddd", about_me: "adel", last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name, digital_signature: form.digital_signature, phone_number: form.phone_number, birth_date: form.birth_date }
         try {
@@ -127,7 +128,7 @@ const TrainerSignupPage = () => {
                 if (res.error) {
                     console.log(error)
                     return
-                } else  if(res.payload.is_verified){
+                } else if (res.payload.is_verified) {
                     toast({
                         title: 'Account created',
                         description: "we have created your account successfully.",
@@ -136,8 +137,8 @@ const TrainerSignupPage = () => {
                         isClosable: true,
                         position: "top"
                     })
-                    router.push("/") 
-                }else{
+                    router.push("/")
+                } else {
                     router.push("/trainer-login/confirmemail")
                 }
             })

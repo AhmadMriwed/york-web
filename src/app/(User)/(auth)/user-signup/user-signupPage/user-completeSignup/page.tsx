@@ -4,7 +4,7 @@ import Image from "next/image"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
 import moment from "moment"
-import React, { useRef, useState, useEffect } from "react"
+import React, { useRef, useState, useEffect, ChangeEvent } from "react"
 import Link from "next/link"
 import Location from "@rsuite/icons/Location"
 import Select from "react-select"
@@ -14,15 +14,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
+import { Form } from "rsuite"
 const UserCompleteSignup = () => {
     const toast = useToast()
-    const [img, setImg] = useState("")
-    const params = useParams()
-    console.log(params)
+
     const cookie = new Cookies()
     const dispatch: any = useDispatch()
     const router = useRouter()
-    const inputRef = useRef()
+    const inputRef: any = useRef()
     const [lon, setLon] = useState()
     const [lat, setLat] = useState()
     const [loc, setLoc] = useState("")
@@ -30,7 +29,7 @@ const UserCompleteSignup = () => {
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
 
-    console.log(user)
+
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const [form, setForm] = useState({
         gender: "Male",
@@ -44,27 +43,29 @@ const UserCompleteSignup = () => {
             latitude: 3,
             longitude: 0
         },
-        url: ""
+        url: "",
+        about_me: ""
     })
 
-    console.log(img)
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const onSelect = (e: ChangeEvent<HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangeDate = (e: ChangeEvent<HTMLInputElement>) => {
         const newDate = moment(new Date(e.target.value)).format('YYYY-MM-DD');
         setForm({ ...form, birth_date: newDate })
 
     };
-    const handleImageChange = (event) => {
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
 
         if (event.target.files && event.target.files[0]) {
             setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) });
+
 
 
         }
@@ -78,7 +79,7 @@ const UserCompleteSignup = () => {
     };
     const HandleSubmit = async () => {
 
-        let data = { about_me: "about", url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, image: form.image.name, categories: form.categories }
+        let data = { image: undefined, about_me: form.about_me, url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, categories: form.categories }
         try {
             const token = await cookie.get("userSignUp_token")
             console.log(token)
@@ -192,8 +193,9 @@ const UserCompleteSignup = () => {
 
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
                                 <Input height={50} onChange={onChange} name="url" value={form.url} id="url" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>category</FormLabel>
+                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
+                                <Input height={50} onChange={onChange} name="about_me" value={form.about_me} id="about_me" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
                                 <Select styles={customStyles} options={categori}
                                     onChange={(value) => setForm({ ...form, categories: value.map((i) => i.id) })}
                                     name='categories'
@@ -222,6 +224,7 @@ const UserCompleteSignup = () => {
                             textAlign={"center"}
                             size={"md"}
                             variant={"black"}
+
                             fontSize={14}>{loading ? <Spinner color="red" size={"sm"} /> : "Complete Account"}</Button>
                         <Link style={{ width: 100, color: "#11cdef", fontSize: 15, fontWeight: "bold" }} href={"/"}
                         >Skip</Link>

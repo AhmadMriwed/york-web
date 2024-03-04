@@ -9,7 +9,6 @@ import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { FiEye, FiEyeOff } from 'react-icons/fi'
-import { useFormik } from 'formik';
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
@@ -19,6 +18,12 @@ import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice
 import { GlobalState } from '@/types/storeTypes'
 import AddAdminModal from '@/components/admin/AddAdminModal'
 import { Email } from '@rsuite/icons'
+import { useFormik } from 'formik'
+import * as Yup from "yup"
+interface FormValues {
+  email: string;
+  password: string;
+}
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -30,11 +35,7 @@ const AdminLogin = () => {
   const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
   console.log(error, loading, admin)
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    language: 'english',
-  });
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
@@ -43,13 +44,17 @@ const AdminLogin = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    let data = { email: form.email, password: form.password }
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
+
+  });
+  const handleSubmit = (values: FormValues) => {
+    console.log(values)
+    let data = { email: values.email, password: values.password }
     try {
       dispatch(loginAdmin(data)).then((res) => {
         console.log(res)
@@ -62,7 +67,7 @@ const AdminLogin = () => {
           router.push("/admin-login/confirmemail")
         }
       })
-      setForm({ email: "", password: "", language: "" })
+
 
     } catch (error) {
       console.log(error)
@@ -74,7 +79,16 @@ const AdminLogin = () => {
 
 
   }
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+      language: "english",
 
+    },
+    validationSchema,
+    onSubmit: handleSubmit
+  })
 
   const customStyles = {
     control: base => ({
@@ -93,23 +107,23 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  useEffect(() => {
-    console.log(cookies.get("token"))
-    const token = cookies.get("token")
-    if (token !== undefined) {
-      dispatch(getAdminProfile(token)).then((res) => {
-        console.log(res)
-        if (res.payload.is_verified) {
-          router.push("/")
-        } else {
-          router.push("/admin-login/confirmemail")
-        }
+  // useEffect(() => {
+  //   console.log(cookies.get("token"))
+  //   const token = cookies.get("token")
+  //   if (token !== undefined) {
+  //     dispatch(getAdminProfile(token)).then((res) => {
+  //       console.log(res)
+  //       if (res.payload.is_verified) {
+  //         router.push("/")
+  //       } else {
+  //         router.push("/admin-login/confirmemail")
+  //       }
 
-      })
+  //     })
 
-    }
+  //   }
 
-  }, [])
+  // }, [])
 
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
@@ -132,29 +146,28 @@ const AdminLogin = () => {
                 <span className='text-base tracking-widest'>welcome to</span>
                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
 
-                <form onSubmit={handleSubmit} className='grid w-full costum_form'>
+                <form onSubmit={formik.handleSubmit} className='grid w-full costum_form'>
                   <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                   <input
                     className='login-input'
                     type="email"
                     id="email"
                     name="email"
-                    required
-                    value={form.email}
-                    onChange={onChange}
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
                   />
-                  {/* {error && (
-                    <div className="error-mesage">{error}</div>
-                  )} */}
+                  {formik.touched.email && formik.errors.email && (
+                    <p className="error-mesage">{formik.errors.email}</p>
+                  )}
                   <div className='relative w-full md:w-[350px] mt-1'>
                     <input
                       className='login-input'
                       type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
-                      value={form.password}
-                      required
-                      onChange={onChange}
+                      value={formik.values.password}
+
+                      onChange={formik.handleChange}
                     />
                     <div className="absolute right-0 top-[50%] -translate-y-1/2 w-[40px] element-center">
                       {showPassword ? (
@@ -170,9 +183,9 @@ const AdminLogin = () => {
                       )}
                     </div>
                   </div>
-                  {/* {error && (
-                    <div className="error-mesage">{error}</div>
-                  )} */}
+                  {formik.touched.password && formik.errors.password && (
+                    <p className="error-mesage">{formik.errors.password}</p>
+                  )}
 
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
                   </Link>
@@ -191,7 +204,7 @@ const AdminLogin = () => {
                       </p>
                     </Link>
                   </div>
-                  <button type='submit' disabled={submitting} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                  <button type='submit' disabled={submitting} className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
                   {error && <span className="error">{error}</span>}
 

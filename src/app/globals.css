@@ -83,6 +83,7 @@
     font-size: 14px;
     width: 100%;
   }
+
   .outlined-btn {
     padding: 7px 16px;
     font-size: 14px;
@@ -134,9 +135,10 @@
 }
 
 .error-mesage {
-  padding: 5px;
+  padding: 3px;
   color: var(--secondary-color-red);
-  font-size: 16px;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 /* .languag-btn button:hover,

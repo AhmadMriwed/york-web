@@ -15,7 +15,13 @@ import Select from "react-select"
 import { getTrainerProfile, trainerLogin } from '@/store/trainerStore/slices/trainerSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import AddTrainerModal from '@/components/trainer/AddTrainerModal'
+import { useFormik } from 'formik'
+import * as Yup from "yup"
+interface FormValues {
+  email: string;
+  password: string;
 
+}
 const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
@@ -25,6 +31,7 @@ const TrainerLogin = () => {
     password: "",
     language: 'english',
   });
+
 
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
@@ -54,10 +61,17 @@ const TrainerLogin = () => {
       width: 150
     })
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const validationSchema = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
 
-    let data = { email: form.email, password: form.password }
+  });
+  const handleSubmit = async (values: FormValues) => {
+
+    console.log(values)
+    let data = { email: values.email, password: values.password }
     try {
       dispatch(trainerLogin(data)).then((res) => {
         console.log(res)
@@ -75,6 +89,16 @@ const TrainerLogin = () => {
       console.log(error.message)
     }
   };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+      language: "english",
+
+    },
+    validationSchema,
+    onSubmit: handleSubmit
+  })
   const Language = Languages.map(language => ({
     value: language.value.toLowerCase(),
     label: (
@@ -85,22 +109,22 @@ const TrainerLogin = () => {
     ),
   }));
 
-  useEffect(() => {
-    console.log(cookies.get("trainer_token"))
-    const token = cookies.get("trainer_token")
-    if (token !== undefined) {
-      dispatch(getTrainerProfile(token)).then((res) => {
-        if (res.payload.is_verified) {
-          router.push("/")
-        } else {
-          router.push("/trainer-login/confirmemail")
-        }
+  // useEffect(() => {
+  //   console.log(cookies.get("trainer_token"))
+  //   const token = cookies.get("trainer_token")
+  //   if (token !== undefined) {
+  //     dispatch(getTrainerProfile(token)).then((res) => {
+  //       if (res.payload.is_verified) {
+  //         router.push("/")
+  //       } else {
+  //         router.push("/trainer-login/confirmemail")
+  //       }
 
-      })
+  //     })
 
-    }
+  //   }
 
-  }, [])
+  // }, [])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -121,25 +145,34 @@ const TrainerLogin = () => {
                 <span className='text-base tracking-widest'>welcome to</span>
                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
 
-                <form onSubmit={handleSubmit} className='grid w-full costum_form'>
+                <form onSubmit={formik.handleSubmit} className='grid w-full costum_form'>
                   <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                   <input type='email' placeholder="Enter Your Email" id='email'
                     className='login-input'
                     name="email"
-                    value={form.email}
-                    onChange={onChange}
-                    required />
+                    value={formik.values.email}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.email && formik.errors.email && (
+                    <div className="error-mesage">{formik.errors.email}</div>
+                  )}
                   <input type='password' placeholder="Enter Your Password" id='password'
                     className='login-input'
                     name="password"
-                    value={form.password}
-                    onChange={onChange}
-                    required />
+                    onBlur={formik.handleBlur}
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                  />
+
+                  {formik.touched.password && formik.errors.password && (
+                    <p className="error-mesage">{formik.errors.password}</p>
+                  )}
                   <Link href='/trainer-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
-                  <div className='justify-self-end' >
+                  {/* <div className='justify-self-end' >
                     <AddTrainerModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
-                  </div>
+                  </div> */}
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
@@ -150,7 +183,7 @@ const TrainerLogin = () => {
                       </p>
                     </Link>
                   </div>
-                  <button type='submit' className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                  <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                   <p className='justify-self-center mt-2'>Not a Member ? <Link href='/trainer-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
                   {error && <span className="error">{error}</span>}
 

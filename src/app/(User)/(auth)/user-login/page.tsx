@@ -14,6 +14,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
 import AddUserModal from '@/components/user/AddUserModal'
+import { useFormik } from 'formik'
+import * as Yup from "yup"
+interface FormValues {
+    email: string;
+    password: string;
+}
 const UserLogin = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
@@ -32,27 +38,19 @@ const UserLogin = () => {
     console.log(error, loading, user)
 
 
+ 
 
+    const validationSchema = Yup.object().shape({
+        email: Yup.string().email('Invalid email').required('Email is required'),
+        password: Yup.string()
+            .min(6, 'Password must be at least 6 characters')
+            .required('Password is required'),
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    });
 
+    const handleSubmit = (values: FormValues) => {
 
-    const handleSubmit = (e) => {
-        if (!form.email || !form.password) {
-            toast({
-                title: 'Error',
-                description: "please fill the data .",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-            return
-        }
-        e.preventDefault()
-        let data = { email: form.email, password: form.password }
+        let data = { email: values.email, password: values.password }
         try {
             dispatch(userLogin(data)).then((res) => {
                 console.log(res)
@@ -75,7 +73,15 @@ const UserLogin = () => {
         }
     }
 
-
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+            language: "english",
+        },
+        validationSchema,
+        onSubmit: handleSubmit
+    })
 
     const customStyles = {
         control: base => ({
@@ -102,22 +108,22 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    useEffect(() => {
-        console.log(cookie.get("user_token"))
-        const token = cookie.get("user_token")
-        if (token !== undefined) {
-            dispatch(getUserProfile(token)).then((res) => {
-                console.log(res.payload.is_verified)
-                if (res.payload.is_verified) {
-                    router.push("/")
-                } else {
-                    router.push("/user-login/confirmemail")
-                }
+    // useEffect(() => {
+    //     console.log(cookie.get("user_token"))
+    //     const token = cookie.get("user_token")
+    //     if (token !== undefined) {
+    //         dispatch(getUserProfile(token)).then((res) => {
+    //             console.log(res.payload.is_verified)
+    //             if (res.payload.is_verified) {
+    //                 router.push("/")
+    //             } else {
+    //                 router.push("/user-login/confirmemail")
+    //             }
 
 
-            })
-        }
-    }, [])
+    //         })
+    //     }
+    // }, [])
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -137,20 +143,26 @@ const UserLogin = () => {
                                 </div>
                                 <span className='text-base tracking-widest'>welcome to</span>
                                 <p className='text-[27px] font-bold pb-9 text-center'>York British Academy</p>
-                                <form action="" className='grid w-full costum_form'>
+                                <form onSubmit={formik.handleSubmit} className='grid w-full costum_form'>
                                     <span className='text-base tracking-widest mb-3'>Welcome Back!</span>
                                     <input type='email' placeholder="Enter Your Email" id='email'
                                         className='login-input'
                                         name="email"
-                                        value={form.email}
-                                        onChange={onChange}
-                                        required />
+                                        value={formik.values.email}
+                                        onChange={formik.handleChange}
+                                    />
+                                    {formik.touched.email && formik.errors.email && (
+                                        <p className="error-mesage">{formik.errors.email}</p>
+                                    )}
                                     <input type='password' placeholder="Enter Your Password" id='password'
                                         className='login-input'
                                         name="password"
-                                        value={form.password}
-                                        onChange={onChange}
-                                        required />
+                                        value={formik.values.password}
+                                        onChange={formik.handleChange}
+                                    />
+                                    {formik.touched.password && formik.errors.password && (
+                                        <p className="error-mesage">{formik.errors.password}</p>
+                                    )}
                                     <Link href='/user-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>  </Link>
                                     <div className='justify-self-end' >
                                         <AddUserModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
@@ -169,7 +181,7 @@ const UserLogin = () => {
                                             </p>
                                         </Link>
                                     </div>
-                                    <button type='button' onClick={handleSubmit} className='colored-btn'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                                    <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                                     <p className='justify-self-center mt-2'>Not a Member ? <Link href='/user-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
                                     {error && <span className="error">{error}</span>}
 

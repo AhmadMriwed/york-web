@@ -2,68 +2,53 @@
 import BackBtn from "@/components/backbtn/BackBtn"
 import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Center, useToast, Spinner } from "@chakra-ui/react"
 import Image from "next/image"
+import { Input as Inputt } from "rsuite"
 import React, { use, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FaGoogle } from "react-icons/fa";
 import Link from "next/link"
 import { useDispatch, useSelector } from "react-redux"
 import { userRegister } from "@/store/userStore/slices/userSlice"
+import { useFormik } from "formik"
+import * as Yup from "yup"
+import { Form } from "rsuite"
 const UserSignupPage = () => {
     const router = useRouter()
     const toast = useToast()
-    const inputRef = useRef()
+    const inputRef: any = useRef()
+    const [image, setImage] = useState('')
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
-    console.log(user)
+    console.log(image)
     const searchParams = useSearchParams().get("user")
-    const [form, setForm] = useState({
-        email: "",
-        first_name: "",
-        password: "",
-        password_confirmation: "",
-        Image: "",
-        type: searchParams,
-        last_name: ""
-    })
+
+
     const dispatch: any = useDispatch()
 
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-    const handleImageChange = (event) => {
-        if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, Image: URL.createObjectURL(event.target.files[0]) });
-        }
-    }
-
-    const handleOnImageRemoveClick = () => {
-        setForm({ ...form, Image: "" })
-        inputRef.current.value = ""
-
-    };
-    const HandleSubmit = async (e) => {
-        e.preventDefault()
-        console.log(form)
-
-        if (form.password !== form.password_confirmation) {
-            toast({
-                title: 'Error.',
-                description: "Password must match.",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-            return
 
 
-        }
 
-        let data = { last_name: form.last_name, email: form.email, password_confirmation: form.password_confirmation, password: form.password, first_name: form.first_name }
+    const validationSchema = Yup.object().shape({
+        first_name: Yup.string().required("Please add the Your first Name"),
+        last_name: Yup.string().required("Please add the Your last Name"),
+        email: Yup.string().email("Invalid email").required("Email Is Required"),
+        image: Yup.mixed(),
+        password: Yup
+            .string()
+            .required("Password is required")
+            .min(8, "Password must be at least 8 characters"),
+        password_confirmation: Yup
+            .string()
+            .required("Confirm password is required")
+            .oneOf([Yup.ref("password")], "Passwords must match"),
+    })
+
+    const HandleSubmit = async (values: any, actions: any) => {
+        console.log("submitted");
+        console.log(values);
         try {
-
-            dispatch(userRegister(data)).then((res) => {
+            dispatch(userRegister(values)).then((res) => {
                 console.log(res)
                 if (res.error) {
                     console.log(error)
@@ -99,6 +84,23 @@ const UserSignupPage = () => {
 
 
     }
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            first_name: "",
+            password: "",
+            password_confirmation: "",
+            image: "",
+            last_name: ""
+        },
+        validationSchema,
+        onSubmit: HandleSubmit
+    })
+    const handleOnImageRemoveClick = () => {
+        formik.setFieldValue("image", "")
+        inputRef.current.value = ""
+
+    };
     return (
         <>
             <Box overflow={"auto"} maxH={"100vh"} >
@@ -106,8 +108,8 @@ const UserSignupPage = () => {
                 <div className='w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.Image} />
-                    {form.Image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={formik.values.image} />
+                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Center>
@@ -118,38 +120,57 @@ const UserSignupPage = () => {
 
                 </Center>
                 <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
-                    <form >
+                    <form action="" onSubmit={formik.handleSubmit}>
 
                         <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
                             <Flex direction={"column"} alignItems={"center"} gap={2}>
                                 <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
                                     <Box >
                                         <FormLabel padding={1} color={"white"} fontWeight={"bold"}>First Name</FormLabel>
-                                        <Input height={50} type="text" value={form.first_name} required onChange={onChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                        <Input height={50} type="text" value={formik.values.first_name} required onChange={formik.handleChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                         <FormLabel padding={1} color={"white"} fontWeight={"bold"}>email</FormLabel>
-                                        <Input height={50} required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
-                                        <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+                                        <Input height={50} type="email" name="email" value={formik.values.email} id="email" onChange={formik.handleChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
+                                        {formik.touched.email && formik.errors.email && (
+                                            <div className="error-mesage">{formik.errors.email}</div>
+                                        )}
+                                        <Inputt accept="image/png, image/gif, image/jpeg" type="file" name="image"
+                                            onChange={(value, e: any) => {
+                                                console.log(e);
+                                                formik.values.image = e.target.files[0];
+                                            }}
+                                            hidden
+                                            ref={inputRef}
+                                        />
 
 
                                     </Box>
                                     <Box display={"flex"} flexDirection={"column"}>
                                         <FormLabel padding={1} color={"white"} fontWeight={"bold"}>last_name</FormLabel>
-                                        <Input height={50} required type="text" name="last_name" value={form.last_name} id="last_name" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='' size='md' w={350} />
+                                        <Input height={50} type="text" name="last_name" value={formik.values.last_name} id="last_name" onChange={formik.handleChange} color={"black"} bg={"white"} fontSize={14} placeholder='' size='md' w={350} />
+                                        {formik.touched.last_name && formik.errors.last_name && (
+                                            <div className="error-mesage">{formik.errors.last_name}</div>
+                                        )}
                                         <FormLabel color={"white"} fontWeight={"bold"} padding={1}>Password</FormLabel>
-                                        <Input height={50} required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                        <Input height={50} type="password" value={formik.values.password} onChange={formik.handleChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                        {formik.touched.password && formik.errors.password && (
+                                            <div className="error-mesage">{formik.errors.password}</div>
+                                        )}
 
                                     </Box>
 
                                 </Flex>
                                 <Box >
                                     <FormLabel padding={1} color={"white"} textAlign={{ base: "start", md: "center" }} fontWeight={"bold"}>ConfirmPassword</FormLabel>
-                                    <Input height={50} required type="password" name="password_confirmation" value={form.password_confirmation} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input height={50} type="password" id="password_confirmation" name="password_confirmation" value={formik.values.password_confirmation} onChange={formik.handleChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    {formik.touched.password_confirmation && formik.errors.password_confirmation && (
+                                        <div className="error-mesage">{formik.errors.password_confirmation}</div>
+                                    )}
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-                                    {form.Image ? <Image src={form.Image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                    {formik.values.image ? <Image src={URL.createObjectURL(formik.values.image)} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>
@@ -175,7 +196,7 @@ const UserSignupPage = () => {
 
 
                             <Box marginRight={{ base: 0, md: 20 }} >
-                                <Button type="button" onClick={HandleSubmit} textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>
+                                <Button type="submit" textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>
                             </Box>
                         </Flex>
                     </form>
