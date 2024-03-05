@@ -25,11 +25,27 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
         let token = await cookie.get("trainer_token")
         console.log(token)
         if (!data.new_password || !data.old_password || !data.new_password_confirmation) {
-            alert("please fill data")
+
+            toast({
+                title: 'Error',
+                description: "please fill the data",
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+                position: "top"
+            })
             return
         }
         if (data.new_password !== data.new_password_confirmation) {
             alert("password must much")
+            toast({
+                title: 'Error',
+                description: "password must much",
+                status: 'error',
+                duration: 2000,
+                isClosable: true,
+                position: "top"
+            })
             return
         }
 
@@ -64,7 +80,6 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                         <FormLabel>old password</FormLabel>
                         <Input name='old_password' value={data.old_password} onChange={handleChange} type='password' />
                         <FormLabel>new password</FormLabel>
-
 
                         <Input onChange={handleChange} value={data.new_password} name='new_password' type='password' />
                         <FormLabel>confirm password</FormLabel>

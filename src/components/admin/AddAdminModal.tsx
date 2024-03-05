@@ -1,6 +1,7 @@
 // import "use client"
 import { adminUpdatePassword } from '@/store/adminstore/slices/authSlice'
 import { FormControl, FormLabel, Input, FormHelperText, Button, Modal, ModalBody, ModalCloseButton, ModalHeader, ModalContent, ModalOverlay, Spinner, useToast } from '@chakra-ui/react'
+import { error } from 'console'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Cookies from 'universal-cookie'
@@ -26,24 +27,54 @@ const AddAdminModal = ({ isOpen, onClose, onOpen }) => {
         let token = await cookie.get("token")
         console.log(token)
         if (!data.new_password || !data.old_password || !data.new_password_confirmation) {
-            alert("please fill data")
+            toast({
+                title: 'Error.',
+                description: 'please fill data',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+                position: "top",
+
+            })
             return
         }
         if (data.new_password !== data.new_password_confirmation) {
-            alert("password must much")
+            toast({
+                title: 'Error.',
+                description: 'password must match',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+                position: "top",
+
+            })
             return
         }
         try {
             dispatch(adminUpdatePassword({ token, data: data })).then((res) => {
-                console.log(res)
-                toast({
-                    title: 'Success',
-                    description: "you have updated your password successfully.",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                    position: "top"
-                })
+                if (res.error) {
+                    console.log("some thing went wrong")
+                    toast({
+                        title: 'Error.',
+                        description: 'some thing went wrong',
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                        position: "top",
+
+                    })
+                    return
+                } else {
+                    console.log(res)
+                    toast({
+                        title: 'Success',
+                        description: "you have updated your password successfully.",
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top"
+                    })
+                }
             })
             setData({ new_password_confirmation: "", new_password: "", old_password: "" })
         } catch (error: any) {
