@@ -9,7 +9,6 @@ import { userForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 const RecoverPassword1 = () => {
   const dispatch: any = useDispatch()
-
   const { error, loading, msg } = useSelector((state: any) => state.userSlice)
   const toast = useToast()
   console.log(error, loading, msg)
@@ -52,18 +51,12 @@ const RecoverPassword1 = () => {
             position: "top"
           })
           router.push(`/user-login/recoverpassword/sendcode?email=${email}`)
-
-
         }
-
       })
     } catch (error: any) {
       console.log(error.mesage)
     }
-
-
   }
-
   return (
     <>
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8 ' display={{ base: "none", md: "block" }}  >Password Recovery:  Email</Text>
@@ -91,7 +84,6 @@ const RecoverPassword1 = () => {
         </Box>
       </Flex>
     </>
-
   )
 }
 

@@ -32,6 +32,18 @@ const ResetPassword = () => {
   }
 
   const handleSubmit = async () => {
+    if (!form.password || !form.password_confirmation) {
+      toast({
+        title: 'Error.',
+        description: 'please fill the data',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+
+      })
+      return
+    }
     if (form.password !== form.password_confirmation) {
       toast({
         title: 'Error.',
@@ -50,6 +62,15 @@ const ResetPassword = () => {
         console.log(res)
         if (res.error) {
           console.log(error)
+          toast({
+            title: 'Error.',
+            description: 'some thing went wrong',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top",
+
+          })
           return
         } else {
           toast({
@@ -73,13 +94,9 @@ const ResetPassword = () => {
         isClosable: true,
         position: "top"
       })
-
       console.error(error.message);
     }
-
-
   }
-
 
   return (
     <>

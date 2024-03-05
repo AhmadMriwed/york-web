@@ -21,14 +21,7 @@ const UserSignupPage = () => {
     console.log(error, user, loading)
     console.log(image)
     const searchParams = useSearchParams().get("user")
-
-
     const dispatch: any = useDispatch()
-
-
-
-
-
     const validationSchema = Yup.object().shape({
         first_name: Yup.string().required("Please add the Your first Name"),
         last_name: Yup.string().required("Please add the Your last Name"),
@@ -43,14 +36,26 @@ const UserSignupPage = () => {
             .required("Confirm password is required")
             .oneOf([Yup.ref("password")], "Passwords must match"),
     })
-
     const HandleSubmit = async (values: any, actions: any) => {
         console.log("submitted");
         console.log(values);
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+            formData.append(key, values[key]);
+        });
+        console.log(formData)
         try {
-            dispatch(userRegister(values)).then((res) => {
+            dispatch(userRegister(formData)).then((res) => {
                 console.log(res)
                 if (res.error) {
+                    toast({
+                        title: 'Error',
+                        description: "We couldnot create your account.",
+                        status: 'error',
+                        duration: 2000,
+                        isClosable: true,
+                        position: "top"
+                    })
                     console.log(error)
                     return
                 } else {
@@ -76,13 +81,7 @@ const UserSignupPage = () => {
                 isClosable: true,
                 position: "top"
             })
-
         }
-
-
-
-
-
     }
     const formik = useFormik({
         initialValues: {
@@ -99,6 +98,7 @@ const UserSignupPage = () => {
     const handleOnImageRemoveClick = () => {
         formik.setFieldValue("image", "")
         inputRef.current.value = ""
+        setImage("")
 
     };
     return (
@@ -108,7 +108,7 @@ const UserSignupPage = () => {
                 <div className='w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={formik.values.image} />
+                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
                     {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
@@ -137,11 +137,11 @@ const UserSignupPage = () => {
                                             onChange={(value, e: any) => {
                                                 console.log(e);
                                                 formik.values.image = e.target.files[0];
+                                                setImage(URL.createObjectURL(e.target.files[0]))
                                             }}
                                             hidden
                                             ref={inputRef}
                                         />
-
 
                                     </Box>
                                     <Box display={"flex"} flexDirection={"column"}>
@@ -157,7 +157,6 @@ const UserSignupPage = () => {
                                         )}
 
                                     </Box>
-
                                 </Flex>
                                 <Box >
                                     <FormLabel padding={1} color={"white"} textAlign={{ base: "start", md: "center" }} fontWeight={"bold"}>ConfirmPassword</FormLabel>
@@ -170,13 +169,11 @@ const UserSignupPage = () => {
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-                                    {formik.values.image ? <Image src={URL.createObjectURL(formik.values.image)} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                    {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>
                         </Flex>
-
-
                         <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
                             <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
 
@@ -189,12 +186,6 @@ const UserSignupPage = () => {
                                     </p>
                                 </Link>
                             </Box>
-
-
-
-
-
-
                             <Box marginRight={{ base: 0, md: 20 }} >
                                 <Button type="submit" textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>
                             </Box>

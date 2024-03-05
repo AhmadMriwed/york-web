@@ -15,6 +15,7 @@ import { useParams, useRouter } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 import { Form } from "rsuite"
+import { number, object } from "yup"
 const UserCompleteSignup = () => {
     const toast = useToast()
 
@@ -25,11 +26,9 @@ const UserCompleteSignup = () => {
     const [lon, setLon] = useState()
     const [lat, setLat] = useState()
     const [loc, setLoc] = useState("")
-
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
-
-
+    const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const [form, setForm] = useState({
         gender: "Male",
@@ -46,7 +45,7 @@ const UserCompleteSignup = () => {
         url: "",
         about_me: ""
     })
-
+    console.log(form)
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -64,28 +63,45 @@ const UserCompleteSignup = () => {
     const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
 
         if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, image: URL.createObjectURL(event.target.files[0]) });
-
-
-
+            setForm({ ...form, image: event.target.files[0] });
+            setImage(URL.createObjectURL(event.target.files[0]))
         }
     }
-
-
     const handleOnImageRemoveClick = () => {
         setForm({ ...form, image: "" })
         inputRef.current.value = ""
-
+        setImage("")
     };
     const HandleSubmit = async () => {
+        let formData = new FormData()
+        var jsonBlob = new Blob([JSON.stringify(form.location)], { type: 'application/json' });
+        formData.append('location', jsonBlob, 'data.json')
+        formData.append("gender", form.gender)
+        formData.append("image", form.image)
 
-        let data = { image: undefined, about_me: form.about_me, url: form.url, birth_date: form.birth_date, phone_number: form.phone_number.toString(), gender: form.gender, categories: form.categories }
+        Object.keys(form.categories).forEach((key: any) => {
+            formData.append(key, form.categories[key]);
+        });
+        formData.append("about_me", form.about_me)
+        formData.append("phone_number", form.phone_number)
+        formData.append("birth_date", form.birth_date)
+        formData.append("url", form.url)
+        let data = formData
+        console.log(data)
         try {
             const token = await cookie.get("userSignUp_token")
             console.log(token)
             dispatch(updateUserProfile({ token, data: data })).then((res) => {
                 console.log(res, "success")
                 if (res.error) {
+                    toast({
+                        title: 'Error',
+                        description: "We could not update your account.",
+                        status: 'error',
+                        duration: 2000,
+                        isClosable: true,
+                        position: "top"
+                    })
                     console.log(error)
                     return
                 }
@@ -102,9 +118,6 @@ const UserCompleteSignup = () => {
                 } else {
                     router.push("/user-login/confirmemail")
                 }
-
-
-
             })
         } catch (error: any) {
             console.log(error.mesage)
@@ -117,7 +130,6 @@ const UserCompleteSignup = () => {
                 position: "top"
             })
         }
-
     }
     const customStyles = {
         control: base => ({
@@ -126,9 +138,6 @@ const UserCompleteSignup = () => {
         })
     };
     console.log("new user", user)
-
-
-
     const categori = categorie.map(category => ({
         id: category.id,
         value: category.value.toLowerCase(),
@@ -138,11 +147,8 @@ const UserCompleteSignup = () => {
                 <Avatar src={category.image} size={"xs"} />
                 <Text fontSize={"small"} >{category.title}</Text>
             </Flex>
-
         )
     }));
-
-
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
             const { longitude, latitude } = pos.coords
@@ -150,10 +156,7 @@ const UserCompleteSignup = () => {
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => setLoc(data.address))
         })
-
-
     }, [])
-
     return (
         <>
             <Box overflow={{ base: "auto", md: "hidden" }} maxH={"100vh"}>
@@ -164,7 +167,7 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={form.image} />
+                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
                     {form.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
@@ -183,9 +186,7 @@ const UserCompleteSignup = () => {
                                 <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                     <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                         {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
-
                                 </Box>
-
                             </Box>
                             <Box>
                                 <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
@@ -211,7 +212,7 @@ const UserCompleteSignup = () => {
                         <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                             <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-                                {form.image ? <Image src={form.image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                {form.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                             </Box>
                             <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                         </Flex>

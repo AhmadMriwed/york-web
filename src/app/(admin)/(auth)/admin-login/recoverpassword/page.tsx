@@ -84,9 +84,7 @@ const RecoverPassword1 = () => {
             />
           </Box>
           <Box width={"full"}>
-
             <Text cursor={"pointer"} onClick={HandleSubmit} className="hover:no-underline" color={"white"} textAlign={"center"} backgroundColor={"#01989f"} width={{ base: "100%", md: 150 }} height={10} justifySelf={"center"} padding={2} fontSize={16} borderRadius={6} marginTop={{ base: 3, md: 7 }}>{loading ? <Spinner color='red' size={"sm"} /> : "Confirm"}</Text>
-
           </Box>
         </Box>
       </Flex>

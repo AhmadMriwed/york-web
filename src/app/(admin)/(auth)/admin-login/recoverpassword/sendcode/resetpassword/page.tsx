@@ -7,9 +7,6 @@ import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@c
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
-
-
-
 const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
@@ -75,10 +72,7 @@ const ResetPassword = () => {
 
       console.error(error.message);
     }
-
-
   }
-
 
   return (
     <>

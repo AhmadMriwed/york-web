@@ -4,9 +4,6 @@ import Link from 'next/link'
 import React from 'react'
 
 const ConfirmEmail = () => {
-
-
-
     return (
         <div className='overflow-x-hidden'>
             <div className='h-50px w-[100vw] p-4'><BackBtn textColor='text-black' /></div>

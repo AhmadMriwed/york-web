@@ -1,9 +1,17 @@
+"use client"
 import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import { useSearchParams } from 'next/navigation'
+import React, { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 
 const ConfirmEmail = () => {
+    const email = useSearchParams().get("email")
+    console.log(email)
+    const dispatch = useDispatch()
+    useEffect(() => {
+    }, [])
     return (
         <div className='overflow-x-hidden'>
             <div className='h-50px w-[100vw] p-4'><BackBtn textColor='text-black' /></div>
@@ -17,7 +25,7 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'> email@gmail.com</span>
+                            <span className='font-bold'> {email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold'> Click here to resend</button></div>

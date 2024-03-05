@@ -34,7 +34,7 @@ const AdminLogin = () => {
   const cookies = new Cookies();
   const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
   console.log(error, loading, admin)
-
+  const [lan, setLan] = useState("english")
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -43,8 +43,6 @@ const AdminLogin = () => {
 
     return () => clearTimeout(timeoutId);
   }, []);
-
-
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
@@ -67,23 +65,15 @@ const AdminLogin = () => {
           router.push("/admin-login/confirmemail")
         }
       })
-
-
     } catch (error) {
       console.log(error)
     }
-
-
-
-
-
-
   }
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
-      language: "english",
+
 
     },
     validationSchema,
@@ -107,23 +97,23 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  // useEffect(() => {
-  //   console.log(cookies.get("token"))
-  //   const token = cookies.get("token")
-  //   if (token !== undefined) {
-  //     dispatch(getAdminProfile(token)).then((res) => {
-  //       console.log(res)
-  //       if (res.payload.is_verified) {
-  //         router.push("/")
-  //       } else {
-  //         router.push("/admin-login/confirmemail")
-  //       }
+  useEffect(() => {
+    console.log(cookies.get("token"))
+    const token = cookies.get("token")
+    if (token !== undefined) {
+      dispatch(getAdminProfile(token)).then((res) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/admin-login/confirmemail")
+        }
 
-  //     })
+      })
 
-  //   }
+    }
 
-  // }, [])
+  }, [])
 
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
@@ -210,7 +200,7 @@ const AdminLogin = () => {
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                      onChange={(e) => setForm({ ...form, language: e.value })}
+                      onChange={(e) => setLan(e.value)}
                       name='Category'
                       id='Category'
                       components={{ IndicatorSeparator: () => null }}

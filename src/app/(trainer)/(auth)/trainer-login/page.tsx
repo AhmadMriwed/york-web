@@ -26,20 +26,11 @@ const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
   const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    language: 'english',
-  });
-
-
+  const [lan, setLan] = useState("english")
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
-
   console.log(trainer, loading, error)
-
-
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setisLoading(false);
@@ -48,12 +39,6 @@ const TrainerLogin = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-  const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
   const customStyles = {
     control: base => ({
       ...base,
@@ -109,22 +94,23 @@ const TrainerLogin = () => {
     ),
   }));
 
-  // useEffect(() => {
-  //   console.log(cookies.get("trainer_token"))
-  //   const token = cookies.get("trainer_token")
-  //   if (token !== undefined) {
-  //     dispatch(getTrainerProfile(token)).then((res) => {
-  //       if (res.payload.is_verified) {
-  //         router.push("/")
-  //       } else {
-  //         router.push("/trainer-login/confirmemail")
-  //       }
+  useEffect(() => {
+    console.log(cookies.get("trainer_token"))
+    const token = cookies.get("trainer_token")
+    if (token !== undefined) {
+      dispatch(getTrainerProfile(token)).then((res) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push(`/trainer-login/confirmemail`)
+        }
 
-  //     })
+      })
 
-  //   }
+    }
 
-  // }, [])
+  }, [])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -169,10 +155,10 @@ const TrainerLogin = () => {
                     <p className="error-mesage">{formik.errors.password}</p>
                   )}
                   <Link href='/trainer-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
-                  {/* <div className='justify-self-end' >
+                  <div className='justify-self-end' >
                     <AddTrainerModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
-                  </div> */}
+                  </div>
                   <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
@@ -189,7 +175,7 @@ const TrainerLogin = () => {
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                      onChange={(e) => setForm({ ...form, language: e.value })}
+                      onChange={(e) => setLan(e.value)}
                       name='Category'
                       id='Category'
                       components={{ IndicatorSeparator: () => null }}

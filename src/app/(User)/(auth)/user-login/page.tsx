@@ -23,23 +23,13 @@ interface FormValues {
 const UserLogin = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
-    const [form, setForm] = useState({
-        email: "",
-        password: "",
-        language: 'english',
-    });
-
-    // console.log(form)
+    const [lan, setLan] = useState("english");
     const router = useRouter();
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
     const { error, loading, user } = useSelector((state: any) => state.userSlice)
     console.log(error, loading, user)
-
-
- 
-
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
         password: Yup.string()
@@ -49,7 +39,6 @@ const UserLogin = () => {
     });
 
     const handleSubmit = (values: FormValues) => {
-
         let data = { email: values.email, password: values.password }
         try {
             dispatch(userLogin(data)).then((res) => {
@@ -64,8 +53,6 @@ const UserLogin = () => {
                 } else {
                     router.push("/user-login/confirmemail")
                 }
-
-
             })
         } catch (error: any) {
             console.log(error.message)
@@ -168,9 +155,6 @@ const UserLogin = () => {
                                         <AddUserModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                                         <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                                     </div>
-
-
-
                                     <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                                         <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                                             <div>
@@ -187,7 +171,7 @@ const UserLogin = () => {
 
                                     <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                                         <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                                            onChange={(e) => setForm({ ...form, language: e.value })}
+                                            onChange={(e) => setLan(e.value)}
                                             name='Category'
                                             id='Category'
                                             components={{ IndicatorSeparator: () => null }}

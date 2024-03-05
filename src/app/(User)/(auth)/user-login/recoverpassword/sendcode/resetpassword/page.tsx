@@ -76,11 +76,7 @@ const ResetPassword = () => {
 
       console.error(error.message);
     }
-
-
   }
-
-
   return (
     <>
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8' display={{ base: "none", md: "block" }}>Password Recovery: Password Change</Text>

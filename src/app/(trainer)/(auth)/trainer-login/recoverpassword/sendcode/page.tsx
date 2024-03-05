@@ -8,7 +8,6 @@ const SendCode = () => {
   const failds = ['Email']
   const router = useRouter()
   const [code, setCode] = useState("")
-
   const toast = useToast()
   const dispatch: any = useDispatch()
   const { error, loading, msg } = useSelector((state: any) => state.trainerSlice)
@@ -18,7 +17,6 @@ const SendCode = () => {
   const handleSubmit = () => {
     console.log(code)
     if (!code) {
-
       toast({
         title: 'Error.',
         description: "please fill the data",
