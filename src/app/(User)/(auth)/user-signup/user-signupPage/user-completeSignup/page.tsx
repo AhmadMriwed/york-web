@@ -16,6 +16,21 @@ import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 import { Form } from "rsuite"
 import { number, object } from "yup"
+const initValues = {
+    gender: "Male",
+    phone_number: "",
+    birth_date: moment().format('YYYY-MM-DD'),
+    image: "",
+    Country: "us",
+    categories: [],
+    location: {
+        address: "address",
+        latitude: 3,
+        longitude: 0
+    },
+    url: "",
+    about_me: ""
+}
 const UserCompleteSignup = () => {
     const toast = useToast()
 
@@ -30,21 +45,7 @@ const UserCompleteSignup = () => {
     console.log(error, user, loading)
     const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
-    const [form, setForm] = useState({
-        gender: "Male",
-        phone_number: "",
-        birth_date: moment().format('YYYY-MM-DD'),
-        image: "",
-        Country: "us",
-        categories: [],
-        location: {
-            address: "address",
-            latitude: 3,
-            longitude: 0
-        },
-        url: "",
-        about_me: ""
-    })
+    const [form, setForm] = useState(initValues)
     console.log(form)
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +75,21 @@ const UserCompleteSignup = () => {
     };
     const HandleSubmit = async (e) => {
         e.preventDefault()
-        let data = { ccategories: form.categories, url: form.url, about_me: form.about_me, image: undefined, location: form.location, gender: form.gender, phone_number: form.phone_number, birth_date: form.birth_date }
+
+
+        let formData = new FormData()
+
+
+        // formData.append("image", form.image)
+        // formData.append("categories", JSON.stringify(form.categories))
+        // formData.append("url", form.url)
+        // formData.append("about_me", form.about_me)
+        // formData.append("birth_date", form.birth_date)
+        // formData.append("location", JSON.stringify(form.location))
+        // formData.append("phone_number", form.phone_number)
+        // formData.append("gender", form.gender)
+
+        let data = { url: form.url, image: form.image, about_me: form.about_me, birth_date: form.birth_date, gender: form.gender, phone_number: form.phone_number, location: form.location, categories: form.categories }
 
         console.log(data)
         try {

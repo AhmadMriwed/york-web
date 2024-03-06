@@ -26,7 +26,7 @@ const TrainerSignupPage = () => {
     const [sign, setSign] = useState()
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
-    console.log(sign)
+
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
     const searchParams = useSearchParams().get("trainer")
@@ -41,7 +41,7 @@ const TrainerSignupPage = () => {
         password_confirmation: "",
         phone_number: "",
         Country: "us",
-        image: "c://adel.jpg",
+        image: "",
         location: {
             address: "address",
             latitude: 3,
@@ -110,6 +110,7 @@ const TrainerSignupPage = () => {
     };
     const HandleSubmit = (e) => {
         e.preventDefault()
+
         setForm({ ...form, digital_signature: sign.getTrimmedCanvas().toDataURL("image/svg") })
         if (form.password !== form.password_confirmation) {
             toast({
@@ -128,7 +129,7 @@ const TrainerSignupPage = () => {
         // formData.append("email", form.email)
         // formData.append("password", form.password)
         // formData.append("password_confirmation", form.password_confirmation)
-        // formData.append("trainer_type_id", form.type)
+        // formData.append("trainer_type_id", form.trainer_type_id)
         // formData.append("domains", form.domains)
         // formData.append("about_me", form.about_me)
         // formData.append("phone_number", form.phone_number)
@@ -137,8 +138,8 @@ const TrainerSignupPage = () => {
         // formData.append("first_name", form.first_name)
         // formData.append("last_name", form.last_name)
         // formData.append("resume", form.resume)
-        console.log(form)
-        let data = form
+        // console.log(form)
+        let data = { about_me: form.about_me, email: form.email, phone_number: form.phone_number, image: form.image, gender: form.gender, domains: form.domains, trainer_type_id: form.trainer_type_id, birth_date: form.birth_date, first_name: form.first_name, resume: form.resume, digital_signature: form.digital_signature, last_name: form.last_name, location: form.location, password: form.password, password_confirmation: form.password_confirmation }
         try {
             dispatch(trainerRegister(data)).then((res) => {
                 console.log(res)
@@ -212,7 +213,7 @@ const TrainerSignupPage = () => {
                             <Flex gap={4} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
                                 <Box  >
                                     <FormLabel color={"white"} fontWeight={"bold"}>Last Name</FormLabel>
-                                    <Input  isRequired placeholder="Enter Your Last Name" required type="text" value={form.last_name} id="last_name" onChange={onChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
+                                    <Input isRequired placeholder="Enter Your Last Name" required type="text" value={form.last_name} id="last_name" onChange={onChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>email</FormLabel>
                                     <Input isRequired placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
