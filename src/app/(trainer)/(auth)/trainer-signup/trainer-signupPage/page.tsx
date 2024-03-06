@@ -41,14 +41,18 @@ const TrainerSignupPage = () => {
         password_confirmation: "",
         phone_number: "",
         Country: "us",
-        image: "",
-        location: "",
+        image: "c://adel.jpg",
+        location: {
+            address: "address",
+            latitude: 3,
+            longitude: 0
+        },
         Category: [],
         digital_signature: "default",
         gender: "Male",
         birth_date: moment().format('YYYY-MM-DD'),
         resume: "",
-        type: "1",
+        trainer_type_id: "1",
         domains: "",
         about_me: ""
     })
@@ -119,22 +123,22 @@ const TrainerSignupPage = () => {
             return
         }
         let formData = new FormData()
-        formData.append("gender", form.gender)
-        formData.append("image", form.image)
-        formData.append("email", form.email)
-        formData.append("password", form.password)
-        formData.append("password_confirmation", form.password_confirmation)
-        formData.append("trainer_type_id", form.type)
-        formData.append("domains", form.domains)
-        formData.append("about_me", form.about_me)
-        formData.append("phone_number", form.phone_number)
-        formData.append("birth_date", form.birth_date)
-        formData.append("digital_signature", form.digital_signature)
-        formData.append("first_name", form.first_name)
-        formData.append("last_name", form.last_name)
-        formData.append("resume", form.resume)
+        // formData.append("gender", form.gender)
+        // formData.append("image", form.image)
+        // formData.append("email", form.email)
+        // formData.append("password", form.password)
+        // formData.append("password_confirmation", form.password_confirmation)
+        // formData.append("trainer_type_id", form.type)
+        // formData.append("domains", form.domains)
+        // formData.append("about_me", form.about_me)
+        // formData.append("phone_number", form.phone_number)
+        // formData.append("birth_date", form.birth_date)
+        // formData.append("digital_signature", form.digital_signature)
+        // formData.append("first_name", form.first_name)
+        // formData.append("last_name", form.last_name)
+        // formData.append("resume", form.resume)
         console.log(form)
-        let data = formData
+        let data = form
         try {
             dispatch(trainerRegister(data)).then((res) => {
                 console.log(res)
@@ -208,7 +212,7 @@ const TrainerSignupPage = () => {
                             <Flex gap={4} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
                                 <Box  >
                                     <FormLabel color={"white"} fontWeight={"bold"}>Last Name</FormLabel>
-                                    <Input isRequired placeholder="Enter Your Last Name" required type="text" value={form.last_name} id="last_name" onChange={onChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
+                                    <Input  isRequired placeholder="Enter Your Last Name" required type="text" value={form.last_name} id="last_name" onChange={onChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>email</FormLabel>
                                     <Input isRequired placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
