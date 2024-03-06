@@ -4,13 +4,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-
+import { useDispatch ,useSelector} from 'react-redux'
+import axios from 'axios'
 const ConfirmEmail = () => {
-    const email = useSearchParams().get("email")
-    console.log(email)
-    const dispatch = useDispatch()
+   
     useEffect(() => {
+       
     }, [])
     return (
         <div className='overflow-x-hidden'>

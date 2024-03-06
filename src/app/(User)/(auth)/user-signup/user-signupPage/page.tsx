@@ -20,7 +20,7 @@ const UserSignupPage = () => {
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
     console.log(image)
-    const searchParams = useSearchParams().get("user")
+
     const dispatch: any = useDispatch()
     const validationSchema = Yup.object().shape({
         first_name: Yup.string().required("Please add the Your first Name"),
@@ -43,7 +43,7 @@ const UserSignupPage = () => {
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
-        console.log(formData)
+
         try {
             dispatch(userRegister(formData)).then((res) => {
                 console.log(res)

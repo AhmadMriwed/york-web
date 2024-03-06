@@ -72,21 +72,10 @@ const UserCompleteSignup = () => {
         inputRef.current.value = ""
         setImage("")
     };
-    const HandleSubmit = async () => {
-        let formData = new FormData()
-        var jsonBlob = new Blob([JSON.stringify(form.location)], { type: 'application/json' });
-        formData.append('location', jsonBlob, 'data.json')
-        formData.append("gender", form.gender)
-        formData.append("image", form.image)
+    const HandleSubmit = async (e) => {
+        e.preventDefault()
+        let data = { ccategories: form.categories, url: form.url, about_me: form.about_me, image: undefined, location: form.location, gender: form.gender, phone_number: form.phone_number, birth_date: form.birth_date }
 
-        Object.keys(form.categories).forEach((key: any) => {
-            formData.append(key, form.categories[key]);
-        });
-        formData.append("about_me", form.about_me)
-        formData.append("phone_number", form.phone_number)
-        formData.append("birth_date", form.birth_date)
-        formData.append("url", form.url)
-        let data = formData
         console.log(data)
         try {
             const token = await cookie.get("userSignUp_token")
@@ -114,9 +103,9 @@ const UserCompleteSignup = () => {
                         isClosable: true,
                         position: "top"
                     })
-                    router.push("/")
+                    // router.push("/")
                 } else {
-                    router.push("/user-login/confirmemail")
+                    // router.push("/user-login/confirmemail")
                 }
             })
         } catch (error: any) {
@@ -172,64 +161,66 @@ const UserCompleteSignup = () => {
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
-                    <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-around" }} alignItems={{ base: "center", xl: "start" }}>
-                        <Flex gap={6} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
-                            <Box >
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                <Selecter height={50} onChange={onSelect} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
-                                    <option value='Famle'>Famle</option>
-                                    <option value='Male'>Male</option>
-                                </Selecter>
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
-                                <PhoneInput onChange={(value) => setForm({ ...form, phone_number: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={form.Country}></PhoneInput>
-                                <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
-                                <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
-                                    <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
-                                        {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                    <form onSubmit={HandleSubmit}>
+                        <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-around" }} alignItems={{ base: "center", xl: "start" }}>
+                            <Flex gap={6} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
+                                <Box >
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Gender</FormLabel>
+                                    <Selecter height={50} onChange={onSelect} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                        <option value='Famle'>Famle</option>
+                                        <option value='Male'>Male</option>
+                                    </Selecter>
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
+                                    <PhoneInput onChange={(value) => setForm({ ...form, phone_number: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={form.Country}></PhoneInput>
+                                    <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+                                    <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
+                                        <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
+                                            {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                    </Box>
                                 </Box>
-                            </Box>
-                            <Box>
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
-                                <Input height={50} onChange={onChangeDate} value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                <Box>
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
+                                    <Input height={50} onChange={onChangeDate} value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
-                                <Input height={50} onChange={onChange} name="url" value={form.url} id="url" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
-                                <Input height={50} onChange={onChange} name="about_me" value={form.about_me} id="about_me" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
-                                <Select styles={customStyles} options={categori}
-                                    onChange={(value) => setForm({ ...form, categories: value.map((i) => i.id) })}
-                                    name='categories'
-                                    id='categories'
-                                    isMulti
-                                />
-                                <LocationModal
-                                    open={openLocationModal}
-                                    setOpen={setOpenLocationModal}
-                                />
-                            </Box>
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
+                                    <Input height={50} onChange={onChange} name="url" value={form.url} id="url" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
+                                    <Input height={50} onChange={onChange} name="about_me" value={form.about_me} id="about_me" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
+                                    <Select styles={customStyles} options={categori}
+                                        onChange={(value) => setForm({ ...form, categories: value.map((i) => i.id) })}
+                                        name='categories'
+                                        id='categories'
+                                        isMulti
+                                    />
+                                    <LocationModal
+                                        open={openLocationModal}
+                                        setOpen={setOpenLocationModal}
+                                    />
+                                </Box>
+                            </Flex>
+                            <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
+                                <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
+
+                                    {form.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                </Box>
+                                <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                            </Flex>
                         </Flex>
-                        <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
-                            <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
+                        <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >
+                            <Button w={200}
+                                type="submit"
+                                textColor={"white"}
+                                backgroundColor={"#11cdef"}
+                                textAlign={"center"}
+                                size={"md"}
+                                variant={"black"}
 
-                                {form.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
-                            </Box>
-                            <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                                fontSize={14}>{loading ? <Spinner color="red" size={"sm"} /> : "Complete Account"}</Button>
+                            <Link style={{ width: 100, color: "#11cdef", fontSize: 15, fontWeight: "bold" }} href={"/"}
+                            >Skip</Link>
                         </Flex>
-                    </Flex>
-                    <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >
-                        <Button w={200}
-                            onClick={HandleSubmit}
-                            textColor={"white"}
-                            backgroundColor={"#11cdef"}
-                            textAlign={"center"}
-                            size={"md"}
-                            variant={"black"}
-
-                            fontSize={14}>{loading ? <Spinner color="red" size={"sm"} /> : "Complete Account"}</Button>
-                        <Link style={{ width: 100, color: "#11cdef", fontSize: 15, fontWeight: "bold" }} href={"/"}
-                        >Skip</Link>
-                    </Flex>
+                    </form>
                 </Container>
             </Box>
         </>

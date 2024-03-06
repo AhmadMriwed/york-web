@@ -1,9 +1,13 @@
+"use client"
 import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 const ConfirmEmail = () => {
+
+
     return (
         <div className='overflow-x-hidden'>
             <div className='h-50px w-[100vw] p-4'><BackBtn textColor='text-black' /></div>

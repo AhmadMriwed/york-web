@@ -161,7 +161,7 @@ const TrainerSignupPage = () => {
                     })
                     router.push("/")
                 } else {
-                    router.push(`/trainer-login/confirmemail?email=${form.email}`)
+                    router.push(`/trainer-login/confirmemail`)
                 }
             })
 
