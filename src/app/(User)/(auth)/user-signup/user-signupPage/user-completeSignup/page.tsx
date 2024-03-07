@@ -22,7 +22,7 @@ const initValues = {
     birth_date: moment().format('YYYY-MM-DD'),
     image: "",
     Country: "us",
-    categories: [],
+    categories: "",
     location: {
         address: "address",
         latitude: 3,
@@ -75,22 +75,9 @@ const UserCompleteSignup = () => {
     };
     const HandleSubmit = async (e) => {
         e.preventDefault()
+        let data = { gender: form.gender, url: form.url, image: undefined, location: form.location, phone_number: form.phone_number, categories: form.categories, birth_date: form.birth_date, about_me: form.about_me }
 
-
-        let formData = new FormData()
-
-
-        // formData.append("image", form.image)
-        // formData.append("categories", JSON.stringify(form.categories))
-        // formData.append("url", form.url)
-        // formData.append("about_me", form.about_me)
-        // formData.append("birth_date", form.birth_date)
-        // formData.append("location", JSON.stringify(form.location))
-        // formData.append("phone_number", form.phone_number)
-        // formData.append("gender", form.gender)
-
-        let data = { url: form.url, image: form.image, about_me: form.about_me, birth_date: form.birth_date, gender: form.gender, phone_number: form.phone_number, location: form.location, categories: form.categories }
-
+      
         console.log(data)
         try {
             const token = await cookie.get("userSignUp_token")
@@ -195,7 +182,7 @@ const UserCompleteSignup = () => {
                                 </Box>
                                 <Box>
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
-                                    <Input height={50} onChange={onChangeDate} value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input height={50} onChange={onChangeDate} name="birth_date" value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
                                     <Input height={50} onChange={onChange} name="url" value={form.url} id="url" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />

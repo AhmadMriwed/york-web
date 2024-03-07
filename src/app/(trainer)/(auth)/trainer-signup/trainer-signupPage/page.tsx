@@ -1,6 +1,6 @@
 "use client"
 import BackBtn from "@/components/backbtn/BackBtn"
-import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Center, Spinner, Circle, CloseButton, useToast } from "@chakra-ui/react"
+import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Center, Spinner, Circle, CloseButton, useToast, Img } from "@chakra-ui/react"
 import Image from "next/image"
 import Location from "@rsuite/icons/Location"
 import PhoneInput from "react-phone-input-2"
@@ -13,10 +13,16 @@ import { categorie } from "@/utils/categories"
 import React, { useEffect, useRef, useState } from "react"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 // import axios from "axios"
+import { Input as Inputt } from "rsuite"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { trainerRegister } from "@/store/trainerStore/slices/trainerSlice"
 import { Form } from "rsuite"
+import { number } from "yup"
+import { useFormik, validateYupSchema } from "formik"
+import * as yup from "yup"
+
+
 const TrainerSignupPage = () => {
     const [long, setLong] = useState("")
     const [address, setAddress] = useState("")
@@ -26,36 +32,45 @@ const TrainerSignupPage = () => {
     const [sign, setSign] = useState()
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
-
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
     const searchParams = useSearchParams().get("trainer")
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const toast = useToast()
     const router = useRouter()
-    const [form, setForm] = useState({
-        email: "",
-        first_name: "",
-        last_name: "",
-        password: "",
-        password_confirmation: "",
-        phone_number: "",
-        Country: "us",
-        image: "",
-        location: {
-            address: "address",
-            latitude: 3,
-            longitude: 0
-        },
-        Category: [],
-        digital_signature: "default",
-        gender: "Male",
-        birth_date: moment().format('YYYY-MM-DD'),
-        resume: "",
-        trainer_type_id: "1",
-        domains: "",
-        about_me: ""
-    })
+    const validationSchema = yup.object().shape({
+        about_me: yup.string().required("Please add the Your info "),
+        domains: yup.string().required("Please add the Your domains "),
+        digital_signature: yup.string().required("Please add the Your domains "),
+        email: yup.string().email("Invalid email").required("Email Is Required"),
+        password: yup
+            .string()
+            .required("Password is required")
+            .min(8, "Password must be at least 8 characters"),
+        password_confirmation: yup
+            .string()
+            .required("Confirm password is required"),
+        // .oneOf([yup.ref("password")], "Passwords must match"),
+        image: yup.mixed(),
+        resume: yup.mixed(),
+        last_name: yup.string().required("Require"),
+        first_name: yup.string().required("Require"),
+        trainer_type_id: yup.string().required("Require"),
+        gender: yup.string().required("Require"),
+        birthdate: yup
+            .date()
+            .required("Birthdate is required")
+        ,
+        phone_number: yup
+            .string()
+            .required("Phone number is required"),
+        categories: yup
+            .array()
+            .min(1, "At least one category is required")
+            .required("Categories are required"),
+        // location: yup.string(),
+    });
+
     const customStyles = {
         control: base => ({
             ...base,
@@ -74,72 +89,32 @@ const TrainerSignupPage = () => {
 
         )
     }));
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-    const onSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
 
     const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = moment(new Date(e.target.value)).format('YYYY-MM-DD');
-        setForm({ ...form, birth_date: newDate })
+        formik.setFieldValue("birth_date", newDate)
 
     };
 
     const fileUpload = () => {
         resumeRef.current.click()
     }
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
-        if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, image: event.target.files[0] })
-            setImage(URL.createObjectURL(event.target.files[0]))
-        }
-    }
-    const handleResumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
-        if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, resume: event.target.files[0] })
-        }
-    }
     const handleOnImageRemoveClick = () => {
-        setForm({ ...form, image: "" })
+        formik.setFieldValue("image", "")
         inputRef.current.value = ""
         setImage("")
     };
-    const HandleSubmit = (e) => {
-        e.preventDefault()
-
-        setForm({ ...form, digital_signature: sign.getTrimmedCanvas().toDataURL("image/svg") })
-        if (form.password !== form.password_confirmation) {
-            toast({
-                title: 'Error.',
-                description: "Password must match.",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-            return
-        }
-        let formData = new FormData()
-        // formData.append("gender", form.gender)
-        // formData.append("image", form.image)
-        // formData.append("email", form.email)
-        // formData.append("password", form.password)
-        // formData.append("password_confirmation", form.password_confirmation)
-        // formData.append("trainer_type_id", form.trainer_type_id)
-        // formData.append("domains", form.domains)
-        // formData.append("about_me", form.about_me)
-        // formData.append("phone_number", form.phone_number)
-        // formData.append("birth_date", form.birth_date)
-        // formData.append("digital_signature", form.digital_signature)
-        // formData.append("first_name", form.first_name)
-        // formData.append("last_name", form.last_name)
-        // formData.append("resume", form.resume)
-        // console.log(form)
-        let data = { about_me: form.about_me, email: form.email, phone_number: form.phone_number, image: form.image, gender: form.gender, domains: form.domains, trainer_type_id: form.trainer_type_id, birth_date: form.birth_date, first_name: form.first_name, resume: form.resume, digital_signature: form.digital_signature, last_name: form.last_name, location: form.location, password: form.password, password_confirmation: form.password_confirmation }
+    const handleSubmit = (values: any, actions: any) => {
+        console.log(values)
+        formik.setFieldValue("digital_signature", sign.getTrimmedCanvas().toDataURL("image/svg"))
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+            formData.append(key, values[key]);
+        });
+        console.log(formData);
+        let data = formData
         try {
             dispatch(trainerRegister(data)).then((res) => {
                 console.log(res)
@@ -182,7 +157,33 @@ const TrainerSignupPage = () => {
             })
         }
     }
-
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            first_name: "",
+            last_name: "",
+            password: "",
+            password_confirmation: "",
+            phone_number: "",
+            image: "",
+            location: {
+                address: "address",
+                id: 1,
+                latitude: 3,
+                longitude: 0
+            },
+            Category: [],
+            digital_signature: "default",
+            gender: "Male",
+            birth_date: moment().format('YYYY-MM-DD'),
+            resume: "",
+            trainer_type_id: "1",
+            domains: "",
+            about_me: "",
+        },
+        // validationSchema: validationSchema,
+        onSubmit: handleSubmit
+    })
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
             const { longitude, latitude } = pos.coords
@@ -191,7 +192,13 @@ const TrainerSignupPage = () => {
             fetch(url).then(res => res.json()).then(data => setAddress(data.address))
         })
     }, [])
-
+    const onValueChange = (phoneNum: any) => {
+        formik.setFieldValue("phone_number", phoneNum)
+    }
+    const RemoveSign = () => {
+        sign.clear()
+        formik.setFieldValue("digital_signature", "")
+    }
     return (
         <>
             <Box overflow={"auto"} h={"full"}  >
@@ -200,7 +207,7 @@ const TrainerSignupPage = () => {
                 <Flex gap={4} justifyContent={{ base: "center", md: "" }} alignItems={{ base: "center", md: "start" }} padding={{ base: 0, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
-                    {form.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Flex direction={"column"} marginLeft={{ md: 2 }} marginRight={{ base: "", md: "auto" }}>
                         <Text color={"white"} fontSize={"medium"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "medium", md: "x-large" }} fontWeight={"bold"}>York British Academy</Text>
@@ -208,43 +215,51 @@ const TrainerSignupPage = () => {
                     <Image src={"/logo.png"} alt="" width={90} height={90} />
                 </Flex>
                 <Container maxW={"container"} padding={{ lg: 20, xl: 0 }} my={4}>
-                    <form onSubmit={HandleSubmit}>
+                    <form onSubmit={formik.handleSubmit}>
                         <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={4} justifyContent={{ base: "center", xl: "space-around" }} alignItems={{ base: "center", xl: "start" }} >
                             <Flex gap={4} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
                                 <Box  >
                                     <FormLabel color={"white"} fontWeight={"bold"}>Last Name</FormLabel>
-                                    <Input isRequired placeholder="Enter Your Last Name" required type="text" value={form.last_name} id="last_name" onChange={onChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
+                                    <Input placeholder="Enter Your Last Name" type="text" value={formik.values.last_name} id="last_name" onChange={formik.handleChange} name="last_name" color={"black"} bg={"white"} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>email</FormLabel>
-                                    <Input isRequired placeholder="example@gmail.com" required type="email" name="email" value={form.email} id="email" onChange={onChange} color={"black"} bg={"white"} fontSize={14} placeholder='example@gmail.com' size='md' w={350} />
+                                    <Input placeholder="example@gmail.com" type="email" name="email" value={formik.values.email} id="email" onChange={formik.handleChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
-                                    <Input placeholder="Enter Your Password" required type="password" value={form.password} onChange={onChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input placeholder="Enter Your Password" type="password" value={formik.values.password} onChange={formik.handleChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                    <Selecter onChange={onSelect} value={form.gender} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                    <Selecter onChange={formik.handleChange} value={formik.values.gender} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
                                         <option value='Famle'>Famle</option>
                                         <option value='Male'>Male</option>
                                     </Selecter>
-                                    <Input accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" type="file" name="resume" ref={resumeRef} id="resume" onChange={handleResumeChange} hidden />
+                                    <Inputt accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" type="file" name="resume" ref={resumeRef} id="resume"
+                                        onChange={(value, e: any) => {
+                                            console.log(e);
+                                            formik.values.resume = e.target.files[0];
+
+                                        }} hidden />
                                     <FormLabel color={"white"} fontWeight={"bold"}>category</FormLabel>
                                     <Select styles={customStyles} options={categori}
-                                        onChange={(choice) => setForm({ ...form, Category: choice.map((i) => i.id) })}
-                                        name='Category'
-                                        id='Category'
+                                        onChange={(choice) => {
+                                            formik.values.Category = choice.map((i) => i.id)
+                                        }
+                                        }
+                                        name='categories'
+                                        id='categories'
                                         isMulti
                                     />
                                     <FormLabel color={"white"} fontWeight={"bold"}>domains</FormLabel>
-                                    <Input placeholder="" required type="text" value={form.domains} onChange={onChange} name="domains" id="domains" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input placeholder="fjfjfj" type="text" value={formik.values.domains} onChange={formik.handleChange} name="domains" id="domains" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>about_me</FormLabel>
-                                    <Input placeholder="tell us about your self" required type="text" value={form.about_me} onChange={onChange} name="about_me" id="about_me" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input placeholder="tell us about your self" type="text" value={formik.values.about_me} onChange={formik.handleChange} name="about_me" id="about_me" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                             {address.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
                                         <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#11cdef"} cursor={"pointer"}> Upload your resume  </Text>
                                         <Box width={300} padding={3}>
-                                            {form.resume &&
+                                            {formik.values.resume &&
                                                 <>
-                                                    <Text fontWeight={"bold"} > FileName : {form?.resume?.name} </Text>
-                                                    <Text fontWeight={"bold"}> FileSize :  {form?.resume?.size}</Text>
+                                                    <Text fontWeight={"bold"} > FileName : {formik.values.resume.name} </Text>
+                                                    <Text fontWeight={"bold"}> FileSize :  {formik.values.resume.size}</Text>
                                                 </>
                                             }
                                         </Box>
@@ -256,26 +271,31 @@ const TrainerSignupPage = () => {
                                 </Box>
                                 <Box >
                                     <FormLabel color={"white"} fontWeight={"bold"}>First Name</FormLabel>
-                                    <Input isRequired placeholder="Enter Your Full Name" type="text" value={form.first_name} required onChange={onChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input placeholder="Enter Your Full Name" type="text" value={formik.values.first_name} onChange={formik.handleChange} name="first_name" id="first_name" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
                                     <FormLabel color={"white"} fontWeight={"bold"}>Phone</FormLabel>
-                                    <PhoneInput isValid onChange={(value) => setForm({ ...form, phone_number: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 45 }} country={form.Country}></PhoneInput>
+                                    <PhoneInput value={formik.values.phone_number} isValid onChange={onValueChange} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 45 }} country={"us"}></PhoneInput>
                                     <FormLabel color={"white"} fontWeight={"bold"}>ConfirmPassword</FormLabel>
-                                    <Input isRequired placeholder="Confirm Your Password" required type="password" name="password_confirmation" value={form.password_confirmation} onChange={onChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input id="password_confirmation" placeholder="Confirm Your Password" type="password" name="password_confirmation" value={formik.values.password_confirmation} onChange={formik.handleChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
-                                    <Input onChange={onChangeDate} value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-                                    <Input accept="image/png, image/gif, image/jpeg" type="file" ref={inputRef} hidden name="image" onChange={handleImageChange} color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input onChange={onChangeDate} value={formik.values.birth_date} id="birth_date" name="birth_date" type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Inputt onChange={(value, e: any) => {
+                                        console.log(e);
+                                        formik.values.image = e.target.files[0];
+                                        setImage(URL.createObjectURL(e.target.files[0]))
+                                    }} accept="image/png, image/gif, image/jpeg" type="file" ref={inputRef} hidden name="image" id="image" color={"black"} size='md' />
+
                                     <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
                                     <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
-                                        <SignatureCanvas canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
-                                        <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={() => sign.clear()} />
+                                        <SignatureCanvas name="digital_signature" canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
+                                        <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={RemoveSign} />
                                     </Box >
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-                                    {form.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                    {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontSize={15} fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>
@@ -290,10 +310,12 @@ const TrainerSignupPage = () => {
                                 w={{ base: "full", md: 300, lg: 200 }}
                             >{loading ? <Spinner color="red" size={"sm"} /> : "Create Account"}</Button>
                         </Box>
-                    </form>
 
+                    </form>
                 </Container>
             </Box>
+
+
         </>
     )
 }
