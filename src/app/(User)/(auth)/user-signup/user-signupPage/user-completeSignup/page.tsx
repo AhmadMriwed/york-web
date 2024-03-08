@@ -44,50 +44,55 @@ const UserCompleteSignup = () => {
     //     ,
     //     // location: yup.string(),
     // });
-    const handleSubmit = async (values: any, actions: any) => {
+
+    const HandleSubmit = (values: any, actions: any) => {
         console.log(values)
-        let formData = new FormData()
-        Object.keys(values).forEach((key) => {
-            formData.append(key, values[key]);
-        });
-        console.log(formData)
-        let token = await cookie.get("userSignUp_token")
+        let imgformData = new FormData()
+        // let formData = new FormData()
+        //
+        // Object.keys(values).forEach((key)=>{
+        //     formData.append(key,values[key])
+        // })
+        //{ ...values, image: imgformData }
+        imgformData.append("image", values.image)
+        let token = cookie.get("userSignUp_token")
         console.log(token)
-        dispatch(updateUserProfile({ token, data: formData })).then((res) => {
-            console.log(res, "success")
-            if (res.error) {
-                toast({
-                    title: 'Error',
-                    description: "We could not update your account.",
-                    status: 'error',
-                    duration: 2000,
-                    isClosable: true,
-                    position: "top"
-                })
-                console.log(error)
-                return
-            }
-            else if (res.payload.is_verified) {
-                toast({
-                    title: 'Success',
-                    description: "Account is Updated successfully.",
-                    status: 'success',
-                    duration: 9000,
-                    isClosable: true,
-                    position: "top"
-                })
-                router.push("/")
-            } else {
-                router.push("/user-login/confirmemail")
-            }
-        })
+        dispatch(updateUserProfile({ token, data: values }))
+            .then((res) => {
+                console.log(res)
+                if (res.error) {
+                    toast({
+                        title: 'Error',
+                        description: "We could not update your account.",
+                        status: 'error',
+                        duration: 2000,
+                        isClosable: true,
+                        position: "top"
+                    })
+                    console.log(error)
+                    return
+                }
+                else if (res.payload.is_verified) {
+                    toast({
+                        title: 'Success',
+                        description: "Account is Updated successfully.",
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                        position: "top"
+                    })
+                    router.push("/")
+                } else {
+                    router.push("/user-login/confirmemail")
+                }
+            })
 
     }
     const formik = useFormik({
         initialValues: {
             url: "",
             phone_number: "",
-            image: "",
+            // image: "",
             location: {
                 address: "address",
                 latitude: 3,
@@ -100,7 +105,7 @@ const UserCompleteSignup = () => {
             about_me: "",
         },
         // validationSchema,
-        onSubmit: handleSubmit
+        onSubmit: HandleSubmit
     })
     const onChangeDate = (e: ChangeEvent<HTMLInputElement>) => {
         const newDate = moment(new Date(e.target.value)).format('YYYY-MM-DD');
@@ -174,7 +179,6 @@ const UserCompleteSignup = () => {
                                         setImage(URL.createObjectURL(e.target.files[0]))
                                     }} accept="image/png, image/gif, image/jpeg" type="file" ref={inputRef} hidden name="image" id="image" color={"black"} size='md' />
 
-
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                             {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
@@ -183,7 +187,6 @@ const UserCompleteSignup = () => {
                                 <Box>
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                     <Input height={50} onChange={onChangeDate} name="birth_date" value={formik.values.birth_date} id="birth_date" type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
-
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
                                     <Input height={50} name="url" value={formik.values.url} onChange={formik.handleChange} id="url" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
@@ -198,7 +201,6 @@ const UserCompleteSignup = () => {
                                         id='categories'
                                         isMulti
                                     />
-
                                     <LocationModal
                                         open={openLocationModal}
                                         setOpen={setOpenLocationModal}
@@ -221,7 +223,6 @@ const UserCompleteSignup = () => {
                                 textAlign={"center"}
                                 size={"md"}
                                 variant={"black"}
-
                                 fontSize={14}>{loading ? <Spinner color="red" size={"sm"} /> : "Complete Account"}</Button>
                             <Link style={{ width: 100, color: "#11cdef", fontSize: 15, fontWeight: "bold" }} href={"/"}
                             >Skip</Link>

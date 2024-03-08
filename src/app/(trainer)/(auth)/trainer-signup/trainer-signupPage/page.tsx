@@ -8,6 +8,7 @@ import "react-phone-input-2/lib/style.css"
 import aa from "../../../../../../public/adminlogin.png"
 import moment from "moment"
 import SignatureCanvas from "react-signature-canvas"
+
 import Select from "react-select"
 import { categorie } from "@/utils/categories"
 import React, { useEffect, useRef, useState } from "react"
@@ -21,15 +22,13 @@ import { Form } from "rsuite"
 import { number } from "yup"
 import { useFormik, validateYupSchema } from "formik"
 import * as yup from "yup"
-
-
 const TrainerSignupPage = () => {
     const [long, setLong] = useState("")
     const [address, setAddress] = useState("")
     const dispatch: any = useDispatch()
     const [lat, setLat] = useState("")
     const [image, setImage] = useState("")
-    const [sign, setSign] = useState()
+    let sign = useRef(null)
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
     const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
@@ -89,24 +88,21 @@ const TrainerSignupPage = () => {
 
         )
     }));
-
     const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = moment(new Date(e.target.value)).format('YYYY-MM-DD');
         formik.setFieldValue("birth_date", newDate)
 
     };
-
-    const fileUpload = () => {
-        resumeRef.current.click()
-    }
     const onValueChange = (phoneNum: any) => {
         formik.setFieldValue("phone_number", phoneNum)
     }
+    const SaveSign = () => {
+        formik.setFieldValue("digital_signature", sign.current.getTrimmedCanvas().toDataURL("image/svg"))
+    }
     const RemoveSign = () => {
-        sign.clear()
+        sign.current.clear();
         formik.setFieldValue("digital_signature", "")
     }
-
     const handleOnImageRemoveClick = () => {
         formik.setFieldValue("image", "")
         inputRef.current.value = ""
@@ -114,12 +110,10 @@ const TrainerSignupPage = () => {
     };
     const handleSubmit = (values: any, actions: any) => {
         console.log(values)
-        // formik.setFieldValue("digital_signature", sign.getTrimmedCanvas().toDataURL("image/svg"))
         const formData = new FormData();
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
-        console.log(formData);
         dispatch(trainerRegister(formData)).then((res) => {
             console.log(res)
             if (res.error) {
@@ -148,8 +142,6 @@ const TrainerSignupPage = () => {
                 router.push(`/trainer-login/confirmemail`)
             }
         })
-
-
     }
     const formik = useFormik({
         initialValues: {
@@ -166,7 +158,7 @@ const TrainerSignupPage = () => {
             //     longitude: 0
             // },
             Category: [],
-            digital_signature: "default",
+            digital_signature: "",
             gender: "Male",
             birth_date: moment().format('YYYY-MM-DD'),
             resume: "",
@@ -241,7 +233,7 @@ const TrainerSignupPage = () => {
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                             {address.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
-                                        <Text fontSize={"medium"} fontWeight={"bold"} onClick={fileUpload} color={"#11cdef"} cursor={"pointer"}> Upload your resume  </Text>
+                                        <Text fontSize={"medium"} fontWeight={"bold"} onClick={() => resumeRef.current.click()} color={"#11cdef"} cursor={"pointer"}> Upload your resume  </Text>
                                         <Box width={300} padding={3}>
                                             {formik.values.resume &&
                                                 <>
@@ -274,9 +266,10 @@ const TrainerSignupPage = () => {
 
                                     <FormLabel color={"white"} fontWeight={"bold"}>digital signature</FormLabel>
                                     <Box border={"1px solid gray"} margin={{ base: "auto", md: 0 }} bg={"white"} position={"relative"} borderRadius={20} padding={3} width={{ base: "auto", md: 345 }} height={150} >
-                                        <SignatureCanvas name="digital_signature" canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={data => setSign(data)} />
+                                        <SignatureCanvas name="digital_signature" canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={sign} />
                                         <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={RemoveSign} />
                                     </Box >
+                                    <Button size={"sm"} mt={5} onClick={SaveSign}>Save Sign</Button>
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
@@ -297,12 +290,9 @@ const TrainerSignupPage = () => {
                                 w={{ base: "full", md: 300, lg: 200 }}
                             >{loading ? <Spinner color="red" size={"sm"} /> : "Create Account"}</Button>
                         </Box>
-
                     </form>
                 </Container>
             </Box>
-
-
         </>
     )
 }
