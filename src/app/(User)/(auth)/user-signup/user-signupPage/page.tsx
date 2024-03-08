@@ -11,7 +11,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { userRegister } from "@/store/userStore/slices/userSlice"
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import { Form } from "rsuite"
 const UserSignupPage = () => {
     const router = useRouter()
     const toast = useToast()
@@ -20,7 +19,6 @@ const UserSignupPage = () => {
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
     console.log(image)
-
     const dispatch: any = useDispatch()
     const validationSchema = Yup.object().shape({
         first_name: Yup.string().required("Please add the Your first Name"),
@@ -35,6 +33,7 @@ const UserSignupPage = () => {
             .string()
             .required("Confirm password is required")
             .oneOf([Yup.ref("password")], "Passwords must match"),
+        language: Yup.string(),
     })
     const HandleSubmit = async (values: any, actions: any) => {
         console.log("submitted");
@@ -43,45 +42,33 @@ const UserSignupPage = () => {
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
+        dispatch(userRegister(formData)).then((res) => {
+            console.log(res)
+            if (res.error) {
+                toast({
+                    title: 'Error',
+                    description: "We couldnot create your account.",
+                    status: 'error',
+                    duration: 2000,
+                    isClosable: true,
+                    position: "top"
+                })
+                console.log(error)
+                return
+            } else {
+                toast({
+                    title: 'Account created',
+                    description: "we have created your account successfully.",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                    position: "top"
+                })
+                router.push(`/user-signup/user-signupPage/user-completeSignup`)
+            }
+        })
 
-        try {
-            dispatch(userRegister(formData)).then((res) => {
-                console.log(res)
-                if (res.error) {
-                    toast({
-                        title: 'Error',
-                        description: "We couldnot create your account.",
-                        status: 'error',
-                        duration: 2000,
-                        isClosable: true,
-                        position: "top"
-                    })
-                    console.log(error)
-                    return
-                } else {
-                    toast({
-                        title: 'Account created',
-                        description: "we have created your account successfully.",
-                        status: 'success',
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top"
-                    })
-                    router.push(`/user-signup/user-signupPage/user-completeSignup`)
-                }
-            })
 
-        } catch (error: any) {
-            console.log(error.mesage)
-            toast({
-                title: 'Error',
-                description: "we Can not  create your account .",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-        }
     }
     const formik = useFormik({
         initialValues: {
@@ -90,7 +77,8 @@ const UserSignupPage = () => {
             password: "",
             password_confirmation: "",
             image: "",
-            last_name: ""
+            last_name: "",
+            language: "english"
         },
         validationSchema,
         onSubmit: HandleSubmit

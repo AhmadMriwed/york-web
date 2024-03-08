@@ -57,7 +57,7 @@ const TrainerSignupPage = () => {
         first_name: yup.string().required("Require"),
         trainer_type_id: yup.string().required("Require"),
         gender: yup.string().required("Require"),
-        birthdate: yup
+        birth_date: yup
             .date()
             .required("Birthdate is required")
         ,
@@ -68,7 +68,7 @@ const TrainerSignupPage = () => {
             .array()
             .min(1, "At least one category is required")
             .required("Categories are required"),
-        // location: yup.string(),
+        location: yup.string(),
     });
 
     const customStyles = {
@@ -99,7 +99,13 @@ const TrainerSignupPage = () => {
     const fileUpload = () => {
         resumeRef.current.click()
     }
-
+    const onValueChange = (phoneNum: any) => {
+        formik.setFieldValue("phone_number", phoneNum)
+    }
+    const RemoveSign = () => {
+        sign.clear()
+        formik.setFieldValue("digital_signature", "")
+    }
 
     const handleOnImageRemoveClick = () => {
         formik.setFieldValue("image", "")
@@ -108,54 +114,42 @@ const TrainerSignupPage = () => {
     };
     const handleSubmit = (values: any, actions: any) => {
         console.log(values)
-        formik.setFieldValue("digital_signature", sign.getTrimmedCanvas().toDataURL("image/svg"))
+        // formik.setFieldValue("digital_signature", sign.getTrimmedCanvas().toDataURL("image/svg"))
         const formData = new FormData();
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
         console.log(formData);
-        let data = formData
-        try {
-            dispatch(trainerRegister(data)).then((res) => {
-                console.log(res)
-                if (res.error) {
-                    console.log(error)
-                    toast({
-                        title: 'Error.',
-                        description: 'we couldnot create your account',
-                        status: 'error',
-                        duration: 3000,
-                        isClosable: true,
-                        position: "top",
+        dispatch(trainerRegister(formData)).then((res) => {
+            console.log(res)
+            if (res.error) {
+                console.log(error)
+                toast({
+                    title: 'Error.',
+                    description: 'we couldnot create your account',
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                    position: "top",
 
-                    })
-                    return
-                } else if (res.payload.is_verified) {
-                    toast({
-                        title: 'Account created',
-                        description: "we have created your account successfully.",
-                        status: 'success',
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top"
-                    })
-                    router.push("/")
-                } else {
-                    router.push(`/trainer-login/confirmemail`)
-                }
-            })
+                })
+                return
+            } else if (res.payload.is_verified) {
+                toast({
+                    title: 'Account created',
+                    description: "we have created your account successfully.",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                    position: "top"
+                })
+                router.push("/")
+            } else {
+                router.push(`/trainer-login/confirmemail`)
+            }
+        })
 
-        } catch (error: any) {
-            console.log(error.mesage)
-            toast({
-                title: 'Error',
-                description: "we Can not  create your account .",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-        }
+
     }
     const formik = useFormik({
         initialValues: {
@@ -166,12 +160,11 @@ const TrainerSignupPage = () => {
             password_confirmation: "",
             phone_number: "",
             image: "",
-            location: {
-                address: "address",
-                id: 1,
-                latitude: 3,
-                longitude: 0
-            },
+            // location: {
+            //     address: "address",
+            //     latitude: 3,
+            //     longitude: 0
+            // },
             Category: [],
             digital_signature: "default",
             gender: "Male",
@@ -192,13 +185,7 @@ const TrainerSignupPage = () => {
             fetch(url).then(res => res.json()).then(data => setAddress(data.address))
         })
     }, [])
-    const onValueChange = (phoneNum: any) => {
-        formik.setFieldValue("phone_number", phoneNum)
-    }
-    const RemoveSign = () => {
-        sign.clear()
-        formik.setFieldValue("digital_signature", "")
-    }
+
     return (
         <>
             <Box overflow={"auto"} h={"full"}  >
@@ -226,7 +213,7 @@ const TrainerSignupPage = () => {
                                     <FormLabel color={"white"} fontWeight={"bold"}>Password</FormLabel>
                                     <Input placeholder="Enter Your Password" type="password" value={formik.values.password} onChange={formik.handleChange} name="password" id="password" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                    <Selecter onChange={formik.handleChange} value={formik.values.gender} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                    <Selecter onChange={formik.handleChange} value={formik.values.gender} id="gender" name="gender" color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
                                         <option value='Famle'>Famle</option>
                                         <option value='Male'>Male</option>
                                     </Selecter>

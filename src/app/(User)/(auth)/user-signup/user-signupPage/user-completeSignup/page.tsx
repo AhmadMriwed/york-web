@@ -14,26 +14,11 @@ import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
 import { updateUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
-import { Form } from "rsuite"
-import { number, object } from "yup"
-const initValues = {
-    gender: "Male",
-    phone_number: "",
-    birth_date: moment().format('YYYY-MM-DD'),
-    image: "",
-    Country: "us",
-    categories: "",
-    location: {
-        address: "address",
-        latitude: 3,
-        longitude: 0
-    },
-    url: "",
-    about_me: ""
-}
+import { useFormik } from "formik"
+import * as yup from "yup"
+import { Input as Inputt } from "rsuite"
 const UserCompleteSignup = () => {
     const toast = useToast()
-
     const cookie = new Cookies()
     const dispatch: any = useDispatch()
     const router = useRouter()
@@ -43,92 +28,100 @@ const UserCompleteSignup = () => {
     const [loc, setLoc] = useState("")
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
+    console.log("new user", user)
     const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
-    const [form, setForm] = useState(initValues)
-    console.log(form)
+    // const validationSchema = yup.object().shape({
+    //     about_me: yup.string(),
+    //     url: yup.string(),
+    //     image: yup.mixed(),
+    //     gender: yup.string(),
+    //     birth_date: yup.date(),
+    //     phone_number: yup
+    //         .string(),
+    //     categories: yup
+    //         .array()
+    //     ,
+    //     // location: yup.string(),
+    // });
+    const handleSubmit = async (values: any, actions: any) => {
+        console.log(values)
+        let formData = new FormData()
+        Object.keys(values).forEach((key) => {
+            formData.append(key, values[key]);
+        });
+        console.log(formData)
+        let token = await cookie.get("userSignUp_token")
+        console.log(token)
+        dispatch(updateUserProfile({ token, data: formData })).then((res) => {
+            console.log(res, "success")
+            if (res.error) {
+                toast({
+                    title: 'Error',
+                    description: "We could not update your account.",
+                    status: 'error',
+                    duration: 2000,
+                    isClosable: true,
+                    position: "top"
+                })
+                console.log(error)
+                return
+            }
+            else if (res.payload.is_verified) {
+                toast({
+                    title: 'Success',
+                    description: "Account is Updated successfully.",
+                    status: 'success',
+                    duration: 9000,
+                    isClosable: true,
+                    position: "top"
+                })
+                router.push("/")
+            } else {
+                router.push("/user-login/confirmemail")
+            }
+        })
 
-    const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    }
+    const formik = useFormik({
+        initialValues: {
+            url: "",
+            phone_number: "",
+            image: "",
+            location: {
+                address: "address",
+                latitude: 3,
+                longitude: 0,
+            },
+            categories: [],
 
-    const onSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
+            gender: "Male",
+            birth_date: moment().format('YYYY-MM-DD'),
+            about_me: "",
+        },
+        // validationSchema,
+        onSubmit: handleSubmit
+    })
     const onChangeDate = (e: ChangeEvent<HTMLInputElement>) => {
         const newDate = moment(new Date(e.target.value)).format('YYYY-MM-DD');
-        setForm({ ...form, birth_date: newDate })
-
+        formik.setFieldValue("birth_date", newDate)
     };
-    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
-
-        if (event.target.files && event.target.files[0]) {
-            setForm({ ...form, image: event.target.files[0] });
-            setImage(URL.createObjectURL(event.target.files[0]))
-        }
+    const onValueChange = (phoneNum: any) => {
+        formik.setFieldValue("phone_number", phoneNum)
     }
     const handleOnImageRemoveClick = () => {
-        setForm({ ...form, image: "" })
+        formik.setFieldValue("image", "")
         inputRef.current.value = ""
         setImage("")
     };
-    const HandleSubmit = async (e) => {
-        e.preventDefault()
-        let data = { gender: form.gender, url: form.url, image: undefined, location: form.location, phone_number: form.phone_number, categories: form.categories, birth_date: form.birth_date, about_me: form.about_me }
 
-      
-        console.log(data)
-        try {
-            const token = await cookie.get("userSignUp_token")
-            console.log(token)
-            dispatch(updateUserProfile({ token, data: data })).then((res) => {
-                console.log(res, "success")
-                if (res.error) {
-                    toast({
-                        title: 'Error',
-                        description: "We could not update your account.",
-                        status: 'error',
-                        duration: 2000,
-                        isClosable: true,
-                        position: "top"
-                    })
-                    console.log(error)
-                    return
-                }
-                else if (res.payload.is_verified) {
-                    toast({
-                        title: 'Success',
-                        description: "Account is Updated successfully.",
-                        status: 'success',
-                        duration: 9000,
-                        isClosable: true,
-                        position: "top"
-                    })
-                    // router.push("/")
-                } else {
-                    // router.push("/user-login/confirmemail")
-                }
-            })
-        } catch (error: any) {
-            console.log(error.mesage)
-            toast({
-                title: 'Error',
-                description: "Account is not Updated .",
-                status: 'error',
-                duration: 9000,
-                isClosable: true,
-                position: "top"
-            })
-        }
-    }
+
     const customStyles = {
         control: base => ({
             ...base,
             width: 350
         })
     };
-    console.log("new user", user)
     const categori = categorie.map(category => ({
         id: category.id,
         value: category.value.toLowerCase(),
@@ -148,6 +141,7 @@ const UserCompleteSignup = () => {
             fetch(url).then(res => res.json()).then(data => setLoc(data.address))
         })
     }, [])
+
     return (
         <>
             <Box overflow={{ base: "auto", md: "hidden" }} maxH={"100vh"}>
@@ -159,22 +153,28 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
                     <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
-                    {form.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
-                    <form onSubmit={HandleSubmit}>
+                    <form onSubmit={formik.handleSubmit} >
                         <Flex direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-around" }} alignItems={{ base: "center", xl: "start" }}>
                             <Flex gap={6} direction={{ base: "column-reverse", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
                                 <Box >
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Gender</FormLabel>
-                                    <Selecter height={50} onChange={onSelect} id="gender" name="gender" required color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
+                                    <Selecter height={50} value={formik.values.gender} onChange={formik.handleChange} id="gender" name="gender" color={"black"} bg={"white"} fontSize={14} size='md' w={350} placeholder='Select option'>
                                         <option value='Famle'>Famle</option>
                                         <option value='Male'>Male</option>
                                     </Selecter>
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
-                                    <PhoneInput onChange={(value) => setForm({ ...form, phone_number: value })} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={form.Country}></PhoneInput>
-                                    <Input accept="image/png, image/gif, image/jpeg" type="file" name="image" onChange={handleImageChange} hidden ref={inputRef} />
+                                    <PhoneInput value={formik.values.phone_number} onChange={onValueChange} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={"us"}></PhoneInput>
+                                    <Inputt onChange={(value, e: any) => {
+                                        console.log(e);
+                                        formik.values.image = e.target.files[0];
+                                        setImage(URL.createObjectURL(e.target.files[0]))
+                                    }} accept="image/png, image/gif, image/jpeg" type="file" ref={inputRef} hidden name="image" id="image" color={"black"} size='md' />
+
+
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
                                             {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
@@ -182,19 +182,23 @@ const UserCompleteSignup = () => {
                                 </Box>
                                 <Box>
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
-                                    <Input height={50} onChange={onChangeDate} name="birth_date" value={form.birth_date} id="birth_date" required type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input height={50} onChange={onChangeDate} name="birth_date" value={formik.values.birth_date} id="birth_date" type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
 
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
-                                    <Input height={50} onChange={onChange} name="url" value={form.url} id="url" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input height={50} name="url" value={formik.values.url} onChange={formik.handleChange} id="url" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
-                                    <Input height={50} onChange={onChange} name="about_me" value={form.about_me} id="about_me" required type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    <Input height={50} value={formik.values.about_me} onChange={formik.handleChange} name="about_me" id="about_me" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
                                     <Select styles={customStyles} options={categori}
-                                        onChange={(value) => setForm({ ...form, categories: value.map((i) => i.id) })}
+                                        onChange={(choice) => {
+                                            formik.values.categories = choice.map((i) => i.id)
+                                        }
+                                        }
                                         name='categories'
                                         id='categories'
                                         isMulti
                                     />
+
                                     <LocationModal
                                         open={openLocationModal}
                                         setOpen={setOpenLocationModal}
@@ -204,7 +208,7 @@ const UserCompleteSignup = () => {
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
 
-                                    {form.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
+                                    {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>

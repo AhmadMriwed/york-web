@@ -23,7 +23,6 @@ interface FormValues {
 const UserLogin = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const toast = useToast()
-    const [lan, setLan] = useState("english");
     const router = useRouter();
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
@@ -171,9 +170,9 @@ const UserLogin = () => {
 
                                     <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                                         <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                                            onChange={(e) => setLan(e.value)}
-                                            name='Category'
-                                            id='Category'
+                                            onChange={(e) => formik.setFieldValue("language", e?.value)}
+                                            name='language'
+                                            id='language'
                                             components={{ IndicatorSeparator: () => null }}
                                         />
                                     </div>
