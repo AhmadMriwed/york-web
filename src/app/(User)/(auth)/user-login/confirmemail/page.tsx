@@ -8,13 +8,12 @@ import axios from 'axios'
 import Cookies from 'universal-cookie'
 
 const ConfirmEmail = () => {
-    const dispatch = useDispatch()
+   const {user}=useSelector((state:any)=>state.userSlice)
+   console.log(user,user.access_token)
 
     const Verify = () => {
-        let co = new Cookies()
-
-        let token = co.get("user_token")
-        axios.get("https://cms.yorkacademy.uk/api/trainer/send_verify_email", {
+        let token = user.access_token
+        axios.get("https://cms.yorkacademy.uk/api/user/resendVerificationEmail", {
             headers: {
                 Authorization: `Bearer ${token} `
             }
@@ -41,7 +40,7 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'> email@gmail.com</span>
+                            <span className='font-bold'> {user.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold'> Click here to resend</button></div>

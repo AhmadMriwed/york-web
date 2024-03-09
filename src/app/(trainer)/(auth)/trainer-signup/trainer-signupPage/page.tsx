@@ -18,8 +18,6 @@ import { Input as Inputt } from "rsuite"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { trainerRegister } from "@/store/trainerStore/slices/trainerSlice"
-import { Form } from "rsuite"
-import { number } from "yup"
 import { useFormik, validateYupSchema } from "formik"
 import * as yup from "yup"
 const TrainerSignupPage = () => {

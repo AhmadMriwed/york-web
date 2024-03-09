@@ -91,23 +91,23 @@ const TrainerLogin = () => {
     ),
   }));
 
-  // useEffect(() => {
-  //   console.log(cookies.get("trainer_token"))
-  //   const token = cookies.get("trainer_token")
-  //   if (token !== undefined) {
-  //     dispatch(getTrainerProfile(token)).then((res) => {
-  //       console.log(res)
-  //       if (res.payload.is_verified) {
-  //         router.push("/")
-  //       } else {
-  //         router.push(`/trainer-login/confirmemail`)
-  //       }
+  useEffect(() => {
+    console.log(cookies.get("trainer_token"))
+    const token = cookies.get("trainer_token")
+    if (token !== undefined) {
+      dispatch(getTrainerProfile(token)).then((res) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push(`/trainer-login/confirmemail`)
+        }
 
-  //     })
+      })
 
-  //   }
+    }
 
-  // }, [])
+  }, [])
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />

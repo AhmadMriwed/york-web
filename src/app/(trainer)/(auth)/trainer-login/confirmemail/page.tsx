@@ -8,10 +8,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import Cookies from 'universal-cookie'
 import axios from 'axios'
 const ConfirmEmail = () => {
+    const { trainer } = useSelector((state: any) => state.trainerSlice)
+    console.log(trainer.access_token, trainer)
     const Verify = () => {
-        let co = new Cookies()
-
-        let token = co.get("trainer_token")
+        let token = trainer.access_token
+        console.log(token)
         axios.get("https://cms.yorkacademy.uk/api/trainer/send_verify_email", {
             headers: {
                 Authorization: `Bearer ${token} `
@@ -39,11 +40,11 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'> adel@gmail.com</span>
+                            <span className='font-bold'>{trainer.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
-                        <div><button className='underline text-bold'> Click here to resend</button></div>
-                        <Link href='/user-login'><button className='colored-btn'>Go To Login</button></Link>
+                        <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>
+                        <Link href='/trainer-login'><button className='colored-btn'>Go To Login</button></Link>
                     </div>
 
                 </div>
