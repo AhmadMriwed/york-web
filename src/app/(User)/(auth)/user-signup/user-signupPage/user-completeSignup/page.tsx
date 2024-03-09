@@ -12,7 +12,7 @@ import { categorie } from "@/utils/categories"
 import LocationModal from "@/components/accounts/trainers/LocationModal"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
-import { updateUserProfile } from "@/store/userStore/slices/userSlice"
+import { CompleteUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 import { useFormik } from "formik"
 import * as yup from "yup"
@@ -26,6 +26,7 @@ const UserCompleteSignup = () => {
     const [lon, setLon] = useState()
     const [lat, setLat] = useState()
     const [loc, setLoc] = useState("")
+    console.log(loc)
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
     console.log("new user", user)
@@ -47,17 +48,31 @@ const UserCompleteSignup = () => {
 
     const HandleSubmit = (values: any, actions: any) => {
         console.log(values)
-        let imgformData = new FormData()
-        // let formData = new FormData()
-        //
-        // Object.keys(values).forEach((key)=>{
-        //     formData.append(key,values[key])
-        // })
-        //{ ...values, image: imgformData }
-        imgformData.append("image", values.image)
+        let formData = new FormData()
+        for (let dataKey in values) {
+            if (dataKey === 'location') {
+                // append nested object
+                for (let previewKey in values[dataKey]) {
+                    formData.append(`location[${previewKey}]`, values[dataKey][previewKey]);
+                }
+            }
+            else {
+                formData.append("image", values.image)
+                formData.append("url", values.url)
+                formData.append("gender", values.gender)
+                formData.append("about_me", values.about_me)
+                formData.append("phone_number", values.phone_number)
+                formData.append("birth_date", values.birth_date)
+                for (var i = 0; i < values.categories.length; i++) {
+                    formData.append('categories[]', values.categories[i]);
+                }
+            }
+        }
+
+
         let token = cookie.get("userSignUp_token")
         console.log(token)
-        dispatch(updateUserProfile({ token, data: values }))
+        dispatch(CompleteUserProfile({ token, data: formData }))
             .then((res) => {
                 console.log(res)
                 if (res.error) {
@@ -92,7 +107,7 @@ const UserCompleteSignup = () => {
         initialValues: {
             url: "",
             phone_number: "",
-            // image: "",
+            image: "",
             location: {
                 address: "address",
                 latitude: 3,
@@ -142,6 +157,8 @@ const UserCompleteSignup = () => {
         navigator.geolocation.getCurrentPosition(pos => {
             const { longitude, latitude } = pos.coords
             console.log(latitude, longitude)
+            setLat(latitude)
+            setLon(longitude)
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => setLoc(data.address))
         })
@@ -175,7 +192,7 @@ const UserCompleteSignup = () => {
                                     <PhoneInput value={formik.values.phone_number} onChange={onValueChange} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={"us"}></PhoneInput>
                                     <Inputt onChange={(value, e: any) => {
                                         console.log(e);
-                                        formik.values.image = e.target.files[0];
+                                        formik.values.image = e.target.files[0]
                                         setImage(URL.createObjectURL(e.target.files[0]))
                                     }} accept="image/png, image/gif, image/jpeg" type="file" ref={inputRef} hidden name="image" id="image" color={"black"} size='md' />
 
@@ -193,8 +210,8 @@ const UserCompleteSignup = () => {
                                     <Input height={50} value={formik.values.about_me} onChange={formik.handleChange} name="about_me" id="about_me" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
                                     <Select styles={customStyles} options={categori}
-                                        onChange={(choice) => {
-                                            formik.values.categories = choice.map((i) => i.id)
+                                        onChange={(value) => {
+                                            formik.values.categories = value.map((i) => i.id)
                                         }
                                         }
                                         name='categories'

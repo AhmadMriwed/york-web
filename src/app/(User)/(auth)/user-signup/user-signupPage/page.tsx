@@ -12,13 +12,13 @@ import { userRegister } from "@/store/userStore/slices/userSlice"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 const UserSignupPage = () => {
+    const user_type = useSearchParams().get("user_type")
     const router = useRouter()
     const toast = useToast()
     const inputRef: any = useRef()
     const [image, setImage] = useState('')
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
-    console.log(image)
     const dispatch: any = useDispatch()
     const validationSchema = Yup.object().shape({
         first_name: Yup.string().required("Please add the Your first Name"),
@@ -78,7 +78,7 @@ const UserSignupPage = () => {
             password_confirmation: "",
             image: "",
             last_name: "",
-            language: "english"
+            user_type: user_type
         },
         validationSchema,
         onSubmit: HandleSubmit

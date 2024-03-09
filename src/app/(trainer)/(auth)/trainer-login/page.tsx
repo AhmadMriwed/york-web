@@ -17,16 +17,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import AddTrainerModal from '@/components/trainer/AddTrainerModal'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
-interface FormValues {
-  email: string;
-  password: string;
 
-}
 const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
   const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
-  const [lan, setLan] = useState("english")
+
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
@@ -51,9 +47,10 @@ const TrainerLogin = () => {
     password: Yup.string()
       .min(6, 'Password must be at least 6 characters')
       .required('Password is required'),
+      language:Yup.string()
 
   });
-  const handleSubmit = async (values: FormValues) => {
+  const handleSubmit = (values: any, actions: any) => {
 
     console.log(values)
     let data = { email: values.email, password: values.password }
@@ -175,9 +172,9 @@ const TrainerLogin = () => {
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                      onChange={(e) => setLan(e.value)}
-                      name='Category'
-                      id='Category'
+                      onChange={(e) => formik.setFieldValue("language", e?.value)}
+                      name='language'
+                      id='language'
                       components={{ IndicatorSeparator: () => null }}
                     />
                   </div>

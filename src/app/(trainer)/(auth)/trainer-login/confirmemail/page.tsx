@@ -4,13 +4,28 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
-import { useDispatch ,useSelector} from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import Cookies from 'universal-cookie'
 import axios from 'axios'
 const ConfirmEmail = () => {
-   
+    const Verify = () => {
+        let co = new Cookies()
+
+        let token = co.get("trainer_token")
+        axios.get("https://cms.yorkacademy.uk/api/trainer/send_verify_email", {
+            headers: {
+                Authorization: `Bearer ${token} `
+            }
+        }).then((res) => {
+            console.log(res)
+        }).catch((err) => {
+            console.log(err.message)
+        })
+    }
     useEffect(() => {
-       
+        Verify()
     }, [])
+
     return (
         <div className='overflow-x-hidden'>
             <div className='h-50px w-[100vw] p-4'><BackBtn textColor='text-black' /></div>

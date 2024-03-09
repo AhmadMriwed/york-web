@@ -17,10 +17,18 @@ const TrainerSignup = () => {
                             </Flex>
                         </Center>
                         <Flex marginTop={20} gap={4} alignItems={"center"} justifyContent={"center"}>
-                            <Link href={{ pathname: "/trainer-signup/trainer-signupPage", query: { trainer: "Uncertified" } }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
+                            <Link href={{
+                                pathname: "/trainer-signup/trainer-signupPage", query: {
+                                    account_type: "Uncertified"
+                                }
+                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">UnCertified  Trainer</Text>
                             </Link>
-                            <Link href={{ pathname: "/trainer-signup/trainer-signupPage", query: { trainer: "certified" } }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
+                            <Link href={{
+                                pathname: "/trainer-signup/trainer-signupPage", query: {
+                                    account_type: "certified"
+                                }
+                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">Certified  Trainer</Text>
                             </Link>
                         </Flex>

@@ -3,10 +3,30 @@ import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import axios from 'axios'
+import Cookies from 'universal-cookie'
 
 const ConfirmEmail = () => {
+    const dispatch = useDispatch()
 
+    const Verify = () => {
+        let co = new Cookies()
+
+        let token = co.get("user_token")
+        axios.get("https://cms.yorkacademy.uk/api/trainer/send_verify_email", {
+            headers: {
+                Authorization: `Bearer ${token} `
+            }
+        }).then((res) => {
+            console.log(res)
+        }).catch((err) => {
+            console.log(err.message)
+        })
+    }
+    useEffect(() => {
+        Verify()
+    }, [])
 
     return (
         <div className='overflow-x-hidden'>

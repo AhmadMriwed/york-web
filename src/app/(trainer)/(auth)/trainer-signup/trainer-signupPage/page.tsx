@@ -28,6 +28,7 @@ const TrainerSignupPage = () => {
     const dispatch: any = useDispatch()
     const [lat, setLat] = useState("")
     const [image, setImage] = useState("")
+    let account_type = useSearchParams().get("account_type")
     let sign = useRef(null)
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
@@ -111,9 +112,35 @@ const TrainerSignupPage = () => {
     const handleSubmit = (values: any, actions: any) => {
         console.log(values)
         const formData = new FormData();
-        Object.keys(values).forEach((key) => {
-            formData.append(key, values[key]);
-        });
+        for (let dataKey in values) {
+            if (dataKey === 'location') {
+                // append nested object
+                for (let previewKey in values[dataKey]) {
+                    formData.append(`location[${previewKey}]`, values[dataKey][previewKey]);
+                }
+            }
+            else {
+                formData.append("digital_signature", values.digital_signature)
+                formData.append("domains", values.domains)
+                formData.append("image", values.image)
+                formData.append("resume", values.resume)
+                formData.append("first_name", values.first_name)
+                formData.append("last_name", values.last_name)
+                formData.append("gender", values.gender)
+                formData.append("about_me", values.about_me)
+                formData.append("phone_number", values.phone_number)
+                formData.append("birth_date", values.birth_date)
+                formData.append("trainer_type_id", values.trainer_type_id)
+                formData.append("account_type", values.account_type)
+                formData.append("password_confirmation", values.password_confirmation)
+                formData.append("password", values.password)
+                formData.append("email", values.email)
+                for (var i = 0; i < values.Category.length; i++) {
+                    formData.append('Category[]', values.Category[i]);
+                }
+            }
+        }
+
         dispatch(trainerRegister(formData)).then((res) => {
             console.log(res)
             if (res.error) {
@@ -152,19 +179,20 @@ const TrainerSignupPage = () => {
             password_confirmation: "",
             phone_number: "",
             image: "",
-            // location: {
-            //     address: "address",
-            //     latitude: 3,
-            //     longitude: 0
-            // },
+            location: {
+                address: "address",
+                latitude: 3,
+                longitude: 0
+            },
             Category: [],
-            digital_signature: "",
+            digital_signature: "default_value",
             gender: "Male",
             birth_date: moment().format('YYYY-MM-DD'),
             resume: "",
             trainer_type_id: "1",
             domains: "",
             about_me: "",
+            account_type: account_type,
         },
         // validationSchema: validationSchema,
         onSubmit: handleSubmit
@@ -269,7 +297,7 @@ const TrainerSignupPage = () => {
                                         <SignatureCanvas name="digital_signature" canvasProps={{ width: "full", height: 120, className: 'sigCanvas' }} ref={sign} />
                                         <CloseButton size={"sm"} color={"black"} position={"absolute"} top={0} right={2} onClick={RemoveSign} />
                                     </Box >
-                                    <Button size={"sm"} mt={5} onClick={SaveSign}>Save Sign</Button>
+                                    <Button size={"sm"} mt={5} onClick={() => SaveSign()}>Save Sign</Button>
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
@@ -277,7 +305,7 @@ const TrainerSignupPage = () => {
 
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
-                                <Text fontSize={15} fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                                <Text fontSize={15} fontWeight={"bold"} cursor={"pointer"} onClick={() => handleOnImageRemoveClick()} display={{ base: "none", md: "block" }} >Delete</Text>
                             </Flex>
                         </Flex>
                         <Box display={"flex"} justifyContent={{ base: "center", xl: "flex-end" }} alignItems={"center"} marginTop={{ md: 10, xl: 0 }} padding={{ base: 0, md: 20 }} w={"full"}>

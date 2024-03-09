@@ -17,10 +17,18 @@ const UserSignup = () => {
                             </Flex>
                         </Center>
                         <Flex marginTop={20} gap={4} alignItems={"center"} justifyContent={"center"}>
-                            <Link href={{ pathname: "/user-signup/user-signupPage", query: { user: "Client" } }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
+                            <Link href={{
+                                pathname: "/user-signup/user-signupPage", query: {
+                                    user_type: "Client"
+                                }
+                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">Client</Text>
                             </Link>
-                            <Link href={{ pathname: "/user-signup/user-signupPage", query: { user: "Trainee" } }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
+                            <Link href={{
+                                pathname: "/user-signup/user-signupPage", query: {
+                                    user_type: "Trainee"
+                                }
+                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">Trainee</Text>
                             </Link>
                         </Flex>

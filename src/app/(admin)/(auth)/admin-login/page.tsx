@@ -46,7 +46,7 @@ const AdminLogin = () => {
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
+      .min(8, 'Password must be at least 6 characters')
       .required('Password is required'),
 
   });
@@ -98,23 +98,23 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  useEffect(() => {
-    console.log(cookies.get("token"))
-    const token = cookies.get("token")
-    if (token !== undefined) {
-      dispatch(getAdminProfile(token)).then((res) => {
-        console.log(res)
-        if (res.payload.is_verified) {
-          router.push("/")
-        } else {
-          router.push("/admin-login/confirmemail")
-        }
+  // useEffect(() => {
+  //   console.log(cookies.get("token"))
+  //   const token = cookies.get("token")
+  //   if (token !== undefined) {
+  //     dispatch(getAdminProfile(token)).then((res) => {
+  //       console.log(res)
+  //       if (res.payload.is_verified) {
+  //         router.push("/")
+  //       } else {
+  //         router.push("/admin-login/confirmemail")
+  //       }
 
-      })
+  //     })
 
-    }
+  //   }
 
-  }, [])
+  // }, [])
 
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
