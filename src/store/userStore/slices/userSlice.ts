@@ -62,10 +62,11 @@ export const getUserProfile = createAsyncThunk("getProfile", async (token: strin
     }
 })
 
-export const updateUserProfile = createAsyncThunk("updateProfile", async (params: any, thunkAPI) => {
+export const CompleteUserProfile = createAsyncThunk("updateProfile", async (params: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+    console.log("data", params.data)
     try {
-        const res = await axios.put(`${baseURL}user/updateProfile`, params.data, { headers: { Authorization: `Bearer ${params.token}` } })
+        const res = await axios.post(`${baseURL}user/updateProfile`, params.data, { headers: { Authorization: `Bearer ${params.token}` } })
         console.log(res, "user edit");
         if (res.status === 200) {
             console.log("updated successfully");
@@ -196,15 +197,15 @@ export const userSlice = createSlice({
                 state.loading = false
             })
             //update user profile
-            .addCase(updateUserProfile.pending, (state) => {
+            .addCase(CompleteUserProfile.pending, (state) => {
                 state.loading = true
             })
-            .addCase(updateUserProfile.fulfilled, (state, action: any) => {
+            .addCase(CompleteUserProfile.fulfilled, (state, action: any) => {
                 state.loading = false;
                 state.error = null;
                 state.user = action.payload;
             })
-            .addCase(updateUserProfile.rejected, (state, action: any) => {
+            .addCase(CompleteUserProfile.rejected, (state, action: any) => {
                 state.loading = false;
                 state.error = action.payload;
             })
