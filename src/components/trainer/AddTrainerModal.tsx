@@ -1,56 +1,42 @@
 // import "use client"
 import { trainerUpdatePassword } from '@/store/trainerStore/slices/trainerSlice'
 import { FormControl, FormLabel, Input, FormHelperText, Button, Modal, ModalBody, ModalCloseButton, ModalHeader, ModalContent, ModalOverlay, Spinner, useToast } from '@chakra-ui/react'
+import { useFormik } from 'formik'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Cookies from 'universal-cookie'
+import * as yup from 'yup'
 const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
     const dispatch: any = useDispatch()
     const toast = useToast()
     const { errorPass, loadingPass, trainer } = useSelector((state: any) => state.trainerSlice)
     console.log(errorPass, loadingPass, trainer)
-    const [data, setData] = useState({
-        old_password: "",
-        new_password: "",
-        new_password_confirmation: ""
 
-    })
-    const handleChange = (e) => {
-        setData({ ...data, [e.target.name]: e.target.value })
-    }
 
-    const handleUpdatePass = async () => {
-        console.log(data)
+    const updateTrainerPasswordSchema =
+        yup.object().shape({
+            old_password: yup.string().required("old password is required").min(8, "Password must be at least 8 characters"),
+            new_password: yup
+                .string()
+                .required("Password is required")
+                .min(8, "Password must be at least 8 characters"),
+            new_password_confirmation: yup
+                .string()
+                .required("Confirm password is required")
+                .oneOf([yup.ref("new_password")], "Passwords must match"),
+        })
+
+
+    const handleUpdatePass = (values: any, actions: any) => {
+        console.log(values)
         let cookie = new Cookies()
-        let token = await cookie.get("trainer_token")
+        let token = cookie.get("trainer_token")
         console.log(token)
-        if (!data.new_password || !data.old_password || !data.new_password_confirmation) {
 
-            toast({
-                title: 'Error',
-                description: "please fill the data",
-                status: 'error',
-                duration: 2000,
-                isClosable: true,
-                position: "top"
-            })
-            return
-        }
-        if (data.new_password !== data.new_password_confirmation) {
-            alert("password must much")
-            toast({
-                title: 'Error',
-                description: "password must much",
-                status: 'error',
-                duration: 2000,
-                isClosable: true,
-                position: "top"
-            })
-            return
-        }
+
 
         try {
-            dispatch(trainerUpdatePassword({ token, data: data })).then((res) => {
+            dispatch(trainerUpdatePassword({ token, data: values })).then((res) => {
                 console.log(res)
                 toast({
                     title: 'Success',
@@ -61,14 +47,22 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                     position: "top"
                 })
             })
-            setData({ new_password: "", old_password: "", new_password_confirmation: "" })
+
         } catch (error: any) {
             console.log(error.message)
         }
 
     }
 
-
+    const formik = useFormik({
+        initialValues: {
+            old_password: "",
+            new_password: "",
+            new_password_confirmation: ""
+        },
+        validationSchema: updateTrainerPasswordSchema,
+        onSubmit: handleUpdatePass
+    })
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
@@ -76,19 +70,32 @@ const AddTrainerModal = ({ isOpen, onClose, onOpen }) => {
                 <ModalHeader>change your password</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <FormControl >
-                        <FormLabel>old password</FormLabel>
-                        <Input name='old_password' value={data.old_password} onChange={handleChange} type='password' />
-                        <FormLabel>new password</FormLabel>
+                    <form onSubmit={formik.handleSubmit}>
+                        <FormControl >
+                            <FormLabel>old password</FormLabel>
+                            <Input name='old_password' value={formik.values.old_password} onChange={formik.handleChange} type='password' />
+                            {formik.touched.old_password && formik.errors.old_password && (
+                                <p className="error-mesage">{formik.errors.old_password}</p>
+                            )}
+                            <FormLabel>new password</FormLabel>
 
-                        <Input onChange={handleChange} value={data.new_password} name='new_password' type='password' />
-                        <FormLabel>confirm password</FormLabel>
-                        <Input onChange={handleChange} value={data.new_password_confirmation} name='new_password_confirmation' type='password' />
-                    </FormControl>
-                    <Button type='button' onClick={handleUpdatePass} colorScheme='blue' w={"full"} mt={3} >
-                        {loadingPass ? <Spinner color='red' size={"sm"} /> : "Submit"}
-                    </Button>
+                            <Input onChange={formik.handleChange} value={formik.values.new_password} name='new_password' type='password' />
+                            {formik.touched.new_password && formik.errors.new_password && (
+                                <p className="error-mesage">{formik.errors.new_password}</p>
+                            )}
+                            <FormLabel>confirm password</FormLabel>
+
+                            <Input onChange={formik.handleChange} value={formik.values.new_password_confirmation} name='new_password_confirmation' type='password' />
+                            {formik.touched.new_password_confirmation && formik.errors.new_password_confirmation && (
+                                <p className="error-mesage">{formik.errors.new_password_confirmation}</p>
+                            )}
+                        </FormControl>
+                        <Button type='submit' colorScheme='blue' w={"full"} mt={3} >
+                            {loadingPass ? <Spinner color='red' size={"sm"} /> : "Submit"}
+                        </Button>
+                    </form>
                 </ModalBody>
+
             </ModalContent>
         </Modal>
     )

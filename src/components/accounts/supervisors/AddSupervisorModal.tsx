@@ -159,16 +159,14 @@ export default function AddSupervisorModal({
          backdrop={true}
          open={open}
          onClose={() => setOpen(false)}
-         className={`rounded-[17px]  border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] w-[calc(1000px)] h-auto ${
-            mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
-         }`}
+         className={`rounded-[17px]  border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] w-[calc(1000px)] h-auto ${mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
+            }`}
          size={"md"}
       >
          <Modal.Header closeButton={true}>
             <Modal.Title
-               className={`${
-                  mode === "dark" ? "text-white" : "text-dark"
-               } font-bold`}
+               className={`${mode === "dark" ? "text-white" : "text-dark"
+                  } font-bold`}
             >
                {label}
             </Modal.Title>
@@ -176,9 +174,8 @@ export default function AddSupervisorModal({
          {isLoading && <Loading />}
          {!isLoading && (
             <Modal.Body
-               className={`${
-                  mode === "dark" ? "text-light" : "text-dark"
-               } px-3 mb-3`}
+               className={`${mode === "dark" ? "text-light" : "text-dark"
+                  } px-3 mb-3`}
             >
                <Formik
                   initialValues={
@@ -314,9 +311,8 @@ export default function AddSupervisorModal({
                               console.log(e);
                               props.values.image = e.target.files[0];
                            }}
-                           className={`mb-[10px] ${
-                              requestType === "edit" && "hidden"
-                           }`}
+                           className={`mb-[10px] ${requestType === "edit" && "hidden"
+                              }`}
                            accept="image/*"
                            ref={inputRef}
                         />
