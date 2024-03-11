@@ -15,8 +15,7 @@ const RecoverPassword1 = () => {
   const dispatch: any = useDispatch()
   console.log(error, loading, msg)
   const toast = useToast()
-  const HandleSubmit = async () => {
-
+  const HandleSubmit =  () => {
     if (!email) {
       toast({
         title: 'Error',

@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { Flex, Box, useToast, Spinner } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { trainerForgotPassword } from '@/store/trainerStore/slices/trainerSlice'
-
 const RecoverPassword1 = () => {
   const router = useRouter()
   const dispatch: any = useDispatch()
@@ -60,8 +59,6 @@ const RecoverPassword1 = () => {
     } catch (error: any) {
       console.log(error.mesage)
     }
-
-
   }
   return (
     <>

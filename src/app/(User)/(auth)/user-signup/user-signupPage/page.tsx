@@ -3,7 +3,7 @@ import BackBtn from "@/components/backbtn/BackBtn"
 import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Center, useToast, Spinner } from "@chakra-ui/react"
 import Image from "next/image"
 import { Input as Inputt } from "rsuite"
-import React, { use, useRef, useState } from "react"
+import React, {  useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FaGoogle } from "react-icons/fa";
 import Link from "next/link"
@@ -165,7 +165,7 @@ const UserSignupPage = () => {
                         <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
                             <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
 
-                                <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
+                                <Link href={`http://localhost:8000/google/login`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                                     <div>
                                         <FaGoogle />
                                     </div>

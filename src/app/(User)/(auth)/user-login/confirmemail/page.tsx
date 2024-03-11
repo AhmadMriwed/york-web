@@ -5,11 +5,9 @@ import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
-import Cookies from 'universal-cookie'
-
 const ConfirmEmail = () => {
-   const {user}=useSelector((state:any)=>state.userSlice)
-   console.log(user,user.access_token)
+    const { user } = useSelector((state: any) => state.userSlice)
+    console.log(user, user.access_token)
 
     const Verify = () => {
         let token = user.access_token
@@ -43,7 +41,7 @@ const ConfirmEmail = () => {
                             <span className='font-bold'> {user.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
-                        <div><button className='underline text-bold'> Click here to resend</button></div>
+                        <div><button className='underline text-bold'  onClick={() => Verify()}> Click here to resend</button></div>
                         <Link href='/user-login'><button className='colored-btn'>Go To Login</button></Link>
                     </div>
 

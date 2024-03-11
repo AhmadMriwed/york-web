@@ -1,16 +1,9 @@
 'use client'
 import React, { useState } from 'react'
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
 import { trainerResetPassword } from '@/store/trainerStore/slices/trainerSlice';
-
-
-
 const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
@@ -26,11 +19,9 @@ const ResetPassword = () => {
     password_confirmation: "",
 
   })
-
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
-
   const handleSubmit = async () => {
     if (!form.password || !form.password_confirmation) {
       toast({

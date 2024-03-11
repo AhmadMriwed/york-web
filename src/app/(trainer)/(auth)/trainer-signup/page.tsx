@@ -13,20 +13,22 @@ const TrainerSignup = () => {
                             <Flex direction={"column"}>
                                 <Text color={"white"} fontSize={"20"}>welcome to</Text>
                                 <Text color={"white"} fontSize={"35"} fontWeight={"bold"}>York British Academy</Text>
-                                <Text color={"white"} fontSize={"20"}>welcome to York British Academy Yes</Text>
+                                <Text color={"white"} fontSize={"20"}>welcome to York British Academy</Text>
                             </Flex>
                         </Center>
                         <Flex marginTop={20} gap={4} alignItems={"center"} justifyContent={"center"}>
                             <Link href={{
                                 pathname: "/trainer-signup/trainer-signupPage", query: {
-                                    account_type: "Uncertified"
+                                    trainer_type: "Uncertified",
+                                    id:2
                                 }
                             }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">UnCertified  Trainer</Text>
                             </Link>
                             <Link href={{
                                 pathname: "/trainer-signup/trainer-signupPage", query: {
-                                    account_type: "certified"
+                                    trainer_type: "certified",
+                                    id:1
                                 }
                             }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
                                 <Text className="text-white text-xl p-2 hover:no-underline">Certified  Trainer</Text>

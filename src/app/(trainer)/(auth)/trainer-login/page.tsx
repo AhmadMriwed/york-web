@@ -17,41 +17,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import AddTrainerModal from '@/components/trainer/AddTrainerModal'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
-
 const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
   const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
-
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
   console.log(trainer, loading, error)
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setisLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
-
-  const customStyles = {
-    control: base => ({
-      ...base,
-      height: 40,
-      width: 150
-    })
-  };
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
       .min(6, 'Password must be at least 6 characters')
       .required('Password is required'),
-      language:Yup.string()
+    language: Yup.string()
 
   });
   const handleSubmit = (values: any, actions: any) => {
-
     console.log(values)
     let data = { email: values.email, password: values.password }
     try {
@@ -81,6 +63,13 @@ const TrainerLogin = () => {
     validationSchema,
     onSubmit: handleSubmit
   })
+  const customStyles = {
+    control: base => ({
+      ...base,
+      height: 40,
+      width: 150
+    })
+  };
   const Language = Languages.map(language => ({
     value: language.value.toLowerCase(),
     label: (
@@ -108,6 +97,13 @@ const TrainerLogin = () => {
     }
 
   }, [])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setisLoading(false);
+    }, 2000);
+    return () => clearTimeout(timeoutId);
+  }, []);
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -156,15 +152,15 @@ const TrainerLogin = () => {
                     <AddTrainerModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                   </div>
-                  <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                    <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                  <div className=" rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
+                    {/* <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
                         <FaGoogle />
                       </div>
                       <p>
                         <b>Login with Google</b>
                       </p>
-                    </Link>
+                    </Link> */}
                   </div>
                   <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                   <p className='justify-self-center mt-2'>Not a Member ? <Link href='/trainer-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>

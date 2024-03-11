@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Flex, Box, FormLabel, Input, Button, Spinner } from '@chakra-ui/react'
 import { userValidateForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useToast } from '@chakra-ui/react'
-
+import { userForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 const SendCode = () => {
   const [code, setCode] = useState("")
@@ -15,6 +15,39 @@ const SendCode = () => {
   console.log(error, loading, msg)
   const email = useSearchParams().get("email")
   console.log(email)
+  const resendCode = () => {
+    try {
+      let data = { email: email }
+      dispatch(userForgotPassword(data)).then((res) => {
+        console.log(res)
+        if (res.error) {
+          console.log(error)
+          toast({
+            title: 'Error.',
+            description: error,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
+          return
+        } else {
+          toast({
+            title: 'success',
+            description: 'code has been sent successfully',
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+            position: "top"
+          })
+
+        }
+      })
+    } catch (error: any) {
+      console.log(error.mesage)
+    }
+
+  }
   const handleSubmit = () => {
     if (!code) {
       toast({
@@ -44,8 +77,6 @@ const SendCode = () => {
             position: "top"
           })
           router.push(`/user-login/recoverpassword/sendcode/resetpassword?email=${email}&code=${code}`)
-
-
         }
       })
     } catch (error: any) {
@@ -61,7 +92,7 @@ const SendCode = () => {
           <Input type="number" name='code' width={300} backgroundColor={"white"} color={"black"} value={code} onChange={(e) => setCode(e.target.value)} />
           <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"}>
             <Button width={{ base: 300, lg: 200 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>{loading ? <Spinner size={"sm"} color='red' /> : "confirm"}</Button>
-            <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0'>Resend code</button>
+            <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0' onClick={() => resendCode()}>Resend code</button>
           </Flex>
         </Box>
       </Flex>

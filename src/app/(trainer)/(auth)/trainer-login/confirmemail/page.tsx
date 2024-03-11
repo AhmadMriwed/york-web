@@ -2,10 +2,8 @@
 import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import Cookies from 'universal-cookie'
 import axios from 'axios'
 const ConfirmEmail = () => {
     const { trainer } = useSelector((state: any) => state.trainerSlice)
@@ -18,7 +16,7 @@ const ConfirmEmail = () => {
                 Authorization: `Bearer ${token} `
             }
         }).then((res) => {
-            console.log(res)
+            console.log( res)
         }).catch((err) => {
             console.log(err.message)
         })

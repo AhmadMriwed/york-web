@@ -4,8 +4,8 @@ import React, { useState } from 'react'
 import { Flex, Box, FormLabel, Input, Button, useToast, Spinner } from '@chakra-ui/react'
 import { trainerValidateForgotPassword } from '@/store/trainerStore/slices/trainerSlice'
 import { useSelector, useDispatch } from 'react-redux'
+import { trainerForgotPassword } from '@/store/trainerStore/slices/trainerSlice'
 const SendCode = () => {
-  const failds = ['Email']
   const router = useRouter()
   const [code, setCode] = useState("")
   const toast = useToast()
@@ -14,6 +14,37 @@ const SendCode = () => {
   console.log(error, loading, msg)
   const email = useSearchParams().get("email")
   console.log(email)
+  const resendCode = () => {
+    try {
+      let data = { email: email }
+      dispatch(trainerForgotPassword(data)).then((res) => {
+        console.log(res)
+        if (res.error) {
+          console.log(error)
+          toast({
+            title: 'Error.',
+            description: error,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          })
+          return
+        } else {
+          toast({
+            title: 'success',
+            description: "code has been sent successfully",
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+            position: "top"
+          })
+        }
+      })
+    } catch (error: any) {
+      console.log(error.mesage)
+    }
+  }
   const handleSubmit = () => {
     console.log(code)
     if (!code) {
@@ -60,7 +91,7 @@ const SendCode = () => {
           <Input onChange={(e) => setCode(e.target.value)} type="number" name='code' width={300} backgroundColor={"white"} color={"black"} />
           <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"}>
             <Button width={{ base: 300, lg: 200 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>{loading ? <Spinner size={"sm"} color='red' /> : "Confirm"}</Button>
-            <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0'>Resend code</button>
+            <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0' onClick={() => resendCode()}>Resend code</button>
           </Flex>
         </Box>
       </Flex>

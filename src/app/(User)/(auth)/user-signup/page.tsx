@@ -13,7 +13,7 @@ const UserSignup = () => {
                             <Flex direction={"column"}>
                                 <Text color={"white"} fontSize={"20"}>welcome to</Text>
                                 <Text color={"white"} fontSize={"35"} fontWeight={"bold"}>York British Academy</Text>
-                                <Text color={"white"} fontSize={"20"}>welcome to York British Academy Yes</Text>
+                                <Text color={"white"} fontSize={"20"}>welcome to York British Academy </Text>
                             </Flex>
                         </Center>
                         <Flex marginTop={20} gap={4} alignItems={"center"} justifyContent={"center"}>

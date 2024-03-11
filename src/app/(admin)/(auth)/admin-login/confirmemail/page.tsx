@@ -1,9 +1,28 @@
 import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
-
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
 const ConfirmEmail = () => {
+    const { admin } = useSelector((state: any) => state.authSlice)
+    console.log(admin.access_token, admin)
+    const Verify = () => {
+        let token = admin.access_token
+        console.log(token)
+        axios.get("https://cms.yorkacademy.uk/api/admin/resend_verify_email", {
+            headers: {
+                Authorization: `Bearer ${token} `
+            }
+        }).then((res) => {
+            console.log(res)
+        }).catch((err) => {
+            console.log(err.message)
+        })
+    }
+    useEffect(() => {
+        Verify()
+    }, [])
     return (
         <div className='overflow-x-hidden'>
             <div className='h-50px w-[100vw] p-4'><BackBtn textColor='text-black' /></div>
@@ -17,10 +36,10 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'> email@gmail.com</span>
+                            <span className='font-bold'>{admin.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
-                        <div><button className='underline text-bold'> Click here to resend</button></div>
+                        <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>
                         <Link href='/admin-login'><button className='colored-btn'>Go To Login</button></Link>
                     </div>
 

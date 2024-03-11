@@ -28,21 +28,11 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [showPassword, setShowPassword] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const dispatch: any = useDispatch()
   const router = useRouter()
   const cookies = new Cookies();
   const { error, loading, admin } = useSelector((state: GlobalState) => state.authSlice)
   console.log(error, loading, admin)
-
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
@@ -74,8 +64,6 @@ const AdminLogin = () => {
       email: "",
       password: "",
       language: "english"
-
-
     },
     validationSchema,
     onSubmit: handleSubmit
@@ -98,24 +86,30 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  // useEffect(() => {
-  //   console.log(cookies.get("token"))
-  //   const token = cookies.get("token")
-  //   if (token !== undefined) {
-  //     dispatch(getAdminProfile(token)).then((res) => {
-  //       console.log(res)
-  //       if (res.payload.is_verified) {
-  //         router.push("/")
-  //       } else {
-  //         router.push("/admin-login/confirmemail")
-  //       }
+  useEffect(() => {
+    console.log(cookies.get("token"))
+    const token = cookies.get("token")
+    if (token !== undefined) {
+      dispatch(getAdminProfile(token)).then((res) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/admin-login/confirmemail")
+        }
 
-  //     })
+      })
 
-  //   }
+    }
 
-  // }, [])
+  }, [])
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
 
+    return () => clearTimeout(timeoutId);
+  }, []);
   return (
     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
       <Image src='/adminlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -180,22 +174,22 @@ const AdminLogin = () => {
 
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
                   </Link>
-                  <div className='justify-self-end' >
+                  <div className='justify-self-end ' >
                     <AddAdminModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                   </div>
 
-                  <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                    <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                  <div className=" rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
+                    {/* <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
                         <FaGoogle />
                       </div>
                       <p>
                         <b>Login with Google</b>
                       </p>
-                    </Link>
+                    </Link> */}
                   </div>
-                  <button type='submit' disabled={submitting} className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                  <button type='submit'  className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
                   {error && <span className="error">{error}</span>}
 

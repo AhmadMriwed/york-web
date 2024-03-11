@@ -16,13 +16,13 @@ import { userLogin } from '@/store/userStore/slices/userSlice'
 import AddUserModal from '@/components/user/AddUserModal'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
+import axios from 'axios'
 interface FormValues {
     email: string;
     password: string;
 }
 const UserLogin = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const toast = useToast()
     const router = useRouter();
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
@@ -94,22 +94,23 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    // useEffect(() => {
-    //     console.log(cookie.get("user_token"))
-    //     const token = cookie.get("user_token")
-    //     if (token !== undefined) {
-    //         dispatch(getUserProfile(token)).then((res) => {
-    //             console.log(res.payload.is_verified)
-    //             if (res.payload.is_verified) {
-    //                 router.push("/")
-    //             } else {
-    //                 router.push("/user-login/confirmemail")
-    //             }
+    useEffect(() => {
+        console.log(cookie.get("user_token"))
+        const token = cookie.get("user_token")
+        if (token !== undefined) {
+            dispatch(getUserProfile(token)).then((res) => {
+                console.log(res.payload.is_verified)
+                if (res.payload.is_verified) {
+                    router.push("/")
+                } else {
+                    router.push("/user-login/confirmemail")
+                }
 
 
-    //         })
-    //     }
-    // }, [])
+            })
+        }
+    }, [])
+
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
@@ -155,7 +156,7 @@ const UserLogin = () => {
                                         <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                                     </div>
                                     <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                                        <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                                        <Link href={"http://localhost:8000/google/login"} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                                             <div>
                                                 <FaGoogle />
                                             </div>

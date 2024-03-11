@@ -9,7 +9,7 @@ import Link from "next/link"
 import Location from "@rsuite/icons/Location"
 import Select from "react-select"
 import { categorie } from "@/utils/categories"
-import LocationModal from "@/components/accounts/trainers/LocationModal"
+import LocationModal from "@/components/user/LocationModal"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
 import { CompleteUserProfile } from "@/store/userStore/slices/userSlice"
@@ -23,28 +23,32 @@ const UserCompleteSignup = () => {
     const dispatch: any = useDispatch()
     const router = useRouter()
     const inputRef: any = useRef()
-    const [lon, setLon] = useState()
-    const [lat, setLat] = useState()
-    const [loc, setLoc] = useState("")
-    console.log(loc)
+    const [location, setLocation] = useState("")
+    console.log(location)
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
+
     console.log("new user", user)
     const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
-    // const validationSchema = yup.object().shape({
-    //     about_me: yup.string(),
-    //     url: yup.string(),
-    //     image: yup.mixed(),
-    //     gender: yup.string(),
-    //     birth_date: yup.date(),
-    //     phone_number: yup
-    //         .string(),
-    //     categories: yup
-    //         .array()
-    //     ,
-    //     // location: yup.string(),
-    // });
+    const validationSchema = yup.object().shape({
+        about_me: yup.string().required("Please add the Your info "),
+        url: yup.string().required("Please add the Your URL "),
+        image: yup.mixed(),
+        gender: yup.string().required("Required"),
+        birth_date: yup
+            .date()
+            .required("Birthdate is required")
+        ,
+        phone_number: yup
+            .string()
+            .required("Phone number is required"),
+        categories: yup
+            .array()
+            .min(1, "At least one category is required")
+            .required("Categories are required"),
+        // location: yup.string(),
+    });
 
     const HandleSubmit = (values: any, actions: any) => {
         console.log(values)
@@ -68,8 +72,6 @@ const UserCompleteSignup = () => {
                 }
             }
         }
-
-
         let token = cookie.get("userSignUp_token")
         console.log(token)
         dispatch(CompleteUserProfile({ token, data: formData }))
@@ -114,12 +116,11 @@ const UserCompleteSignup = () => {
                 longitude: 0,
             },
             categories: [],
-
             gender: "Male",
-            birth_date: moment().format('YYYY-MM-DD'),
+            birth_date: "",
             about_me: "",
         },
-        // validationSchema,
+        validationSchema,
         onSubmit: HandleSubmit
     })
     const onChangeDate = (e: ChangeEvent<HTMLInputElement>) => {
@@ -146,21 +147,22 @@ const UserCompleteSignup = () => {
         id: category.id,
         value: category.value.toLowerCase(),
         label: (
-
             <Flex alignItems='center' gap='0.5rem'>
                 <Avatar src={category.image} size={"xs"} />
                 <Text fontSize={"small"} >{category.title}</Text>
             </Flex>
         )
     }));
+
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
             const { longitude, latitude } = pos.coords
             console.log(latitude, longitude)
-            setLat(latitude)
-            setLon(longitude)
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-            fetch(url).then(res => res.json()).then(data => setLoc(data.address))
+            fetch(url).then(res => res.json()).then(data => {
+                setLocation(data.address.country)
+                formik.setFieldValue("location", { address: data.address.country, latitude: latitude, longitude: longitude })
+            })
         })
     }, [])
 
@@ -188,8 +190,14 @@ const UserCompleteSignup = () => {
                                         <option value='Famle'>Famle</option>
                                         <option value='Male'>Male</option>
                                     </Selecter>
-                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone</FormLabel>
+                                    {formik.touched.gender && formik.errors.gender && (
+                                        <p className="error-mesage">{formik.errors.gender}</p>
+                                    )}
+                                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Phone_Number</FormLabel>
                                     <PhoneInput value={formik.values.phone_number} onChange={onValueChange} inputStyle={{ color: "black", backgroundColor: "white", fontSize: 14, width: 350, height: 50 }} country={"us"}></PhoneInput>
+                                    {formik.touched.phone_number && formik.errors.phone_number && (
+                                        <p className="error-mesage">{formik.errors.phone_number}</p>
+                                    )}
                                     <Inputt onChange={(value, e: any) => {
                                         console.log(e);
                                         formik.values.image = e.target.files[0]
@@ -198,16 +206,25 @@ const UserCompleteSignup = () => {
 
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
-                                            {loc.country} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                            {location} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
                                     </Box>
                                 </Box>
                                 <Box>
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>BirthDate</FormLabel>
                                     <Input height={50} onChange={onChangeDate} name="birth_date" value={formik.values.birth_date} id="birth_date" type="date" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    {formik.touched.birth_date && formik.errors.birth_date && (
+                                        <p className="error-mesage">{formik.errors.birth_date}</p>
+                                    )}
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>Website</FormLabel>
                                     <Input height={50} name="url" value={formik.values.url} onChange={formik.handleChange} id="url" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    {formik.touched.url && formik.errors.url && (
+                                        <p className="error-mesage">{formik.errors.url}</p>
+                                    )}
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>About Me</FormLabel>
                                     <Input height={50} value={formik.values.about_me} onChange={formik.handleChange} name="about_me" id="about_me" type="text" color={"black"} bg={"white"} fontSize={14} size='md' w={350} />
+                                    {formik.touched.about_me && formik.errors.about_me && (
+                                        <p className="error-mesage">{formik.errors.about_me}</p>
+                                    )}
                                     <FormLabel padding={1} color={"white"} fontWeight={"bold"}>categories</FormLabel>
                                     <Select styles={customStyles} options={categori}
                                         onChange={(value) => {
@@ -218,6 +235,9 @@ const UserCompleteSignup = () => {
                                         id='categories'
                                         isMulti
                                     />
+                                    {formik.touched.categories && formik.errors.categories && (
+                                        <p className="error-mesage">{formik.errors.categories}</p>
+                                    )}
                                     <LocationModal
                                         open={openLocationModal}
                                         setOpen={setOpenLocationModal}
@@ -230,6 +250,9 @@ const UserCompleteSignup = () => {
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                                {formik.touched.image && formik.errors.image && (
+                                    <p className="error-mesage">{formik.errors.image}</p>
+                                )}
                             </Flex>
                         </Flex>
                         <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >
