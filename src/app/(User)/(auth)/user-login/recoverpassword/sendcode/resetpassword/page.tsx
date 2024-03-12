@@ -1,23 +1,18 @@
 'use client'
 import React, { useState } from 'react'
-
-import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
 import { useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
 import { userResetPassword } from '@/store/userStore/slices/userSlice';
 import { useRouter } from 'next/navigation';
-
-
-
+import { GlobalState } from '@/types/storeTypes';
 const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
   const toast = useToast()
   const router = useRouter()
   const dispatch: any = useDispatch()
-  const { user, error, loading } = useSelector((state: any) => state.userSlice)
+  const { user, error, loading } = useSelector((state: GlobalState) => state.userSlice)
   console.log(error, loading, user)
   console.log(email, code)
   const [form, setForm] = useState({
@@ -45,7 +40,7 @@ const ResetPassword = () => {
     }
     let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
-      dispatch(userResetPassword(data)).then((res) => {
+      dispatch(userResetPassword(data)).then((res: any) => {
         console.log(res)
         if (error) {
           console.log(error)

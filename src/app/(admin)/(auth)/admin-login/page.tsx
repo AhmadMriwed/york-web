@@ -16,13 +16,14 @@ import { Flex, Button, Text, Spinner, useDisclosure } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice'
 import { GlobalState } from '@/types/storeTypes'
-import AddAdminModal from '@/components/admin/AddAdminModal'
+import UpdatePasswordModal from '@/components/UpdatePassModal/UpdatePasswordModal'
 import { Email } from '@rsuite/icons'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
 interface FormValues {
   email: string;
   password: string;
+
 }
 const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +45,7 @@ const AdminLogin = () => {
     console.log(values)
     let data = { email: values.email, password: values.password }
     try {
-      dispatch(loginAdmin(data)).then((res) => {
+      dispatch(loginAdmin(data)).then((res: any) => {
         console.log(res)
         if (res.error) {
           console.log("request rejected")
@@ -64,13 +65,13 @@ const AdminLogin = () => {
       email: "",
       password: "",
       language: "english"
-    },
+    } ,
     validationSchema,
     onSubmit: handleSubmit
   })
 
   const customStyles = {
-    control: base => ({
+    control: (base: any) => ({
       ...base,
       height: 40,
       width: 150
@@ -86,23 +87,23 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  useEffect(() => {
-    console.log(cookies.get("token"))
-    const token = cookies.get("token")
-    if (token !== undefined) {
-      dispatch(getAdminProfile(token)).then((res) => {
-        console.log(res)
-        if (res.payload.is_verified) {
-          router.push("/")
-        } else {
-          router.push("/admin-login/confirmemail")
-        }
+  // useEffect(() => {
+  //   console.log(cookies.get("token"))
+  //   const token = cookies.get("admin_token")
+  //   if (token !== undefined) {
+  //     dispatch(getAdminProfile(token)).then((res: any) => {
+  //       console.log(res)
+  //       if (res.payload.is_verified) {
+  //         router.push("/")
+  //       } else {
+  //         router.push("/admin-login/confirmemail")
+  //       }
 
-      })
+  //     })
 
-    }
+  //   }
 
-  }, [])
+  // }, [])
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
@@ -175,7 +176,7 @@ const AdminLogin = () => {
                   <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
                   </Link>
                   <div className='justify-self-end ' >
-                    <AddAdminModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                    <UpdatePasswordModal type={"admin"} isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                   </div>
 
@@ -189,7 +190,7 @@ const AdminLogin = () => {
                       </p>
                     </Link> */}
                   </div>
-                  <button type='submit'  className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
+                  <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
                   {error && <span className="error">{error}</span>}
 

@@ -14,13 +14,18 @@ import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
 import { getTrainerProfile, trainerLogin } from '@/store/trainerStore/slices/trainerSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import AddTrainerModal from '@/components/trainer/AddTrainerModal'
+import UpdatePasswordModal from '@/components/UpdatePassModal/UpdatePasswordModal'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
+import { GlobalState } from '@/types/storeTypes'
+export interface FormValues {
+  email: string;
+  password: string
+}
 const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
-  const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
+  const { error, loading, trainer } = useSelector((state: GlobalState) => state.trainerSlice)
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
@@ -37,7 +42,7 @@ const TrainerLogin = () => {
     console.log(values)
     let data = { email: values.email, password: values.password }
     try {
-      dispatch(trainerLogin(data)).then((res) => {
+      dispatch(trainerLogin(data)).then((res: any) => {
         console.log(res)
         console.log("logged in success")
         if (res.error) {
@@ -64,7 +69,7 @@ const TrainerLogin = () => {
     onSubmit: handleSubmit
   })
   const customStyles = {
-    control: base => ({
+    control: (base:any) => ({
       ...base,
       height: 40,
       width: 150
@@ -84,7 +89,7 @@ const TrainerLogin = () => {
     console.log(cookies.get("trainer_token"))
     const token = cookies.get("trainer_token")
     if (token !== undefined) {
-      dispatch(getTrainerProfile(token)).then((res) => {
+      dispatch(getTrainerProfile(token)).then((res:any) => {
         console.log(res)
         if (res.payload.is_verified) {
           router.push("/")
@@ -96,7 +101,7 @@ const TrainerLogin = () => {
 
     }
 
-  }, [])
+   }, [])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -149,7 +154,7 @@ const TrainerLogin = () => {
                   )}
                   <Link href='/trainer-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span></Link>
                   <div className='justify-self-end' >
-                    <AddTrainerModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                    <UpdatePasswordModal type={"trainer"} isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                   </div>
                   <div className=" rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">

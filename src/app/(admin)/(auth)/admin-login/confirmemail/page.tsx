@@ -1,14 +1,17 @@
+"use client"
 import BackBtn from '@/components/backbtn/BackBtn'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
+import Cookies from 'universal-cookie'
 const ConfirmEmail = () => {
     const { admin } = useSelector((state: any) => state.authSlice)
-    console.log(admin.access_token, admin)
+    console.log(admin)
     const Verify = () => {
-        let token = admin.access_token
+        let cookie =new Cookies()
+        let token = cookie.get("admin_token") 
         console.log(token)
         axios.get("https://cms.yorkacademy.uk/api/admin/resend_verify_email", {
             headers: {
@@ -36,7 +39,7 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'>{admin.email}</span>
+                            <span className='font-bold'>{admin && admin.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>

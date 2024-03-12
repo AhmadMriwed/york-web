@@ -6,19 +6,20 @@ import { userValidateForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useToast } from '@chakra-ui/react'
 import { userForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { GlobalState } from '@/types/storeTypes'
 const SendCode = () => {
   const [code, setCode] = useState("")
   const router = useRouter();
   const toast = useToast()
   const dispatch: any = useDispatch()
-  const { error, loading, msg } = useSelector((state: any) => state.userSlice)
+  const { error, loading, msg } = useSelector((state: GlobalState) => state.userSlice)
   console.log(error, loading, msg)
   const email = useSearchParams().get("email")
   console.log(email)
   const resendCode = () => {
     try {
       let data = { email: email }
-      dispatch(userForgotPassword(data)).then((res) => {
+      dispatch(userForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)
@@ -62,7 +63,7 @@ const SendCode = () => {
     }
     let data = { email: email, code: code }
     try {
-      dispatch(userValidateForgotPassword(data)).then((res) => {
+      dispatch(userValidateForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)

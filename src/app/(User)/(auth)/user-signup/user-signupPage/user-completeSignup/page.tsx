@@ -9,7 +9,7 @@ import Link from "next/link"
 import Location from "@rsuite/icons/Location"
 import Select from "react-select"
 import { categorie } from "@/utils/categories"
-import LocationModal from "@/components/user/LocationModal"
+import LocationModal from "@/components/accounts/trainers/LocationModal"
 import { useDispatch, useSelector } from "react-redux"
 import { useParams, useRouter } from "next/navigation"
 import { CompleteUserProfile } from "@/store/userStore/slices/userSlice"
@@ -17,6 +17,21 @@ import Cookies from "universal-cookie"
 import { useFormik } from "formik"
 import * as yup from "yup"
 import { Input as Inputt } from "rsuite"
+export interface FormVal {
+    url: string;
+    phone_number: string;
+    image: null | string;
+    location: {
+        address: string,
+        latitude: number,
+        longitude: number,
+    };
+    categories: number[];
+    gender: string;
+    birth_date: string;
+    about_me: string;
+
+}
 const UserCompleteSignup = () => {
     const toast = useToast()
     const cookie = new Cookies()
@@ -72,10 +87,10 @@ const UserCompleteSignup = () => {
                 }
             }
         }
-        let token = cookie.get("userSignUp_token")
+        let token = cookie.get("user_token")
         console.log(token)
         dispatch(CompleteUserProfile({ token, data: formData }))
-            .then((res) => {
+            .then((res: any) => {
                 console.log(res)
                 if (res.error) {
                     toast({
@@ -119,7 +134,7 @@ const UserCompleteSignup = () => {
             gender: "Male",
             birth_date: "",
             about_me: "",
-        },
+        } as FormVal,
         validationSchema,
         onSubmit: HandleSubmit
     })
@@ -138,7 +153,7 @@ const UserCompleteSignup = () => {
 
 
     const customStyles = {
-        control: base => ({
+        control: (base: any) => ({
             ...base,
             width: 350
         })
@@ -258,6 +273,7 @@ const UserCompleteSignup = () => {
                         <Flex marginTop={{ base: 2, md: 20 }} gap={4} justifyContent={"flex-end"} alignItems={"center"} >
                             <Button w={200}
                                 type="submit"
+                                disabled={loading}
                                 textColor={"white"}
                                 backgroundColor={"#11cdef"}
                                 textAlign={"center"}

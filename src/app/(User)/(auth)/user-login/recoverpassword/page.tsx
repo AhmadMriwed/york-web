@@ -6,9 +6,10 @@ import React, { useState } from 'react'
 import { Flex, Box } from '@chakra-ui/react'
 import { userForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { GlobalState } from '@/types/storeTypes'
 const RecoverPassword1 = () => {
   const dispatch: any = useDispatch()
-  const { error, loading, msg } = useSelector((state: any) => state.userSlice)
+  const { error, loading, msg } = useSelector((state: GlobalState) => state.userSlice)
   const toast = useToast()
   console.log(error, loading, msg)
   const router = useRouter()
@@ -27,7 +28,7 @@ const RecoverPassword1 = () => {
     }
     try {
       let data = { email: email }
-      dispatch(userForgotPassword(data)).then((res) => {
+      dispatch(userForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)

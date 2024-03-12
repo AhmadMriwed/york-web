@@ -1,23 +1,47 @@
 "use client"
 import BackBtn from "@/components/backbtn/BackBtn"
-import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Center, Spinner, Circle, CloseButton, useToast, Img } from "@chakra-ui/react"
+import { Container, Flex, Text, Input, FormLabel, Box, Select as Selecter, Button, Avatar, Spinner, CloseButton, useToast } from "@chakra-ui/react"
 import Image from "next/image"
 import Location from "@rsuite/icons/Location"
 import PhoneInput from "react-phone-input-2"
 import "react-phone-input-2/lib/style.css"
 import moment from "moment"
-import SignatureCanvas from "react-signature-canvas"
 import Select from "react-select"
 import { categorie } from "@/utils/categories"
 import React, { useEffect, useRef, useState } from "react"
-import LocationModal from "@/components/trainer/LocationModal"
+import LocationModal from "@/components/accounts/trainers/LocationModal"
 import { Input as Inputt } from "rsuite"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDispatch, useSelector } from "react-redux"
 import { trainerRegister } from "@/store/trainerStore/slices/trainerSlice"
-import { useFormik, validateYupSchema } from "formik"
+import { useFormik } from "formik"
 import { SignatureComponent, Signature } from "@syncfusion/ej2-react-inputs"
 import * as yup from "yup"
+import { GlobalState } from "@/types/storeTypes"
+
+export interface FormVal {
+    email: string;
+    first_name: string;
+    last_name: string;
+    password: string;
+    password_confirmation: string;
+    phone_number: string;
+    image: null | string;
+    location: {
+        address: string,
+        latitude: number,
+        longitude: number,
+    };
+    Category: number[];
+    digital_signature: string;
+    gender: string;
+    birth_date: string;
+    resume: string;
+    trainer_type_id: number;
+    domains: string;
+    about_me: string;
+    account_type: string;
+}
 const TrainerSignupPage = () => {
     const [long, setLong] = useState("")
     const [address, setAddress] = useState("")
@@ -33,7 +57,7 @@ const TrainerSignupPage = () => {
     let signObj: Signature | null
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
-    const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
+    const { error, trainer, loading } = useSelector((state: GlobalState) => state.trainerSlice)
     console.log(error, loading, trainer)
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const toast = useToast()
@@ -82,7 +106,7 @@ const TrainerSignupPage = () => {
     }
 
     const SaveSign = async () => {
-        let dataURI = signObj?.getSignature("Svg")
+        let dataURI = signObj?.getSignature("Svg") as string
         let svg = atob(dataURI.replace(/data:image\/svg\+xml;base64,/, ''));
         console.log(svg);
         formik.setFieldValue("digital_signature", svg)
@@ -130,7 +154,7 @@ const TrainerSignupPage = () => {
             }
         }
 
-        dispatch(trainerRegister(formData)).then((res) => {
+        dispatch(trainerRegister(formData)).then((res: any) => {
             console.log(res)
             if (res.error) {
                 console.log(error)
@@ -182,12 +206,12 @@ const TrainerSignupPage = () => {
             domains: "",
             about_me: "",
             account_type: trainer_type,
-        },
-        // validationSchema: validationSchema,
+        } as FormVal,
+        validationSchema: validationSchema,
         onSubmit: handleSubmit
     })
     const customStyles = {
-        control: base => ({
+        control: (base: any) => ({
             ...base,
             width: 350
         })

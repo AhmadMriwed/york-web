@@ -2,7 +2,7 @@
 // import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "rsuite/dist/rsuite.min.css";
-
+import { GoogleOAuthProvider } from "@react-oauth/google"
 import StoreProvider from "@/store/adminstore/StoreProvider";
 import { ChakraProvider } from "@chakra-ui/react"
 
@@ -23,7 +23,9 @@ export default function RootLayout({
       <html lang="en">
          <body className="h-[100vh]">
             <ChakraProvider >
-               <StoreProvider> {children}</StoreProvider>
+               <GoogleOAuthProvider clientId="482040382753-v54a1itsndnsfbdptlruls69aoggeg77.apps.googleusercontent.com">
+                  <StoreProvider> {children}</StoreProvider>
+               </GoogleOAuthProvider>
             </ChakraProvider>
          </body>
 

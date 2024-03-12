@@ -42,7 +42,7 @@ const UserSignupPage = () => {
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
-        dispatch(userRegister(formData)).then((res) => {
+        dispatch(userRegister(formData)).then((res:any) => {
             console.log(res)
             if (res.error) {
                 toast({

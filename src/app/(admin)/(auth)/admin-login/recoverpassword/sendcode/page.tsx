@@ -17,7 +17,7 @@ const SendCode = () => {
   const resendCode = () => {
     try {
       let data = { email: email }
-      dispatch(adminForgotPassword(data)).then((res) => {
+      dispatch(adminForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)
@@ -64,7 +64,7 @@ const SendCode = () => {
     }
     let data = { email: email, code: code }
     try {
-      dispatch(adminValidateForgotPassword(data)).then((res) => {
+      dispatch(adminValidateForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)

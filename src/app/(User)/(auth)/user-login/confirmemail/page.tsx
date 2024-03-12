@@ -5,19 +5,22 @@ import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
+import { GlobalState } from '@/types/storeTypes'
+import Cookies from 'universal-cookie'
 const ConfirmEmail = () => {
-    const { user } = useSelector((state: any) => state.userSlice)
-    console.log(user, user.access_token)
+    const { user } = useSelector((state: GlobalState) => state.userSlice)
+    console.log(user)
 
     const Verify = () => {
-        let token = user.access_token
+        let cookie = new Cookies()
+        let token = cookie.get("user_token")
         axios.get("https://cms.yorkacademy.uk/api/user/resendVerificationEmail", {
             headers: {
                 Authorization: `Bearer ${token} `
             }
-        }).then((res) => {
+        }).then((res:any) => {
             console.log(res)
-        }).catch((err) => {
+        }).catch((err:any) => {
             console.log(err.message)
         })
     }
@@ -38,7 +41,7 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'> {user.email}</span>
+                            <span className='font-bold'> {user && user.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold'  onClick={() => Verify()}> Click here to resend</button></div>

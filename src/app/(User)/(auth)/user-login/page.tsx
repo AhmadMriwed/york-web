@@ -13,10 +13,12 @@ import { Flex, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
-import AddUserModal from '@/components/user/AddUserModal'
 import { useFormik } from 'formik'
+import UpdatePasswordModal from '@/components/UpdatePassModal/UpdatePasswordModal'
 import * as Yup from "yup"
 import axios from 'axios'
+import { useGoogleLogin } from "@react-oauth/google"
+import { GlobalState } from '@/types/storeTypes'
 interface FormValues {
     email: string;
     password: string;
@@ -27,7 +29,7 @@ const UserLogin = () => {
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
-    const { error, loading, user } = useSelector((state: any) => state.userSlice)
+    const { error, loading, user } = useSelector((state: GlobalState) => state.userSlice)
     console.log(error, loading, user)
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
@@ -36,11 +38,24 @@ const UserLogin = () => {
             .required('Password is required'),
 
     });
-
+    const Login = useGoogleLogin({
+        onSuccess: async (res) => {
+            try {
+                const resp = await axios.get("http://localhost:8000/google/login", {
+                    headers: {
+                        Authorization: `Bearer ${res.access_token}`
+                    }
+                })
+                console.log(resp)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    })
     const handleSubmit = (values: FormValues) => {
         let data = { email: values.email, password: values.password }
         try {
-            dispatch(userLogin(data)).then((res) => {
+            dispatch(userLogin(data)).then((res: any) => {
                 console.log(res)
                 if (res.error) {
                     console.log(error)
@@ -70,7 +85,7 @@ const UserLogin = () => {
     })
 
     const customStyles = {
-        control: base => ({
+        control: (base: any) => ({
             ...base,
             height: 40,
             width: 150
@@ -98,7 +113,7 @@ const UserLogin = () => {
         console.log(cookie.get("user_token"))
         const token = cookie.get("user_token")
         if (token !== undefined) {
-            dispatch(getUserProfile(token)).then((res) => {
+            dispatch(getUserProfile(token)).then((res: any) => {
                 console.log(res.payload.is_verified)
                 if (res.payload.is_verified) {
                     router.push("/")
@@ -152,18 +167,18 @@ const UserLogin = () => {
                                     )}
                                     <Link href='/user-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>  </Link>
                                     <div className='justify-self-end' >
-                                        <AddUserModal isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
+                                        <UpdatePasswordModal type="user" isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                                         <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                                     </div>
                                     <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                                        <Link href={"http://localhost:8000/google/login"} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                                        <button onClick={()=>Login()} type='button' className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                                             <div>
                                                 <FaGoogle />
                                             </div>
                                             <p>
-                                                <b>Login with Google</b>
+                                                <b >Login with Google</b>
                                             </p>
-                                        </Link>
+                                        </button>
                                     </div>
                                     <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                                     <p className='justify-self-center mt-2'>Not a Member ? <Link href='/user-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
@@ -178,6 +193,7 @@ const UserLogin = () => {
                                         />
                                     </div>
                                 </form>
+                              
                             </div>
                         </div>
                     </div>

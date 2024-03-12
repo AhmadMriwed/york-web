@@ -19,7 +19,7 @@ const ResetPassword = () => {
     password_confirmation: "",
 
   })
-  const handleChange = (e) => {
+  const handleChange =  (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
   const handleSubmit = async () => {
@@ -49,7 +49,7 @@ const ResetPassword = () => {
     }
     let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
-      dispatch(trainerResetPassword(data)).then((res) => {
+      dispatch(trainerResetPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)

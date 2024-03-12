@@ -1,8 +1,5 @@
 'use client'
 import React, { useState } from 'react'
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,7 +20,7 @@ const ResetPassword = () => {
 
   })
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
   const handleSubmit = async () => {
@@ -41,7 +38,7 @@ const ResetPassword = () => {
     }
     let data = { email: email, code: code, password: form.password, password_confirmation: form.password_confirmation }
     try {
-      dispatch(adminResetPassword(data)).then((res) => {
+      dispatch(adminResetPassword(data)).then((res: any) => {
         console.log(res)
         if (res.error) {
           console.log(error)

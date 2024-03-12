@@ -2,9 +2,7 @@
 import RecoverPassword from '@/components/RecoverPassword/RecoverPassword'
 import { FormLabel, Input, Spinner, Text, useToast } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Flex, Box } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { adminForgotPassword } from '@/store/adminstore/slices/authSlice'
@@ -30,7 +28,7 @@ const RecoverPassword1 = () => {
     try {
 
       let data = { email: email }
-      dispatch(adminForgotPassword(data)).then((res) => {
+      dispatch(adminForgotPassword(data)).then((res:any) => {
         console.log(res)
         if (res.error) {
           console.log(error)
