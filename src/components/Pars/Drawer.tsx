@@ -42,11 +42,17 @@ export default function Drawer({
    const router = useRouter()
    const HandleLogOut = () => {
       let cookie = new Cookies()
-      let token = cookie.get("token")
+      let token = cookie.get("admin_token")
       try {
-         dispatch(adminLogOut(token)).then((res) => {
+         dispatch(adminLogOut(token)).then((res:any) => {
             console.log(res)
-            router.push("/")
+            if(res.error){
+               console.log("some thing went wrong")
+               return
+            }else{
+               router.push("/")
+            }
+            
          })
       } catch (error: any) {
          console.log(error.mesage)
