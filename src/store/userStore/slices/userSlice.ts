@@ -1,3 +1,4 @@
+import { UserState } from "@/types/userTypes/auth/authTypes";
 import { baseURL } from "@/utils/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -35,7 +36,7 @@ export const userRegister = createAsyncThunk("userRegister", async (data: any, t
         if (res.status === 201) {
             console.log(res, "user register")
             let token = res.data.data.access_token
-            cookies.set("userSignUp_token", token)
+            cookies.set("user_token", token)
             return res.data.data
         }
     } catch (error: any) {
@@ -118,7 +119,7 @@ export const userResetPassword = createAsyncThunk("resetPassword", async (data: 
         return rejectWithValue(error.message)
     }
 })
-export const userUpdatePassword = createAsyncThunk("updatePassword", async (params: any, thunkAPI) => {
+export const userUpdatePassword = createAsyncThunk("updateUserPassword", async (params: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI
     console.log("data", params)
     try {
@@ -139,7 +140,7 @@ export const userUpdatePassword = createAsyncThunk("updatePassword", async (para
     }
 })
 
-export const userLogOut = createAsyncThunk("userLogout", async (token, thunAPI) => {
+export const userLogOut = createAsyncThunk("userLogout", async (token: string, thunAPI) => {
     const { rejectWithValue } = thunAPI
     try {
         const res = await axios.delete(`${baseURL}user/logout`, {
@@ -155,19 +156,24 @@ export const userLogOut = createAsyncThunk("userLogout", async (token, thunAPI) 
         return rejectWithValue(error.message)
     }
 })
-const initialState = {
-    user: "",
-    error: null,
-    loading: false,
-    msg: "",
-    loadingPass: false,
-    errorPass: null
-}
+
 
 export const userSlice = createSlice({
     name: "userSlice",
-    initialState,
-    reducers: {},
+    initialState: {
+        user: {},
+        error: null,
+        loading: false,
+        msg: "",
+        loadingPass: false,
+        errorPass: null,
+        location: ""
+    } as UserState,
+    reducers: {
+        getLocation: (state, action) => {
+            state.location = action.payload
+        }
+    },
     extraReducers: (builder) => {
         //user login
         builder
@@ -282,7 +288,7 @@ export const userSlice = createSlice({
             .addCase(userLogOut.fulfilled, (state, action: any) => {
                 state.loading = false
                 state.error = null
-                state.user = ""
+                state.user = null
             })
             .addCase(userLogOut.rejected, (state, action: any) => {
                 state.error = action.payload
@@ -291,5 +297,5 @@ export const userSlice = createSlice({
     }
 })
 
-
+export const { getLocation } = userSlice.actions
 export default userSlice.reducer

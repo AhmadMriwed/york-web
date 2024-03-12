@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from "universal-cookie";
 import axios from "axios";
 import { baseURL } from "@/utils/api";
+import { TrainerState } from "@/types/trainerTypes/auth/authTypes";
 export const trainerRegister = createAsyncThunk("trainerRegister", async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     console.log("data", data)
@@ -11,7 +12,7 @@ export const trainerRegister = createAsyncThunk("trainerRegister", async (data: 
         if (res.status === 201) {
             console.log(res, "trainer register")
             let token = res.data.data.access_token
-            cookies.set("trainerSignUp_token", token)
+            cookies.set("trainer_token", token)
             return res.data.data
         }
     } catch (error: any) {
@@ -61,7 +62,21 @@ export const getTrainerProfile = createAsyncThunk("getProfile", async (token: st
         return rejectWithValue(error.message)
     }
 })
-export const trainerUpdatePassword = createAsyncThunk("updatePassword", async (params: any, thunkAPI) => {
+export const trainerUpdateProfile = createAsyncThunk("trainerUpdateProfile", async (params: any, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI
+    try {
+        const res = await axios.put("https://cms.yorkacademy.uk/api/trainer/updateProfile", params.data, {
+            headers: {
+                Authorization: `Bearer ${params.token}`
+            }
+        })
+        return res.data.data
+    } catch (error: any) {
+        console.log("Error", error.message)
+        return rejectWithValue(error.message)
+    }
+})
+export const trainerUpdatePassword = createAsyncThunk("updateTrainerPassword", async (params: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI
     console.log("data", params)
     try {
@@ -139,19 +154,20 @@ export const trainerLogOut = createAsyncThunk("trainerLogout", async (token, thu
         return rejectWithValue(error.message)
     }
 })
-const initialState = {
-    loading: false,
-    error: null,
-    loadingPass: false,
-    errorPass: null,
-    trainer: "",
-    msg: ""
 
-}
 
 export const trainerSlice = createSlice({
     name: "trainerSlice",
-    initialState: initialState,
+    initialState: {
+        loading: false,
+        error: null,
+        loadingPass: false,
+        errorPass: null,
+        trainer: {},
+        msg: "",
+        location: ""
+
+    } as TrainerState,
     reducers: {},
     extraReducers: (builder) => {
         builder
@@ -214,7 +230,7 @@ export const trainerSlice = createSlice({
             .addCase(trainerLogOut.fulfilled, (state, action: any) => {
                 state.error = null
                 state.loading = false
-                state.trainer = ""
+                state.trainer = null
             })
             .addCase(trainerLogOut.rejected, (state, action: any) => {
                 state.error = action.payload
@@ -254,6 +270,18 @@ export const trainerSlice = createSlice({
                 state.msg = action.payload
             })
             .addCase(trainerResetPassword.rejected, (state, action: any) => {
+                state.loading = false
+                state.error = action.payload
+            })
+            .addCase(trainerUpdateProfile.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(trainerUpdateProfile.fulfilled, (state, action) => {
+                state.loading = false
+                state.error = null
+                state.trainer = action.payload
+            })
+            .addCase(trainerUpdateProfile.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload
             })

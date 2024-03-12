@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import { baseURL } from "@/utils/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Cookie } from "next/font/google";
+import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
 export const loginAdmin = createAsyncThunk('login', async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     console.log("data", data);
@@ -13,7 +13,7 @@ export const loginAdmin = createAsyncThunk('login', async (data: any, thunkAPI) 
         if (res.status === 200) {
             console.log("success")
             let token = res.data.data.access_token
-            cookies.set("token", token)
+            cookies.set("admin_token", token)
             return res.data.data
         }
 
@@ -89,7 +89,7 @@ export const adminResetPassword = createAsyncThunk("resetPassword", async (data:
         return rejectWithValue(error.message)
     }
 })
-export const adminUpdatePassword = createAsyncThunk("updatePassword", async (params: any, thunkAPI) => {
+export const adminUpdatePassword = createAsyncThunk("updateAdminPassword", async (params: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI
     console.log("data", params)
     try {
@@ -121,24 +121,24 @@ export const adminLogOut = createAsyncThunk("adminLogout", async (token: String,
             }
         })
         let cookie = new Cookies()
-        cookie.remove("token")
+        cookie.remove("admin_token")
         return res.data
     } catch (error: any) {
         console.log(error.message)
         return rejectWithValue(error.message)
     }
 })
-const initialState = {
-    loading: false,
-    error: null,
-    admin: "",
-    msg: "",
-    loadingPass: false,
-    errorPass: null
-}
+
 const authSlice = createSlice({
     name: "authSlice",
-    initialState: initialState,
+    initialState: {
+        loading: false,
+        error: null,
+        admin: {},
+        msg: "",
+        loadingPass: false,
+        errorPass: null
+    } as AdminState,
     reducers: {
 
     },
@@ -224,7 +224,7 @@ const authSlice = createSlice({
             .addCase(adminLogOut.fulfilled, (state, action: any) => {
                 state.loading = false
                 state.error = null
-                state.admin = ""
+                state.admin=null
             })
             .addCase(adminLogOut.rejected, (state, action: any) => {
                 state.loading = false
