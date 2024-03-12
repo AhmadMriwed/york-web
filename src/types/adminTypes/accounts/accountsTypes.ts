@@ -1,3 +1,4 @@
+
 // Permissions Type
 export interface PermissionsType {
    name: string;
@@ -95,8 +96,23 @@ export interface TrainersState {
 export interface AdminState {
    loading: boolean;
    error: null | any;
-   admin:any
+   loadingPass:boolean;
+   errorPass:null|any;
+   msg:string
+   admin:null|AdminTypee
   
+}
+
+export interface AdminTypee{
+   email: string;
+   first_name: string;
+   id: number;
+   is_verified: boolean;
+   last_name: string;
+   language:null|string;
+   user_id: number;
+   account_type: string;
+   access_token:string
 }
 
 // Trainees Type
@@ -139,6 +155,7 @@ export interface UsersType {
    user_id: number;
    user_name: string;
 }
+
 
 export interface UsersState {
    isLoading: boolean;
