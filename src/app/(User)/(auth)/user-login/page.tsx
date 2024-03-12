@@ -41,7 +41,7 @@ const UserLogin = () => {
     const Login = useGoogleLogin({
         onSuccess: async (res) => {
             try {
-                const resp = await axios.get("http://localhost:8000/google/login", {
+                const resp = await axios.get("", {
                     headers: {
                         Authorization: `Bearer ${res.access_token}`
                     }
