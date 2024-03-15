@@ -43,6 +43,7 @@ export default function Drawer({
    const HandleLogOut = () => {
       let cookie = new Cookies()
       let token = cookie.get("admin_token")
+      console.log(token)
       try {
          dispatch(adminLogOut(token)).then((res:any) => {
             console.log(res)

@@ -50,6 +50,9 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                         position: "top"
                     })
                     setLoading(false)
+                    formik.values.old_password=""
+                    formik.values.new_password=""
+                    formik.values.new_password_confirmation=""
                 })
 
             } catch (error: any) {
@@ -89,6 +92,9 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                             position: "top"
                         })
                         setLoading(false)
+                        formik.values.old_password=""
+                        formik.values.new_password=""
+                        formik.values.new_password_confirmation=""
                     }
 
                 })
@@ -129,6 +135,9 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                             position: "top"
                         })
                         setLoading(false)
+                        formik.values.old_password=""
+                        formik.values.new_password=""
+                        formik.values.new_password_confirmation=""
                     }
                 })
             } catch (error: any) {

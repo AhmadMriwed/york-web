@@ -11,12 +11,16 @@ import markerIcon from "../../../../public/assets/map-marker.png";
 import { Button, Modal } from "rsuite";
 import "leaflet/dist/leaflet.css";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { getLocation } from "@/store/userStore/slices/userSlice";
+
 interface ModalType {
    open: boolean;
    setOpen: any;
 }
 
 export default function LocationModal({ open, setOpen }: ModalType) {
+
    function LocationMarker() {
       const [position, setPosition] = useState<any>([34.802, 38.996]);
       const defaultIcon = L.icon({
@@ -31,6 +35,7 @@ export default function LocationModal({ open, setOpen }: ModalType) {
          },
       });
       console.log("position", position);
+
 
       return position === null ? null : (
          <Marker position={position} icon={defaultIcon}>
