@@ -167,7 +167,7 @@ const authSlice = createSlice({
             })
             .addCase(getAdminProfile.rejected, (state, action: any) => {
                 state.loading = false
-                state.error = action.payload
+                // state.error = action.payload
             })
             .addCase(adminForgotPassword.pending, (state) => {
                 state.loading = true
