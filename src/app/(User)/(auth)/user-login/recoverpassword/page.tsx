@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { GlobalState } from '@/types/storeTypes'
 const RecoverPassword1 = () => {
   const dispatch: any = useDispatch()
-  const { error, loading, msg } = useSelector((state: GlobalState) => state.userSlice)
+  const { error, loading, msg } = useSelector((state: any) => state.userSlice)
   const toast = useToast()
   console.log(error, loading, msg)
   const router = useRouter()

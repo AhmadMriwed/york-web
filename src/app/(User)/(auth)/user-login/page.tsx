@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie'
 import { Languages } from '@/utils/categories'
@@ -9,17 +9,14 @@ import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { ReactCountryFlag } from "react-country-flag"
 import Select from "react-select"
-import { Flex, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Flex, Spinner, Text, useDisclosure } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getUserProfile } from '@/store/userStore/slices/userSlice'
 import { userLogin } from '@/store/userStore/slices/userSlice'
 import { useFormik } from 'formik'
 import UpdatePasswordModal from '@/components/UpdatePassModal/UpdatePasswordModal'
 import * as Yup from "yup"
-import axios from 'axios'
-import { useGoogleLogin } from "@react-oauth/google"
-import { GlobalState } from '@/types/storeTypes'
-interface FormValues {
+export interface FormValues {
     email: string;
     password: string;
 }
@@ -29,7 +26,7 @@ const UserLogin = () => {
     const [isLoading, setisLoading] = useState(true);
     const cookie = new Cookies();
     const dispatch: any = useDispatch()
-    const { error, loading, user } = useSelector((state: GlobalState) => state.userSlice)
+    const { error, loading, user } = useSelector((state: any) => state.userSlice)
     console.log(error, loading, user)
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('Invalid email').required('Email is required'),
@@ -38,20 +35,6 @@ const UserLogin = () => {
             .required('Password is required'),
 
     });
-    const Login = useGoogleLogin({
-        onSuccess: async (res) => {
-            try {
-                const resp = await axios.get("", {
-                    headers: {
-                        Authorization: `Bearer ${res.access_token}`
-                    }
-                })
-                console.log(resp)
-            } catch (error) {
-                console.log(error)
-            }
-        }
-    })
     const handleSubmit = (values: FormValues) => {
         let data = { email: values.email, password: values.password }
         try {
@@ -124,7 +107,9 @@ const UserLogin = () => {
 
             })
         }
+
     }, [])
+
 
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
@@ -171,14 +156,14 @@ const UserLogin = () => {
                                         <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                                     </div>
                                     <div className="bg-[rgba(204,76,76,0.1)] rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                                        <button onClick={()=>Login()} type='button' className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                                        <Link href={"https://cms.yorkacademy.uk/google/login"} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                                             <div>
                                                 <FaGoogle />
                                             </div>
                                             <p>
                                                 <b >Login with Google</b>
                                             </p>
-                                        </button>
+                                        </Link>
                                     </div>
                                     <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                                     <p className='justify-self-center mt-2'>Not a Member ? <Link href='/user-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>
@@ -191,9 +176,10 @@ const UserLogin = () => {
                                             id='language'
                                             components={{ IndicatorSeparator: () => null }}
                                         />
+
                                     </div>
                                 </form>
-                              
+
                             </div>
                         </div>
                     </div>

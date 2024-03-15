@@ -40,10 +40,8 @@ const UserCompleteSignup = () => {
     const inputRef: any = useRef()
     const [location, setLocation] = useState("")
     console.log(location)
-    const { error, user, loading } = useSelector((state: any) => state.userSlice)
+    const { error, user, loading} = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
-
-    console.log("new user", user)
     const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const validationSchema = yup.object().shape({
@@ -168,6 +166,7 @@ const UserCompleteSignup = () => {
             </Flex>
         )
     }));
+   
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {

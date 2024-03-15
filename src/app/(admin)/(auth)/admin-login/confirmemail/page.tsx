@@ -10,16 +10,16 @@ const ConfirmEmail = () => {
     const { admin } = useSelector((state: any) => state.authSlice)
     console.log(admin)
     const Verify = () => {
-        let cookie =new Cookies()
-        let token = cookie.get("admin_token") 
+        let cookie = new Cookies()
+        let token = cookie.get("admin_token")
         console.log(token)
         axios.get("https://cms.yorkacademy.uk/api/admin/resend_verify_email", {
             headers: {
                 Authorization: `Bearer ${token} `
             }
-        }).then((res) => {
+        }).then((res: any) => {
             console.log(res)
-        }).catch((err) => {
+        }).catch((err: any) => {
             console.log(err.message)
         })
     }

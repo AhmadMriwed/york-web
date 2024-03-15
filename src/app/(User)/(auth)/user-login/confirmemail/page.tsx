@@ -8,7 +8,7 @@ import axios from 'axios'
 import { GlobalState } from '@/types/storeTypes'
 import Cookies from 'universal-cookie'
 const ConfirmEmail = () => {
-    const { user } = useSelector((state: GlobalState) => state.userSlice)
+    const { user } = useSelector((state: any) => state.userSlice)
     console.log(user)
 
     const Verify = () => {

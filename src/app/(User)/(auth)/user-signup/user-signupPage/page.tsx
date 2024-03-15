@@ -3,7 +3,7 @@ import BackBtn from "@/components/backbtn/BackBtn"
 import { Container, Flex, Text, Input, FormLabel, Box, Button, Avatar, Center, useToast, Spinner } from "@chakra-ui/react"
 import Image from "next/image"
 import { Input as Inputt } from "rsuite"
-import React, {  useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FaGoogle } from "react-icons/fa";
 import Link from "next/link"
@@ -42,7 +42,7 @@ const UserSignupPage = () => {
         Object.keys(values).forEach((key) => {
             formData.append(key, values[key]);
         });
-        dispatch(userRegister(formData)).then((res:any) => {
+        dispatch(userRegister(formData)).then((res: any) => {
             console.log(res)
             if (res.error) {
                 toast({
@@ -67,8 +67,6 @@ const UserSignupPage = () => {
                 router.push(`/user-signup/user-signupPage/user-completeSignup`)
             }
         })
-
-
     }
     const formik = useFormik({
         initialValues: {
@@ -105,11 +103,9 @@ const UserSignupPage = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-
                 </Center>
                 <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
                     <form action="" onSubmit={formik.handleSubmit}>
-
                         <Flex marginBottom={10} direction={{ lg: "column", md: "column", base: "column", xl: "row" }} gap={6} justifyContent={{ base: "center", md: "space-evenly" }} alignItems={{ base: "center", xl: "start" }}>
                             <Flex direction={"column"} alignItems={"center"} gap={2}>
                                 <Flex gap={4} direction={{ base: "column", md: "row" }} justifyContent={"center"} alignItems={{ base: "center", md: "start" }}   >
@@ -130,7 +126,6 @@ const UserSignupPage = () => {
                                             hidden
                                             ref={inputRef}
                                         />
-
                                     </Box>
                                     <Box display={"flex"} flexDirection={"column"}>
                                         <FormLabel padding={1} color={"white"} fontWeight={"bold"}>last_name</FormLabel>
@@ -156,7 +151,6 @@ const UserSignupPage = () => {
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
-
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
                                 <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
@@ -164,7 +158,6 @@ const UserSignupPage = () => {
                         </Flex>
                         <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
                             <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
-
                                 <Link href={`http://localhost:8000/google/login`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                                     <div>
                                         <FaGoogle />
@@ -180,7 +173,6 @@ const UserSignupPage = () => {
                         </Flex>
                     </form>
                 </Container>
-
             </Box>
         </>
     )

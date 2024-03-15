@@ -57,7 +57,7 @@ const TrainerSignupPage = () => {
     let signObj: Signature | null
     const inputRef: any = useRef()
     const resumeRef: any = useRef()
-    const { error, trainer, loading } = useSelector((state: GlobalState) => state.trainerSlice)
+    const { error, trainer, loading } = useSelector((state: any) => state.trainerSlice)
     console.log(error, loading, trainer)
     const [openLocationModal, setOpenLocationModal] = useState(false);
     const toast = useToast()

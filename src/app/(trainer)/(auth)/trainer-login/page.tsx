@@ -25,7 +25,7 @@ export interface FormValues {
 const TrainerLogin = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const dispatch: any = useDispatch()
-  const { error, loading, trainer } = useSelector((state: GlobalState) => state.trainerSlice)
+  const { error, loading, trainer } = useSelector((state: any) => state.trainerSlice)
   const router = useRouter();
   const [isLoading, setisLoading] = useState(true);
   const cookies = new Cookies()
@@ -69,7 +69,7 @@ const TrainerLogin = () => {
     onSubmit: handleSubmit
   })
   const customStyles = {
-    control: (base:any) => ({
+    control: (base: any) => ({
       ...base,
       height: 40,
       width: 150
@@ -89,7 +89,7 @@ const TrainerLogin = () => {
     console.log(cookies.get("trainer_token"))
     const token = cookies.get("trainer_token")
     if (token !== undefined) {
-      dispatch(getTrainerProfile(token)).then((res:any) => {
+      dispatch(getTrainerProfile(token)).then((res: any) => {
         console.log(res)
         if (res.payload.is_verified) {
           router.push("/")
@@ -101,7 +101,7 @@ const TrainerLogin = () => {
 
     }
 
-   }, [])
+  }, [])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -158,14 +158,14 @@ const TrainerLogin = () => {
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
                   </div>
                   <div className=" rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
-                    {/* <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
+                    <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
                       <div>
                         <FaGoogle />
                       </div>
                       <p>
                         <b>Login with Google</b>
                       </p>
-                    </Link> */}
+                    </Link>
                   </div>
                   <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
                   <p className='justify-self-center mt-2'>Not a Member ? <Link href='/trainer-signup' className='text-[#16FACD] underline hover:text-[#16FACD]'>Sign Up</Link></p>

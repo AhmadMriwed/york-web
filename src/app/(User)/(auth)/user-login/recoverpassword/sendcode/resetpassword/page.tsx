@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const toast = useToast()
   const router = useRouter()
   const dispatch: any = useDispatch()
-  const { user, error, loading } = useSelector((state: GlobalState) => state.userSlice)
+  const { user, error, loading } = useSelector((state: any) => state.userSlice)
   console.log(error, loading, user)
   console.log(email, code)
   const [form, setForm] = useState({
@@ -23,7 +23,7 @@ const ResetPassword = () => {
 
   })
 
-  const handleChange = (e) => {
+  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
   const handleSubmit = async () => {

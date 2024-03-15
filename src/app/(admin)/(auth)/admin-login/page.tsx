@@ -41,6 +41,7 @@ const AdminLogin = () => {
       .required('Password is required'),
 
   });
+ 
   const handleSubmit = (values: FormValues) => {
     console.log(values)
     let data = { email: values.email, password: values.password }
@@ -65,7 +66,7 @@ const AdminLogin = () => {
       email: "",
       password: "",
       language: "english"
-    } ,
+    },
     validationSchema,
     onSubmit: handleSubmit
   })
@@ -87,23 +88,19 @@ const AdminLogin = () => {
       </Flex>
     ),
   }));
-  // useEffect(() => {
-  //   console.log(cookies.get("token"))
-  //   const token = cookies.get("admin_token")
-  //   if (token !== undefined) {
-  //     dispatch(getAdminProfile(token)).then((res: any) => {
-  //       console.log(res)
-  //       if (res.payload.is_verified) {
-  //         router.push("/")
-  //       } else {
-  //         router.push("/admin-login/confirmemail")
-  //       }
-
-  //     })
-
-  //   }
-
-  // }, [])
+  useEffect(() => {
+    const token = cookies.get("admin_token")
+    if (token !== undefined) {
+      dispatch(getAdminProfile(token)).then((res: any) => {
+        console.log(res)
+        if (res.payload.is_verified) {
+          router.push("/")
+        } else {
+          router.push("/admin-login/confirmemail")
+        }
+      })
+    }
+  }, [])
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsLoading(false);

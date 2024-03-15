@@ -12,7 +12,7 @@ const SendCode = () => {
   const router = useRouter();
   const toast = useToast()
   const dispatch: any = useDispatch()
-  const { error, loading, msg } = useSelector((state: GlobalState) => state.userSlice)
+  const { error, loading, msg } = useSelector((state: any) => state.userSlice)
   console.log(error, loading, msg)
   const email = useSearchParams().get("email")
   console.log(email)

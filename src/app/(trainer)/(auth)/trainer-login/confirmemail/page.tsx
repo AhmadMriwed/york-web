@@ -11,16 +11,15 @@ const ConfirmEmail = () => {
     console.log(trainer)
     const Verify = () => {
         let cookie = new Cookies()
-
         let token = cookie.get("trainer_token")
         console.log(token)
         axios.get("https://cms.yorkacademy.uk/api/trainer/send_verify_email", {
             headers: {
                 Authorization: `Bearer ${token} `
             }
-        }).then((res:any) => {
-            console.log( res)
-        }).catch((err:any) => {
+        }).then((res: any) => {
+            console.log(res)
+        }).catch((err: any) => {
             console.log(err.message)
         })
     }
@@ -41,7 +40,7 @@ const ConfirmEmail = () => {
                             <q className='text-base text-red-500'>Within 7 days if you do not confirm your account will be deleted</q>
                         </p>
                         <p>A verification link has been sent to the following email
-                            <span className='font-bold'>{trainer &&trainer.email}</span>
+                            <span className='font-bold'>{trainer && trainer.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>
