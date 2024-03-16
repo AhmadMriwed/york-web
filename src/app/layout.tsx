@@ -2,9 +2,9 @@
 // import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "rsuite/dist/rsuite.min.css";
-import { GoogleOAuthProvider } from "@react-oauth/google"
+// import { GoogleOAuthProvider } from "@react-oauth/google";
 import StoreProvider from "@/store/adminstore/StoreProvider";
-import { ChakraProvider } from "@chakra-ui/react"
+import { ChakraProvider } from "@chakra-ui/react";
 
 import "./globals.css";
 
@@ -23,14 +23,21 @@ export default function RootLayout({
 }) {
    return (
       <html lang="en">
-         <body className="h-[100vh]">
-            <GoogleOAuthProvider   clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com" >
-               <ChakraProvider  >
-                  <StoreProvider> {children}</StoreProvider>
-               </ChakraProvider>
-            </GoogleOAuthProvider>
+         <head>
+            <meta charSet="UTF-8" />
+            <meta
+               name="viewport"
+               content="width=device-width, initial-scale=1.0"
+            />{" "}
+            <title>York Brititsh Academy</title>
+         </head>
+         <body className="">
+            {/* <GoogleOAuthProvider clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com"> */}
+            <ChakraProvider>
+               <StoreProvider> {children}</StoreProvider>
+            </ChakraProvider>
+            {/* </GoogleOAuthProvider> */}
          </body>
-
       </html>
    );
 }
