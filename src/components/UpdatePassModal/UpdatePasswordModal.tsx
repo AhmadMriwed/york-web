@@ -45,7 +45,7 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                         title: 'Success',
                         description: "you have updated your password successfully.",
                         status: 'success',
-                        duration: 9000,
+                        duration: 3000,
                         isClosable: true,
                         position: "top"
                     })
@@ -130,7 +130,7 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                             title: 'Success',
                             description: "you have updated your password successfully.",
                             status: 'success',
-                            duration: 9000,
+                            duration: 3000,
                             isClosable: true,
                             position: "top"
                         })
