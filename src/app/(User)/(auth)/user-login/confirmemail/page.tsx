@@ -18,9 +18,12 @@ const ConfirmEmail = () => {
             headers: {
                 Authorization: `Bearer ${token} `
             }
-        }).then((res:any) => {
-            console.log(res)
-        }).catch((err:any) => {
+        }).then((res: any) => {
+            if (res.status === 200) {
+                console.log("success", res)
+            }
+
+        }).catch((err: any) => {
             console.log(err.message)
         })
     }
@@ -44,7 +47,7 @@ const ConfirmEmail = () => {
                             <span className='font-bold'> {user && user.email}</span>
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
-                        <div><button className='underline text-bold'  onClick={() => Verify()}> Click here to resend</button></div>
+                        <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>
                         <Link href='/user-login'><button className='colored-btn'>Go To Login</button></Link>
                     </div>
 

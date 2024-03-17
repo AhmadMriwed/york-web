@@ -173,7 +173,7 @@ const TrainerSignupPage = () => {
                     title: 'Account created',
                     description: "we have created your account successfully.",
                     status: 'success',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                     position: "top"
                 })

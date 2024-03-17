@@ -48,7 +48,7 @@ const ResetPassword = () => {
             title: 'Success.',
             description: 'Password reset success',
             status: 'success',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top",
 
@@ -61,7 +61,7 @@ const ResetPassword = () => {
         title: 'Error.',
         description: 'failed to reset password',
         status: 'error',
-        duration: 9000,
+        duration: 3000,
         isClosable: true,
         position: "top"
       })

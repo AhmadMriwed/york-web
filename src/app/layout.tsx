@@ -14,8 +14,7 @@ const montserrat = Montserrat({
    variable: "--font-montserrat",
 });
 
-// clientId="482040382753-v54a1itsndnsfbdptlruls69aoggeg77.apps.googleusercontent.com"
-//
+
 export default function RootLayout({
    children,
 }: {
@@ -23,8 +22,8 @@ export default function RootLayout({
 }) {
    return (
       <html lang="en">
-         <body className="h-[100vh]">
-            <GoogleOAuthProvider   clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com" >
+         <body >
+            <GoogleOAuthProvider clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com" >
                <ChakraProvider  >
                   <StoreProvider> {children}</StoreProvider>
                </ChakraProvider>
