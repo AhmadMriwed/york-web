@@ -165,7 +165,7 @@ const questionTypes = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.questionTypes = state.questionTypes.filter(
-            (questiontype) => questiontype.id !== action.payload.id
+            (questiontype) => questiontype.id !== action.payload.enumId
          );
          state.status = true;
       });

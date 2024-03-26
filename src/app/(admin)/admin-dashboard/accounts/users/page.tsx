@@ -1,8 +1,7 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
-import ModalOperation from "@/components/accounts/roles/ModalOperation";
-import AddTraineeModal from "@/components/accounts/trainees/AddTraineeModal";
+import EditUser from "@/components/accounts/users/EditUser";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
@@ -13,6 +12,7 @@ import {
    getUsersByType,
 } from "@/store/adminstore/slices/accounts/usersSlice";
 import { GlobalState } from "@/types/storeTypes";
+import { useStaticEnums } from "@/utils/useStaticEnums";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,8 +20,7 @@ import { Dropdown, Pagination } from "rsuite";
 
 export default function Users() {
    // pagination config
-   const count = 10;
-   const perPage = 3;
+
    const [activePage, setActivePage] = useState(1);
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
@@ -29,10 +28,12 @@ export default function Users() {
    const [openDelete, setOpenDelete] = useState(false);
    const [filteredUserType, setFilteredUserType] = useState("all");
    const [filteredUserStatus, setFilteredUserStatus] = useState("all");
+   const [term, setTerm] = useState("");
    const [userId, setUserId] = useState<number>(0);
+   const staticEnum = useStaticEnums();
 
    const dispatch: any = useDispatch();
-   const { isLoading, error, users, status } = useSelector(
+   const { isLoading, error, users, status, perPage, total } = useSelector(
       (state: GlobalState) => state.users
    );
 
@@ -71,7 +72,10 @@ export default function Users() {
       {
          id: "status",
          name: "Status",
-         selector: (row: any) => row.status || "",
+         selector: (row: any) =>
+            row.account_status?.status
+               ? row.account_status?.status
+               : "suspended",
          sortable: true,
       },
       {
@@ -137,12 +141,15 @@ export default function Users() {
    ];
 
    useEffect(() => {
-      console.log("re- rendering");
-      dispatch(getUsers(activePage));
-   }, [dispatch, activePage]);
+      dispatch(getUsers({ activePage, term }));
+   }, [dispatch, activePage, term]);
 
    return (
-      <main className="pt-0 overflow-x-auto max-w-full overflow-y-clip relative">
+      <main
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+            total > perPage && "pb-[70px]"
+         }`}
+      >
          {isLoading && <Loading />}
 
          {!isLoading && users.length > 0 && (
@@ -155,31 +162,29 @@ export default function Users() {
                   interfaceName="Users"
                   isThereAdd={false}
                   isLoading={isLoading}
+                  isThereChangeStatus={true}
+                  setTerm={setTerm}
                >
                   <Dropdown
                      className="w-[115px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-                     title={
-                        filteredUserType === "all"
-                           ? "User Type"
-                           : filteredUserType
-                     }
+                     title={"User Type"}
                   >
-                     {filterUserTypeBy.map((filter) => {
+                     {staticEnum.accountTypeEnum.map((filter) => {
                         return (
                            <Dropdown.Item
-                              key={filter.id}
+                              key={filter.value}
                               onClick={() => {
-                                 dispatch(getUsersByType(filter.type));
+                                 dispatch(getUsersByType(filter.value));
                               }}
                               className="text-white capitalize"
                            >
-                              {filter.title}
+                              {filter.label}
                            </Dropdown.Item>
                         );
                      })}
                      <Dropdown.Item
                         onClick={() => {
-                           dispatch(getUsers(activePage));
+                           dispatch(getUsers({ activePage, term }));
                         }}
                         className="text-white capitalize"
                      >
@@ -194,28 +199,38 @@ export default function Users() {
                            : filteredUserStatus
                      }
                   >
-                     {filterUserStatusBy.map((filter) => {
+                     {staticEnum.activateAccount.map((filter) => {
                         return (
                            <Dropdown.Item
-                              key={filter.id}
+                              key={filter.value}
                               className="text-white capitalize"
+                              onClick={() => {}}
                            >
-                              {filter.title}
+                              {filter.label}
                            </Dropdown.Item>
                         );
                      })}
+                     <Dropdown.Item
+                        onClick={() => {
+                           dispatch(getUsers({ activePage, term }));
+                        }}
+                        className="text-white capitalize"
+                     >
+                        All
+                     </Dropdown.Item>
                   </Dropdown>
                </CrudLayout>
-               <Pagination
-                  prev
-                  next
-                  size="sm"
-                  total={count}
-                  limit={perPage}
-                  maxButtons={3}
-                  activePage={activePage}
-                  onChangePage={setActivePage}
-                  className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
+               {total > perPage && (
+                  <Pagination
+                     prev
+                     next
+                     size="sm"
+                     total={total}
+                     limit={perPage}
+                     maxButtons={3}
+                     activePage={activePage}
+                     onChangePage={setActivePage}
+                     className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
                [&>div_.rs-pagination-btn]:!bg-white
                [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
                [&>div_.rs-pagination-btn]:!mx-[5px]
@@ -224,7 +239,8 @@ export default function Users() {
                [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!bg-[var(--primary-color2)]
                [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!text-white
                "
-               />
+                  />
+               )}
             </>
          )}
 
@@ -235,20 +251,8 @@ export default function Users() {
             userType="user"
          />
 
-         <ModalOperation
-            open={openEdit}
-            setOpen={setOpenEdit}
-            requestType="edit"
-            operation="Update"
-            label="Update User data"
-         />
-         {/* <ModalOperation
-            open={openVisible}
-            setOpen={setOpenvisible}
-            requestType="read"
-            operation="visible"
-            label="User Profile"
-         /> */}
+         <EditUser open={openEdit} setOpen={setOpenEdit} id={userId} />
+
          <AlertModal
             open={openDelete}
             setOpen={setOpenDelete}

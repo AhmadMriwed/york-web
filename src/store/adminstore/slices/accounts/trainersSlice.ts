@@ -4,13 +4,16 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getTrainers = createAsyncThunk(
    "trainers/getTrainers",
-   async (page: number, thunkAPI) => {
+   async (
+      { activePage, term }: { activePage: number; term: string },
+      thunkAPI
+   ) => {
       const { rejectWithValue } = thunkAPI;
       try {
          console.log("try");
 
          const res = await Axios.get(
-            `admin/trainerAccountRequests?page=${page}`
+            `admin/trainerAccountRequests?page=${activePage}&term=${term}`
          );
          console.log(res, "trainers");
          if (res.status === 200) {
@@ -67,30 +70,15 @@ export const getTrainersByStatus = createAsyncThunk(
    }
 );
 
-export const getSingleTrainers = createAsyncThunk(
-   "trainers/getSingleTrainers",
-   async (id: any, thunkAPI) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.get(`admin/trainers/${id}`);
-         console.log(res, "trainers get single");
-         if (res.status === 200) {
-            return res.data.data;
-         }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.message);
-      }
-   }
-);
-
 export const createTrainer = createAsyncThunk(
    "trainers/createTrainer",
 
-   async (data, thunkAPI) => {
+   async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
+      console.log("dkjsa");
+
       try {
-         const res = await Axios.post(`admin/trainers`, data);
+         const res = await Axios.post(`trainer/register`, data);
          console.log(res, "trainers insert");
          // if (res.data.success) {
          //    return res.data.data.services;
@@ -146,6 +134,7 @@ const trainers = createSlice({
    name: "trainers",
    initialState: {
       isLoading: false,
+      operationLoading: false,
       error: null,
       status: false,
       perPage: 10,
@@ -209,53 +198,36 @@ const trainers = createSlice({
          state.error = action.payload;
       });
 
-      // get single trainer
-
-      builder.addCase(getSingleTrainers.pending, (state) => {
-         state.error = null;
-         state.isLoading = true;
-      });
-      builder.addCase(getSingleTrainers.fulfilled, (state, action: any) => {
-         state.error = null;
-         state.isLoading = false;
-         console.log(action.payload, "load");
-         state.singleTrainer = action.payload;
-      });
-      builder.addCase(getSingleTrainers.rejected, (state, action: any) => {
-         state.isLoading = false;
-         state.error = action.payload;
-      });
-
       // create a role
 
       builder.addCase(createTrainer.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(createTrainer.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.trainers.push(action.payload);
       });
       builder.addCase(createTrainer.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
       // delete role
       builder.addCase(deleteTrainer.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(deleteTrainer.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.trainers = state.trainers.filter(
             (trainer) => trainer.id !== action.payload.id
          );
          state.status = true;
       });
       builder.addCase(deleteTrainer.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
    },

@@ -125,7 +125,7 @@ export default function RequestTypes() {
 
    return (
       <main
-         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full ${
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
             total > perPage && "pb-[70px]"
          }`}
       >

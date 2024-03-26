@@ -4,11 +4,16 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getUsers = createAsyncThunk(
    "users/getUsers",
-   async (page: number, thunkAPI) => {
+   async (
+      { activePage, term }: { activePage: number; term: string },
+      thunkAPI
+   ) => {
       const { rejectWithValue } = thunkAPI;
       try {
          console.log("try");
-         const res = await Axios.get(`admin/accounts?page=${page}`);
+         const res = await Axios.get(
+            `admin/accounts?page=${activePage}&term=${term}`
+         );
          console.log(res, "users");
          if (res.status === 200) {
             return {
@@ -21,6 +26,10 @@ export const getUsers = createAsyncThunk(
                   res.data.admins.meta.total +
                   res.data.trainers.meta.total +
                   res.data.users.meta.total,
+               perPage:
+                  res.data.admins.meta.per_page +
+                  res.data.trainers.meta.per_page +
+                  res.data.users.meta.per_page,
             };
          }
       } catch (error: any) {
@@ -91,6 +100,7 @@ const users = createSlice({
    name: "users",
    initialState: {
       isLoading: false,
+      operationLoading: false,
       error: null,
       status: false,
       perPage: 10,
@@ -142,32 +152,32 @@ const users = createSlice({
 
       builder.addCase(createUser.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(createUser.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.users.push(action.payload);
       });
       builder.addCase(createUser.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
       // delete role
       builder.addCase(deleteUser.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(deleteUser.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.users = state.users.filter(
             (user) => user.id !== action.payload.id
          );
          state.status = true;
       });
       builder.addCase(deleteUser.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
    },

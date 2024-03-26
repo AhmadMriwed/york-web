@@ -1,7 +1,7 @@
 import { Modal, Button, InputPicker, Dropdown, Input } from "rsuite";
 import { ThemeContext } from "../../Pars/ThemeContext";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import * as yup from "yup";
 import CustomInput from "@/components/Pars/CustomInput";
 import CustomPassword from "@/components/Pars/CustomPassword";
@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 import Loading from "@/components/Pars/Loading";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
+import mergeDifferentProperties from "@/utils/mergeDifferentProperties";
 
 interface ModalType {
    open: boolean;
@@ -69,24 +70,12 @@ export default function AddSupervisorModal({
       error,
       roles,
    } = useSelector((state: GlobalState) => state.roles);
-   const {
-      isLoading,
-
-      singleUser,
-   } = useSelector((state: GlobalState) => state.singleUser);
+   const { isLoading, singleUser } = useSelector(
+      (state: GlobalState) => state.singleUser
+   );
    const { status: operationStatus } = useSelector(
       (state: GlobalState) => state.supervisors
    );
-
-   function mergeDifferentProperties(obj1: any, obj2: any) {
-      let result: any = {};
-      for (let key in obj2) {
-         if (!(key in obj1) || obj1[key] !== obj2[key]) {
-            result[key] = obj2[key];
-         }
-      }
-      return result;
-   }
 
    const addSupervisorHandler = (values: any, actions: any) => {
       console.log("submitted");
@@ -108,11 +97,7 @@ export default function AddSupervisorModal({
          formData.append(key, data[key]);
       });
       console.log(formData);
-      dispatch(updateSupervisor({ id, data: data }));
-   };
-
-   const handleSelect = (eventKey: any, event: any) => {
-      console.log(`You selected ${eventKey}`);
+      dispatch(updateSupervisor({ id, data: formData }));
    };
 
    useEffect(() => {
@@ -260,7 +245,6 @@ export default function AddSupervisorModal({
                            name="status"
                            className="w-full bg-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-white [&>button.rs-btn:focus]:!text-[#888] [&>*]:!text-left mb-[10px] hover:text-[#888] !blur-none"
                            block
-                           onSelect={() => handleSelect}
                         >
                            <Dropdown.Item
                               onClick={() => {
@@ -304,7 +288,7 @@ export default function AddSupervisorModal({
                         </label>
 
                         <Input
-                           placeholder="add a cause for the status"
+                           placeholder="Enter an image"
                            name="image"
                            type="file"
                            onChange={(value, e: any) => {

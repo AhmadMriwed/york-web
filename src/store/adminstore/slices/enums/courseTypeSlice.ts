@@ -165,7 +165,7 @@ const courseTypes = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.courseTypes = state.courseTypes.filter(
-            (couresType) => couresType.id !== action.payload.id
+            (couresType) => couresType.id !== action.payload.enumId
          );
          state.status = true;
       });

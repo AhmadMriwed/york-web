@@ -3,12 +3,12 @@ import { baseURL } from "./api";
 import Cookie from "universal-cookie";
 
 const cookie = new Cookie();
-// const token = cookie.get("");
+let token = cookie.get("admin_token");
 
 export const Axios = axios.create({
-  baseURL: baseURL,
-  headers: {
-    Authorization: `Bearer 8|vo1rULsHKY0HLmXuAMtoBIOjF2WSZRGihrumzZtj520d1bae`,
-    // Cookie: "cookiesession1=678B28FFUVWXYZABCDFGHIJKLMNO80B0",
-  },
+   baseURL: baseURL,
+   headers: {
+      Authorization: `Bearer ${token}`,
+      // Cookie: "cookiesession1=678B28FFUVWXYZABCDFGHIJKLMNO80B0",
+   },
 });

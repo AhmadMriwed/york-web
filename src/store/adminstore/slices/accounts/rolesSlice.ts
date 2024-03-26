@@ -7,12 +7,17 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getRoles = createAsyncThunk(
    "roles/getRoles",
-   async (page: number, thunkAPI) => {
+   async (
+      { activePage, term }: { activePage: number; term: string },
+      thunkAPI
+   ) => {
       const { rejectWithValue } = thunkAPI;
       try {
          console.log("try to get all");
 
-         const res = await Axios.get(`admin/roles?page=${page}`);
+         const res = await Axios.get(
+            `admin/roles?page=${activePage}&term=${term}`
+         );
          console.log(res, "roles");
          if (res.status === 200) {
             return {
@@ -23,7 +28,7 @@ export const getRoles = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message || "network error");
       }
    }
 );
@@ -39,7 +44,7 @@ export const getRolesAsMenue = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message || "network error");
       }
    }
 );
@@ -56,7 +61,7 @@ export const createRole = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message || "network error");
       }
    }
 );
@@ -73,7 +78,7 @@ export const updateRole = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message || "network error");
       }
    }
 );
@@ -91,7 +96,7 @@ export const deleteRole = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message || "network error");
       }
    }
 );
@@ -100,6 +105,8 @@ const roles = createSlice({
    name: "roles",
    initialState: {
       isLoading: false,
+      operationLoading: false,
+
       perPage: 10,
       total: 1,
       error: null,
@@ -153,51 +160,54 @@ const roles = createSlice({
 
       builder.addCase(createRole.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(createRole.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.roles.unshift(action.payload);
          state.status = true;
       });
       builder.addCase(createRole.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
+         state.status = true;
       });
 
       // create a role
 
       builder.addCase(updateRole.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(updateRole.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.status = true;
       });
       builder.addCase(updateRole.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
+         state.status = true;
       });
 
       // delete role
       builder.addCase(deleteRole.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(deleteRole.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.roles = state.roles.filter(
             (role) => role.id !== action.payload.id
          );
          state.status = true;
       });
       builder.addCase(deleteRole.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
+         state.status = true;
       });
    },
 });

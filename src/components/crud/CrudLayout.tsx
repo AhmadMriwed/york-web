@@ -6,11 +6,12 @@ import React, {
    useMemo,
    useState,
 } from "react";
-import DataTable from "react-data-table-component";
+import DataTable, { createTheme } from "react-data-table-component";
 import { Dropdown, Loader } from "rsuite";
 import CrudHeader from "./CrudHeader";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { useDispatch } from "react-redux";
+import ExportImportContainer from "./ExportImportContainer";
 
 interface CrudLayoutType {
    columns: any;
@@ -18,24 +19,32 @@ interface CrudLayoutType {
    openAdd: boolean;
    setOpenAdd: any;
    isLoading: boolean;
+
+   setTerm: any;
+   isThereChangeStatus?: boolean;
    dataTabel?: any;
    isThereAdd?: boolean;
    children?: ReactNode;
    action?: any;
    factor?: "user_id" | "id";
+   withImportExport?: boolean;
+   totalItems?: number;
 }
 
 export default function CrudLayout({
    columns,
    interfaceName,
-   openAdd,
    setOpenAdd,
    dataTabel,
    isLoading,
    isThereAdd,
    children,
    action,
-   factor,
+   factor = "id",
+   isThereChangeStatus,
+   setTerm,
+   withImportExport,
+   totalItems,
 }: CrudLayoutType) {
    const [selectedRowsIds, setSelectedRowsIds] = useState([]);
    const [toggleCleared, setToggleCleared] = useState(false);
@@ -63,31 +72,37 @@ export default function CrudLayout({
       };
       return (
          <div className="flex items-center gap-3 flex-wrap px-3">
-            <Dropdown
-               className="bg-[var(--primary-color1)] [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-[var(--primary-color1)] [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-[var(--primary-color2)] [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-               title="Change Status"
-            >
-               <Dropdown.Item
-                  className="text-white capitalize"
-                  onClick={() =>
-                     dispatch(
-                        action({ status: "Accepted", ids: selectedRowsIds })
-                     )
-                  }
+            {withImportExport && (
+               <ExportImportContainer ids={selectedRowsIds} />
+            )}
+            {isThereChangeStatus && (
+               <Dropdown
+                  className="bg-[var(--primary-color1)] [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-[var(--primary-color1)] [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-[var(--primary-color2)] [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
+                  title="Change Status"
                >
-                  Accepted
-               </Dropdown.Item>
-               <Dropdown.Item
-                  className="text-white capitalize"
-                  onClick={() =>
-                     dispatch(
-                        action({ status: "Rejected", ids: selectedRowsIds })
-                     )
-                  }
-               >
-                  Rejected
-               </Dropdown.Item>
-            </Dropdown>
+                  <Dropdown.Item
+                     className="text-white capitalize"
+                     onClick={() =>
+                        dispatch(
+                           action({ status: "Accepted", ids: selectedRowsIds })
+                        )
+                     }
+                  >
+                     Accepted
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                     className="text-white capitalize"
+                     onClick={() =>
+                        dispatch(
+                           action({ status: "Rejected", ids: selectedRowsIds })
+                        )
+                     }
+                  >
+                     Rejected
+                  </Dropdown.Item>
+               </Dropdown>
+            )}
+
             <button
                key="delete"
                onClick={handleDelete}
@@ -97,7 +112,13 @@ export default function CrudLayout({
             </button>
          </div>
       );
-   }, [selectedRowsIds, action, dispatch]);
+   }, [
+      selectedRowsIds,
+      action,
+      dispatch,
+      isThereChangeStatus,
+      withImportExport,
+   ]);
 
    const customStyles = {
       rows: {
@@ -105,11 +126,6 @@ export default function CrudLayout({
             color: mode === "dark" ? "#dadee7" : "#13181e",
             backgroundColor: mode === "dark" ? "#13181e" : "transparent",
             borderColor: "#777",
-         },
-      },
-      columns: {
-         style: {
-            // minWidth: "100px",
          },
       },
       cells: {
@@ -120,7 +136,6 @@ export default function CrudLayout({
             color: mode === "dark" ? "#dadee7" : "#13181e",
             minWidth: "100px",
             fontSize: "16px",
-            // backgroundColor: mode === "dark" ? "#0a0a0a" : "transparent",
          },
       },
       headCells: {
@@ -134,14 +149,47 @@ export default function CrudLayout({
       },
    };
 
+   createTheme(
+      "solarized",
+      {
+         text: {
+            primary: "#268bd2",
+            secondary: "#2aa198",
+         },
+         background: {
+            default: "#220109",
+         },
+         context: {
+            background: "#212a34",
+            text: "#FFFFFF",
+         },
+         divider: {
+            default: "#073642",
+         },
+         button: {
+            default: "#2aa198",
+            hover: "rgba(0,0,0,.08)",
+            focus: "rgba(255,255,255,.12)",
+            disabled: "rgba(255, 255, 255, .34)",
+         },
+         sortFocus: {
+            default: "#2aa198",
+         },
+      },
+      "dark"
+   );
+
    return (
-      <main className="h-full [&>div:first-child]:!p-0 [&>div:first-child]:!overflow-visible [&>div:first-child_div:last-child]:!z-20  mb-[100px]">
+      <main className="h-full [&>div:first-child]:!p-0 [&>div:first-child]:!overflow-visible [&>div:first-child_div:last-child]:!z-20 pb-5">
          <DataTable
             title={
                <CrudHeader
                   crudName={interfaceName}
                   setOpen={setOpenAdd}
                   isThereAdd={isThereAdd}
+                  setTerm={setTerm}
+                  withImportExport={withImportExport}
+                  totalItems={totalItems}
                >
                   {children}
                </CrudHeader>
@@ -152,13 +200,13 @@ export default function CrudLayout({
             selectableRows
             progressPending={isLoading}
             progressComponent={<Loader size="lg" />}
-            className="pb-10"
             contextActions={contextActions}
             onSelectedRowsChange={handleRowSelected}
             clearSelectedRows={toggleCleared}
+            className="pb-5"
             striped
             responsive
-            theme={mode === "dark" ? "dark" : "defualt"}
+            theme={mode === "dark" ? "solarized" : "defualt"}
             keyField={"user_id"}
          />
       </main>

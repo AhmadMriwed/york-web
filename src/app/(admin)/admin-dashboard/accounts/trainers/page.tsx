@@ -5,6 +5,7 @@ import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddTrainerModal from "@/components/accounts/trainers/AddTrainerModal";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
+import { useStaticEnums } from "@/utils/useStaticEnums";
 import CrudLayout from "@/components/crud/CrudLayout";
 import {
    changeTrainerStatus,
@@ -18,30 +19,26 @@ import { GlobalState } from "@/types/storeTypes";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Dropdown } from "rsuite";
+import { Dropdown, Pagination } from "rsuite";
 
 export default function Trainers() {
-   // pagination config
-   const count = 10;
-   const perPage = 3;
    const [activePage, setActivePage] = useState(1);
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
    const [openDelete, setOpenDelete] = useState(false);
-   const [filteredUserType, setFilteredUserType] = useState("all");
-   const [filteredUserStatus, setFilteredUserStatus] = useState("all");
+   const [term, setTerm] = useState("");
    const [userId, setUserId] = useState<number>(0);
-
-   const { isLoading, error, trainers, status } = useSelector(
+   const staticEnums = useStaticEnums();
+   const { isLoading, error, trainers, status, total, perPage } = useSelector(
       (state: GlobalState) => state.trainers
    );
 
    const dispatch: any = useDispatch();
 
    useEffect(() => {
-      dispatch(getTrainers(activePage));
-   }, [dispatch, activePage]);
+      dispatch(getTrainers({ activePage, term }));
+   }, [dispatch, activePage, term]);
 
    const columns = [
       {
@@ -73,12 +70,15 @@ export default function Trainers() {
 
       {
          name: "Status",
-         selector: (row: any) => row.status,
+         selector: (row: any) =>
+            row.account_status?.status
+               ? row.account_status?.status
+               : "suspended",
          sortable: true,
       },
       {
          name: "Trainer Type",
-         selector: (row: any) => row.account_type,
+         selector: (row: any) => row.trainer_type,
          sortable: true,
       },
       {
@@ -103,33 +103,13 @@ export default function Trainers() {
       },
    ];
 
-   const filterUserTypeBy = [
-      {
-         id: 1,
-         title: "Certificate",
-         type: 1,
-      },
-      {
-         id: 2,
-         title: "Uncertificate",
-         type: 2,
-      },
-   ];
-   const filterUserStatusBy = [
-      {
-         id: 1,
-         title: "Accepted",
-         status: "Accepted",
-      },
-      {
-         id: 2,
-         title: "Rejected",
-         status: "Rejected",
-      },
-   ];
-
    return (
-      <main className="pt-0 overflow-x-auto overflow-y-clip max-w-full">
+      <main
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+            total > perPage && "pb-[70px]"
+         }`}
+      >
+         {" "}
          {isLoading && <Loading />}
          {!isLoading && (
             <CrudLayout
@@ -140,69 +120,65 @@ export default function Trainers() {
                interfaceName="Trainers"
                isThereAdd={true}
                isLoading={isLoading}
-               factor="id"
                action={changeTrainerStatus}
+               isThereChangeStatus={true}
+               setTerm={setTerm}
             >
                {" "}
                <Dropdown
                   className="w-[127px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-                  title={
-                     filteredUserType === "all"
-                        ? "Trainer Type"
-                        : filteredUserType
-                  }
+                  title={"Trainer Type"}
                >
-                  {filterUserTypeBy.map((filter) => {
+                  {staticEnums.entityTypesEnum.map((filter) => {
                      return (
                         <Dropdown.Item
-                           key={filter.id}
+                           key={filter.value}
                            className="text-white capitalize"
                            onClick={() =>
-                              dispatch(getTrainersByType(filter.type))
+                              dispatch(
+                                 getTrainersByType(
+                                    filter.value === "certificated" ? 1 : 2
+                                 )
+                              )
                            }
                         >
-                           {filter.title}
+                           {filter.label}
                         </Dropdown.Item>
                      );
                   })}
                   <Dropdown.Item
                      className="text-white capitalize"
-                     onClick={() => dispatch(getTrainers(activePage))}
+                     onClick={() => dispatch(getTrainers({ activePage, term }))}
                   >
                      All
                   </Dropdown.Item>
                </Dropdown>
                <Dropdown
                   className="w-[127px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-                  title={
-                     filteredUserStatus === "all"
-                        ? "Trainer Status"
-                        : filteredUserStatus
-                  }
+                  title={"Trainer Status"}
                >
-                  {filterUserStatusBy.map((filter) => {
+                  {staticEnums.statusEnum.map((filter) => {
                      return (
                         <Dropdown.Item
-                           key={filter.id}
+                           key={filter.value}
                            className="text-white capitalize"
                            onClick={() =>
-                              dispatch(getTrainersByStatus(filter.status))
+                              dispatch(getTrainersByStatus(filter.value))
                            }
                         >
-                           {filter.title}
+                           {filter.label}
                         </Dropdown.Item>
                      );
                   })}
                   <Dropdown.Item
                      className="text-white capitalize"
-                     onClick={() => dispatch(getTrainers(activePage))}
+                     onClick={() => dispatch(getTrainers({ activePage, term }))}
                   >
                      All
                   </Dropdown.Item>
                </Dropdown>
             </CrudLayout>
          )}
-
          <AddTrainerModal
             open={openAdd}
             setOpen={setOpenAdd}
@@ -226,7 +202,27 @@ export default function Trainers() {
             deleteAction={deleteTrainer}
             label="Are you sure you want to delete the selected trainer ?"
          />
-
+         {total > perPage && (
+            <Pagination
+               prev
+               next
+               size="sm"
+               total={total}
+               limit={perPage}
+               maxButtons={3}
+               activePage={activePage}
+               onChangePage={setActivePage}
+               className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
+               [&>div_.rs-pagination-btn]:!bg-white
+               [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn]:!mx-[5px]
+               [&>div_.rs-pagination-btn]:!rounded-[50%]
+               [&>div_.rs-pagination-btn]:!border-none
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!bg-[var(--primary-color2)]
+               [&>div_.rs-pagination-btn.rs-pagination-btn-active]:!text-white
+               "
+            />
+         )}
          <ShowUserProfileModal
             open={openVisible}
             setOpen={setOpenvisible}

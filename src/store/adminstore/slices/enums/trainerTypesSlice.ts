@@ -169,8 +169,9 @@ const trainerTypes = createSlice({
       builder.addCase(deleteTrainerType.fulfilled, (state, action: any) => {
          state.error = null;
          state.operationLoading = false;
+         console.log("delete", action.payload.enumId);
          state.trainerTypes = state.trainerTypes.filter(
-            (trainerType) => trainerType.id !== action.payload.id
+            (trainerType) => trainerType.id !== action.payload.enumId
          );
          state.status = true;
       });

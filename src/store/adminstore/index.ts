@@ -11,31 +11,47 @@ import singleUser from "./slices/accounts/singleUserSlice";
 import singleRole from "./slices/accounts/singleRoleSlice";
 import userSlice from "../userStore/slices/userSlice";
 import trainerSlice from "../trainerStore/slices/trainerSlice";
-// import requestTypes from "./slices/enums/requestTypesSlice";
-// import venues from "./slices/enums/venuesSlice";
 import sessions from "./slices/sessions/trainingSessionsSlice";
 import singleCourse from "./slices/courses/singleCourseSlice";
 import joinedUsers from "./slices/sessions/joinedUsersSlice";
 import attendanceRequests from "./slices/sessions/attendanceRequestsSlice";
+import mailbox from "./slices/mailbox/mailboxSlice";
+import requestTypes from "./slices/enums/requestTypesSlice";
+import venues from "./slices/enums/venuesSlice";
+import files from "./slices/mailbox/fileSlice";
+import categories from "./slices/enums/categoriesSlice";
+import examTypes from "./slices/enums/examTypesSlice";
+import trainerTypes from "./slices/enums/trainerTypesSlice";
+import questionTypes from "./slices/enums/questionTypesSlice";
+import singleEnum from "./slices/enums/singleEnumSlice";
+import courseTypes from "./slices/enums/courseTypeSlice";
 
 export default configureStore({
-  reducer: {
-    authSlice,
-    permissions,
-    roles,
-    supervisors,
-    trainees,
-    trainers,
-    users,
-    singleUser,
-    singleRole,
-    userSlice,
-    trainerSlice,
-    // requestTypes,
-    // venues,
-    sessions: sessions,
-    joinedUsers: joinedUsers,
-    attendanceRequests: attendanceRequests,
-    singleCourse: singleCourse,
-  },
+   reducer: {
+      authSlice,
+      permissions,
+      roles,
+      supervisors,
+      trainees,
+      trainers,
+      users,
+      singleUser,
+      singleRole,
+      mailbox,
+      files,
+      requestTypes,
+      venues,
+      categories,
+      examTypes,
+      trainerTypes,
+      questionTypes,
+      singleEnum,
+      courseTypes,
+      userSlice,
+      trainerSlice,
+      sessions: sessions,
+      joinedUsers: joinedUsers,
+      attendanceRequests: attendanceRequests,
+      singleCourse: singleCourse,
+   },
 });

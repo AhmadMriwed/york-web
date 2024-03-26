@@ -17,12 +17,19 @@ import { getLocation } from "@/store/userStore/slices/userSlice";
 interface ModalType {
    open: boolean;
    setOpen: any;
+   position?: any;
+   setPosition?: any;
+   setLocation?: any;
 }
 
-export default function LocationModal({ open, setOpen }: ModalType) {
-
+export default function LocationModal({
+   open,
+   setOpen,
+   position,
+   setPosition,
+   setLocation,
+}: ModalType) {
    function LocationMarker() {
-      const [position, setPosition] = useState<any>([34.802, 38.996]);
       const defaultIcon = L.icon({
          iconUrl: markerIcon.src,
          iconSize: [35, 41],
@@ -35,7 +42,6 @@ export default function LocationModal({ open, setOpen }: ModalType) {
          },
       });
       console.log("position", position);
-
 
       return position === null ? null : (
          <Marker position={position} icon={defaultIcon}>
@@ -50,7 +56,14 @@ export default function LocationModal({ open, setOpen }: ModalType) {
    }
 
    return (
-      <Modal open={open} onClose={() => setOpen(false)} size="md">
+      <Modal
+         open={open}
+         onClose={() => {
+            setOpen(false);
+            setLocation();
+         }}
+         size="md"
+      >
          <Modal.Header>
             <Modal.Title>Location</Modal.Title>
          </Modal.Header>

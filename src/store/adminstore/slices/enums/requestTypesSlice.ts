@@ -209,7 +209,7 @@ const requestTypes = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.requestTypes = state.requestTypes.filter(
-            (requestType) => requestType.id !== action.payload.id
+            (requestType) => requestType.id !== action.payload.enumId
          );
          state.status = true;
       });

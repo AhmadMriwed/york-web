@@ -1,9 +1,12 @@
-import { CategoriesState } from "@/types/adminTypes/enums/enumsTypes";
+import {
+   CategoriesState,
+   EnumType1,
+} from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getCategories = createAsyncThunk(
-   "venues/getCategories",
+   "categories/getCategories",
    async (
       { activePage, term }: { activePage: number; term: string },
       thunkAPI
@@ -21,6 +24,24 @@ export const getCategories = createAsyncThunk(
                perPage: res.data.meta?.per_page || 10,
                total: res.data.meta?.total || 0,
             };
+         }
+      } catch (error: any) {
+         console.error("Error:", error);
+         return rejectWithValue(error.message);
+      }
+   }
+);
+
+export const getCategoriesAsMenue = createAsyncThunk(
+   "categories/getCategoriesAsMenue",
+   async (_, thunkAPI) => {
+      const { rejectWithValue } = thunkAPI;
+      try {
+         const res = await Axios.get("admin/category");
+
+         console.log("res category", res);
+         if (res.status === 200) {
+            return res.data.data;
          }
       } catch (error: any) {
          console.error("Error:", error);
@@ -96,6 +117,7 @@ const categories = createSlice({
       perPage: 10,
       total: 1,
       categories: [],
+      categoriesAsMenue: [],
    } as CategoriesState,
 
    reducers: {
@@ -117,6 +139,24 @@ const categories = createSlice({
          state.total = action.payload.total;
       });
       builder.addCase(getCategories.rejected, (state, action: any) => {
+         state.isLoading = false;
+         state.error = action.payload;
+      });
+
+      // get all request types as menue
+      builder.addCase(getCategoriesAsMenue.pending, (state) => {
+         state.error = null;
+         state.isLoading = true;
+      });
+      builder.addCase(getCategoriesAsMenue.fulfilled, (state, action: any) => {
+         state.error = null;
+         state.isLoading = false;
+         const types: EnumType1[] = action.payload;
+         state.categoriesAsMenue = types.map((type) => {
+            return { label: type.title, value: type.id };
+         });
+      });
+      builder.addCase(getCategoriesAsMenue.rejected, (state, action: any) => {
          state.isLoading = false;
          state.error = action.payload;
       });
@@ -163,7 +203,7 @@ const categories = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.categories = state.categories.filter(
-            (category) => category.id !== action.payload.id
+            (category) => category.id !== action.payload.enumId
          );
          state.status = true;
       });

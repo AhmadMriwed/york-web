@@ -15,6 +15,7 @@
       "@emotion/styled": "^11.11.0",
       "@reduxjs/toolkit": "^2.0.1",
       "@rsuite/icons": "^1.0.3",
+      "@syncfusion/ej2-react-inputs": "^25.1.35",
       "@types/leaflet": "^1.9.8",
       "axios": "^1.6.5",
       "formik": "^2.4.5",

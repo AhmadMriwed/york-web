@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
 import { Sidenav, Nav } from "rsuite";
-import ExitIcon from "@rsuite/icons/Exit"; // logout icons
 import Link from "next/link";
 import { ThemeContext } from "./ThemeContext";
 import { MdOutlineMarkunreadMailbox } from "react-icons/md";
@@ -39,22 +38,26 @@ const Sidebar = () => {
    const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
       useContext(ThemeContext);
 
+   const accountType = "Admin";
+
    useEffect(() => {
-      const handleResize = () => {
-         if (window.innerWidth < 786) {
-            setExpanded(false);
-         } else {
-            setExpanded(true);
-         }
-      };
+      if (typeof window !== "undefined") {
+         const handleResize = () => {
+            if (window.innerWidth < 786) {
+               setExpanded(false);
+            } else {
+               setExpanded(true);
+            }
+         };
 
-      window.addEventListener("resize", handleResize);
+         window.addEventListener("resize", handleResize);
 
-      handleResize();
+         handleResize();
 
-      return () => {
-         window.removeEventListener("resize", handleResize);
-      };
+         return () => {
+            window.removeEventListener("resize", handleResize);
+         };
+      }
    }, []);
 
    const coursesMenue = [
@@ -167,30 +170,31 @@ const Sidebar = () => {
 
    return (
       <aside
-         className={`${expanded ? "w-[220px]" : "w-fit"
-            } transition-transform duration-[1s] min-h-screen h-fit sticky top-0 left-0 col-start-1 row-span-2 `}
+         className={`${
+            expanded ? "w-[200px]" : "w-fit"
+         } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
       >
          <Image
             src={"/logo.png"}
             alt=""
-            width={90}
-            height={90}
-            className={`max-w-[130px] mx-auto mt-2 hidden md:block ${expanded ? "!block" : "!hidden"
-               } transition-all duration-500 `}
+            width={expanded ? 90 : 50}
+            height={expanded ? 90 : 50}
+            className={`max-w-[130px] mx-auto mt-2 `}
          />
 
+         {expanded && (
+            <p className="px-2 mx-3 my-4 text-center">
+               Welcome To {accountType} Dashboard
+            </p>
+         )}
+
          <Sidenav
-            className={`${mode === "dark" ? "!bg-dark" : "!bg-light"
-               } !mt-[10px] transition-all duration-500 !text-inherit`}
+            className={`!bg-inherit !mt-[10px] transition-all duration-500 !text-inherit`}
             expanded={expanded}
+            // appearance="subtle"
          >
-            <Sidenav.Body
-               className={`${mode === "dark" ? "!bg-dark" : "!bg-light"} `}
-            >
-               <Nav
-                  activeKey="1"
-                  className={`${mode === "dark" ? "!bg-dark" : "!bg-light"} `}
-               >
+            <Sidenav.Body className="bg-inherit">
+               <Nav activeKey="1" className="bg-inherit">
                   <Nav.Item
                      eventKey="1"
                      icon={
@@ -203,7 +207,7 @@ const Sidebar = () => {
                            }}
                         />
                      }
-                     className="!bg-transparent !py-[10px] !text-[14px] btn"
+                     className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
                      as={NavLink}
                      href="/admin-dashboard"
                   >
@@ -221,7 +225,7 @@ const Sidebar = () => {
                            }}
                         />
                      }
-                     className="!bg-inherit !py-[10px] !text-[14px]"
+                     className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
                      as={NavLink}
                      href="/admin-dashboard/mailbox"
                   >
@@ -240,24 +244,14 @@ const Sidebar = () => {
                            }}
                         />
                      }
-                     className=" !text-inherit !bg-inherit [&>*]:!bg-inherit [&>*]:!text-[14px] [&>*]:!text-inherit"
+                     className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
                   >
                      {coursesMenue.map((item) => {
                         return (
                            <Nav.Item
                               key={item.id}
                               eventKey={`3-${item.id}`}
-                              icon={
-                                 <PiStudentLight
-                                    style={{
-                                       position: "absolute",
-                                       top: "8px",
-                                       left: "33px",
-                                       fontSize: "16px",
-                                    }}
-                                 />
-                              }
-                              className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px]"
+                              className="!py-[5px] transition-all duration-500 !bg-inherit hover:translate-x-2 text-[13px]"
                               as={NavLink}
                               href={`/admin-dashboard/courses/${item.url}`}
                            >
@@ -320,6 +314,7 @@ const Sidebar = () => {
                      icon={
                         <GrCertificate
                            style={{
+                              display: "inline",
                               position: "absolute",
                               top: "18px",
                               left: "20px",
@@ -327,24 +322,14 @@ const Sidebar = () => {
                            }}
                         />
                      }
-                     className="!text-inherit !bg-inherit [&>.rs-dropdown-menu]:!sticky  [&>*]:!bg-inherit [&>*]:!text-[14px] [&>*]:!text-inherit"
+                     className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
                   >
                      {certificationsMenue.map((item) => {
                         return (
                            <Nav.Item
                               key={item.id}
                               eventKey={`7-${item.id}`}
-                              icon={
-                                 <GrCertificate
-                                    style={{
-                                       position: "absolute",
-                                       top: "8px",
-                                       left: "33px",
-                                       fontSize: "16px",
-                                    }}
-                                 />
-                              }
-                              className="!py-[5px] !bg-inherit transition-all duration-500 hover:translate-x-2 text-[13px] "
+                              className="!py-[5px] !bg-inherit transition-all duration-500 hover:translate-x-2  text-[13px] "
                            >
                               {item.title}
                            </Nav.Item>
@@ -365,23 +350,13 @@ const Sidebar = () => {
                               }}
                            />
                         }
-                        className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>*]:!bg-inherit [&>*]:!text-[14px] [&>*]:!text-inherit"
+                        className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
                      >
                         {accountsMenue.map((item) => {
                            return (
                               <Nav.Item
                                  key={item.id}
                                  eventKey={`8-${item.id}`}
-                                 icon={
-                                    <MdManageAccounts
-                                       style={{
-                                          position: "absolute",
-                                          top: "8px",
-                                          left: "33px",
-                                          fontSize: "16px",
-                                       }}
-                                    />
-                                 }
                                  className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                                  as={NavLink}
                                  href={`/admin-dashboard/accounts/${item.url}`}
@@ -406,23 +381,13 @@ const Sidebar = () => {
                               }}
                            />
                         }
-                        className=" !text-inherit [&>.rs-dropdown-menu]:!sticky  !bg-inherit [&>*]:!bg-inherit [&>*]:!text-[14px] [&>*]:!text-inherit"
+                        className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
                      >
                         {enumsMenue.map((item) => {
                            return (
                               <Nav.Item
                                  key={item.id}
                                  eventKey={`9-${item.id}`}
-                                 icon={
-                                    <VscSymbolEnum
-                                       style={{
-                                          position: "absolute",
-                                          top: "8px",
-                                          left: "33px",
-                                          fontSize: "16px",
-                                       }}
-                                    />
-                                 }
                                  className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                                  as={NavLink}
                                  href={`/admin-dashboard/enums/${item.url}`}
@@ -446,11 +411,11 @@ const Sidebar = () => {
                            }}
                         />
                      }
-                     className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>*]:!bg-inherit [&>*]:!text-[14px] [&>*]:!text-inherit"
+                     className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
                   >
                      <Nav.Item
                         eventKey="10-1"
-                        className=" !py-[5px] !text-[14px]"
+                        className=" !py-[5px] !text-[14px] hover:translate-x-2 duration-300 trainsition-all pb-1"
                         icon={
                            <MdLanguage
                               style={{
@@ -458,6 +423,7 @@ const Sidebar = () => {
                                  top: "8px",
                                  left: "33px",
                                  fontSize: "16px",
+                                 display: expanded ? "block" : "none",
                               }}
                            />
                         }
@@ -466,7 +432,7 @@ const Sidebar = () => {
                      </Nav.Item>
                      <Nav.Item
                         eventKey="10-2"
-                        className=" !py-[5px] !text-[14px]"
+                        className=" !py-[5px] !text-[14px] hover:translate-x-2 duration-300 trainsition-all pb-1"
                         icon={
                            mode === "dark" ? (
                               <MdOutlineLightMode
@@ -475,6 +441,7 @@ const Sidebar = () => {
                                     top: "8px",
                                     left: "33px",
                                     fontSize: "16px",
+                                    display: expanded ? "block" : "none",
                                  }}
                               />
                            ) : (
@@ -484,6 +451,7 @@ const Sidebar = () => {
                                     top: "8px",
                                     left: "33px",
                                     fontSize: "16px",
+                                    display: expanded ? "block" : "none",
                                  }}
                               />
                            )
@@ -494,7 +462,7 @@ const Sidebar = () => {
                      </Nav.Item>
                      <Nav.Item
                         eventKey="10-3"
-                        className=" !py-[5px] !text-[14px]"
+                        className=" !py-[5px] !text-[14px] hover:translate-x-2 duration-300 trainsition-all pb-1"
                         icon={
                            <CiLogout
                               style={{
@@ -502,6 +470,7 @@ const Sidebar = () => {
                                  top: "8px",
                                  left: "33px",
                                  fontSize: "16px",
+                                 display: expanded ? "block" : "none",
                               }}
                            />
                         }

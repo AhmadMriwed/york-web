@@ -1,4 +1,3 @@
-
 // Permissions Type
 export interface PermissionsType {
    name: string;
@@ -18,6 +17,7 @@ export interface RolesType {
 
 export interface RolesState {
    isLoading: boolean;
+   operationLoading: boolean;
    error: null | any;
    total: number;
    perPage: number;
@@ -28,7 +28,7 @@ export interface RolesState {
 export interface SingleRoleState {
    isLoading: boolean;
    error: null | any;
-   status: boolean;
+   singleRoleIds: any[];
    singleRole: {
       id: null | number;
       name: string;
@@ -60,6 +60,7 @@ export interface SupervisorsType {
 export interface SupervisorsState {
    isLoading: boolean;
    error: null | any;
+   operationLoading: boolean;
    total: number;
    perPage: number;
    status: boolean;
@@ -69,9 +70,9 @@ export interface SupervisorsState {
 
 //admin Type
 export interface AdminType {
-   loading:Boolean,
-   error:null|any,
-   admin:any
+   loading: Boolean;
+   error: null | any;
+   admin: any;
 }
 // Trainers Type
 
@@ -87,6 +88,8 @@ export interface TrainersType {
 export interface TrainersState {
    isLoading: boolean;
    error: null | any;
+   operationLoading: boolean;
+
    status: boolean;
    total: number;
    perPage: number;
@@ -96,23 +99,25 @@ export interface TrainersState {
 export interface AdminState {
    loading: boolean;
    error: null | any;
-   loadingPass:boolean;
-   errorPass:null|any;
-   msg:string
-   admin:null|AdminTypee
-  
+   loadingPass: boolean;
+   errorPass: null | any;
+   msg: string;
+   admin: null | UsersType;
+   adminProfile: null | UsersType;
+   profileLoading: boolean;
+   profileError: null | any;
 }
 
-export interface AdminTypee{
+export interface AdminTypee {
    email: string;
    first_name: string;
    id: number;
    is_verified: boolean;
    last_name: string;
-   language:null|string;
+   language: null | string;
    user_id: number;
    account_type: string;
-   access_token:string
+   access_token: string;
 }
 
 // Trainees Type
@@ -129,6 +134,8 @@ export interface TraineesType {
 export interface TraineesState {
    isLoading: boolean;
    error: null | any;
+   operationLoading: boolean;
+
    total: number;
    perPage: number;
    trainees: TraineesType[];
@@ -138,8 +145,20 @@ export interface TraineesState {
 // Users Types
 
 export interface UsersType {
-   account_status: null | string;
+   account_status: null | {
+      id: number;
+      cause: null;
+      changed_at: string;
+      created_at: string;
+
+      status: string;
+      trainer_id: number;
+      updated_at: string;
+   };
    account_type: string;
+   job_type: string | null;
+   birth_date: string | null;
+   about_me: string | null;
    email: string;
    first_name: string;
    id: number;
@@ -156,10 +175,11 @@ export interface UsersType {
    user_name: string;
 }
 
-
 export interface UsersState {
    isLoading: boolean;
    error: null | any;
+   operationLoading: boolean;
+
    total: number;
    perPage: number;
    status: boolean;

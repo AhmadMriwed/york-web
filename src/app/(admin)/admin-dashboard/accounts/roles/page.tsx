@@ -1,6 +1,7 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
@@ -11,7 +12,7 @@ import {
 } from "@/store/adminstore/slices/accounts/rolesSlice";
 import { RolesState } from "@/types/adminTypes/accounts/accountsTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from "rsuite";
 
@@ -21,16 +22,33 @@ const Roles = () => {
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
    const [openDelete, setOpenDelete] = useState(false);
-   const [roleId, setRoleId] = useState<number>();
+   const [term, setTerm] = useState("");
 
-   const { isLoading, error, roles, status, perPage, total }: RolesState =
-      useSelector((state: GlobalState) => state.roles);
+   const [roleId, setRoleId] = useState<number>();
+   const messageOperation: string =
+      (openAdd && "adding") ||
+      (openEdit && "updating") ||
+      (openDelete && "deleting") ||
+      "";
+
+   const {
+      isLoading,
+      error,
+      roles,
+      status,
+      perPage,
+      total,
+      operationLoading,
+   }: RolesState = useSelector((state: GlobalState) => state.roles);
 
    const dispatch: any = useDispatch();
 
    useEffect(() => {
-      dispatch(getRoles(activePage));
-   }, [dispatch, activePage]);
+      dispatch(getRoles({ activePage, term }));
+   }, [dispatch, activePage, term]);
+
+   console.log("term", term);
+   console.log("roles", roles.length);
 
    const columns = [
       {
@@ -65,10 +83,21 @@ const Roles = () => {
       },
    ];
 
+   // const searchFire = () => {
+   //    console.log("term :", term.current.value);
+   // };
+
+   // && roles.length > 0
+
    return (
-      <main className="pt-0 overflow-x-auto max-w-full overflow-y-clip">
+      <main
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+            total > perPage && "pb-[70px]"
+         }`}
+      >
+         {" "}
          {isLoading && <Loading />}
-         {!isLoading && roles.length > 0 && (
+         {!isLoading && (
             <>
                <CrudLayout
                   columns={columns}
@@ -78,6 +107,8 @@ const Roles = () => {
                   setOpenAdd={setOpenAdd}
                   isThereAdd={true}
                   isLoading={isLoading}
+                  setTerm={setTerm}
+                  totalItems={total}
                />
 
                {total > perPage && (
@@ -121,7 +152,6 @@ const Roles = () => {
             roleId={roleId}
             operationStatus={status}
          />
-
          <ModalOperation
             open={openVisible}
             setOpen={setOpenvisible}
@@ -129,6 +159,16 @@ const Roles = () => {
             operation="visible"
             label="Role"
             roleId={roleId}
+         />
+         <OperationAlert
+            status={status}
+            error={error}
+            messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
+            messageOnSuccess={`Role has been ${messageOperation} successfully`}
+            completedAction={completedRoleOperation}
+            closeAdd={setOpenAdd}
+            closeEdit={setOpenEdit}
+            closeDelete={setOpenDelete}
          />
          <AlertModal
             open={openDelete}

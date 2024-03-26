@@ -26,9 +26,9 @@ const singleRole = createSlice({
    initialState: {
       isLoading: false,
       error: null,
-      status: false,
+      singleRoleIds: [],
       singleRole: {},
-   } as SingleRoleState,
+   } as unknown as SingleRoleState,
 
    reducers: {},
 
@@ -42,7 +42,13 @@ const singleRole = createSlice({
          state.error = null;
          state.isLoading = false;
          state.singleRole = action.payload;
-         state.status = true;
+         const ids: any[] = [];
+         state.singleRole.role_permissions.map((role) => {
+            role.permissions.map((per) => {
+               ids.push(per.id);
+            });
+         });
+         state.singleRoleIds = ids;
       });
       builder.addCase(getSingleRole.rejected, (state, action: any) => {
          state.isLoading = false;

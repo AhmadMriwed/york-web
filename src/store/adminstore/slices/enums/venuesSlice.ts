@@ -70,14 +70,14 @@ export const createVenue = createAsyncThunk(
 
 export const deleteVenue = createAsyncThunk(
    "venues/deleteVenue",
-   async (id: number, thunkAPI) => {
+   async (enumId: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/venue/${id}`);
+         const res = await Axios.delete(`admin/venue/${enumId}`);
 
          console.log("res venu delete", res);
          if (res.status === 200) {
-            return { data: res.data, id };
+            return { data: res.data, enumId };
          }
       } catch (error: any) {
          console.error("Error:", error);
@@ -164,7 +164,7 @@ const venues = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.venues = state.venues.filter(
-            (venu) => venu.id !== action.payload.id
+            (venu) => venu.id !== action.payload.enumId
          );
          state.status = true;
       });

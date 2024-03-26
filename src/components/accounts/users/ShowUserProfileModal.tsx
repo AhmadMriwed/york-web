@@ -86,7 +86,9 @@ export default function ShowUserProfileModal({
          {
             key: 8,
             title: "Account Status : ",
-            value: singleUser.account_status,
+            value: singleUser.account_status
+               ? singleUser.account_status.status
+               : "",
          },
          {
             key: 9,

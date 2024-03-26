@@ -83,6 +83,7 @@ const trainees = createSlice({
    name: "trainees",
    initialState: {
       isLoading: false,
+      operationLoading: false,
       error: null,
       perPage: 10,
       total: 1,
@@ -131,31 +132,31 @@ const trainees = createSlice({
 
       builder.addCase(createTrainee.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(createTrainee.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.trainees.push(action.payload);
       });
       builder.addCase(createTrainee.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
       // delete role
       builder.addCase(deleteTrainee.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(deleteTrainee.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.trainees = state.trainees.filter(
             (trainee) => trainee.id !== action.payload.id
          );
       });
       builder.addCase(deleteTrainee.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
    },

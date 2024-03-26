@@ -12,7 +12,7 @@ import ModalNote from "../notification/ModalNote";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdOutlineDarkMode } from "react-icons/md";
 
-const Topbar = () => {
+const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
    const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
       useContext(ThemeContext);
 
@@ -21,14 +21,16 @@ const Topbar = () => {
 
    return (
       <header
-         className={`${
-            mode === "light" ? "bg-[#e1e0f0]" : "bg-[#020d2b]"
-         } col-span-1 row-span-1 gap-2  py-[10px] px-[20px] flex items-center justify-between flex-wrap relative`}
+         className={`bg-[#86858526] col-span-1 row-span-1 gap-2  py-[6px] px-[20px] flex items-center justify-between flex-wrap relative`}
       >
          <div>
             <input
                placeholder="Search"
-               className="rounded-[20px] py-2 px-3 w-[200px] sm:w-[300px] bg-white border-none outline-none"
+               className={`rounded-[20px] border border-white pe-2 ps-3 py-[6px] w-[200px] sm:w-[300px] ${
+                  mode === "dark"
+                     ? " bg-[#1d2127] text-white"
+                     : "bg-white text-[#656565]"
+               }  outline-none`}
             />
          </div>
          <div className="flex items-center gap-4 mr-2">
@@ -75,7 +77,11 @@ const Topbar = () => {
                />
             </button>
          </div>
-         <Drawer expanded={expanded} setExpanded={setExpanded} />
+         <Drawer
+            expanded={expanded}
+            setExpanded={setExpanded}
+            setOpenProfile={setOpenProfile}
+         />
       </header>
    );
 };

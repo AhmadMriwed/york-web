@@ -1,16 +1,21 @@
 "use client";
-import { Nav, Sidenav } from "rsuite";
+import { Loader, Nav, Sidenav } from "rsuite";
 import ExitIcon from "@rsuite/icons/Exit"; // logout icons
 import Link from "next/link";
-import { Ref, forwardRef, useContext } from "react";
+import { Ref, forwardRef, useContext, useEffect } from "react";
 import Image from "next/image";
-import profile from "../../../public/avatar.png";
 import { ThemeContext } from "./ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
-import { adminLogOut } from "@/store/adminstore/slices/authSlice";
+import {
+   adminLogOut,
+   getAdminProfile,
+} from "@/store/adminstore/slices/authSlice";
 import Cookies from "universal-cookie";
 import { useRouter } from "next/navigation";
+import { GlobalState } from "@/types/storeTypes";
+import Loading from "./Loading";
+import { storageURL } from "@/utils/api";
 
 interface NavLinkProps {
    as: string;
@@ -26,44 +31,64 @@ const NavLink = forwardRef(
 
 NavLink.displayName = "NavLink";
 
-
 export default function Drawer({
    expanded,
    setExpanded,
+   setOpenProfile,
 }: {
    expanded: boolean;
    setExpanded: any;
+   setOpenProfile: any;
 }) {
    const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
       useContext(ThemeContext);
-   const { error, loading, admin } = useSelector((state: any) => state.authSlice)
-   console.log(error, loading, admin)
-   const dispatch: any = useDispatch()
-   const router = useRouter()
+   const {
+      error,
+      loadingPass,
+      loading,
+      admin,
+      adminProfile,
+      profileLoading,
+      profileError,
+   } = useSelector((state: GlobalState) => state.authSlice);
+   const dispatch: any = useDispatch();
+   const router = useRouter();
+
    const HandleLogOut = () => {
-      let cookie = new Cookies()
-      let token = cookie.get("admin_token")
-      console.log(token)
+      let cookie = new Cookies();
+
+      let token = cookie.get("admin_token");
+      console.log(token);
+
       try {
-         dispatch(adminLogOut(token)).then((res:any) => {
-            console.log(res)
-            if(res.error){
-               console.log("some thing went wrong")
-               return
-            }else{
-               router.push("/")
+         dispatch(adminLogOut(token)).then((res: any) => {
+            console.log(res);
+            if (res.error) {
+               console.log("some thing went wrong");
+               return;
+            } else {
+               router.push("/");
             }
-            
-         })
+         });
       } catch (error: any) {
-         console.log(error.mesage)
+         console.log(error.mesage);
       }
-   }
+   };
+
+   useEffect(() => {
+      if (expanded) {
+         let cookie = new Cookies();
+         let token = cookie.get("admin_token");
+         dispatch(getAdminProfile(token));
+      }
+   }, [expanded, dispatch]);
    return (
       <aside
-         className={`${expanded ? "block" : "hidden"} ${mode === "dark" ? "!bg-dark" : "!bg-light"
-            } ${mode === "dark" ? "!text-light" : "!text-dark"
-            } absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
+         className={`${expanded ? "block" : "hidden"} ${
+            mode === "dark" ? "!bg-dark" : "!bg-light"
+         } ${
+            mode === "dark" ? "!text-light" : "!text-dark"
+         } absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
       >
          <Sidenav
             className="!bg-inherit !text-inherit !mt-[10px] transition-all duration-500"
@@ -75,37 +100,60 @@ export default function Drawer({
                className="[&>.rs-sidenav-toggle-button]:!float-left !bg-inherit [&>*]:!text-inherit !border-none [&>*]:!bg-transparent"
             ></Sidenav.Toggle>
             <Sidenav.Body className="!text-inherit">
-               <div>
-                  <div className="flex justify-between px-3 gap-2 items-center">
-                     <p className="text-[14px] text-[#bbb] m-0">
-                        Accounts : Admin
-                     </p>
-                     <p className="text-[14px] text-[#777] m-0">
-                        User ID : 12345678
-                     </p>
+               {profileLoading && (
+                  <div className="h-[100px] element-center">
+                     <Loader />
                   </div>
-                  <div className="flex items-center gap-2 text-inherit justify-center mt-[25px]">
-                     <Image
-                        src={profile}
-                        alt="profile image"
-                        width={60}
-                        height={60}
-                        className="rounded-[50%]"
-                     />
-                     <div className="">
-                        <p className="text-[22px] text-[#bbb]">Hussam Ahmad</p>
-                        <p className="text-[14px] text-[#777] mt-[2px]">
-                           hussamAhmad@gmail.com
+               )}
+               {!profileLoading && adminProfile && (
+                  <div>
+                     <div className="flex justify-between px-3 gap-2 items-center">
+                        <p className="text-[14px] text-[#bbb] m-0">
+                           Accounts : {adminProfile.account_type}
+                        </p>
+                        <p className="text-[14px] text-[#777] m-0">
+                           User ID : {adminProfile.user_id}
                         </p>
                      </div>
+                     <div className="flex items-center gap-2 text-inherit justify-center mt-[25px]">
+                        {adminProfile.image !== null &&
+                        adminProfile.image.startsWith("http") ? (
+                           <Image
+                              src={adminProfile.image}
+                              alt="profile image"
+                              width={60}
+                              height={60}
+                              className="rounded-[50%]"
+                           />
+                        ) : (
+                           <Image
+                              src={storageURL + adminProfile.image}
+                              alt="profile image"
+                              width={60}
+                              height={60}
+                              className="rounded-[50%]"
+                           />
+                        )}
+
+                        <div className="">
+                           <p className="text-[22px] text-[#bbb]">
+                              {adminProfile.first_name +
+                                 " " +
+                                 adminProfile.last_name}
+                           </p>
+                           <p className="text-[14px] text-[#777] mt-[2px]">
+                              {adminProfile.email}
+                           </p>
+                        </div>
+                     </div>
                   </div>
-               </div>
+               )}
+
                <Nav className="mt-[50px] !text-inherit">
                   <Nav.Item
                      eventKey="1"
                      className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]  "
-                     as={NavLink}
-                     href="/"
+                     onClick={() => setOpenProfile(true)}
                   >
                      Profile
                   </Nav.Item>
@@ -145,15 +193,19 @@ export default function Drawer({
                      </Nav.Item>
                   </Nav.Menu>{" "}
                   <hr className="mt-[70px] mb-[30px] w-[calc(100%_-_40px)] border-[#777] mx-auto" />
-                  <Nav.Item
+                  <button
                      onClick={HandleLogOut}
-                     eventKey="5"
-                     className="!bg-transparent text-center  !text-inherit !py-[10px] !text-[14px] !w-fit !left-[50%] translate-x-[-50%]"
-                     icon={<ExitIcon style={{ top: "11px" }} />}
-                     style={{ marginInline: "auto !important" }}
+                     className="text-center w-full hover:text-[var(--primary-color2)] transition-all duration-500"
                   >
-                     {loading ? <Spinner size={"sm"} color="red" /> : " Log out"}
-                  </Nav.Item>
+                     {loadingPass ? (
+                        <Spinner size={"sm"} color="red" />
+                     ) : (
+                        <>
+                           <ExitIcon />{" "}
+                           <span className="ms-[2px]">Log out</span>
+                        </>
+                     )}
+                  </button>
                </Nav>
             </Sidenav.Body>
          </Sidenav>

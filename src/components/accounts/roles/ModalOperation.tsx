@@ -43,15 +43,19 @@ const OperationContent = ({
    permissions,
    requestType,
    handleChecked,
-   singleRole,
 }: {
    isLoading: boolean;
    permissions: PermissionsType[];
 
    requestType: "create" | "read" | "edit";
-   singleRole?: SingleRoleState;
    handleChecked?: any;
 }) => {
+   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
+   const { singleRoleIds }: SingleRoleState = useSelector(
+      (state: GlobalState) => state.singleRole
+   );
+
    return (
       <div className="flex mt-5 gap-[20px] flex-wrap ">
          {isLoading && <Loading />}
@@ -61,7 +65,9 @@ const OperationContent = ({
                return (
                   <div
                      key={permission.name}
-                     className="border border-[#3c417c] min-w-[280px] rounded-[6px] min-h-[255px] pe-2"
+                     className={`border border-[#3c417c] min-w-[280px] rounded-[6px] min-h-[255px] pe-2 ${
+                        mode === "dark" ? "bg-inherit" : "bg-white"
+                     }`}
                   >
                      <h3 className="ms-[10px] text-[18px]">
                         {permission.name}
@@ -88,6 +94,9 @@ const OperationContent = ({
                                              permission.id
                                           );
                                        }}
+                                       defaultChecked={singleRoleIds.includes(
+                                          permission.id
+                                       )}
                                     >
                                        {" "}
                                        {permission.name}
@@ -131,7 +140,7 @@ export default function ModalOperation({
    operationStatus,
 }: ModalType) {
    const [permissionsIds, setPermissionsIds] = useState<any[]>([]);
-   const [singleRoleIds, setSingleRoleIds] = useState<any[]>();
+   const [deletedRolesIds, setDeletedRolesIds] = useState<any[]>([]);
    const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
    const dispatch: any = useDispatch();
 
@@ -142,24 +151,31 @@ export default function ModalOperation({
    const {
       isLoading: roleLoading,
       error: roleError,
-
       singleRole,
+      singleRoleIds,
    }: SingleRoleState = useSelector((state: GlobalState) => state.singleRole);
+
+   const { operationLoading, status } = useSelector(
+      (state: GlobalState) => state.roles
+   );
 
    const submithandler = async (values: any, actions: any) => {
       const data = { name: values.name, permissions_ids: permissionsIds };
-      console.log("data from create", data);
-
       dispatch(createRole(data));
    };
 
    const editRoleHandler = () => {
-      console.log("clicked edit");
+      let deleted_permissions_ids = deletedRolesIds;
 
-      let deleted_permissions_ids = singleRoleIds?.filter(
-         (id) => !permissionsIds.includes(id)
+      const combinedArray = singleRoleIds.concat(permissionsIds);
+
+      const newPermissionsIds = combinedArray.filter(
+         (id) => !deletedRolesIds.includes(id)
       );
-      let new_permissions_ids = permissionsIds;
+
+      console.log(newPermissionsIds, "newPermissionsIds");
+
+      let new_permissions_ids = newPermissionsIds;
 
       const data = {
          name: singleRole.name,
@@ -175,24 +191,34 @@ export default function ModalOperation({
             return [...prev, id];
          });
       } else {
-         const newPermissions = permissionsIds.filter(
-            (permId) => permId !== id && permId
-         );
-         setPermissionsIds(newPermissions);
+         if (singleRoleIds.includes(id)) {
+            setDeletedRolesIds((prev: number[]) => {
+               return [...prev, id];
+            });
+         } else {
+            const newPermissions = permissionsIds.filter(
+               (permId) => permId !== id && permId
+            );
+            setPermissionsIds(newPermissions);
+         }
       }
    };
 
-   console.log(permissionsIds);
+   console.log("new permissions Ids", permissionsIds);
+   console.log("single role Ids", singleRoleIds);
+   console.log("deleted Role Ids", deletedRolesIds);
 
    useEffect(() => {
       if (open) {
          if (requestType === "create") {
             setPermissionsIds([]);
+
             dispatch(getPermissions());
          } else if (requestType === "read") {
             dispatch(getSingleRole(roleId));
          } else if (requestType === "edit") {
             setPermissionsIds([]);
+            setDeletedRolesIds([]);
             dispatch(getPermissions());
             dispatch(getSingleRole(roleId));
          }
@@ -206,25 +232,13 @@ export default function ModalOperation({
       }
    }, [operationStatus, dispatch, setOpen, open]);
 
-   useEffect(() => {
-      if (requestType === "edit" && singleRole.name) {
-         const ids: any[] = [];
-         singleRole.role_permissions.map((role) => {
-            role.permissions.map((per) => {
-               ids.push(per.id);
-            });
-         });
-         setSingleRoleIds(ids);
-      }
-   }, [requestType, singleRole.role_permissions, singleRole.name]);
-
-   console.log("role ids", singleRoleIds);
-
    return (
       <Modal
          backdrop={true}
          open={open}
-         onClose={() => setOpen(false)}
+         onClose={() => {
+            setOpen(false);
+         }}
          className={`[&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] w-[calc(1000px)] h-auto ${
             mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
          }`}
@@ -282,9 +296,14 @@ export default function ModalOperation({
                                  you have to check / un check fields exept the
                                  old checked fields
                               </p>
+                              {props.errors.name && props.touched.name && (
+                                 <div className="pl-[5px] ml-[10px] mt-2 mb-[10px] text-red-600">
+                                    {props.errors.name}
+                                 </div>
+                              )}
                               <Button
                                  type="submit"
-                                 className="w-fit py-[6px] px-[25px] text-center rounded-[6px] text-white bg-[#3c417c]"
+                                 className="w-fit py-[6px] px-[25px] text-center rounded-[6px] text-white bg-btnColor hover:bg-btnColor"
                               >
                                  {operation}
                               </Button>

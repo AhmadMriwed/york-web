@@ -5,61 +5,24 @@ import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
 import { getTrainees } from "@/store/adminstore/slices/accounts/traineeSlice";
 import { GlobalState } from "@/types/storeTypes";
+import { useStaticEnums } from "@/utils/useStaticEnums";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Dropdown } from "rsuite";
 
 export default function Trainees() {
-   const basicData = [
-      {
-         id: "1",
-         name: "super 1",
-         email: "role1@gmail.com",
-         photo: "----",
-         status: "active",
-         userType: "client",
-      },
-      {
-         id: "2",
-         name: "super 2",
-         email: "role2@gmail.com",
-         photo: "----",
-         status: "inactive",
-         userType: "Trainee",
-      },
-
-      {
-         id: "4",
-         name: "super 1",
-         email: "role1@gmail.com",
-         photo: "----",
-         status: "inactive",
-         userType: "client",
-      },
-      {
-         id: "5",
-         name: "super 2",
-         email: "role2@gmail.com",
-         photo: "----",
-         status: "active",
-         userType: "Trainee",
-      },
-   ];
-
    const [openAdd, setOpenAdd] = useState(false);
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
    const [openDelete, setOpenDelete] = useState(false);
-   const [data, setData] = useState(basicData);
-   const [filteredUserType, setFilteredUserType] = useState("all");
    const [filteredUserStatus, setFilteredUserStatus] = useState("all");
+   const [term, setTerm] = useState("");
+   const staticEnum = useStaticEnums();
 
    const { isLoading, error, trainees } = useSelector(
       (state: GlobalState) => state.trainees
    );
-
-   console.log(trainees);
 
    const columns = [
       {
@@ -87,7 +50,10 @@ export default function Trainees() {
 
       {
          name: "Status",
-         selector: (row: any) => row.account_status,
+         selector: (row: any) =>
+            row.account_status?.status
+               ? row.account_status?.status
+               : "suspended",
          sortable: true,
       },
       {
@@ -108,21 +74,6 @@ export default function Trainees() {
       },
    ];
 
-   const filterUserTypeBy = [
-      {
-         id: 1,
-         title: "client",
-      },
-      {
-         id: 2,
-         title: "trainee",
-      },
-
-      {
-         id: 4,
-         title: "all",
-      },
-   ];
    const filterUserStatusBy = [
       {
          id: 1,
@@ -137,20 +88,6 @@ export default function Trainees() {
          title: "all",
       },
    ];
-
-   const handleFilteration = (
-      statusFilterFactor: string,
-      typeFilterFactor: string
-   ) => {
-      const filterdData = basicData.filter(
-         (row) =>
-            (statusFilterFactor === "all" ||
-               row.status.toLowerCase() === statusFilterFactor.toLowerCase()) &&
-            (typeFilterFactor === "all" ||
-               row.userType.toLowerCase() === typeFilterFactor.toLowerCase())
-      );
-      setData(filterdData);
-   };
 
    const dispatch: any = useDispatch();
 
@@ -167,36 +104,35 @@ export default function Trainees() {
             interfaceName="Trainees"
             isThereAdd={true}
             isLoading={isLoading}
+            isThereChangeStatus={true}
+            setTerm={setTerm}
          >
             {" "}
             <Dropdown
                className="w-[125px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left"
-               title={
-                  filteredUserType === "all" ? "Trainee Type" : filteredUserType
-               }
+               title="Trainee Type"
             >
-               {filterUserTypeBy.map((filter) => {
+               {staticEnum.userTypesEnum.map((filter) => {
                   return (
                      <Dropdown.Item
-                        key={filter.id}
-                        onClick={() => {
-                           setFilteredUserType(filter.title);
-                           handleFilteration(filteredUserStatus, filter.title);
-                        }}
+                        key={filter.value}
+                        onClick={() => {}}
                         className="text-white capitalize"
                      >
-                        {filter.title}
+                        {filter.label}
                      </Dropdown.Item>
                   );
                })}
+               <Dropdown.Item
+                  className="text-white capitalize"
+                  onClick={() => dispatch(getTrainees())}
+               >
+                  All
+               </Dropdown.Item>
             </Dropdown>
             <Dropdown
                className="w-[125px] bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left"
-               title={
-                  filteredUserStatus === "all"
-                     ? "Trainee Status"
-                     : filteredUserStatus
-               }
+               title="Trainee Status"
             >
                {filterUserStatusBy.map((filter) => {
                   return (
@@ -204,7 +140,6 @@ export default function Trainees() {
                         key={filter.id}
                         onClick={() => {
                            setFilteredUserStatus(filter.title);
-                           handleFilteration(filter.title, filteredUserType);
                         }}
                         className="text-white capitalize"
                      >

@@ -1,7 +1,6 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
-import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddSupervisorModal from "@/components/accounts/supervisors/AddSupervisorModal";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
@@ -12,6 +11,7 @@ import {
    getSupervisors,
 } from "@/store/adminstore/slices/accounts/supervisorsSlice";
 import { GlobalState } from "@/types/storeTypes";
+import { storageURL } from "@/utils/api";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,8 +24,9 @@ export default function Supervisors() {
    const [openEdit, setOpenEdit] = useState(false);
    const [openVisible, setOpenvisible] = useState(false);
    const [openDelete, setOpenDelete] = useState(false);
-   const [userId, setUserId] = useState<number>(0);
+   const [term, setTerm] = useState("");
 
+   const [userId, setUserId] = useState<number>(0);
    const dispatch: any = useDispatch();
 
    const { isLoading, error, supervisors, status, perPage, total } =
@@ -53,12 +54,23 @@ export default function Supervisors() {
       },
       {
          name: "Photo",
-         selector: (row: any) =>
-            row.image ? (
-               <Image src={row.image} alt="user photo" width={50} height={50} />
-            ) : (
-               "No Image Available"
-            ),
+         selector: (row: any) => {
+            if (row.image === null) {
+               return "no image available";
+            } else {
+               const isUrl = row.image.startsWith("http")
+                  ? row.image
+                  : storageURL + row.image;
+               return (
+                  <Image
+                     src={isUrl}
+                     alt="supervisor photo"
+                     width={50}
+                     height={50}
+                  />
+               );
+            }
+         },
          sortable: true,
       },
       {
@@ -94,12 +106,16 @@ export default function Supervisors() {
    ];
 
    useEffect(() => {
-      dispatch(getSupervisors(activePage));
-   }, [dispatch, activePage]);
+      dispatch(getSupervisors({ activePage, term }));
+   }, [dispatch, activePage, term]);
    return (
-      <main className="pt-0 overflow-x-auto max-w-full overflow-y-clip">
+      <main
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+            total > perPage && "pb-[70px]"
+         }`}
+      >
+         {" "}
          {isLoading && <Loading />}
-
          {!isLoading && supervisors.length > 0 && (
             <>
                <CrudLayout
@@ -108,8 +124,11 @@ export default function Supervisors() {
                   openAdd={openAdd}
                   setOpenAdd={setOpenAdd}
                   interfaceName="Supervisors"
+                  factor="id"
                   isThereAdd={true}
                   isLoading={isLoading}
+                  isThereChangeStatus={true}
+                  setTerm={setTerm}
                />
 
                {total > perPage && (
@@ -135,7 +154,6 @@ export default function Supervisors() {
                )}
             </>
          )}
-
          <AddSupervisorModal
             open={openAdd}
             setOpen={setOpenAdd}
@@ -143,7 +161,6 @@ export default function Supervisors() {
             label="Add Supervisor"
             operation="Add"
          />
-
          <AddSupervisorModal
             open={openEdit}
             setOpen={setOpenEdit}
@@ -152,14 +169,12 @@ export default function Supervisors() {
             label="Edit Supervisor"
             id={userId}
          />
-
          <ShowUserProfileModal
             open={openVisible}
             setOpen={setOpenvisible}
             id={userId}
             userType="supervisor"
          />
-
          <AlertModal
             open={openDelete}
             setOpen={setOpenDelete}

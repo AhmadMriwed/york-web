@@ -4,12 +4,17 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getSupervisors = createAsyncThunk(
    "supervisors/getSupervisors",
-   async (page: number, thunkAPI) => {
+   async (
+      { activePage, term }: { activePage: number; term: string },
+      thunkAPI
+   ) => {
       const { rejectWithValue } = thunkAPI;
       try {
          console.log("try");
 
-         const res = await Axios.get(`admin/superviosr?page=${page}`);
+         const res = await Axios.get(
+            `admin/superviosr?page=${activePage}&term=${term}`
+         );
          console.log(res, "Supervisors");
 
          if (res.status === 200) {
@@ -107,6 +112,8 @@ const supervisors = createSlice({
    name: "supervisors",
    initialState: {
       isLoading: false,
+      operationLoading: false,
+
       error: null,
       perPage: 10,
       total: 1,
@@ -174,17 +181,17 @@ const supervisors = createSlice({
 
       builder.addCase(createSupervisor.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(createSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.status = true;
 
          // state.supervisors.push(action.payload);
       });
       builder.addCase(createSupervisor.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
 
@@ -192,35 +199,35 @@ const supervisors = createSlice({
 
       builder.addCase(updateSupervisor.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(updateSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.status = true;
 
          // state.supervisors.push(action.payload);
       });
       builder.addCase(updateSupervisor.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
 
       // delete role
       builder.addCase(deleteSupervisor.pending, (state) => {
          state.error = null;
-         state.isLoading = true;
+         state.operationLoading = true;
       });
       builder.addCase(deleteSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
-         state.isLoading = false;
+         state.operationLoading = false;
          state.status = true;
          state.supervisors = state.supervisors.filter(
             (supervisor) => supervisor.id !== action.payload.id
          );
       });
       builder.addCase(deleteSupervisor.rejected, (state, action: any) => {
-         state.isLoading = false;
+         state.operationLoading = false;
          state.error = action.payload;
       });
    },

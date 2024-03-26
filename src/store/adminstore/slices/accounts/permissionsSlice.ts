@@ -1,4 +1,4 @@
-import { PermissionsState } from "@/types/adminTypes/accounts/roles/rolesTypes";
+import { PermissionsState } from "@/types/adminTypes/accounts/accountsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 

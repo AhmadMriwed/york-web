@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Modal, Button, Placeholder } from "rsuite";
+import { Modal, Placeholder } from "rsuite";
 
 export default function ModalNote({
    open,
