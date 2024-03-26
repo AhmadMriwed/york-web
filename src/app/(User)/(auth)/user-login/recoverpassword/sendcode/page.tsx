@@ -27,7 +27,7 @@ const SendCode = () => {
             title: 'Error.',
             description: error,
             status: 'error',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top"
           })
@@ -37,7 +37,7 @@ const SendCode = () => {
             title: 'success',
             description: 'code has been sent successfully',
             status: 'success',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top"
           })

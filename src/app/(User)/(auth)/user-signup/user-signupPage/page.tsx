@@ -49,7 +49,7 @@ const UserSignupPage = () => {
                     title: 'Error',
                     description: "We couldnot create your account.",
                     status: 'error',
-                    duration: 2000,
+                    duration: 3000,
                     isClosable: true,
                     position: "top"
                 })
@@ -60,7 +60,7 @@ const UserSignupPage = () => {
                     title: 'Account created',
                     description: "we have created your account successfully.",
                     status: 'success',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                     position: "top"
                 })

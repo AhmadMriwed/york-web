@@ -1,18 +1,15 @@
 'use client'
 import Image from 'next/image'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, {  useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie'
-import axios, { AxiosError } from 'axios'
-import { baseURL } from '@/utils/api'
 import SplashLoading from '@/components/loading/SplashLoading'
 import Link from 'next/link'
-import { FaGoogle } from "react-icons/fa";
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
-import { Flex, Button, Text, Spinner, useDisclosure } from '@chakra-ui/react'
+import { Flex, Text, Spinner, useDisclosure } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice'
 import { GlobalState } from '@/types/storeTypes'

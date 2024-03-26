@@ -107,7 +107,7 @@ const UserCompleteSignup = () => {
                         title: 'Success',
                         description: "Account is Updated successfully.",
                         status: 'success',
-                        duration: 9000,
+                        duration: 3000,
                         isClosable: true,
                         position: "top"
                     })

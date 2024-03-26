@@ -74,7 +74,7 @@ const SendCode = () => {
             title: 'Success.',
             description: "code has been verified successfully",
             status: 'success',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
             position: "top"
           })

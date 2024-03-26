@@ -92,25 +92,26 @@ const UserLogin = () => {
         return () => clearTimeout(timeoutId);
     }, []);
 
-    useEffect(() => {
-        console.log(cookie.get("user_token"))
-        const token = cookie.get("user_token")
-        if (token !== undefined) {
-            dispatch(getUserProfile(token)).then((res: any) => {
-                console.log(res.payload.is_verified)
-                if (res.payload.is_verified) {
-                    router.push("/")
-                } else {
-                    router.push("/user-login/confirmemail")
-                }
+    // useEffect(() => {
+    //     console.log(cookie.get("user_token"))
+    //     const token = cookie.get("user_token")
+    //     if (token !== undefined) {
+    //         dispatch(getUserProfile(token)).then((res: any) => {
+    //             console.log(res.payload.is_verified)
+    //             if (res.payload.is_verified) {
+    //                 router.push("/")
+    //             } else {
+    //                 router.push("/user-login/confirmemail")
+    //             }
 
 
-            })
-        }
+    //         })
+    //     }
 
-    }, [])
+    // }, [])
 
-
+  
+  
     return (
         <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
             <Image src='/userlogin.png' alt='' fill className='object-cover z-[-1]' />
