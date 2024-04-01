@@ -72,18 +72,17 @@ const SessionSlidebar = () => {
   return (
     <aside
       className={`${
-        expanded ? "w-[220px]" : "w-fit"
-      } transition-transform duration-[1s] min-h-screen h-fit sticky top-0 left-0 col-start-1 row-span-2 `}
+        expanded ? "w-[200px]" : "w-fit"
+      } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
     >
       <Image
         src={"/logo.png"}
         alt=""
-        width={90}
-        height={90}
-        className={`max-w-[130px] mx-auto mt-2 hidden md:block ${
-          expanded ? "!block" : "!hidden"
-        } transition-all duration-500 `}
+        width={expanded ? 90 : 50}
+        height={expanded ? 90 : 50}
+        className={`max-w-[130px] mx-auto mt-2 `}
       />
+
       <div className={`px-3 mt-3 ${expanded ? "!block" : "!hidden"}`}>
         {sessionError || courseError ? (
           <div className="element-center text-[16px] text-red-500 py-2">
@@ -129,18 +128,11 @@ const SessionSlidebar = () => {
       </div>
 
       <Sidenav
-        className={`${
-          mode === "dark" ? "!bg-dark" : "!bg-light"
-        } !mt-[10px] transition-all duration-500 !text-inherit`}
+        className={`!bg-inherit !mt-[10px] transition-all duration-500 !text-inherit`}
         expanded={expanded}
       >
-        <Sidenav.Body
-          className={`${mode === "dark" ? "!bg-dark" : "!bg-light"} `}
-        >
-          <Nav
-            activeKey="1"
-            className={`${mode === "dark" ? "!bg-dark" : "!bg-light"} `}
-          >
+        <Sidenav.Body className="bg-inherit">
+          <Nav activeKey="1" className="bg-inherit">
             <Nav.Item
               eventKey="1"
               icon={
@@ -153,7 +145,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-transparent !py-[10px] !text-[14px] btn"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href={`/admin-dashboard/courses/training-session/session-info/${sessionID}`}
             >
@@ -171,7 +163,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href={`/admin-dashboard/courses/training-session/life-session/${sessionID}`}
             >
@@ -189,7 +181,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href={`/admin-dashboard/courses/training-session/joined-users/${sessionID}`}
             >
@@ -207,7 +199,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href={`/admin-dashboard/courses/training-session/attendance-requests/${sessionID}`}
             >
@@ -225,7 +217,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href=""
             >
@@ -243,7 +235,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href=""
             >
@@ -261,7 +253,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href=""
             >
@@ -279,7 +271,7 @@ const SessionSlidebar = () => {
                   }}
                 />
               }
-              className="!bg-inherit !py-[10px] !text-[14px]"
+              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href=""
             >
