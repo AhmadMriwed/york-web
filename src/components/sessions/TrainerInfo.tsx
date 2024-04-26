@@ -23,11 +23,8 @@ const TrainerInfo = ({ trainer }: any) => {
             `${trainer.id}. ${trainer?.first_name} ${trainer.last_name}`}
         </p>
       </div>
-      <h6 className="mt-3 text-[14px] font-bold flex items-center gap-2">
-        <PiInfo /> About
-      </h6>
 
-      <p className="sm:max-w-[325px] mt-1 text-[12px]">
+      <p className="sm:max-w-[325px] mt-2 text-[12px]">
         {trainer?.about_me && trainer.about_me}
       </p>
       <div className="mt-3 flex gap-2 items-center">

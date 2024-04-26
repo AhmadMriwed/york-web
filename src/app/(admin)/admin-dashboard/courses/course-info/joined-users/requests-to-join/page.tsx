@@ -3,13 +3,14 @@ import React, { useState } from "react";
 
 import Header from "@/components/Pars/Header";
 import CourseRequest from "@/components/courses/CourseRequest";
+import UserRequest from "@/components/courses/UserRequest";
 
-const CourseRequests = () => {
+const RequestsToJoin = () => {
   const [filterBy, setFilterBy] = useState("Current");
 
   return (
     <section className="p-3 sm:p-6">
-      <Header title="Course Requests" />
+      <Header title="Requests to Join" />
       <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-4">
         {["Current", "Rejected", "Accepted"].map((btnName) => (
           <button
@@ -27,11 +28,11 @@ const CourseRequests = () => {
       </div>
       <div className="mt-7 sm:px-11">
         {[1, 2, 3, 4, 5, 6].map((item) => (
-          <CourseRequest key={item} type="courseRequest" />
+          <UserRequest key={item} />
         ))}
       </div>
     </section>
   );
 };
 
-export default CourseRequests;
+export default RequestsToJoin;
