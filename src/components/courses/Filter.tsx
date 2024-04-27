@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import useExpandedState from "@/hooks/useExpandedState";
 
 import { ArrowDownLine } from "@rsuite/icons";
 import { CiFilter, CiSearch } from "react-icons/ci";

@@ -36,7 +36,7 @@ const NavLink = forwardRef(
 
 NavLink.displayName = "NavLink";
 
-const SessionSlidebar = () => {
+const SessionSidebar = () => {
   const [expanded, setExpanded] = useState(true);
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
@@ -289,4 +289,4 @@ const SessionSlidebar = () => {
   );
 };
 
-export default SessionSlidebar;
+export default SessionSidebar;

@@ -1,14 +1,15 @@
 "use client";
 import React, { useRef, useState } from "react";
-
-import Header from "@/components/Pars/Header";
-import MyCourseComp from "@/components/courses/myCourses/MyCourseComp";
-import { InputPicker } from "rsuite";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import Filter from "@/components/courses/courseAds/Filter";
-import Course from "@/components/courses/myCourses/Course";
 import { useRouter } from "next/navigation";
+
 import { CiExport, CiImport } from "react-icons/ci";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+
+import { InputPicker } from "rsuite";
+import Header from "@/components/Pars/Header";
+import MyCourse from "@/components/courses/myCourses/MyCourse";
+import Course from "@/components/courses/myCourses/Course";
+import Filter from "@/components/courses/Filter";
 
 export default function MyCourses() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function MyCourses() {
         btnTitle="Add New Course"
         btnAction={() => router.push("/admin-dashboard/courses/add")}
       />
+
       <div className="my-4 flex flex-wrap items-center gap-2">
         <button className="outlined-btn flex justify-center items-center gap-1">
           <CiImport /> Import
@@ -42,6 +44,7 @@ export default function MyCourses() {
           <CiExport /> Export
         </button>
       </div>
+
       <div className="mt-4 p-3 bg-[#212A34] w-full rounded-lg text-white flex flex-col lg:flex-row gap-4 md:gap-11">
         <div className="border-l border-l-[2px] border-[var(--primary-color1)] pl-2 shrink-0">
           <p className="text-[24px] font-[400]">My Courses</p>
@@ -61,7 +64,7 @@ export default function MyCourses() {
             ref={containerRef}
           >
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-              <MyCourseComp key={item} />
+              <MyCourse key={item} />
             ))}
           </div>
           <button
@@ -80,10 +83,8 @@ export default function MyCourses() {
           </button>
         </div>
       </div>
-      <div className="my-4 element-center bg-gradient-to-b from-[#01395F] to-[#02B5A0] rounded-lg">
-        <Filter />
-      </div>
-      <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 my-4">
+
+      <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-11 mb-6">
         {["Current", "Closed", "Expired"].map((btnName) => (
           <button
             key={btnName}
@@ -98,9 +99,18 @@ export default function MyCourses() {
           </button>
         ))}
       </div>
-      <div className="flex justify-end">
-        <InputPicker data={[]} placeholder="Show by" />
+
+      <div className="flex flex-col sm:flex-row justify-evenly items-end">
+        <div className="">
+          <p className="mb-2 text-[12px] font-[500]">Filter Courses :</p>
+          <InputPicker data={[]} placeholder="Show by" />
+        </div>
+
+        <div className="">
+          <Filter />
+        </div>
       </div>
+
       <div className="my-7 flex flex-col gap-2">
         {[1, 2, 3, 4].map((_, index) => (
           <Course key={index} />

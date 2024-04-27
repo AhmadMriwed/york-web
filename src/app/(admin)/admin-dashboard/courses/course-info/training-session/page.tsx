@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 /* icons */
 import { CiImport, CiExport } from "react-icons/ci";
@@ -149,6 +149,7 @@ const CourseTrainingSession = () => {
           <CiExport /> Export
         </button>
       </div>
+      
       <div>
         <div className="mt-7 border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
           {filteringBtns.map((btnName) => (

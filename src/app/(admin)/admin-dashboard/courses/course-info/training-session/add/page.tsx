@@ -2,14 +2,13 @@
 import React from "react";
 import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
+import { baseURL } from "@/utils/api";
 
-import { FaCameraRetro } from "react-icons/fa";
+import { LuImagePlus } from "react-icons/lu";
 
 import { InputPicker, Uploader } from "rsuite";
-import CustomInput from "@/components/sessions/CustomInput";
+import CustomInput from "@/components/rsuiteInput/CustomInput";
 import Header from "@/components/Pars/Header";
-import { baseURL } from "@/utils/api";
-import { LuImagePlus } from "react-icons/lu";
 
 // Validation Schema
 const courseSessionScehma = yup.object().shape({

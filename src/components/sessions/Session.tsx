@@ -24,7 +24,7 @@ const Session = ({ pickable, session }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
-  const { operationLoading, deleteStatus } = useSelector(
+  const { operationLoading, status } = useSelector(
     (state: GlobalState) => state.sessions
   );
   const dispatch: any = useDispatch();
@@ -92,8 +92,8 @@ const Session = ({ pickable, session }: any) => {
         deleteAction={deleteSession}
         completed={sessionOperationCompleted}
         id={session.id}
-        status={deleteStatus}
-        deleteLoading={operationLoading}
+        status={status}
+        // deleteLoading={operationLoading}
       />
       <div className="flex justify-between gap-2">
         {!pickable && (

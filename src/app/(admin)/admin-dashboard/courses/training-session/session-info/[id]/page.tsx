@@ -30,8 +30,8 @@ import Loading from "@/components/Pars/Loading";
 import BackBtn from "@/components/backbtn/BackBtn";
 import AlertModal from "@/components/Pars/AlertModal";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
 import SessionDetails from "@/components/sessions/SessionDetails";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const SessionInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -40,11 +40,10 @@ const SessionInfo = ({ params }: any) => {
   const router = useRouter();
 
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const {
     operationLoading,
     operationError,
-    deleteStatus,
+    status,
     isLoading,
     otherSessions,
     sessionLoading,
@@ -107,16 +106,16 @@ const SessionInfo = ({ params }: any) => {
         deleteAction={deleteSession}
         completed={sessionOperationCompleted}
         id={sessionInfo?.id}
-        status={deleteStatus}
-        deleteLoading={operationLoading}
-        exitPath="/admin-dashboard/courses/training-session"
+        status={status}
+        // deleteLoading={operationLoading}
+        // exitPath="/admin-dashboard/courses/training-session"
       />
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        failMsg="Oops! There was an error, please try again later."
+      <OperationAlert
+        messageOnSuccess="Success !"
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
       {/* TOP BAR */}
       <div className="flex flex-wrap justify-between items-center my-2">

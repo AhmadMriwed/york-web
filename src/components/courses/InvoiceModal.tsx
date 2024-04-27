@@ -1,12 +1,13 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-
-import { Modal, Uploader } from "rsuite";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import CustomInput from "@/components/sessions/CustomInput";
-import { LuImagePlus } from "react-icons/lu";
 import { baseURL } from "@/utils/api";
+
+import { LuImagePlus } from "react-icons/lu";
+
+import { Modal, Uploader } from "rsuite";
+import CustomInput from "@/components/rsuiteInput/CustomInput";
 
 // Validation Schema
 const invoiceSchema = yup.object().shape({

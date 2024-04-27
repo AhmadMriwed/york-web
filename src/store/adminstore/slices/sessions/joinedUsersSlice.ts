@@ -100,11 +100,13 @@ const joinedUsers = createSlice({
     /* operations */
     operationLoading: false,
     operationError: null,
+    status: false,
   } as joinedUsersState,
 
   reducers: {
     joinedUsersCompleted: (state: joinedUsersState) => {
       state.operationError = null;
+      state.status = false;
     },
   },
 
@@ -146,6 +148,7 @@ const joinedUsers = createSlice({
       .addCase(changeUserStatus.fulfilled, (state, action: any) => {
         state.operationError = null;
         state.operationLoading = false;
+        state.status = true;
         updateStatusForAllArrays(
           state,
           action.payload.ids,
@@ -156,6 +159,7 @@ const joinedUsers = createSlice({
       .addCase(changeUserStatus.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
   },
 });

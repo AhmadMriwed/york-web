@@ -1,9 +1,10 @@
 "use client";
-import { CiExport, CiImport } from "react-icons/ci";
 import { useRouter } from "next/navigation";
 
+import { CiExport, CiImport } from "react-icons/ci";
+
 import CourseAd from "@/components/courses/courseAds/CourseAd";
-import Filter from "@/components/courses/courseAds/Filter";
+import Filter from "@/components/courses/Filter";
 
 const CoursesAds = () => {
   const router = useRouter();

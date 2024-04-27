@@ -1,20 +1,15 @@
-import React, { useState, useContext } from "react";
-import { useRouter } from "next/navigation";
+import React, { useContext } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 
-import { Check, Close, Location, More, Peoples } from "@rsuite/icons";
+import { More } from "@rsuite/icons";
 
 import { Dropdown, IconButton } from "rsuite";
-import CauseModal from "@/components/courses/courseAds/CauseModal";
-import InvoiceModal from "@/components/courses/courseAds/InvoiceModal";
 import Image from "next/image";
 
 import avatar from "@/../public/avatar.png"; //TMP
 
 const CourseUser = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-
-  const router = useRouter();
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -45,8 +40,10 @@ const CourseUser = () => {
               alt=""
               className="rounded-full"
             />
+
             <div>
               <p className="font-bold">77. Ahmad Ebrahim</p>
+
               <div className="mt-1 flex items-center flex-wrap gap-2">
                 <p className="m-0 text-[12px]">0935 476 102</p>
                 <span>|</span>
@@ -55,6 +52,7 @@ const CourseUser = () => {
             </div>
           </div>
         </div>
+
         <div className="flex flex-col justify-between items-end gap-2">
           <div>
             <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
@@ -72,6 +70,7 @@ const CourseUser = () => {
               </Dropdown.Item>
             </Dropdown>
           </div>
+
           <div className="mt-1 flex items-center flex-wrap gap-2">
             <p className="m-0 text-[12px]">Status</p>
             <span>|</span>

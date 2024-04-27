@@ -1,10 +1,12 @@
 import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { RiErrorWarningLine } from "react-icons/ri";
 import { ThemeContext } from "../Pars/ThemeContext";
+
+import { RiErrorWarningLine } from "react-icons/ri";
 
 const ErrorMessage = ({ msg }: { msg: string }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
   const router = useRouter();
 
   return (
@@ -12,9 +14,11 @@ const ErrorMessage = ({ msg }: { msg: string }) => {
       <div className="text-[40px] text-red-500">
         <RiErrorWarningLine />
       </div>
+
       <p className="text-[16px] text-center font-bold">{msg}</p>
+
       <button
-        className={`px-4 py-1 text-[16px] border-[1px] ${
+        className={`px-6 py-1 text-[16px] font-[500] border-[1px] hover:border-[2px] ${
           mode === "dark" ? "border-white" : "border-black"
         } rounded-full`}
         onClick={() => router.back()}

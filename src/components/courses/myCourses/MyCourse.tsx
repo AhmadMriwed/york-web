@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import React from "react";
+import { useRouter } from "next/navigation";
 import { getLocalDate } from "@/utils/dateFuncs";
 
 import { Calendar } from "@rsuite/icons";
@@ -8,10 +8,8 @@ import { CiLocationOn } from "react-icons/ci";
 import Image from "next/image";
 
 import tmpImage from "@/../public/avatar.png";
-import { useRouter } from "next/navigation";
 
-const MyCourseComp = () => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+const MyCourse = () => {
   const router = useRouter();
 
   return (
@@ -68,4 +66,4 @@ const MyCourseComp = () => {
   );
 };
 
-export default MyCourseComp;
+export default MyCourse;

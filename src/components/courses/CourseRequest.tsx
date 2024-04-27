@@ -5,8 +5,8 @@ import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { Location, More, Peoples } from "@rsuite/icons";
 
 import { Dropdown, IconButton } from "rsuite";
-import CauseModal from "@/components/courses/courseAds/CauseModal";
-import InvoiceModal from "@/components/courses/courseAds/InvoiceModal";
+import CauseModal from "@/components/courses/CauseModal";
+import InvoiceModal from "@/components/courses/InvoiceModal";
 import Image from "next/image";
 
 import avatar from "@/../public/avatar.png"; //TMP
@@ -81,6 +81,7 @@ const CourseRequest = ({
               alt=""
               className="rounded-full"
             />
+
             <div>
               <p className="font-bold">22. Ahmad Ebrahim</p>
               <div className="mt-1 flex items-center flex-wrap gap-2">
@@ -93,6 +94,7 @@ const CourseRequest = ({
             </div>
           </div>
         </div>
+
         <div className="flex flex-col justify-between items-end gap-2">
           <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
             <Dropdown.Item
@@ -128,6 +130,7 @@ const CourseRequest = ({
               Reject request
             </Dropdown.Item>
           </Dropdown>
+
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             {type === "courseRequest" ? (
               <>

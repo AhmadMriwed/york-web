@@ -11,15 +11,14 @@ import { GlobalState } from "@/types/storeTypes";
 /* components */
 import Header from "@/components/Pars/Header";
 import SessionOperation from "@/components/sessions/SessionOperation";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const UpdateSession = ({ params }: any) => {
   const { id } = params;
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
-  const { operationLoading, operationError, updateStatus } = useSelector(
+  const { operationLoading, operationError, status } = useSelector(
     (state: GlobalState) => state.sessions
   );
   const { sessionLoading, sessionError, sessionInfo } = useSelector(
@@ -88,14 +87,12 @@ const UpdateSession = ({ params }: any) => {
         operationLoading={operationLoading}
         op="update"
       />
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        successMsg="The session was updated successfully."
-        failMsg="Oops! There was an error, please try again later."
-        status={updateStatus}
+      <OperationAlert
+        messageOnSuccess="The session was updated successfully."
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
     </div>
   );

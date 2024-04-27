@@ -35,6 +35,7 @@ const TrainingPlan = () => {
         btnTitle="Add New Course Ad"
         btnAction={() => router.push("/admin-dashboard/courses/course-ads/add")}
       />
+
       <div className="flex flex-col lg:flex-row justify-center gap-7 mt-7 p-3 sm:p-6 w-full bg-[var(--dark-bg-color)] text-white rounded-md">
         <Image
           src={tmpImage}
@@ -43,6 +44,7 @@ const TrainingPlan = () => {
           height={175}
           className="sm:!min-w-[275px] bg-center bg-cover object-fit rounded-md"
         />
+
         <div className="flex justify-between gap-11">
           <div>
             <p className="text-[16px] sm:text-[22px] font-bold">
@@ -87,6 +89,7 @@ const TrainingPlan = () => {
           </div>
         </div>
       </div>
+
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex justify-between items-center gap-2">
           <p>St: </p>
@@ -109,6 +112,7 @@ const TrainingPlan = () => {
           />
         </div>
       </div>
+
       <div className="mt-6 flex flex-col gap-3">
         {[1, 2, 3, 4].map((item) => (
           <CourseAd key={item} />

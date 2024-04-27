@@ -29,16 +29,14 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import Timer from "@/components/sessions/Timer";
 import SessionState from "@/components/sessions/SessionState";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
 import SessionDetails from "@/components/sessions/SessionDetails";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const LifeSession = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const { id } = params;
   const courseID = 1;
   const router = useRouter();
-
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const {
     isLoading,
@@ -48,6 +46,7 @@ const LifeSession = ({ params }: any) => {
     sessionError,
     sessionInfo,
     operationError,
+    status,
   } = useSelector((state: GlobalState) => state.sessions);
 
   const {
@@ -81,12 +80,12 @@ const LifeSession = ({ params }: any) => {
 
   return (
     <div className="px-2 sm:px-6 py-4">
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        failMsg="Oops! There was an error, please try again later."
+      <OperationAlert
+        messageOnSuccess="Success !"
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
       {/* TOP BAR */}
       <div className="flex flex-wrap justify-between items-center my-2">

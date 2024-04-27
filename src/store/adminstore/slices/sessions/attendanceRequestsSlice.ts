@@ -179,6 +179,7 @@ const attendanceRequests = createSlice({
       .addCase(addAttendant.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // update attendance

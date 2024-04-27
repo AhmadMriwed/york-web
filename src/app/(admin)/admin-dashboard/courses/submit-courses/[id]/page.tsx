@@ -16,7 +16,6 @@ import { CiClock1, CiLocationOn } from "react-icons/ci";
 import { IoLanguage } from "react-icons/io5";
 import { RiProfileLine } from "react-icons/ri";
 import { PiHandbag } from "react-icons/pi";
-import { FaCreditCard } from "react-icons/fa6";
 
 import Header from "@/components/Pars/Header";
 
@@ -26,6 +25,7 @@ const SubmitCourseInfo = () => {
   return (
     <section className="p-3 sm:p-6">
       <Header title="Submit Course Details" />
+
       <div className="mt-4 p-3 sm:p-6 bg-[var(--dark-bg-color)] text-white rounded-md">
         <p className="font-bold">Info Submit Course :</p>
         <div className="flex items-center gap-2 mt-4">
@@ -88,6 +88,7 @@ const SubmitCourseInfo = () => {
           </button>
         </div>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-x-16 sm:gap-y-8 mt-3">
         <div
           className={`p-3 sm:p-6 ${
@@ -143,6 +144,7 @@ const SubmitCourseInfo = () => {
             </p>
           </div>
         </div>
+
         {/* <div>
           <p className="font-bold border-b-[1px]">Invoice :</p>
           <div className="mt-4 p-6 bg-light text-dark w-fit h-fit rounded-xl cursor-pointer">

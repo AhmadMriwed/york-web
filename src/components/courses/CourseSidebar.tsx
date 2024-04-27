@@ -1,31 +1,20 @@
 "use client";
-import Image from "next/image";
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
-import { Sidenav, Nav } from "rsuite";
-import Link from "next/link";
 import { ThemeContext } from "../Pars/ThemeContext";
-import { MdOutlineMarkunreadMailbox } from "react-icons/md";
-import { RiDashboardLine } from "react-icons/ri";
+
 import {
   PiCertificate,
   PiFile,
   PiHouseBold,
   PiInfo,
   PiPen,
-  PiStudentLight,
   PiUsers,
 } from "react-icons/pi";
 import { MdOutlineModelTraining } from "react-icons/md";
-import { MdOutlineAssignment } from "react-icons/md";
-import { GrAnnounce } from "react-icons/gr";
-import { GrCertificate } from "react-icons/gr";
-import { MdManageAccounts } from "react-icons/md";
-import { VscSymbolEnum } from "react-icons/vsc";
-import { CiSettings } from "react-icons/ci";
-import { MdLanguage } from "react-icons/md";
-import { MdOutlineLightMode } from "react-icons/md";
-import { MdOutlineDarkMode } from "react-icons/md";
-import { CiLogout } from "react-icons/ci";
+
+import Link from "next/link";
+import Image from "next/image";
+import { Sidenav, Nav } from "rsuite";
 
 interface NavLinkProps {
   as: string;

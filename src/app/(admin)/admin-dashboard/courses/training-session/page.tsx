@@ -13,7 +13,7 @@ import Session from "@/components/sessions/Session";
 import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const filteringBtns: string[] = ["Current", "Upcoming", "Expired"];
 
@@ -25,10 +25,9 @@ const TrainingSession = () => {
     expiredSessions,
     upcomingSessions,
     operationError,
-    duplicateStatus,
+    status,
   } = useSelector((state: GlobalState) => state.sessions);
   const [filterBy, setFilterBy] = useState<string>("Current");
-  const [duplicateOpen, setDuplicateOpen] = useState<boolean>(false);
   const router = useRouter();
   const dispatch: any = useDispatch();
 
@@ -48,37 +47,31 @@ const TrainingSession = () => {
 
   return (
     <section className="px-2 pt-6 lg:px-6">
-      <ConfirmModal
-        open={duplicateOpen}
-        setOpen={setDuplicateOpen}
-        successMsg="The session was duplicated successfully."
-        failMsg="Oops! There was an error, please try again later."
-        status={duplicateStatus}
+      <OperationAlert
+        messageOnSuccess="The session was duplicated successfully."
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
       <Header
         title="Sessions"
         description="Schedule all your Sessions , edit and track your teaching process."
+        btnTitle="Add New Session"
+        btnAction={() =>
+          router.push("/admin-dashboard/courses/training-session/add")
+        }
       />
-      <div className="flex flex-wrap-reverse gap-2 justify-between items-center mt-7">
-        <div className="flex items-center gap-1">
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiImport /> Import
-          </button>
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiExport /> Export
-          </button>
-        </div>
-        <button
-          className="colored-btn !w-fit"
-          onClick={() =>
-            router.push("/admin-dashboard/courses/training-session/add")
-          }
-        >
-          Add Session
+
+      <div className="flex items-center gap-2 mt-7">
+        <button className="outlined-btn flex justify-center items-center gap-1">
+          <CiImport /> Import
+        </button>
+        <button className="outlined-btn flex justify-center items-center gap-1">
+          <CiExport /> Export
         </button>
       </div>
+
       {error ? (
         <ErrorMessage msg="Oops! There was an error, please try again later." />
       ) : isLoading ? (

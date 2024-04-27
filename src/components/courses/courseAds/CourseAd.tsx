@@ -87,6 +87,7 @@ const CourseAd = () => {
             }}
           />
         </div>
+
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
             Lorem ipsum dolor sit amet
@@ -122,6 +123,7 @@ const CourseAd = () => {
           </div>
         </div>
       </div>
+
       <div className="flex flex-col justify-between items-end">
         <div>
           <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
@@ -166,6 +168,7 @@ const CourseAd = () => {
             </Dropdown.Item>
           </Dropdown>
         </div>
+
         <div className="flex flex-col xl:flex-row gap-1 sm:gap-2">
           <div
             className={`${

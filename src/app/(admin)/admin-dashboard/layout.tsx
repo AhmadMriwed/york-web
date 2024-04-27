@@ -5,7 +5,7 @@ import Topbar from "@/components/Pars/Topbar";
 import { ThemeProvider } from "@/components/Pars/ThemeContext";
 import Profile from "@/components/profile/Profile";
 import React, { useEffect, useState } from "react";
-import SessionSlidebar from "@/components/sessions/SessionSlidebar";
+import SessionSidebar from "@/components/sessions/SessionSidebar";
 import { usePathname } from "next/navigation";
 import CourseSidebar from "@/components/courses/CourseSidebar";
 // import ReduxProvider from '@/store/provider'
@@ -62,7 +62,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {sidebar === "default" ? (
             <Sidebar />
           ) : sidebar === "sessions" ? (
-            <SessionSlidebar />
+            <SessionSidebar />
           ) : (
             <CourseSidebar />
           )}

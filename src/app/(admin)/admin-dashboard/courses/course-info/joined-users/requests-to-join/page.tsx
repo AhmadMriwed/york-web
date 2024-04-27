@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 
 import Header from "@/components/Pars/Header";
-import CourseRequest from "@/components/courses/CourseRequest";
 import UserRequest from "@/components/courses/UserRequest";
 
 const RequestsToJoin = () => {

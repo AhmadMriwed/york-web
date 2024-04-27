@@ -1,7 +1,8 @@
 "use client";
+import React from "react";
+
 import Header from "@/components/Pars/Header";
 import CourseUser from "@/components/courses/CourseUser";
-import React from "react";
 
 const JoinedTrainees = () => {
   return (

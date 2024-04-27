@@ -6,25 +6,21 @@ import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 import { CiClock1, CiLocationOn } from "react-icons/ci";
 import { IoLanguage } from "react-icons/io5";
 import { Calendar, Edit, More, Trash } from "@rsuite/icons";
-import { MdRequestPage } from "react-icons/md";
 import {
   PiChalkboardTeacher,
   PiInfoBold,
   PiToggleLeft,
   PiToggleRightFill,
 } from "react-icons/pi";
-import { HiOutlineDuplicate } from "react-icons/hi";
+import { FaBook } from "react-icons/fa";
 
 import { Dropdown, IconButton } from "rsuite";
-import CourseRequest from "@/components/courses/CourseRequest";
 import Image from "next/image";
-
-import tmpImage from "@/../public/main-background.jpg";
-import { FaBook } from "react-icons/fa";
 import UserRequest from "@/components/courses/UserRequest";
-
-import avatar from "@/../public/avatar.png"; //TMP
 import TrainerInfo from "@/components/sessions/TrainerInfo";
+
+import tmpImage from "@/../public/main-background.jpg"; //TMP
+import avatar from "@/../public/avatar.png"; //TMP
 
 const CourseInfo = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

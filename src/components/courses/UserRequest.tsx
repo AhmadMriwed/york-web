@@ -1,12 +1,9 @@
 import React, { useState, useContext } from "react";
-import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 
-import { Check, Close, Location, More, Peoples } from "@rsuite/icons";
+import { Check, Close } from "@rsuite/icons";
 
-import { Dropdown, IconButton } from "rsuite";
-import CauseModal from "@/components/courses/courseAds/CauseModal";
-import InvoiceModal from "@/components/courses/courseAds/InvoiceModal";
+import CauseModal from "@/components/courses/CauseModal";
 import Image from "next/image";
 
 import avatar from "@/../public/avatar.png"; //TMP
@@ -45,8 +42,10 @@ const UserRequest = () => {
               alt=""
               className="rounded-full"
             />
+
             <div>
               <p className="font-bold">77. Ahmad Ebrahim</p>
+
               <div className="mt-1 flex items-center flex-wrap gap-2">
                 <p className="m-0 text-[12px]">0935 476 102</p>
                 <span>|</span>
@@ -57,6 +56,7 @@ const UserRequest = () => {
             </div>
           </div>
         </div>
+
         <div className="flex flex-col items-center gap-4">
           <button
             className="p-2 bg-green-400 rounded-full cursor-pointer element-center"

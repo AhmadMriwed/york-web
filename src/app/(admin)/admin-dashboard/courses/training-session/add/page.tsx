@@ -9,17 +9,17 @@ import { getUTCDate } from "@/utils/dateFuncs";
 import Header from "@/components/Pars/Header";
 import SessionOperation from "@/components/sessions/SessionOperation";
 import NewSessionModal from "@/components/sessions/NewSessionModal";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const AddNewSession = () => {
-  const { operationLoading, operationError, addStatus, duplicateStatus } =
-    useSelector((state: GlobalState) => {
+  const { operationLoading, operationError, status } = useSelector(
+    (state: GlobalState) => {
       return state.sessions;
-    });
+    }
+  );
   const dispatch: any = useDispatch();
 
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
   const submitHandler: any = (values: any) => {
     const data: any = {
@@ -71,14 +71,12 @@ const AddNewSession = () => {
         op="add"
       />
       <NewSessionModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        successMsg="The session was added successfully."
-        failMsg="Oops! There was an error, please try again later."
-        status={addStatus || duplicateStatus}
+      <OperationAlert
+        messageOnSuccess="The session was added successfully."
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
     </div>
   );

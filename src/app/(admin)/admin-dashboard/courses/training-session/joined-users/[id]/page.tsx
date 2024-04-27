@@ -19,8 +19,8 @@ import EditUserStatusModal from "@/components/sessions/EditUserStatusModal";
 import NameCell from "@/components/sessions/CustomCells/NameCell";
 import ImageCell from "@/components/sessions/CustomCells/ImageCell";
 import TimeCell from "@/components/sessions/CustomCells/TimeCell";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -129,12 +129,12 @@ const filteringBtns: string[] = ["Trainers", "Trainees", "Clients"];
 const JoinedUsers = ({ params }: any) => {
   const { id } = params;
   const [filterBy, setFilterBy] = useState<string>("Trainers");
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const {
     isLoading,
     error,
     operationLoading,
     operationError,
+    status,
     trainees,
     trainers,
     clients,
@@ -164,12 +164,12 @@ const JoinedUsers = ({ params }: any) => {
 
   return (
     <section className="px-2 pt-6 lg:px-6">
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        failMsg="Oops! There was an error, please try again later."
+      <OperationAlert
+        messageOnSuccess="Success !"
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={joinedUsersCompleted}
+        completedAction={joinedUsersCompleted}
       />
       <Header
         title="Joined Users"

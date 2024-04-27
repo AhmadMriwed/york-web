@@ -12,7 +12,7 @@ import { Trash } from "@rsuite/icons";
 import { IoMdAttach } from "react-icons/io";
 /* components */
 import Image from "next/image";
-import CustomInput from "@/components/sessions/CustomInput";
+import CustomInput from "@/components/rsuiteInput/CustomInput";
 import { Loader } from "rsuite";
 
 // Validation Schema

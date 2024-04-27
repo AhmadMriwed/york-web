@@ -4,11 +4,10 @@ import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 /* icons */
 import { Calendar, More, Edit, Trash, Paragraph, Peoples } from "@rsuite/icons";
-import { FaBook, FaDollarSign } from "react-icons/fa";
+import { FaBook } from "react-icons/fa";
 import { PiToggleRightFill, PiToggleLeft } from "react-icons/pi";
 import { HiOutlineDuplicate } from "react-icons/hi";
 import { CiClock1, CiLocationOn } from "react-icons/ci";
-import { MdRequestPage } from "react-icons/md";
 import { IoLanguage } from "react-icons/io5";
 /* components */
 import Image from "next/image";
@@ -87,6 +86,7 @@ const Course = () => {
             }}
           />
         </div>
+
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
             Lorem ipsum dolor sit amet
@@ -122,6 +122,7 @@ const Course = () => {
           </div>
         </div>
       </div>
+
       <div className="flex flex-col justify-between items-end">
         <div>
           <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
@@ -166,6 +167,7 @@ const Course = () => {
             </Dropdown.Item>
           </Dropdown>
         </div>
+
         <div className="flex flex-col xl:flex-row gap-1 sm:gap-2">
           <div
             className={`${

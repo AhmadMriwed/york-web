@@ -28,8 +28,8 @@ import NameCell from "@/components/sessions/CustomCells/NameCell";
 import ImageCell from "@/components/sessions/CustomCells/ImageCell";
 import TimeCell from "@/components/sessions/CustomCells/TimeCell";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
 import AddAttendantModal from "@/components/sessions/AddAttendantModal";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -177,7 +177,6 @@ const AttendanceRequests = ({ params }: any) => {
   const { id } = params;
 
   const [filterBy, setFilterBy] = useState<string>("Pending");
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
   const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
 
   const {
@@ -216,14 +215,12 @@ const AttendanceRequests = ({ params }: any) => {
 
   return (
     <section className="px-2 pt-6 lg:px-6">
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        successMsg="The attendant was added successfully."
-        failMsg="Oops! There was an error, please try again later."
+      <OperationAlert
+        messageOnSuccess="The attendant was added successfully."
+        messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}
-        completed={attendanceOperationCompleted}
+        completedAction={attendanceOperationCompleted}
       />
       <AddAttendantModal
         modalOpen={addModalOpen}
