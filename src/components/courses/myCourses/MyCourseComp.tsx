@@ -23,7 +23,6 @@ const MyCourseComp = () => {
       <div
         className="p-3 border-l border-l-[6px] border-l-[var(--primary-color2)] rounded-md min-w-[275px] cursor-pointer relative
       backdrop-blur-2xl bg-cardDarkBg"
-        // style={{ backgroundColor: "rgba(65, 65, 65, 0.308)" }}
         onClick={() => router.push("/admin-dashboard/courses/course-info/6")}
       >
         <div className="flex justify-between gap-11">

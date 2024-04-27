@@ -1,6 +1,5 @@
-import { useContext } from "react";
+import { useField } from "formik";
 import { InputPicker, DatePicker, Input, InputNumber } from "rsuite";
-import { ThemeContext } from "../Pars/ThemeContext";
 
 const CustomInput = ({
   type,
@@ -10,10 +9,6 @@ const CustomInput = ({
   optional,
   required,
   disabled,
-  value,
-  onChange,
-  formikErrors,
-  formikTouched,
   selectData,
   textAreaRows,
 }: {
@@ -24,75 +19,94 @@ const CustomInput = ({
   optional?: boolean;
   required?: boolean;
   disabled?: boolean;
-  value?: any;
-  onChange: any;
-  formikErrors: any;
-  formikTouched: any;
   selectData?: any;
   textAreaRows?: number;
 }) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const [field, meta] = useField(name);
 
   return (
     <div className="mb-[10px]">
       <label htmlFor={name} className="text-[#888] text-[14px] ml-[4px]">
-        {`${label} ${optional ? `(optional)` : ``}`}
+        {label} {optional ? "(optional)" : ""}
         {required && <span style={{ color: "#dc2626" }}>*</span>}
       </label>
       {type === "text" && (
         <Input
+          className={`!w-full ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : ""
+          }`}
           id={name}
-          name={name}
           placeholder={placeholder}
-          defaultValue={value}
-          onChange={onChange}
           disabled={disabled ? true : false}
+          {...field}
+          name={name}
+          onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
       {type === "textarea" && (
         <Input
           as="textarea"
           rows={textAreaRows}
+          className={`!w-full ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : ""
+          }`}
           id={name}
-          name={name}
-          defaultValue={value}
           placeholder={placeholder}
-          onChange={onChange}
+          {...field}
+          name={name}
+          onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
       {type === "date" && (
         <DatePicker
           format="yyyy-MM-dd HH:mm"
-          className="!w-full !border-none"
+          className={`!w-full ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : ""
+          }`}
           id={name}
           name={name}
           placeholder={placeholder}
-          defaultValue={new Date(value)}
-          onChange={onChange}
+          value={field.value ? new Date(field.value) : null}
+          onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
       {type === "select" && (
         <InputPicker
           data={selectData}
-          className="hover:!cursor-pointer !w-full"
+          className={`!w-full !text-black ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : ""
+          }`}
           id={name}
           name={name}
-          defaultValue={value}
+          value={field.value}
           placeholder={placeholder}
-          onChange={onChange}
+          onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
       {type === "number" && (
         <InputNumber
+          className={`!w-full ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : ""
+          }`}
           id={name}
           name={name}
-          defaultValue={value}
           placeholder={placeholder}
-          onChange={onChange}
+          value={field.value}
+          onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
-      {formikErrors && formikTouched && (
-        <div className="text-red-600 ml-[4px] mt-[4px]">{formikErrors}</div>
+      {meta.error && meta.touched && (
+        <div className="text-red-600 ml-[4px] mt-[4px]">{meta.error}</div>
       )}
     </div>
   );

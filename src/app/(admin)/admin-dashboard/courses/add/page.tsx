@@ -1,9 +1,7 @@
 "use client";
 import React from "react";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
-
-import { FaCameraRetro } from "react-icons/fa";
 
 import { InputPicker, Uploader } from "rsuite";
 import CustomInput from "@/components/sessions/CustomInput";
@@ -12,9 +10,9 @@ import { baseURL } from "@/utils/api";
 import { LuImagePlus } from "react-icons/lu";
 
 // Validation Schema
-const courseAdSchema = yup.object().shape({
+const courseSchema = yup.object().shape({
   title: yup.string().required("Title is Required"),
-  subtitle: yup.string().required("Title is Required"),
+  subtitle: yup.string().required("Subtitle is Required"),
   date_from: yup
     .date()
     .required("Start Date is Required")
@@ -27,21 +25,20 @@ const courseAdSchema = yup.object().shape({
       "End Date must be greater than Start Date",
       function (value) {
         const { date_from } = this.parent;
-
         return value > date_from;
       }
     ),
   hours: yup.number().required("Number is Required"),
   fee: yup.number().required("Fee is Required"),
   language: yup.string().required("Language is Reqiured"),
-  image: yup
-    .mixed()
-    .test("is-image", "Please upload a valid image", (value) => {
-      if (!value) {
-        return true;
-      }
-      return value instanceof File && value.type.startsWith("image/");
-    }),
+  // image: yup
+  //   .mixed()
+  //   .test("is-image", "Please upload a valid image", (value) => {
+  //     if (!value) {
+  //       return true;
+  //     }
+  //     return value instanceof File && value.type.startsWith("image/");
+  //   }),
   venue: yup.string(),
   category: yup.string(),
   code: yup
@@ -73,23 +70,116 @@ const initialValues = {
   code: "",
   location: "",
   submitCourse: "",
-  status: "",
+  status: "Active",
   outline: "",
   description: "",
 };
 
-const submitHandler = (values: any) => {
+const submitHandler = (values: any, actions: any) => {
   console.log(values);
 };
+
+const fields = [
+  {
+    type: "text",
+    name: "code",
+    label: "Code",
+    placeholder: "Code",
+    optional: true,
+    required: false,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "title",
+    label: "Title",
+    placeholder: "Title",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "subtitle",
+    label: "Sub Title",
+    placeholder: "Sub Title",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "language",
+    label: "Language",
+    placeholder: "Language",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "location",
+    label: "Location",
+    placeholder: "Location",
+    optional: true,
+    required: false,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "submitCourse",
+    label: "Submit Course",
+    placeholder: "Submit Course",
+    optional: true,
+    required: false,
+    disabled: true,
+  },
+  {
+    type: "date",
+    name: "date_from",
+    label: "Start Date",
+    placeholder: "Start Date",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "date",
+    name: "date_to",
+    label: "End Date",
+    placeholder: "End Date",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "number",
+    name: "hours",
+    label: "Hours",
+    placeholder: "Hours",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "number",
+    name: "fee",
+    label: "Fee",
+    placeholder: "Fee",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+];
 
 const AddCourse = () => {
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={courseAdSchema}
+      validationSchema={courseSchema}
       onSubmit={submitHandler}
     >
-      {(props) => (
+      {(props: FormikProps<any>) => (
         <Form className="p-3 sm:p-6">
           <Header title="Add New Course" />
           <div className="flex justify-between items-center gap-4 flex-wrap">
@@ -100,119 +190,18 @@ const AddCourse = () => {
           </div>
           <div className="mt-7 px-2 sm:px-20 lg:px-40 py-11 rounded-sm bg-light">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 sm:gap-y-2">
-              <CustomInput
-                type="text"
-                name="code"
-                label="Code"
-                optional
-                placeholder="Code"
-                onChange={(value: string) => (props.values.code = value)}
-                formikErrors={props.errors.code}
-                formikTouched={props.touched.code}
-              />
-              <CustomInput
-                type="text"
-                name="title"
-                label="Title"
-                required
-                placeholder="Title"
-                onChange={(value: string) => (props.values.title = value)}
-                formikErrors={props.errors.title}
-                formikTouched={props.touched.title}
-              />
-              <CustomInput
-                type="text"
-                name="subtitle"
-                label="Subtitle"
-                required
-                placeholder="Subtitle"
-                onChange={(value: string) => (props.values.subtitle = value)}
-                formikErrors={props.errors.subtitle}
-                formikTouched={props.touched.subtitle}
-              />
-              <CustomInput
-                type="text"
-                name="language"
-                label="Language"
-                required
-                placeholder="Language"
-                onChange={(value: string) => (props.values.language = value)}
-                formikErrors={props.errors.language}
-                formikTouched={props.touched.language}
-              />
-              <CustomInput
-                type="text"
-                name="location"
-                label="Location"
-                optional
-                placeholder="Location"
-                onChange={(value: string) => (props.values.location = value)}
-                formikErrors={props.errors.location}
-                formikTouched={props.touched.location}
-              />
-              <CustomInput
-                type="text"
-                name="submitCourse"
-                label="Submit Course"
-                optional
-                disabled
-                placeholder="Submit Course"
-                onChange={(value: string) =>
-                  (props.values.submitCourse = value)
-                }
-                formikErrors={props.errors.submitCourse}
-                formikTouched={props.touched.submitCourse}
-              />
-              <CustomInput
-                type="date"
-                name="date_from"
-                label="Start Date"
-                required
-                placeholder="Start Date"
-                value={props.values.date_from}
-                onChange={(value: any) => {
-                  if (value) {
-                    props.values.date_from = value;
-                  }
-                }}
-                formikErrors={props.errors.date_from}
-                formikTouched={props.touched.date_from}
-              />
-              <CustomInput
-                type="date"
-                name="date_to"
-                label="End Date"
-                required
-                placeholder="End Date"
-                value={props.values.date_to}
-                onChange={(value: any) => {
-                  if (value) {
-                    props.values.date_to = value;
-                  }
-                }}
-                formikErrors={props.errors.date_to}
-                formikTouched={props.touched.date_to}
-              />
-              <CustomInput
-                type="number"
-                name="hours"
-                label="Hours"
-                required
-                placeholder="Hours"
-                onChange={(value: number) => (props.values.hours = value)}
-                formikErrors={props.errors.hours}
-                formikTouched={props.touched.hours}
-              />
-              <CustomInput
-                type="number"
-                name="fee"
-                label="Fee"
-                required
-                placeholder="Fee"
-                onChange={(value: number) => (props.values.fee = value)}
-                formikErrors={props.errors.fee}
-                formikTouched={props.touched.fee}
-              />
+              {fields.map((field) => (
+                <CustomInput
+                  key={field.name}
+                  type={field.type}
+                  name={field.name}
+                  label={field.label}
+                  placeholder={field.placeholder}
+                  optional={field.optional}
+                  required={field.required}
+                  disabled={field.disabled}
+                />
+              ))}
 
               <CustomInput
                 type="select"
@@ -221,9 +210,6 @@ const AddCourse = () => {
                 label="Venue"
                 optional
                 placeholder="Venue"
-                onChange={(value: string) => (props.values.venue = value)}
-                formikErrors={props.errors.venue}
-                formikTouched={props.touched.venue}
               />
               <CustomInput
                 type="select"
@@ -232,11 +218,7 @@ const AddCourse = () => {
                 label="Category"
                 optional
                 placeholder="Category"
-                onChange={(value: string) => (props.values.category = value)}
-                formikErrors={props.errors.category}
-                formikTouched={props.touched.category}
               />
-
               <CustomInput
                 type="select"
                 selectData={[]}
@@ -244,9 +226,6 @@ const AddCourse = () => {
                 label="Status"
                 required
                 placeholder="Status"
-                onChange={(value: string) => (props.values.status = value)}
-                formikErrors={props.errors.status}
-                formikTouched={props.touched.status}
               />
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
@@ -257,9 +236,6 @@ const AddCourse = () => {
                 label="Outline"
                 required
                 placeholder="Outline"
-                onChange={(value: string) => (props.values.outline = value)}
-                formikErrors={props.errors.outline}
-                formikTouched={props.touched.outline}
               />
               <CustomInput
                 type="textarea"
@@ -268,9 +244,6 @@ const AddCourse = () => {
                 label="Description"
                 optional
                 placeholder="Description"
-                onChange={(value: string) => (props.values.description = value)}
-                formikErrors={props.errors.description}
-                formikTouched={props.touched.description}
               />
               <Uploader
                 action={baseURL + ""}

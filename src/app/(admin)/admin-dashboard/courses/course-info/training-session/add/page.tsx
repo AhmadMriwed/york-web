@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 
 import { FaCameraRetro } from "react-icons/fa";
@@ -39,14 +39,14 @@ const courseSessionScehma = yup.object().shape({
         return value > date_from;
       }
     ),
-  image: yup
-    .mixed()
-    .test("is-image", "Please upload a valid image", (value) => {
-      if (!value) {
-        return true;
-      }
-      return value instanceof File && value.type.startsWith("image/");
-    }),
+  // image: yup
+  //   .mixed()
+  //   .test("is-image", "Please upload a valid image", (value) => {
+  //     if (!value) {
+  //       return true;
+  //     }
+  //     return value instanceof File && value.type.startsWith("image/");
+  //   }),
   status: yup.string().required("Status is Required"),
   outline: yup.string().required("Outline is Required"),
   training_sessions_type: yup.string(),
@@ -59,12 +59,12 @@ const initialValues = {
   date_from: new Date(),
   date_to: new Date(),
   image: null,
-  status: "",
+  status: "Active",
   outline: "",
   training_sessions_type: "",
 };
 
-const submitHandler = (values: any) => {
+const submitHandler = (values: any, actions: any) => {
   console.log(values);
 };
 
@@ -75,7 +75,7 @@ const AddSession = () => {
       validationSchema={courseSessionScehma}
       onSubmit={submitHandler}
     >
-      {(props) => (
+      {(props: FormikProps<any>) => (
         <Form className="p-3 sm:p-6">
           <Header title="Add New Session" />
           <div className="flex justify-between items-center gap-4 flex-wrap">
@@ -93,9 +93,6 @@ const AddSession = () => {
                 label="Code"
                 required
                 placeholder="Code"
-                onChange={(value: string) => (props.values.code = value)}
-                formikErrors={props.errors.code}
-                formikTouched={props.touched.code}
               />
               <CustomInput
                 type="text"
@@ -104,9 +101,6 @@ const AddSession = () => {
                 required
                 disabled
                 placeholder="Course"
-                onChange={(value: string) => (props.values.course = value)}
-                formikErrors={props.errors.course}
-                formikTouched={props.touched.course}
               />
               <CustomInput
                 type="text"
@@ -114,9 +108,6 @@ const AddSession = () => {
                 label="Title"
                 required
                 placeholder="Title"
-                onChange={(value: string) => (props.values.title = value)}
-                formikErrors={props.errors.title}
-                formikTouched={props.touched.title}
               />
 
               <CustomInput
@@ -125,14 +116,6 @@ const AddSession = () => {
                 label="Start Date"
                 required
                 placeholder="Start Date"
-                value={props.values.date_from}
-                onChange={(value: any) => {
-                  if (value) {
-                    props.values.date_from = value;
-                  }
-                }}
-                formikErrors={props.errors.date_from}
-                formikTouched={props.touched.date_from}
               />
               <CustomInput
                 type="date"
@@ -140,14 +123,6 @@ const AddSession = () => {
                 label="End Date"
                 required
                 placeholder="End Date"
-                value={props.values.date_to}
-                onChange={(value: any) => {
-                  if (value) {
-                    props.values.date_to = value;
-                  }
-                }}
-                formikErrors={props.errors.date_to}
-                formikTouched={props.touched.date_to}
               />
 
               <CustomInput
@@ -157,9 +132,6 @@ const AddSession = () => {
                 label="Status"
                 required
                 placeholder="Status"
-                onChange={(value: string) => (props.values.status = value)}
-                formikErrors={props.errors.status}
-                formikTouched={props.touched.status}
               />
               <CustomInput
                 type="select"
@@ -168,11 +140,6 @@ const AddSession = () => {
                 label="training Sessions Type"
                 required
                 placeholder="training Sessions Type"
-                onChange={(value: string) =>
-                  (props.values.training_sessions_type = value)
-                }
-                formikErrors={props.errors.training_sessions_type}
-                formikTouched={props.touched.training_sessions_type}
               />
             </div>
 
@@ -184,11 +151,7 @@ const AddSession = () => {
                 label="Outline"
                 required
                 placeholder="Outline"
-                onChange={(value: string) => (props.values.outline = value)}
-                formikErrors={props.errors.outline}
-                formikTouched={props.touched.outline}
               />
-
               <Uploader
                 action={baseURL + ""}
                 draggable

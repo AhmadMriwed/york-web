@@ -1,8 +1,6 @@
 import React, { useContext } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 
-import { FaCameraRetro } from "react-icons/fa";
-
 import { Modal, Uploader } from "rsuite";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
@@ -33,14 +31,14 @@ const invoiceSchema = yup.object().shape({
   hours: yup.number().required("Number is Required"),
   fee: yup.number().required("Fee is Required"),
   language: yup.string().required("Language is Reqiured"),
-  image: yup
-    .mixed()
-    .test("is-image", "Please upload a valid image", (value) => {
-      if (!value) {
-        return true;
-      }
-      return value instanceof File && value.type.startsWith("image/");
-    }),
+  // image: yup
+  //   .mixed()
+  //   .test("is-image", "Please upload a valid image", (value) => {
+  //     if (!value) {
+  //       return true;
+  //     }
+  //     return value instanceof File && value.type.startsWith("image/");
+  //   }),
   venue: yup.string(),
   category: yup.string(),
   code: yup
@@ -86,6 +84,99 @@ const initialValues = {
 const submitHandler = (values: any) => {
   console.log(values);
 };
+
+const fields = [
+  {
+    type: "text",
+    name: "code",
+    label: "Code",
+    placeholder: "Code",
+    optional: true,
+    required: false,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "submitCourse",
+    label: "Submit Course",
+    placeholder: "Submit Course",
+    optional: false,
+    required: true,
+    disabled: true,
+  },
+  {
+    type: "text",
+    name: "title",
+    label: "Title",
+    placeholder: "Title",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "subtitle",
+    label: "Sub Title",
+    placeholder: "Sub Title",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "language",
+    label: "Language",
+    placeholder: "Language",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "text",
+    name: "location",
+    label: "Location",
+    placeholder: "Location",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "date",
+    name: "date_from",
+    label: "Start Date",
+    placeholder: "Start Date",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "date",
+    name: "date_to",
+    label: "End Date",
+    placeholder: "End Date",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "number",
+    name: "hours",
+    label: "Hours",
+    placeholder: "Hours",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+  {
+    type: "number",
+    name: "fee",
+    label: "Fee",
+    placeholder: "Fee",
+    optional: false,
+    required: true,
+    disabled: false,
+  },
+];
 
 const InvoiceModal = ({
   modalOpen,
@@ -133,90 +224,19 @@ const InvoiceModal = ({
                 <div className="p-2">
                   <p className="font-bold mb-2">Course Info</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                    <CustomInput
-                      type="text"
-                      name="title"
-                      label="Title"
-                      required
-                      placeholder="Title"
-                      onChange={(value: string) => (props.values.title = value)}
-                      formikErrors={props.errors.title}
-                      formikTouched={props.touched.title}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="subtitle"
-                      label="Subtitle"
-                      required
-                      placeholder="Subtitle"
-                      onChange={(value: string) =>
-                        (props.values.subtitle = value)
-                      }
-                      formikErrors={props.errors.subtitle}
-                      formikTouched={props.touched.subtitle}
-                    />
-                    <CustomInput
-                      type="date"
-                      name="date_from"
-                      label="Start Date"
-                      required
-                      placeholder="Start Date"
-                      value={props.values.date_from}
-                      onChange={(value: any) => {
-                        if (value) {
-                          props.values.date_from = value;
-                        }
-                      }}
-                      formikErrors={props.errors.date_from}
-                      formikTouched={props.touched.date_from}
-                    />
-                    <CustomInput
-                      type="date"
-                      name="date_to"
-                      label="End Date"
-                      required
-                      placeholder="End Date"
-                      value={props.values.date_to}
-                      onChange={(value: any) => {
-                        if (value) {
-                          props.values.date_to = value;
-                        }
-                      }}
-                      formikErrors={props.errors.date_to}
-                      formikTouched={props.touched.date_to}
-                    />
-                    <CustomInput
-                      type="number"
-                      name="hours"
-                      label="Hours"
-                      required
-                      placeholder="Hours"
-                      onChange={(value: number) => (props.values.hours = value)}
-                      formikErrors={props.errors.hours}
-                      formikTouched={props.touched.hours}
-                    />
-                    <CustomInput
-                      type="number"
-                      name="fee"
-                      label="Fee"
-                      required
-                      placeholder="Fee"
-                      onChange={(value: number) => (props.values.fee = value)}
-                      formikErrors={props.errors.fee}
-                      formikTouched={props.touched.fee}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="language"
-                      label="Language"
-                      required
-                      placeholder="Language"
-                      onChange={(value: string) =>
-                        (props.values.language = value)
-                      }
-                      formikErrors={props.errors.language}
-                      formikTouched={props.touched.language}
-                    />
+                    {fields.map((field) => (
+                      <CustomInput
+                        key={field.name}
+                        type={field.type}
+                        name={field.name}
+                        label={field.label}
+                        placeholder={field.placeholder}
+                        optional={field.optional}
+                        required={field.required}
+                        disabled={field.disabled}
+                      />
+                    ))}
+
                     <CustomInput
                       type="select"
                       selectData={[]}
@@ -224,9 +244,6 @@ const InvoiceModal = ({
                       label="Venue"
                       optional
                       placeholder="Venue"
-                      onChange={(value: string) => (props.values.venue = value)}
-                      formikErrors={props.errors.venue}
-                      formikTouched={props.touched.venue}
                     />
                     <CustomInput
                       type="select"
@@ -235,33 +252,6 @@ const InvoiceModal = ({
                       label="Category"
                       optional
                       placeholder="Category"
-                      onChange={(value: string) =>
-                        (props.values.category = value)
-                      }
-                      formikErrors={props.errors.category}
-                      formikTouched={props.touched.category}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="code"
-                      label="Code"
-                      optional
-                      placeholder="Code"
-                      onChange={(value: string) => (props.values.code = value)}
-                      formikErrors={props.errors.code}
-                      formikTouched={props.touched.code}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="submitCourse"
-                      label="Submit Course"
-                      required
-                      placeholder="Submit Course"
-                      onChange={(value: string) =>
-                        (props.values.submitCourse = value)
-                      }
-                      formikErrors={props.errors.submitCourse}
-                      formikTouched={props.touched.submitCourse}
                     />
                     <CustomInput
                       type="select"
@@ -270,23 +260,6 @@ const InvoiceModal = ({
                       label="Status"
                       required
                       placeholder="Status"
-                      onChange={(value: string) =>
-                        (props.values.status = value)
-                      }
-                      formikErrors={props.errors.status}
-                      formikTouched={props.touched.status}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="location"
-                      label="Location"
-                      required
-                      placeholder="Location"
-                      onChange={(value: string) =>
-                        (props.values.location = value)
-                      }
-                      formikErrors={props.errors.location}
-                      formikTouched={props.touched.location}
                     />
                   </div>
                   <div className="grid grid-cols-1 gap-y-2">
@@ -297,11 +270,6 @@ const InvoiceModal = ({
                       label="Outline"
                       required
                       placeholder="Outline"
-                      onChange={(value: string) =>
-                        (props.values.outline = value)
-                      }
-                      formikErrors={props.errors.outline}
-                      formikTouched={props.touched.outline}
                     />
                     <CustomInput
                       type="textarea"
@@ -310,11 +278,6 @@ const InvoiceModal = ({
                       label="Description"
                       optional
                       placeholder="Description"
-                      onChange={(value: string) =>
-                        (props.values.description = value)
-                      }
-                      formikErrors={props.errors.description}
-                      formikTouched={props.touched.description}
                     />
                     <Uploader
                       action={baseURL + ""}
@@ -350,14 +313,18 @@ const InvoiceModal = ({
                   <p className="font-bold mb-2">Invoice Info</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
                     <CustomInput
+                      type="text"
+                      name="invoiceName"
+                      label="Invoice Name"
+                      required
+                      placeholder="Invoice Name"
+                    />
+                    <CustomInput
                       type="number"
                       name="price"
                       label="Price"
                       required
                       placeholder="Price"
-                      onChange={(value: number) => (props.values.price = value)}
-                      formikErrors={props.errors.price}
-                      formikTouched={props.touched.price}
                     />
                     <CustomInput
                       type="select"
@@ -366,23 +333,6 @@ const InvoiceModal = ({
                       label="Currency"
                       required
                       placeholder="Currency"
-                      onChange={(value: string) =>
-                        (props.values.currency = value)
-                      }
-                      formikErrors={props.errors.currency}
-                      formikTouched={props.touched.currency}
-                    />
-                    <CustomInput
-                      type="text"
-                      name="invoiceName"
-                      label="Invoice Name"
-                      required
-                      placeholder="Invoice Name"
-                      onChange={(value: string) =>
-                        (props.values.invoiceName = value)
-                      }
-                      formikErrors={props.errors.invoiceName}
-                      formikTouched={props.touched.invoiceName}
                     />
                   </div>
                 </div>
