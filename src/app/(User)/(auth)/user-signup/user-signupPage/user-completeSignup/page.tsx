@@ -23,10 +23,10 @@ export interface FormVal {
     phone_number: string;
     image: null | string;
     location: {
-        address: string,
-        latitude: number,
-        longitude: number,
-    };
+    
+        lat: number;
+        lng: number;
+     };
     categories: number[];
     gender: string;
     birth_date: string;
@@ -39,12 +39,19 @@ const UserCompleteSignup = () => {
     const dispatch: any = useDispatch()
     const router = useRouter()
     const inputRef: any = useRef()
-    const [location, setLocation] = useState("")
+    const [address, setAddress] = useState("")
     console.log(location)
     const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
+    const [position, setPosition] = useState<{
+        lat: number;
+        lng: number;
+     }>({
+        lat: 0,
+        lng: 0,
+     });
+     const [openLocationModal, setOpenLocationModal] = useState(false);
     const [image, setImage] = useState("")
-    const [openLocationModal, setOpenLocationModal] = useState(false);
     const validationSchema = yup.object().shape({
         about_me: yup.string().required("Please add the Your info "),
         url: yup.string().required("Please add the Your URL "),
@@ -61,7 +68,7 @@ const UserCompleteSignup = () => {
             .array()
             .min(1, "At least one category is required")
             .required("Categories are required"),
-        // location: yup.string(),
+            location: yup.object().required("Location is required"),
     });
 
     const HandleSubmit = (values: any, actions: any) => {
@@ -124,11 +131,10 @@ const UserCompleteSignup = () => {
             url: "",
             phone_number: "",
             image: "",
-            location: {
-                address: "address",
-                latitude: 3,
-                longitude: 0,
-            },
+            location:{
+                lat :position.lat ,
+                lng: position.lng
+             },
             categories: [],
             gender: "Male",
             birth_date: "",
@@ -175,8 +181,8 @@ const UserCompleteSignup = () => {
             console.log(latitude, longitude)
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => {
-                setLocation(data.address.country)
-                formik.setFieldValue("location", { address: data.address.country, latitude: latitude, longitude: longitude })
+                setAddress(data.address.country)
+               
             })
         })
     }, [])
@@ -233,7 +239,7 @@ const UserCompleteSignup = () => {
 
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
-                                            {location} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                            {address} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
                                     </Box>
                                 </Box>
                                 <Box>
@@ -268,7 +274,11 @@ const UserCompleteSignup = () => {
                                     <LocationModal
                                         open={openLocationModal}
                                         setOpen={setOpenLocationModal}
-                                    />
+                                        position={position}
+                                        setPosition={setPosition}
+                                        setLocation={() => {
+                                            formik.setFieldValue("location", position)
+                                        }} />
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>

@@ -42,9 +42,9 @@ export interface FormVal {
    phone_number: string;
    image: null | string;
    location: {
-      address: string;
-      latitude: number;
-      longitude: number;
+    
+      lat: number;
+      lng: number;
    };
    Category: number[];
    digital_signature: string;
@@ -66,7 +66,14 @@ const TrainerSignupPage = () => {
    let trainer_type_id = useSearchParams().get("id");
    const [fileName, setFileName] = useState("");
    const [fileSize, setFileSize] = useState("");
-   const [position, setPosition] = useState("");
+   const [position, setPosition] = useState<{
+      lat: number;
+      lng: number;
+   }>({
+      lat: 0,
+      lng: 0,
+   });
+   
    console.log(trainer_type_id);
    // let sign = useRef(null)
    let signObj: Signature | null;
@@ -82,7 +89,7 @@ const TrainerSignupPage = () => {
    const validationSchema = yup.object().shape({
       about_me: yup.string().required("Please add the Your info "),
       domains: yup.string().required("Required "),
-      digital_signature: yup.string().required("Required "),
+      digital_signature: yup.string().required("Sign is required , Sign and press the Save button"),
       email: yup.string().email("Invalid email").required("Email Is Required"),
       password: yup
          .string()
@@ -104,7 +111,7 @@ const TrainerSignupPage = () => {
          .array()
          .min(1, "At least one category is required")
          .required("Categories are required"),
-      // location: yup.string(),
+         location: yup.object().required("Location is required"),
    });
 
    const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,13 +212,12 @@ const TrainerSignupPage = () => {
          password_confirmation: "",
          phone_number: "",
          image: "",
-         location: {
-            address: "address",
-            latitude: 3,
-            longitude: 0,
+         location:{
+            lat :position.lat ,
+            lng: position.lng
          },
          Category: [],
-         digital_signature: "default_value",
+         digital_signature: "",
          gender: "Male",
          birth_date: "",
          resume: "",
@@ -219,7 +225,7 @@ const TrainerSignupPage = () => {
          domains: "",
          about_me: "",
          account_type: trainer_type,
-      } as FormVal,
+      }as FormVal ,
       validationSchema: validationSchema,
       onSubmit: handleSubmit,
    });
@@ -248,11 +254,8 @@ const TrainerSignupPage = () => {
             .then((res) => res.json())
             .then((data) => {
                setAddress(data.address.country);
-               formik.setFieldValue("location", {
-                  address: data.address.country,
-                  latitude: latitude,
-                  longitude: longitude,
-               });
+               // setPosition({lat:latitude,lng:longitude})
+               // formik.setFieldValue("location",position);
             });
       });
    }, []);
@@ -284,10 +287,7 @@ const TrainerSignupPage = () => {
                   src={image ? image:"/default.jpg"}
                />
                {formik.values.image && (
-              
-                 
                   <AiFillDelete cursor={"pointer"} onClick={()=>handleOnImageRemoveClick()} style={{position:"absolute",bottom:-10,right:0}} color="red"  size={30}/>
-               
                 
                )}
                 </Box>
@@ -357,12 +357,7 @@ const TrainerSignupPage = () => {
                                  </p>
                               )}
                           
-                           {formik.touched.last_name &&
-                              formik.errors.last_name && (
-                                 <p className="error-mesage">
-                                    {formik.errors.last_name}
-                                 </p>
-                              )}
+                          
                            <FormLabel color={"white"} fontWeight={"bold"}>
                               email
                            </FormLabel>
@@ -552,14 +547,15 @@ const TrainerSignupPage = () => {
                                  )}
                               </Box>
                            </Box>
-                           {/* <LocationModal
-                           open={true}
-                              // open={openLocationModal}
-                              //  setOpen={setOpenLocationModal}
-                              // position={position}
-                              // setPosition={setPosition}
-                              // setLocation={setLocation}
-                           /> */}
+                           <LocationModal
+                           open={openLocationModal}
+                           setOpen={setOpenLocationModal}
+                           position={position}
+                           setPosition={setPosition}
+                           setLocation={() => {
+                              formik.setFieldValue("location",position)
+                           }}
+                        />
                         </Box>
                         <Box>
                         <FormLabel color={"white"} fontWeight={"bold"}>
@@ -577,6 +573,12 @@ const TrainerSignupPage = () => {
                               size="md"
                               w={350}
                            />
+                            {formik.touched.last_name &&
+                              formik.errors.last_name && (
+                                 <p className="error-mesage">
+                                    {formik.errors.last_name}
+                                 </p>
+                              )}
                            <FormLabel color={"white"} fontWeight={"bold"}>
                               Phone
                            </FormLabel>
@@ -696,7 +698,11 @@ const TrainerSignupPage = () => {
                            >
                               Save Sign
                            </Button>
+                          {formik.touched.digital_signature&&formik.errors.digital_signature&&(
+                           <Text className="error-mesage">{formik.errors.digital_signature}</Text>
+                          )}
                         </Box>
+                       
                      </Flex>
                      <Flex
                         direction={"column"}
