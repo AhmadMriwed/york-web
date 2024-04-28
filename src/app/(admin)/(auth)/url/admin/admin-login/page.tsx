@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, {  useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'universal-cookie'
 import SplashLoading from '@/components/loading/SplashLoading'
@@ -9,7 +9,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { Languages } from "@/utils/categories"
 import Select from "react-select"
 import { ReactCountryFlag } from "react-country-flag"
-import { Flex, Text, Spinner, useDisclosure } from '@chakra-ui/react'
+import { Flex, Text, Spinner, useDisclosure, Input, Button } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAdminProfile, loginAdmin } from '@/store/adminstore/slices/authSlice'
 import { GlobalState } from '@/types/storeTypes'
@@ -17,6 +17,7 @@ import UpdatePasswordModal from '@/components/UpdatePassModal/UpdatePasswordModa
 import { Email } from '@rsuite/icons'
 import { useFormik } from 'formik'
 import * as Yup from "yup"
+import Reveal from 'react-awesome-reveal'
 interface FormValues {
   email: string;
   password: string;
@@ -38,7 +39,7 @@ const AdminLogin = () => {
       .required('Password is required'),
 
   });
- 
+
   const handleSubmit = (values: FormValues) => {
     console.log(values)
     let data = { email: values.email, password: values.password }
@@ -49,9 +50,9 @@ const AdminLogin = () => {
           console.log("request rejected")
           return
         } else if (res.payload.is_verified) {
-          router.push("/")
+          router.push("/admin-dashboard")
         } else {
-          router.push("/admin-login/confirmemail")
+          router.push("/url/admin/admin-login/confirmemail")
         }
       })
     } catch (error) {
@@ -91,9 +92,10 @@ const AdminLogin = () => {
       dispatch(getAdminProfile(token)).then((res: any) => {
         console.log(res)
         if (res.payload.is_verified) {
-          router.push("/")
+          router.push("/admin-dashboard")
         } else {
-          router.push("/admin-login/confirmemail")
+          console.log(token)
+          router.push("/url/admin/admin-login/confirmemail")
         }
       })
     }
@@ -113,8 +115,8 @@ const AdminLogin = () => {
       ) : (
         <>
           <div className='w-full h-full absolute top-0 left-0 bg-[rgba(0,212,212,0.58)] mix-blend-color z-[-1]'></div>
-
-          <div className='flex items-start justify-between px-8 py-4'>
+<Reveal triggerOnce duration={2000}>
+          <div className='min-h-[100vh] min-w-[100vw] flex items-start justify-between px-8 py-4'>
             <div className='hidden md:block'>
               <Image src='/logo.png' alt='logo' width={100} height={100} />
             </div>
@@ -140,39 +142,22 @@ const AdminLogin = () => {
                     <p className="error-mesage">{formik.errors.email}</p>
                   )}
                   <div className='relative w-full md:w-[350px] mt-1'>
-                    <input
-                      className='login-input'
-                      type={showPassword ? "text" : "password"}
-                      id="password"
+                    <Input id="password"
                       name="password"
-                      value={formik.values.password}
-
                       onChange={formik.handleChange}
-                    />
-                    <div className="absolute right-0 top-[50%] -translate-y-1/2 w-[40px] element-center">
-                      {showPassword ? (
-                        <FiEye
-                          onClick={() => setShowPassword(false)}
-                          className="text-[18px]"
-                        />
-                      ) : (
-                        <FiEyeOff
-                          onClick={() => setShowPassword(true)}
-                          className="text-[18px]"
-                        />
-                      )}
-                    </div>
+                      value={formik.values.password} type="password" className="login-input" variant='light' />
+
                   </div>
                   {formik.touched.password && formik.errors.password && (
                     <p className="error-mesage">{formik.errors.password}</p>
                   )}
 
-                  <Link href='/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
+                  <Link href='/url/admin/admin-login/recoverpassword' className='justify-self-end hover:no-underline'><span className='text-sm tracking-widest leading-8 text-[#16FACD]'>Forgot Your Password ? </span>
                   </Link>
-                  <div className='justify-self-end ' >
+                  {/* <div className='justify-self-end ' >
                     <UpdatePasswordModal type={"admin"} isOpen={isOpen} onClose={onClose} onOpen={onOpen} />
                     <button onClick={onOpen} type='button' className='text-sm tracking-widest leading-8 text-[#16FACD]'>change your password</button>
-                  </div>
+                  </div> */}
 
                   <div className=" rounded-[5px] text-sm text-white p-2 max-w-fit mt-2">
                     {/* <Link href={`http://127.0.0.1:8000/login-google`} className='flex items-center gap-3 hover:no-underline hover:text-inherit '>
@@ -184,13 +169,16 @@ const AdminLogin = () => {
                       </p>
                     </Link> */}
                   </div>
-                  <button type='submit' className='colored-btn mt-6'>{loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}</button>
 
+                  <Button colorScheme='teal' size='lg' type="submit" width={150} m={"30px auto"} textAlign="center" >
+                    {loading ? <Spinner size={"sm"} color='red' /> : "Sign In"}
+                  </Button>
                   {error && <span className="error">{error}</span>}
+
 
                   <div style={{ width: 150, color: "black", position: "absolute", bottom: 10, right: 4, borderRadius: 20 }}>
                     <Select placeholder="Languages" menuPlacement='top' styles={customStyles} options={Language}
-                      onChange={(e) => formik.setFieldValue("language", e?.value)}
+                      onChange={(e: any) => formik.setFieldValue("language", e?.value)}
                       name='language'
                       id='language'
                       components={{ IndicatorSeparator: () => null }}
@@ -200,6 +188,7 @@ const AdminLogin = () => {
               </div>
             </div>
           </div>
+          </Reveal>
         </>
       )}
 

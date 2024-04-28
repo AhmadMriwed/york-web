@@ -1,5 +1,6 @@
 "use client";
 import BackBtn from "@/components/backbtn/BackBtn";
+
 import {
    Container,
    Flex,
@@ -31,7 +32,7 @@ import { useFormik } from "formik";
 import { SignatureComponent, Signature } from "@syncfusion/ej2-react-inputs";
 import * as yup from "yup";
 import { GlobalState } from "@/types/storeTypes";
-
+import {AiFillDelete} from "react-icons/ai"
 export interface FormVal {
    email: string;
    first_name: string;
@@ -258,7 +259,7 @@ const TrainerSignupPage = () => {
 
    return (
       <>
-         <Box overflow={"auto"} h={"full"}>
+         <Box overflow={"auto"} w={"100vw"} h={"100vh"}>
             <Image
                src="/register.png"
                alt=""
@@ -276,24 +277,20 @@ const TrainerSignupPage = () => {
                <Box display={{ base: "none", md: "block" }}>
                   <BackBtn textColor="text-white" />
                </Box>
+               <Box style={{position:"relative"}}  display={{ base: "block", md: "none" }}>
                <Avatar
                   onClick={() => inputRef?.current?.click()}
-                  display={{ base: "block", md: "none" }}
                   size={"lg"}
-                  src={image}
+                  src={image ? image:"/default.jpg"}
                />
                {formik.values.image && (
-                  <Text
-                     display={{ base: "block", md: "none" }}
-                     color={"red"}
-                     fontWeight={"bold"}
-                     fontSize={"medium"}
-                     cursor={"pointer"}
-                     onClick={handleOnImageRemoveClick}
-                  >
-                     Delete Image
-                  </Text>
+              
+                 
+                  <AiFillDelete cursor={"pointer"} onClick={()=>handleOnImageRemoveClick()} style={{position:"absolute",bottom:-10,right:0}} color="red"  size={30}/>
+               
+                
                )}
+                </Box>
                <Flex
                   direction={"column"}
                   marginLeft={{ md: 2 }}
@@ -328,29 +325,38 @@ const TrainerSignupPage = () => {
                      gap={4}
                      justifyContent={{ base: "center", xl: "space-around" }}
                      alignItems={{ base: "center", xl: "start" }}
+                   
                   >
                      <Flex
                         gap={4}
-                        direction={{ base: "column-reverse", md: "row" }}
+                        direction={{ base: "column", md: "row" }}
                         justifyContent={"center"}
                         alignItems={{ base: "center", md: "start" }}
                      >
-                        <Box>
-                           <FormLabel color={"white"} fontWeight={"bold"}>
-                              Last Name
+                        <Box >
+                        <FormLabel color={"white"} fontWeight={"bold"}>
+                              First Name
                            </FormLabel>
                            <Input
-                              placeholder="Enter Your Last Name"
+                              placeholder="Enter Your Full Name"
                               type="text"
-                              value={formik.values.last_name}
-                              id="last_name"
+                              value={formik.values.first_name}
                               onChange={formik.handleChange}
-                              name="last_name"
+                              name="first_name"
+                              id="first_name"
                               color={"black"}
                               bg={"white"}
+                              fontSize={14}
                               size="md"
                               w={350}
                            />
+                           {formik.touched.first_name &&
+                              formik.errors.first_name && (
+                                 <p className="error-mesage">
+                                    {formik.errors.first_name}
+                                 </p>
+                              )}
+                          
                            {formik.touched.last_name &&
                               formik.errors.last_name && (
                                  <p className="error-mesage">
@@ -546,37 +552,31 @@ const TrainerSignupPage = () => {
                                  )}
                               </Box>
                            </Box>
-                           <LocationModal
-                              open={openLocationModal}
-                              setOpen={setOpenLocationModal}
-                              position={position}
-                              setPosition={setPosition}
+                           {/* <LocationModal
+                           open={true}
+                              // open={openLocationModal}
+                              //  setOpen={setOpenLocationModal}
+                              // position={position}
+                              // setPosition={setPosition}
                               // setLocation={setLocation}
-                           />
+                           /> */}
                         </Box>
                         <Box>
-                           <FormLabel color={"white"} fontWeight={"bold"}>
-                              First Name
+                        <FormLabel color={"white"} fontWeight={"bold"}>
+                              Last Name
                            </FormLabel>
                            <Input
-                              placeholder="Enter Your Full Name"
+                              placeholder="Enter Your Last Name"
                               type="text"
-                              value={formik.values.first_name}
+                              value={formik.values.last_name}
+                              id="last_name"
                               onChange={formik.handleChange}
-                              name="first_name"
-                              id="first_name"
+                              name="last_name"
                               color={"black"}
                               bg={"white"}
-                              fontSize={14}
                               size="md"
                               w={350}
                            />
-                           {formik.touched.first_name &&
-                              formik.errors.first_name && (
-                                 <p className="error-mesage">
-                                    {formik.errors.first_name}
-                                 </p>
-                              )}
                            <FormLabel color={"white"} fontWeight={"bold"}>
                               Phone
                            </FormLabel>
@@ -736,6 +736,7 @@ const TrainerSignupPage = () => {
                               </Text>
                            )}
                         </Box>
+                        {formik.values.image&& 
                         <Text
                            fontSize={15}
                            fontWeight={"bold"}
@@ -743,8 +744,10 @@ const TrainerSignupPage = () => {
                            onClick={() => handleOnImageRemoveClick()}
                            display={{ base: "none", md: "block" }}
                         >
-                           Delete
+                         
+                       Delete
                         </Text>
+                       }
                         {formik.touched.image && formik.errors.image && (
                            <p className="error-mesage">{formik.errors.image}</p>
                         )}

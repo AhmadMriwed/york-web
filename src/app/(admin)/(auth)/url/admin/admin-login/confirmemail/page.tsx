@@ -46,7 +46,7 @@ const ConfirmEmail = () => {
                         </p>
                         <p>Didn&apos;t receive any verification link</p>
                         <div><button className='underline text-bold' onClick={() => Verify()}> Click here to resend</button></div>
-                        <Link href='/admin-login'><button className='colored-btn'>Go To Login</button></Link>
+                        <Link href='/url/admin/admin-login'><button className='colored-btn'>Go To Login</button></Link>
                     </div>
 
                 </div>

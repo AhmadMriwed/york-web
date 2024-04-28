@@ -153,19 +153,19 @@ const UserSignupPage = () => {
                                 <Box cursor={"pointer"} border={"1px solid gray"} bg={"black"} position={"relative"} display={{ base: "none", md: "flex" }} justifyContent={"center"} alignItems={"center"} width={120} height={120} onClick={() => inputRef?.current?.click()} >
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
-                                <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                              {formik.values.image &&  <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>}
                             </Flex>
                         </Flex>
                         <Flex my={2} direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} marginTop={{ base: 0, md: 20 }} gap={5}>
                             <Box marginLeft={{ base: 0, md: 20 }} w={{ base: 350, md: 200 }} className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  ">
-                                <Link href={`http://localhost:8000/google/login`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
+                                {/* <Link href={`http://localhost:8000/google/login`} className='flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  '>
                                     <div>
                                         <FaGoogle />
                                     </div>
                                     <p>
                                         <b>Login with Google</b>
                                     </p>
-                                </Link>
+                                </Link> */}
                             </Box>
                             <Box marginRight={{ base: 0, md: 20 }} >
                                 <Button type="submit" textColor={"white"} variant={"black"} fontSize={"small"} w={{ base: 350, md: 200 }} backgroundColor={"#11cdef"}>{loading ? <Spinner color="red" size={"sm"} /> : "Create account"}</Button>

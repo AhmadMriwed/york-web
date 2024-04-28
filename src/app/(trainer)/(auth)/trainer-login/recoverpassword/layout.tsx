@@ -8,7 +8,7 @@ const PasswordLayout = ({
   children: React.ReactNode
 }) => {
   return (
-    <div className='bg-[#13181E] mix-blend-multiply px-4 p-5'>
+    <div className='bg-[#13181E] h-[100vh] overflow-hidden mix-blend-multiply px-4 p-5'>
       <Flex alignItems={"center"} justifyContent={{ base: "center", md: "space-between" }} paddingY={2} height={70}>
         <Box display={{ base: "none", md: "block" }}><BackBtn textColor='text-white' /></Box>
         <Image src='/logo.png' alt='' width={66} height={66} />

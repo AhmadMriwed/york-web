@@ -16,6 +16,7 @@ import { CompleteUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 import { useFormik } from "formik"
 import * as yup from "yup"
+import { AiFillDelete } from "react-icons/ai"
 import { Input as Inputt } from "rsuite"
 export interface FormVal {
     url: string;
@@ -40,7 +41,7 @@ const UserCompleteSignup = () => {
     const inputRef: any = useRef()
     const [location, setLocation] = useState("")
     console.log(location)
-    const { error, user, loading} = useSelector((state: any) => state.userSlice)
+    const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
     const [image, setImage] = useState("")
     const [openLocationModal, setOpenLocationModal] = useState(false);
@@ -166,7 +167,7 @@ const UserCompleteSignup = () => {
             </Flex>
         )
     }));
-   
+
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
@@ -182,7 +183,7 @@ const UserCompleteSignup = () => {
 
     return (
         <>
-            <Box overflow={{ base: "auto", md: "hidden" }} maxH={"100vh"}>
+            <Box overflow={{ base: "auto", md: "auto" }} maxH={"100vh"}>
                 <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
                 <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
                 <Flex gap={2} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 2, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
@@ -190,8 +191,20 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
-                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    <Box style={{ position: "relative" }} display={{ base: "block", md: "none" }}>
+                        <Avatar
+                            onClick={() => inputRef?.current?.click()}
+                            size={"lg"}
+                            src={image ? image : "/default.jpg"}
+                        />
+                        {formik.values.image && (
+
+
+                            <AiFillDelete cursor={"pointer"} onClick={() => handleOnImageRemoveClick()} style={{ position: "absolute", bottom: -10, right: 0 }} color="red" size={30} />
+
+
+                        )}
+                    </Box>
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
@@ -263,7 +276,7 @@ const UserCompleteSignup = () => {
 
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
-                                <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                                {formik.values.image && <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>}
                                 {formik.touched.image && formik.errors.image && (
                                     <p className="error-mesage">{formik.errors.image}</p>
                                 )}

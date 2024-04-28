@@ -78,7 +78,7 @@ const SendCode = () => {
             isClosable: true,
             position: "top"
           })
-          router.push(`/admin-login/recoverpassword/sendcode/resetpassword?email=${email}&code=${code}`)
+          router.push(`/url/admin/admin-login/recoverpassword/sendcode/resetpassword?email=${email}&code=${code}`)
 
         }
       })

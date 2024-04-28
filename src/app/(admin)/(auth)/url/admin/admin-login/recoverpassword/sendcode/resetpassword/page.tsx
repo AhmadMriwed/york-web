@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Input, FormLabel, Box, Text, Button, Flex, useToast, Spinner } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { adminResetPassword } from '@/store/adminstore/slices/authSlice';
+import { adminResetPassword } from '@/store/adminstore/slices/authSlice'
 const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
@@ -24,6 +24,17 @@ const ResetPassword = () => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
   const handleSubmit = async () => {
+    if(!form.password || !form.password_confirmation){
+      toast({
+        title: 'Error.',
+        description: 'please fill data',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      })
+      return
+    }
     if (form.password !== form.password_confirmation) {
       toast({
         title: 'Error.',
@@ -53,7 +64,7 @@ const ResetPassword = () => {
             position: "top",
 
           })
-          router.push("/admin-login")
+          router.push("/url/admin/admin-login")
         }
       })
     } catch (error: any) {

@@ -50,7 +50,7 @@ const RecoverPassword1 = () => {
             isClosable: true,
             position: "top"
           })
-          router.push(`/admin-login/recoverpassword/sendcode?email=${email}`)
+          router.push(`/url/admin/admin-login/recoverpassword/sendcode?email=${email}`)
 
         }
 
@@ -77,7 +77,7 @@ const RecoverPassword1 = () => {
               backgroundColor={"white"}
               color={"black"}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e:any) => setEmail(e.target.value)}
             />
           </Box>
           <Box width={"full"}>
