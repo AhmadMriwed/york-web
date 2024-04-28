@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useDispatch, useSelector } from "react-redux"
 import { userRegister } from "@/store/userStore/slices/userSlice"
 import { useFormik } from "formik"
+import { AiFillDelete } from "react-icons/ai"
 import * as Yup from "yup"
 const UserSignupPage = () => {
     const user_type = useSearchParams().get("user_type")
@@ -94,8 +95,20 @@ const UserSignupPage = () => {
                 <div className='w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]' ></div>
                 <Flex gap={4} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 5, md: 2 }} direction={{ base: "column-reverse", md: "row" }}>
                     <Box display={{ base: "none", md: "block" }} ><BackBtn textColor="text-white" /></Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
-                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    <Box style={{ position: "relative" }} display={{ base: "block", md: "none" }}>
+                        <Avatar
+                            onClick={() => inputRef?.current?.click()}
+                            size={"lg"}
+                            src={image ? image : "/default.jpg"}
+                        />
+                        {formik.values.image && (
+
+
+                            <AiFillDelete cursor={"pointer"} onClick={() => handleOnImageRemoveClick()} style={{ position: "absolute", bottom: -10, right: 0 }} color="red" size={30} />
+
+
+                        )}
+                    </Box>
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Center>
