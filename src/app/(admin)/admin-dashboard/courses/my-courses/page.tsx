@@ -100,14 +100,14 @@ export default function MyCourses() {
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-evenly items-end">
-        <div className="">
-          <p className="mb-2 text-[12px] font-[500]">Filter Courses :</p>
-          <InputPicker data={[]} placeholder="Show by" />
+      <div className="flex flex-col sm:flex-row justify-evenly items-end gap-4">
+        <div className="w-full sm:w-fit">
+          <Filter />
         </div>
 
         <div className="">
-          <Filter />
+          <p className="mb-2 text-[12px] font-[500]">Filter Courses :</p>
+          <InputPicker data={[]} placeholder="Show by" />
         </div>
       </div>
 
