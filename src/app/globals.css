@@ -41,6 +41,7 @@ a:hover {
   text-decoration: none !important;
 }
 
+
 /* sidebar background color */
 .dark_gradient_background {
   background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
@@ -48,6 +49,8 @@ a:hover {
 
 .adel {
   background-color: #0f0f0f17;
+
+
 }
 
 .sidebar-text-color {

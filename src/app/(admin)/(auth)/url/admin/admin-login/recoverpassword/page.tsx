@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { Flex, Box } from '@chakra-ui/react'
 import { useDispatch, useSelector } from 'react-redux'
 import { adminForgotPassword } from '@/store/adminstore/slices/authSlice'
+import Image from 'next/image'
 const RecoverPassword1 = () => {
   const router = useRouter()
   const [email, setEmail] = useState("")
@@ -63,8 +64,10 @@ const RecoverPassword1 = () => {
   }
   return (
     <>
+     
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8 ' display={{ base: "none", md: "block" }}  >Password Recovery:  Email</Text>
       <Flex w={"full"} alignItems={"center"} direction={{ base: "column", md: "row" }} justifyContent={"center"} className="h-[calc(100vh-142px)]">
+      <Image src='/loo.png'  style={{opacity:0.1}}  alt='' fill objectFit='contain' />
         <Box className='lg:border-l-2 border-[#01989F]  p-8 '>
           <Box width={"full"}>
             <FormLabel display={{ base: "none", md: "block" }} color={"white"}>Email</FormLabel>

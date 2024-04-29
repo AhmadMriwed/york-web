@@ -5,6 +5,7 @@ import { Flex, Box, FormLabel, Input, Button, useToast, Spinner } from '@chakra-
 import { useDispatch, useSelector } from 'react-redux'
 import { adminValidateForgotPassword } from '@/store/adminstore/slices/authSlice'
 import { adminForgotPassword } from '@/store/adminstore/slices/authSlice'
+import Image from 'next/image'
 const SendCode = () => {
   const [code, setCode] = useState("")
   const router = useRouter();
@@ -89,12 +90,13 @@ const SendCode = () => {
   return (
     <>
       <p className='py-5 text-xl font-bold text-white tracking-wider leading-8'>Password Recovery: Code Verification</p>
+      <Image src='/loo.png'  style={{opacity:0.1}}  alt='' fill objectFit='contain' />
       <Flex alignItems={"center"} justifyContent={"center"} className=' h-[calc(100vh-142px)]'>
         <Box className='lg:border-l-2 border-[#01989F] md:w-[450px] p-8'>
           <FormLabel htmlFor="" className='text-base text-white'>Enter The Code</FormLabel>
           <Input type="number" width={300} backgroundColor={"white"} color={"black"} onChange={(e) => setCode(e.target.value)} />
-          <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"}>
-            <Button width={{ base: 300, lg: 200 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>{loading ? <Spinner size={"sm"} color='red' /> : "Confirm"}</Button>
+          <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"} marginTop={10}>
+            <Button width={{ base: 300, lg: 150 }} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={3} onClick={handleSubmit}>{loading ? <Spinner size={"sm"} color='red' /> : "Confirm"}</Button>
             <button className='self-end text-base text-[#11cdef] underline mt-3 md:mt-0' onClick={() => resendCode()}>Resend code</button>
           </Flex>
         </Box>
