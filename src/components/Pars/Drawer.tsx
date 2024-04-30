@@ -53,7 +53,7 @@ export default function Drawer({
    } = useSelector((state: GlobalState) => state.authSlice);
    const dispatch: any = useDispatch();
    const router = useRouter();
-
+console.log(adminProfile,admin)
    const HandleLogOut = () => {
       let cookie = new Cookies();
 

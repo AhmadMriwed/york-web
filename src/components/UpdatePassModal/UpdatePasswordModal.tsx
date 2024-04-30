@@ -16,10 +16,12 @@ import {
    useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import Cookies from "universal-cookie";
 import * as yup from "yup";
 import { useFormik } from "formik";
+
 import { trainerUpdatePassword } from "@/store/trainerStore/slices/trainerSlice";
 import { adminUpdatePassword } from "@/store/adminstore/slices/authSlice";
 export interface ModalType {
@@ -29,6 +31,7 @@ export interface ModalType {
    type: string;
 }
 const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
+   const router = useRouter()
    const dispatch: any = useDispatch();
    const toast = useToast();
    const [loading, setLoading] = useState(false);
@@ -156,6 +159,8 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                      formik.values.old_password = "";
                      formik.values.new_password = "";
                      formik.values.new_password_confirmation = "";
+                     router.push("/url/admin/admin-login")
+
                   }
                }
             );
