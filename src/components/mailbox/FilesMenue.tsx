@@ -50,7 +50,7 @@ export default function FilesMenue({ open, setOpen, files }: ModalType) {
                      key={file.id}
                   >
                      <div className="flex items-center gap-3 mt-3 overflow-x-auto pb-4 ">
-                        <div className="min-w-5 min-h-5 rounded-[50%] bg-[#bb9be6] element-center">
+                        <div className="min-w-5 min-h-5 rounded-[50%] bg-[#bb9be6] element-center ">
                            <IoMdAttach
                               style={{
                                  color: "white",
@@ -66,7 +66,7 @@ export default function FilesMenue({ open, setOpen, files }: ModalType) {
                         </p>
 
                         <div
-                           className="min-w-8 min-h-8 rounded-[50%] bg-[var(--primary-color1)] element-center"
+                           className="min-w-8 min-h-8 rounded-[50%] bg-[var(--primary-color1)] element-center cursor-pointer"
                            onClick={() => dispatch(downloadFile(file.path))}
                         >
                            <FaDownload

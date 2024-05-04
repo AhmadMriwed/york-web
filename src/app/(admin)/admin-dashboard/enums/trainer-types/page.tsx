@@ -140,7 +140,7 @@ export default function TrainerTypes() {
 
    return (
       <main
-         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full ${
             total > perPage && "pb-[70px]"
          }`}
       >
@@ -183,7 +183,7 @@ export default function TrainerTypes() {
             status={status}
             error={error}
             messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-            messageOnSuccess={`Trainer Type has been ${messageOperation} successfully`}
+            messageOnSuccess={`Category has been ${messageOperation} successfully`}
             completedAction={completedTrainerTypeOperation}
             closeAdd={setOpenAdd}
             closeEdit={setOpenEdit}

@@ -169,7 +169,7 @@ const examTypes = createSlice({
          state.error = null;
          state.operationLoading = false;
          state.examTypes = state.examTypes.filter(
-            (examType) => examType.id !== action.payload.enumId
+            (examType) => examType.id !== action.payload.id
          );
          state.status = true;
       });

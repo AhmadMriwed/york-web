@@ -1,5 +1,5 @@
 "use client";
-import BackBtn from "@/components/backbtn/BackBtn";
+import BackBtn from "@/components/buttons/BackBtn";
 import {
    Container,
    Flex,

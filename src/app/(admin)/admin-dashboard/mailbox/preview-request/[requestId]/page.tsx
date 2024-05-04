@@ -101,7 +101,12 @@ export default function Preview() {
                      </p>
 
                      {request.sub_title && (
-                        <p className="mt-[20px]">{request.sub_title}</p>
+                        <p
+                           className="mt-[20px]"
+                           dangerouslySetInnerHTML={{
+                              __html: request.sub_title || "",
+                           }}
+                        />
                      )}
                   </div>
                   {request.files && request.files.length > 0 && (

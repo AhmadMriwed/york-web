@@ -2,19 +2,15 @@
 import { Loader, Nav, Sidenav } from "rsuite";
 import ExitIcon from "@rsuite/icons/Exit"; // logout icons
 import Link from "next/link";
-import { Ref, forwardRef, useContext, useEffect } from "react";
+import { Ref, forwardRef, useContext } from "react";
 import Image from "next/image";
 import { ThemeContext } from "./ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
-import {
-   adminLogOut,
-   getAdminProfile,
-} from "@/store/adminstore/slices/authSlice";
+import { adminLogOut } from "@/store/adminstore/slices/authSlice";
 import Cookies from "universal-cookie";
 import { useRouter } from "next/navigation";
 import { GlobalState } from "@/types/storeTypes";
-import Loading from "./Loading";
 import { storageURL } from "@/utils/api";
 
 interface NavLinkProps {
@@ -75,20 +71,12 @@ export default function Drawer({
       }
    };
 
-   useEffect(() => {
-      if (expanded) {
-         let cookie = new Cookies();
-         let token = cookie.get("admin_token");
-         dispatch(getAdminProfile(token));
-      }
-   }, [expanded, dispatch]);
    return (
       <aside
          className={`${expanded ? "block" : "hidden"} ${
-            mode === "dark" ? "!bg-dark" : "!bg-light"
-         } ${
-            mode === "dark" ? "!text-light" : "!text-dark"
-         } absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
+            mode === "dark" ? "!bg-dark !text-light" : "!bg-light !text-dark"
+         } 
+          absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
       >
          <Sidenav
             className="!bg-inherit !text-inherit !mt-[10px] transition-all duration-500"
@@ -153,7 +141,8 @@ export default function Drawer({
                   <Nav.Item
                      eventKey="1"
                      className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]  "
-                     onClick={() => setOpenProfile(true)}
+                     as={NavLink}
+                     href="/profile"
                   >
                      Profile
                   </Nav.Item>

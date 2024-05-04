@@ -18,6 +18,7 @@ import { MdLanguage } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { CiLogout } from "react-icons/ci";
+import { IoIosArrowDroprightCircle } from "react-icons/io";
 
 interface NavLinkProps {
    as: string;
@@ -174,13 +175,29 @@ const Sidebar = () => {
             expanded ? "w-[200px]" : "w-fit"
          } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
       >
-         <Image
-            src={"/logo.png"}
-            alt=""
-            width={expanded ? 90 : 50}
-            height={expanded ? 90 : 50}
-            className={`max-w-[130px] mx-auto mt-2 `}
-         />
+         <div className="flex items-center justify-center">
+            <div className="grow flex element-center">
+               <Image
+                  src={"/logo.png"}
+                  alt=""
+                  width={expanded ? 90 : 50}
+                  height={expanded ? 90 : 50}
+                  className={`max-w-[130px] mt-2 ${
+                     expanded ? "ms-[28px]" : "ms-0"
+                  }  `}
+                  onClick={() => setExpanded(!expanded)}
+               />
+            </div>
+
+            <div
+               className={`${
+                  expanded ? "hidden md:block" : "hidden"
+               } w-fit me-3 cursor-pointer`}
+               onClick={() => setExpanded(!expanded)}
+            >
+               <IoIosArrowDroprightCircle className="text-[18px]" />
+            </div>
+         </div>
 
          {expanded && (
             <p className="px-2 mx-3 my-4 text-center">
@@ -480,11 +497,11 @@ const Sidebar = () => {
                   </Nav.Menu>
                </Nav>
             </Sidenav.Body>
-            <Sidenav.Toggle
+            {/* <Sidenav.Toggle
                expanded={expanded}
                onToggle={(expanded) => setExpanded(expanded)}
                className="!bg-inherit [&>*]:!text-inherit !border-none [&>*]:!bg-inherit"
-            />
+            /> */}
          </Sidenav>
       </aside>
    );

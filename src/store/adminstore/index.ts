@@ -25,6 +25,7 @@ import trainerTypes from "./slices/enums/trainerTypesSlice";
 import questionTypes from "./slices/enums/questionTypesSlice";
 import singleEnum from "./slices/enums/singleEnumSlice";
 import courseTypes from "./slices/enums/courseTypeSlice";
+import coursesAds from "../userStore/slices/courses/courseAdsSlice";
 
 export default configureStore({
    reducer: {
@@ -53,5 +54,7 @@ export default configureStore({
       joinedUsers: joinedUsers,
       attendanceRequests: attendanceRequests,
       singleCourse: singleCourse,
+      // user state - temp place
+      coursesAds,
    },
 });

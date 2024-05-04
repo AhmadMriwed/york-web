@@ -1,8 +1,5 @@
 "use client";
-import Image from "next/image";
-import React, { useContext, useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
-import { LuFiles } from "react-icons/lu";
+import { useContext, useEffect, useState } from "react";
 import { MdOutgoingMail } from "react-icons/md";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { RiFolderDownloadFill } from "react-icons/ri";
@@ -10,15 +7,16 @@ import Link from "next/link";
 import HeaderMail from "@/components/mailbox/HeaderMail";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
+
+import { MailType } from "@/types/adminTypes/mailbox/mailboxTypes";
+import Loading from "@/components/Pars/Loading";
+import { Badge, Pagination } from "rsuite";
+import MailMessage from "@/components/mailbox/MailMessage";
 import {
    getRecivedMail,
    getSendMail,
    getlMailboxInfo,
 } from "@/store/adminstore/slices/mailbox/mailboxSlice";
-import { MailType } from "@/types/adminTypes/mailbox/mailboxTypes";
-import Loading from "@/components/Pars/Loading";
-import { Badge, Pagination } from "rsuite";
-import MailMessage from "@/components/mailbox/MailMessage";
 
 const AdminMailbox = () => {
    const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

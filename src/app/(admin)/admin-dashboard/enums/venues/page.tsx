@@ -184,11 +184,7 @@ export default function Venues() {
    };
 
    return (
-      <main
-         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
-            total > perPage && "pb-[70px]"
-         }`}
-      >
+      <main className="pt-0 overflow-x-auto overflow-y-clip max-w-full">
          {isLoading && <Loading />}
          {!isLoading && venues.length > 0 && (
             <>
@@ -215,7 +211,7 @@ export default function Venues() {
                      maxButtons={3}
                      activePage={activePage}
                      onChangePage={setActivePage}
-                     className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%]  
+                     className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
                               [&>div_.rs-pagination-btn]:!bg-white
                                  [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
                                  [&>div_.rs-pagination-btn]:!mx-[5px]

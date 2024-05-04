@@ -13,6 +13,7 @@ const config: Config = {
             crudCustom2: "860px",
          },
          backgroundImage: {
+            // "home-landing-bg": "url('public/assets/user/landing-page.jpg')",
             "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
             "gradient-conic":
                "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",

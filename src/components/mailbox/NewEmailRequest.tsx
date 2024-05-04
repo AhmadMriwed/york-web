@@ -3,9 +3,9 @@ import { Form, Formik } from "formik";
 import * as yup from "yup";
 import { InputPicker, Progress, Uploader } from "rsuite";
 import { Input } from "rsuite";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../Pars/ThemeContext";
-import { IoMdAttach } from "react-icons/io";
+import Cookie from "universal-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/store/adminstore/slices/mailbox/fileSlice";
 import Image from "next/image";
 import { baseURL, storageURL } from "@/utils/api";
+import { FileType } from "rsuite/esm/Uploader";
 const newRequestSchema = yup.object().shape({
    recived_id: yup.string().required("Send To is Required"),
    request_type_id: yup.string().required("Request Type is Required"),
@@ -42,6 +43,7 @@ export default function NewEmailRequest({
    const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
    const dispatch: any = useDispatch();
    const [keyWord, setKeyWord] = useState("");
+   const cookie = new Cookie();
 
    const {
       isLoading,
@@ -301,12 +303,31 @@ export default function NewEmailRequest({
                      listType="picture-text"
                      className={`text-black max-h-min  mt-7 lg:w-[300px] py-[30px] px-[15px] rounded-[10px]  lg:mx-0 relative bg-light`}
                      headers={{
-                        Authorization: `Bearer 2|Ny4IIA3LqYFV7KudK2v7yAIx8OhxkdmozKL52Hx49c973274`,
+                        Authorization: `Bearer ${cookie.get("admin_token")}`,
                      }}
                      multiple={true}
                      onSuccess={(response, file) => {
                         console.log("response", response);
                         console.log("response file", file);
+                     }}
+                     renderFileInfo={(file: FileType) => {
+                        const extension = file.name?.slice(
+                           file.name.lastIndexOf(".") + 1
+                        );
+
+                        console.log("file:", file);
+                        return (
+                           file.name && (
+                              <span>
+                                 {file.name.length > 12
+                                    ? file.name?.slice(0, 12) +
+                                      "...   " +
+                                      "." +
+                                      extension
+                                    : file.name}
+                              </span>
+                           )
+                        );
                      }}
                   >
                      <div

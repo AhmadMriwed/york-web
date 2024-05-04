@@ -159,7 +159,7 @@ export default function ExamTypes() {
 
    return (
       <main
-         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
+         className={`pt-0 overflow-x-auto overflow-y-clip max-w-full ${
             total > perPage && "pb-[70px]"
          }`}
       >

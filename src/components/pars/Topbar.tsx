@@ -1,16 +1,18 @@
 "use client";
 import Image from "next/image";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Badge, Toggle } from "rsuite";
 import Drawer from "./Drawer";
-import CheckIcon from "@rsuite/icons/Check";
-import CloseIcon from "@rsuite/icons/Close";
 import { ThemeContext } from "./ThemeContext";
 import NoticeIcon from "@rsuite/icons/Notice";
 import profile from "../../../public/avatar.png";
 import ModalNote from "../notification/ModalNote";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdOutlineDarkMode } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { GlobalState } from "@/types/storeTypes";
+import Cookies from "universal-cookie";
+import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 
 const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
    const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
@@ -18,6 +20,32 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
 
    const [expanded, setExpanded] = useState(false);
    const [openNotification, setOpenNotification] = useState(false);
+
+   const {
+      error,
+      loadingPass,
+      loading,
+      admin,
+      adminProfile,
+      profileLoading,
+      profileError,
+   } = useSelector((state: GlobalState) => state.authSlice);
+   const dispatch: any = useDispatch();
+
+   useEffect(() => {
+      if (!adminProfile) {
+         console.log("request");
+         let cookie = new Cookies();
+         let token = cookie.get("admin_token");
+         console.log("token", cookie.get("admin-token"));
+         dispatch(getAdminProfile(token));
+      }
+   }, [adminProfile, dispatch]);
+
+   let cookie = new Cookies();
+   let token = cookie.get("admin_token");
+   console.log("token", token);
+   console.log("admin", admin, "profile", adminProfile);
 
    return (
       <header
@@ -33,7 +61,8 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
                }  outline-none`}
             />
          </div>
-         <div className="flex items-center gap-4 mr-2">
+
+         <div className="flex items-center gap-4 mr-2 flex-wrap">
             <Toggle
                checkedChildren={
                   <MdOutlineDarkMode
@@ -67,15 +96,38 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
                   mode={mode}
                />
             </Badge>
-            <button onClick={() => setExpanded(!expanded)}>
-               <Image
-                  src={profile}
-                  alt="profile image"
-                  width={30}
-                  height={30}
-                  className="rounded-[50%]"
-               />
-            </button>
+
+            {adminProfile?.id && (
+               <p className="leading-[1.2] text-[12px] m-0 hidden md:block">
+                  ID : {adminProfile.id}
+               </p>
+            )}
+
+            {adminProfile?.account_type && (
+               <p className="text-[var(--primary-color2)] leading-[1.2] text-[14px] m-0 hidden md:block">
+                  {adminProfile.account_type}
+               </p>
+            )}
+
+            {adminProfile?.first_name && adminProfile.email && (
+               <div className="hidden md:block">
+                  <p className="leading-[1.2] text-[14px] m-0">
+                     {adminProfile.first_name + " " + adminProfile.last_name}
+                  </p>
+                  <p className="leading-[1.2] text-[10px] m-0">
+                     {adminProfile.email}
+                  </p>
+               </div>
+            )}
+
+            <Image
+               src={profile}
+               alt="profile image"
+               width={30}
+               height={30}
+               className="rounded-[50%] min-w-[30px]"
+               onClick={() => setExpanded(!expanded)}
+            />
          </div>
          <Drawer
             expanded={expanded}

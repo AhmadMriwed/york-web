@@ -7,12 +7,6 @@ import Profile from "@/components/profile/Profile";
 import React, { useEffect, useState } from "react";
 import SessionSlidebar from "@/components/sessions/SessionSlidebar";
 import { usePathname } from "next/navigation";
-// import ReduxProvider from '@/store/provider'
-
-// interface UserResponse {
-//   user: string | null;
-//   error: AxiosError | null;
-// }
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
    const [openProfile, setOpenProfile] = useState(false);
@@ -30,26 +24,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
          setSessionSlidebarIsVisible(true);
       else setSessionSlidebarIsVisible(false);
    }, [pathName]);
-
-   // const [isSuccess, setIsSuccess] = useState<boolean>(false);
-   // const { push } = useRouter();
-   // useEffect(() => {
-   //   (async () => {
-   //     const { user, error } = await getUser();
-
-   //     if (error) {
-   //       push("/admin-login");
-   //       return;
-   //     }
-
-   //     // if the error did not happen, if everything is alright
-   //     setIsSuccess(true);
-   //   })();
-   // }, [push]);
-
-   // if (!isSuccess) {
-   //   return <p>Loading...</p>;
-   // }
 
    return (
       <div>

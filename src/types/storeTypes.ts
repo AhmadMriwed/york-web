@@ -26,6 +26,7 @@ import {
    VenuesState,
 } from "./adminTypes/enums/enumsTypes";
 import { FileState, MailState } from "./adminTypes/mailbox/mailboxTypes";
+import { couresesAdsState } from "./userTypes/courses/coursesTypes";
 
 export interface ThemeState {
    theme: "light" | "dark";
@@ -41,13 +42,11 @@ export interface GlobalState {
    users: UsersState;
    singleUser: SingleUserState;
    singleRole: SingleRoleState;
-
    authSlice: AdminState;
    sessions: sessionsState;
    joinedUsers: joinedUsersState;
    attendanceRequests: attendanceState;
    singleCourse: singleCourseState;
-
    mailbox: MailState;
    files: FileState;
    requestTypes: RequestTypesState;
@@ -58,4 +57,8 @@ export interface GlobalState {
    questionTypes: QuestionTypesState;
    courseTypes: CourseTypesState;
    singleEnum: SingleEnumState;
+}
+
+export interface GlobalUserState {
+   coursesAds: couresesAdsState;
 }
