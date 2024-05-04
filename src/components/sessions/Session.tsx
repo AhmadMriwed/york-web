@@ -10,6 +10,7 @@ import {
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { storageURL } from "@/utils/api";
 /* icons */
 import { Calendar, More, Edit, Trash, Paragraph } from "@rsuite/icons";
 import { FaClock } from "react-icons/fa";
@@ -93,15 +94,17 @@ const Session = ({ pickable, session }: any) => {
         completed={sessionOperationCompleted}
         id={session.id}
         status={status}
-        // deleteLoading={operationLoading}
       />
       <div className="flex justify-between gap-2">
         {!pickable && (
-          <div className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
+          <div
+            className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]"
+            onClick={() => console.log(storageURL + session.image)}
+          >
             {session.image && (
               <Image
-                src={`/${session.image}`}
-                alt="Session Image"
+                src={storageURL + session.image}
+                alt="session image"
                 width={400}
                 height={400}
                 style={{
@@ -142,7 +145,7 @@ const Session = ({ pickable, session }: any) => {
               {session.owner.image && (
                 <Image
                   src={session.owner.image}
-                  alt="Trainer Image"
+                  alt="trainer image"
                   className="rounded-full"
                   width={400}
                   height={400}

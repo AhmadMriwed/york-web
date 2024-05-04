@@ -9,7 +9,7 @@ import {
   getOtherSessions,
   getSessionInfo,
 } from "@/store/adminstore/slices/sessions/sessionsActions";
-import { getCourseInfo } from "@/store/adminstore/slices/courses/singleCourseSlice";
+import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 import { sessionType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
@@ -55,7 +55,7 @@ const SessionInfo = ({ params }: any) => {
     isLoading: courseLoading,
     error: courseError,
     courseInfo,
-  } = useSelector((state: GlobalState) => state.singleCourse);
+  } = useSelector((state: GlobalState) => state.courses);
 
   const dispatch: any = useDispatch();
 
@@ -111,7 +111,7 @@ const SessionInfo = ({ params }: any) => {
         // exitPath="/admin-dashboard/courses/training-session"
       />
       <OperationAlert
-        messageOnSuccess="Success !"
+        messageOnSuccess="operation accomplished successfully!"
         messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}

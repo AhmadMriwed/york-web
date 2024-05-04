@@ -1,20 +1,93 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { courseType } from "@/types/adminTypes/courses/coursesTypes";
+import { GlobalState } from "@/types/storeTypes";
+import {
+  courseOperationCompleted,
+  getAllCourses,
+  getCoursesById,
+  getFilterData,
+} from "@/store/adminstore/slices/courses/coursesSlice";
+import { getTrainers } from "@/store/endUser/endUserSlice";
+import { getMyCourses } from "@/store/adminstore/slices/courses/my-courses/myCoursesSlice";
 
-import { CiExport, CiImport } from "react-icons/ci";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-import { InputPicker } from "rsuite";
+import { InputPicker, Loader } from "rsuite";
 import Header from "@/components/Pars/Header";
 import MyCourse from "@/components/courses/myCourses/MyCourse";
 import Course from "@/components/courses/myCourses/Course";
 import Filter from "@/components/courses/Filter";
+import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 export default function MyCourses() {
   const router = useRouter();
-  const [filterBy, setFilterBy] = useState("Current");
   const containerRef = useRef<any>(null);
+
+  const [filterAll, setFilterAll] = useState("Current");
+  const [selectedTrainer, setSelectedTrainer] = useState<any>(null);
+  const [trainerTerm, setTrainerTerm] = useState("");
+  const [filterMyCourses, setFilterMyCourses] = useState("Current");
+  const [showBy, setShowBy] = useState<"all" | "trainer">("all");
+
+  const [filterValues, setFilterValues] = useState({
+    code: "",
+    title: "",
+    category_ids: [],
+    venue_ids: [],
+    lang: null,
+    start_date: null,
+    end_date: null,
+    years: [],
+    months: [],
+  });
+
+  const {
+    myCourses,
+    isLoading: myCoursesLoading,
+    error: myCoursesError,
+  } = useSelector((state: GlobalState) => state.myCourses);
+
+  const {
+    isLoading,
+    error,
+    filterData,
+    allCourses,
+    status,
+    operationError,
+    operationLoading,
+  } = useSelector((state: GlobalState) => state.courses);
+
+  const {
+    isLoading: trainersLoading,
+    error: trainersError,
+    trainers,
+  } = useSelector((state: GlobalState) => state.endUser);
+
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    dispatch(getMyCourses(filterMyCourses));
+  }, [dispatch, filterMyCourses]);
+
+  useEffect(() => {
+    dispatch(getTrainers(trainerTerm));
+  }, [dispatch, trainerTerm]);
+
+  useEffect(() => {
+    dispatch(getFilterData());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (showBy === "trainer") {
+      dispatch(getCoursesById({ id: selectedTrainer, status: filterAll }));
+    } else {
+      dispatch(getAllCourses({}));
+    }
+  }, [dispatch, filterAll, selectedTrainer, showBy]);
 
   const scrollTo = (direction: "left" | "right") => {
     const container = containerRef.current;
@@ -28,6 +101,105 @@ export default function MyCourses() {
     }
   };
 
+  let categories, venues, languages, years, months;
+  if (
+    filterData.categories &&
+    filterData.venues &&
+    filterData.languages &&
+    filterData.year_models &&
+    filterData.month_models &&
+    trainers
+  ) {
+    categories = filterData.categories.map((item: any) => ({
+      label: item.title,
+      value: item.id,
+    }));
+
+    venues = filterData.venues.map((item: any) => ({
+      label: item.title,
+      value: item.id,
+    }));
+
+    languages = filterData.languages.map((item: any) => ({
+      label: item.name,
+      value: item.code,
+    }));
+
+    years = filterData.year_models.map((item: any) => ({
+      label: item.name,
+      value: item.origin,
+    }));
+
+    months = filterData.month_models.map((item: any) => ({
+      label: item.name,
+      value: item.origin,
+    }));
+  }
+
+  let filterFields = [
+    {
+      type: "date",
+      name: "start_date",
+      value: filterValues.start_date,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, start_date: value }),
+      placeholder: "Start date",
+    },
+    {
+      type: "date",
+      name: "end_date",
+      value: filterValues.end_date,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, end_date: value }),
+      placeholder: "End date",
+    },
+    {
+      type: "select",
+      data: languages,
+      value: filterValues.lang,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, lang: value }),
+      placeholder: "Language",
+    },
+    {
+      type: "check",
+      data: categories,
+      value: filterValues.category_ids,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, category_ids: value }),
+      placeholder: "Category",
+    },
+    {
+      type: "check",
+      data: venues,
+      value: filterValues.venue_ids,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, venue_ids: value }),
+      placeholder: "Venues",
+    },
+    {
+      type: "check",
+      data: years,
+      value: filterValues.years,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, years: value }),
+      placeholder: "Years",
+    },
+    {
+      type: "check",
+      data: months,
+      value: filterValues.months,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, months: value }),
+      placeholder: "Months",
+    },
+  ];
+
+  const trainersList = trainers.map((t) => ({
+    label: `${t.first_name} ${t.last_name}`,
+    value: t.user_id,
+  }));
+
   return (
     <section className="p-3 sm:p-6 overflow-hidden">
       <Header
@@ -35,87 +207,163 @@ export default function MyCourses() {
         btnTitle="Add New Course"
         btnAction={() => router.push("/admin-dashboard/courses/add")}
       />
+      <OperationAlert
+        messageOnSuccess="The operation was completed successfully"
+        messageOnError={`Oops! ${operationError}`}
+        error={operationError}
+        status={status}
+        completedAction={courseOperationCompleted}
+      />
 
       <div className="my-4 flex flex-wrap items-center gap-2">
-        <button className="outlined-btn flex justify-center items-center gap-1">
-          <CiImport /> Import
-        </button>
-        <button className="outlined-btn flex justify-center items-center gap-1">
-          <CiExport /> Export
-        </button>
+        <button className="outlined-btn">Import</button>
+        <button className="outlined-btn">Export</button>
       </div>
 
       <div className="mt-4 p-3 bg-[#212A34] w-full rounded-lg text-white flex flex-col lg:flex-row gap-4 md:gap-11">
         <div className="border-l border-l-[2px] border-[var(--primary-color1)] pl-2 shrink-0">
-          <p className="text-[24px] font-[400]">My Courses</p>
+          <p className="text-[26px] font-[400]">My Courses</p>
           <p className="text-[#888] m-0">check out all your current courses</p>
           <InputPicker
-            data={[]}
+            data={[
+              { label: "Current", value: "Current" },
+              { label: "Expired", value: "Expired" },
+              { label: "Closed", value: "Closed" },
+            ]}
             className="hover:!cursor-pointer mt-7"
             name="course-status"
-            defaultValue="Currently"
+            defaultValue="Current"
             placeholder="Status"
-            onChange={() => {}}
+            value={filterMyCourses}
+            onChange={(value: string) => setFilterMyCourses(value)}
           />
         </div>
-        <div className="flex items-center gap-2 overflow-hidden py-2 relative">
-          <div
-            className="flex items-center gap-2 overflow-x-scroll pb-2 no-scrollbar"
-            ref={containerRef}
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-              <MyCourse key={item} />
+        {myCoursesLoading ? (
+          <div className="m-11">
+            <Loader size="md" />
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 overflow-hidden py-2 relative">
+            <div
+              className="flex items-center gap-2 overflow-x-scroll pb-2 no-scrollbar"
+              ref={containerRef}
+            >
+              {myCourses.map((course: courseType) => (
+                <MyCourse key={course.id} course={course} />
+              ))}
+            </div>
+            <button
+              onClick={() => scrollTo("left")}
+              className="absolute top-[50%] left-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
+              style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
+            >
+              <FaArrowLeft />
+            </button>
+            <button
+              onClick={() => scrollTo("right")}
+              className="absolute top-[50%] right-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
+              style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
+            >
+              <FaArrowRight />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-11 mb-7 flex flex-col sm:flex-row justify-between gap-7">
+        <div>
+          <p className="text-[12px] font-[500] mb-2">Filter Courses :</p>
+          <InputPicker
+            placement="auto"
+            data={[
+              { label: "Status & Trainer", value: "trainer" },
+              { label: "All courses", value: "all" },
+            ]}
+            value={showBy}
+            cleanable={false}
+            onChange={(value: "all" | "trainer") => setShowBy(value)}
+            placeholder="Filter by"
+          />
+        </div>
+        {showBy === "all" && (
+          <Filter
+            role="courses"
+            filterValues={filterValues}
+            setFilterValues={setFilterValues}
+            filterFields={filterFields}
+          />
+        )}
+      </div>
+
+      {showBy === "trainer" && (
+        <>
+          <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-11">
+            {["Current", "Closed", "Expired"].map((btnName) => (
+              <button
+                key={btnName}
+                onClick={() => setFilterAll(btnName)}
+                className={`py-2 sm:px-4 text-[16px] font-[500] ${
+                  filterAll === btnName
+                    ? "border-b-2 border-[var(--primary-color1)]"
+                    : ""
+                }`}
+              >
+                {btnName}
+              </button>
             ))}
           </div>
-          <button
-            onClick={() => scrollTo("left")}
-            className="absolute top-[50%] left-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
-            style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
-          >
-            <FaArrowLeft />
-          </button>
-          <button
-            onClick={() => scrollTo("right")}
-            className="absolute top-[50%] right-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
-            style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
-          >
-            <FaArrowRight />
-          </button>
+
+          <div className="mt-2 flex justify-end">
+            <div className="flex flex-col gap-2">
+              <InputPicker
+                data={trainersList}
+                placement="auto"
+                searchable
+                onSearch={(value: string) => setTrainerTerm(value)}
+                renderMenu={(menu) => {
+                  if (trainersLoading) {
+                    return (
+                      <p
+                        style={{
+                          padding: 10,
+                          color: "#999",
+                          textAlign: "center",
+                        }}
+                      >
+                        <Loader />
+                      </p>
+                    );
+                  }
+                  return menu;
+                }}
+                className="text-black"
+                value={selectedTrainer}
+                onChange={(value: string) => setSelectedTrainer(value)}
+                placeholder="Select trainer"
+              />
+              <p className="text-[12px] font-[500] text-red-500">
+                {!selectedTrainer && `Trainer is required`}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div className="my-7 flex flex-col gap-2">
+          {allCourses.length > 0 ? (
+            allCourses.map((course: courseType) => (
+              <Course key={course.id} course={course} />
+            ))
+          ) : (
+            <div className="my-16 text-[18px] font-[500] element-center">
+              There are no courses, try another trainer or status
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-11 mb-6">
-        {["Current", "Closed", "Expired"].map((btnName) => (
-          <button
-            key={btnName}
-            onClick={() => setFilterBy(btnName)}
-            className={`py-2 sm:px-4 text-[16px] font-[500] ${
-              filterBy === btnName
-                ? "border-b-2 border-[var(--primary-color1)]"
-                : ""
-            }`}
-          >
-            {btnName}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex flex-col sm:flex-row justify-evenly items-end gap-4">
-        <div className="w-full sm:w-fit">
-          <Filter />
-        </div>
-
-        <div className="">
-          <p className="mb-2 text-[12px] font-[500]">Filter Courses :</p>
-          <InputPicker data={[]} placeholder="Show by" />
-        </div>
-      </div>
-
-      <div className="my-7 flex flex-col gap-2">
-        {[1, 2, 3, 4].map((_, index) => (
-          <Course key={index} />
-        ))}
-      </div>
+      )}
     </section>
   );
 }

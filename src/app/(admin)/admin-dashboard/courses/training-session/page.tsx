@@ -48,7 +48,7 @@ const TrainingSession = () => {
   return (
     <section className="px-2 pt-6 lg:px-6">
       <OperationAlert
-        messageOnSuccess="The session was duplicated successfully."
+        messageOnSuccess="operation accomplished successfully!"
         messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}

@@ -1,5 +1,22 @@
 import { useField } from "formik";
-import { InputPicker, DatePicker, Input, InputNumber } from "rsuite";
+import { useEffect } from "react";
+import { InputPicker, DatePicker, Input, InputNumber, Loader } from "rsuite";
+
+type PropsType = {
+  type: string;
+  name: string;
+  label: string;
+  placeholder: string;
+  optional?: boolean;
+  required?: boolean;
+  disabled?: boolean;
+  selectData?: any;
+  selectLoading?: boolean;
+  selectSearchable?: boolean;
+  selectOnSearch?: (value: string) => void;
+  textAreaRows?: number;
+  value?: any;
+};
 
 const CustomInput = ({
   type,
@@ -10,19 +27,23 @@ const CustomInput = ({
   required,
   disabled,
   selectData,
+  selectLoading,
+  selectSearchable,
+  selectOnSearch,
   textAreaRows,
-}: {
-  type: string;
-  name: string;
-  label: string;
-  placeholder: string;
-  optional?: boolean;
-  required?: boolean;
-  disabled?: boolean;
-  selectData?: any;
-  textAreaRows?: number;
-}) => {
-  const [field, meta] = useField(name);
+  value,
+}: PropsType) => {
+  const [field, meta, helpers] = useField(name);
+
+  useEffect(() => {
+    if (value) {
+      if (type === "date") {
+        helpers.setValue(new Date(value));
+      } else {
+        helpers.setValue(value);
+      }
+    }
+  }, [helpers, type, value]);
 
   return (
     <div className="mb-[10px]">
@@ -30,6 +51,7 @@ const CustomInput = ({
         {label} {optional ? "(optional)" : ""}
         {required && <span style={{ color: "#dc2626" }}>*</span>}
       </label>
+
       {type === "text" && (
         <Input
           className={`!w-full ${
@@ -42,9 +64,11 @@ const CustomInput = ({
           disabled={disabled ? true : false}
           {...field}
           name={name}
+          value={field.value}
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
+
       {type === "textarea" && (
         <Input
           as="textarea"
@@ -58,12 +82,15 @@ const CustomInput = ({
           placeholder={placeholder}
           {...field}
           name={name}
+          value={field.value}
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
+
       {type === "date" && (
         <DatePicker
           format="yyyy-MM-dd HH:mm"
+          placement="auto"
           className={`!w-full ${
             meta.error && meta.touched
               ? "!border-[1px] !border-red-600 rounded-lg"
@@ -76,9 +103,29 @@ const CustomInput = ({
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
+
       {type === "select" && (
         <InputPicker
+          placement="auto"
           data={selectData}
+          searchable={selectSearchable}
+          onSearch={selectOnSearch}
+          renderMenu={(menu) => {
+            if (selectLoading) {
+              return (
+                <p
+                  style={{
+                    padding: 10,
+                    color: "#999",
+                    textAlign: "center",
+                  }}
+                >
+                  <Loader />
+                </p>
+              );
+            }
+            return menu;
+          }}
           className={`!w-full !text-black ${
             meta.error && meta.touched
               ? "!border-[1px] !border-red-600 rounded-lg"
@@ -86,11 +133,12 @@ const CustomInput = ({
           }`}
           id={name}
           name={name}
-          value={field.value}
           placeholder={placeholder}
+          value={field.value}
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
+
       {type === "number" && (
         <InputNumber
           className={`!w-full ${

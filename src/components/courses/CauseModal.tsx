@@ -1,18 +1,38 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { replySubmitCourse } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
+import { GlobalState } from "@/types/storeTypes";
 
-import { Input, Modal } from "rsuite";
+import { Input, Loader, Modal } from "rsuite";
 
 const CauseModal = ({
   role,
+  submitId,
   modalOpen,
   setModalOpen,
 }: {
   role: "accept" | "reject";
-  modalOpen: boolean;
-  setModalOpen: any;
+  submitId?: number;
+  modalOpen?: boolean;
+  setModalOpen?: any;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
+  const { operationLoading } = useSelector(
+    (state: GlobalState) => state.submitCourses
+  );
+
+  const dispatch = useDispatch<any>();
+
+  const [cause, setCause] = useState("");
+
+  const handleReply = () => {
+    const type = role === "accept" ? "accept" : "rejected";
+    if (submitId)
+      dispatch(replySubmitCourse({ id: submitId, type: type, cause: cause }));
+  };
+
   return (
     <Modal
       open={modalOpen}
@@ -50,16 +70,22 @@ const CauseModal = ({
             placeholder={`Enter the ${
               role === "accept" ? "acception" : "rejection"
             } cause`}
-            onChange={(value: string) => console.log(value)}
+            onChange={(value: string) => setCause(value)}
           />
         </div>
         <div className="flex items-center gap-2 mt-4 self-end">
           <button className="outlined-btn" onClick={() => setModalOpen(false)}>
             Cancel
           </button>
-          <button className="colored-btn">{`${
-            role === "accept" ? "Accept" : "Reject"
-          }`}</button>
+          <button className="colored-btn" onClick={handleReply}>
+            {operationLoading ? (
+              <Loader />
+            ) : role === "accept" ? (
+              "Accept"
+            ) : (
+              "Reject"
+            )}
+          </button>
         </div>
       </Modal.Body>
     </Modal>

@@ -1,6 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
 
 import { Location, More, Peoples } from "@rsuite/icons";
 
@@ -9,17 +10,26 @@ import CauseModal from "@/components/courses/CauseModal";
 import InvoiceModal from "@/components/courses/InvoiceModal";
 import Image from "next/image";
 
-import avatar from "@/../public/avatar.png"; //TMP
-
 const CourseRequest = ({
-  type,
+  loc,
+  details,
+  acceptModalOpen,
+  setAcceptModalOpen,
+  rejectModalOpen,
+  setRejectModalOpen,
+  invoiceModalOpen,
+  setInvoiceModalOpen,
 }: {
-  type?: "courseAd" | "courseRequest" | "courseSubmit";
+  loc?: "courseAd" | "courseRequest" | "courseSubmit";
+  details?: submitCourseType;
+  acceptModalOpen?: boolean;
+  setAcceptModalOpen?: any;
+  rejectModalOpen?: boolean;
+  setRejectModalOpen?: any;
+  invoiceModalOpen?: boolean;
+  setInvoiceModalOpen?: any;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [acceptModalOpen, setAcceptModalOpen] = useState(false);
-  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   const router = useRouter();
 
@@ -38,29 +48,33 @@ const CourseRequest = ({
 
   return (
     <>
-      {type === "courseAd" && (
+      {loc === "courseAd" && (
         <>
           <CauseModal
             role="reject"
+            submitId={details?.id}
             modalOpen={rejectModalOpen}
             setModalOpen={setRejectModalOpen}
           />
           <InvoiceModal
             modalOpen={invoiceModalOpen}
             setModalOpen={setInvoiceModalOpen}
+            submitInfo={details}
           />
         </>
       )}
 
-      {type === "courseRequest" && (
+      {loc === "courseRequest" && (
         <>
           <CauseModal
             role="reject"
+            submitId={details?.id}
             modalOpen={rejectModalOpen}
             setModalOpen={setRejectModalOpen}
           />
           <CauseModal
             role="accept"
+            submitId={details?.id}
             modalOpen={acceptModalOpen}
             setModalOpen={setAcceptModalOpen}
           />
@@ -74,22 +88,37 @@ const CourseRequest = ({
       >
         <div>
           <div className="flex items-start gap-2">
-            <Image
-              src={avatar}
-              width={40}
-              height={40}
-              alt=""
-              className="rounded-full"
-            />
+            {details?.user.image && (
+              <Image
+                src={details?.user.image}
+                width={40}
+                height={40}
+                alt="user image"
+                className="rounded-full"
+              />
+            )}
 
             <div>
-              <p className="font-bold">22. Ahmad Ebrahim</p>
+              <p className="font-bold">
+                {details?.user_id &&
+                  details.user.first_name &&
+                  details.user.last_name &&
+                  `${details?.user_id}. ${
+                    details.user.first_name + " " + details.user.last_name
+                  }`}
+              </p>
               <div className="mt-1 flex items-center flex-wrap gap-2">
-                <p className="m-0 text-[12px]">#22156</p>
+                <p className="m-0 text-[12px]">
+                  {details?.code && `#${details.code}`}
+                </p>
                 <span>|</span>
-                <p className="m-0 text-[12px]">0935 476 102</p>
+                <p className="m-0 text-[12px]">
+                  {details?.user.phone_number && details?.user.phone_number}
+                </p>
                 <span>|</span>
-                <p className="m-0 text-[12px]">ahmad@email.com</p>
+                <p className="m-0 text-[12px]">
+                  {details?.user.email && details?.user.email}
+                </p>
               </div>
             </div>
           </div>
@@ -100,39 +129,57 @@ const CourseRequest = ({
             <Dropdown.Item
               className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
               onClick={() => {
-                if (type === "courseSubmit") {
-                  router.push(`/admin-dashboard/courses/submit-courses/${6}`);
+                if (loc === "courseSubmit" || loc === "courseAd") {
+                  router.push(
+                    `/admin-dashboard/courses/submit-courses/${details?.id}`
+                  );
                 }
               }}
             >
               Show Details
             </Dropdown.Item>
-            <Dropdown.Item
-              className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-              onClick={() => {
-                if (type === "courseAd") {
-                  setInvoiceModalOpen(true);
-                } else if (type === "courseRequest") {
-                  setAcceptModalOpen(true);
-                }
-              }}
-            >
-              Accept request
-            </Dropdown.Item>
-            <Dropdown.Item
-              className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-              onClick={() => {
-                if (type === "courseAd" || type === "courseRequest") {
-                  setRejectModalOpen(true);
-                }
-              }}
-            >
-              Reject request
-            </Dropdown.Item>
+
+            {loc === "courseAd" && (
+              <>
+                <Dropdown.Item
+                  className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                  onClick={() => {
+                    setInvoiceModalOpen(true);
+                  }}
+                >
+                  Accept request
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                  onClick={() => {
+                    setRejectModalOpen(true);
+                  }}
+                >
+                  Reject request
+                </Dropdown.Item>
+              </>
+            )}
+
+            {loc === "courseSubmit" && details?.status === "Pending" && (
+              <>
+                <Dropdown.Item
+                  className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                  onClick={() => {}}
+                >
+                  Accept request
+                </Dropdown.Item>
+                <Dropdown.Item
+                  className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                  onClick={() => {}}
+                >
+                  Reject request
+                </Dropdown.Item>
+              </>
+            )}
           </Dropdown>
 
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            {type === "courseRequest" ? (
+            {loc === "courseRequest" ? (
               <>
                 <Location />
                 <p>Address</p>
@@ -140,7 +187,7 @@ const CourseRequest = ({
             ) : (
               <>
                 <Peoples />
-                <p>60</p>
+                <p>{details?.num_people}</p>
               </>
             )}
           </div>

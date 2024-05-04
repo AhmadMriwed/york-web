@@ -2,7 +2,7 @@
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSessionInfo } from "@/store/adminstore/slices/sessions/sessionsActions";
-import { getCourseInfo } from "@/store/adminstore/slices/courses/singleCourseSlice";
+import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "../Pars/ThemeContext";
 /* icons */
@@ -21,6 +21,7 @@ import { MdOutlineErrorOutline } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
 import { Sidenav, Nav, Loader } from "rsuite";
+import { storageURL } from "@/utils/api";
 
 interface NavLinkProps {
   as: string;
@@ -107,8 +108,8 @@ const SessionSidebar = () => {
             <div className="bg-slate-400 w-full h-[100px] rounded-[8px] mt-2">
               {sessionInfo?.image && (
                 <Image
-                  src={sessionInfo.image}
-                  alt="Session Image"
+                  src={storageURL + sessionInfo.image}
+                  alt="session image"
                   width={400}
                   height={400}
                   style={{
@@ -121,7 +122,7 @@ const SessionSidebar = () => {
               )}
             </div>
 
-            <div className="mt-2 text-[#888] text-end">Admin</div>
+            <div className="mt-2 text-[#888] text-end">User type: Admin</div>
             <div className="bg-[#888] w-full h-[1px] my-1"></div>
           </>
         )}

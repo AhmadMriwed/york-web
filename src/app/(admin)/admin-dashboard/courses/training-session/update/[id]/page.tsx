@@ -88,7 +88,7 @@ const UpdateSession = ({ params }: any) => {
         op="update"
       />
       <OperationAlert
-        messageOnSuccess="The session was updated successfully."
+        messageOnSuccess="operation accomplished successfully!"
         messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}

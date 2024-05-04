@@ -1,7 +1,15 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
+import { getLocalDate } from "@/utils/dateFuncs";
+import {
+  courseOperationCompleted,
+  deleteCourse,
+} from "@/store/adminstore/slices/courses/coursesSlice";
+import { courseType } from "@/types/adminTypes/courses/coursesTypes";
+import { GlobalState } from "@/types/storeTypes";
+import { storageURL } from "@/utils/api";
 /* icons */
 import { Calendar, More, Edit, Trash, Paragraph, Peoples } from "@rsuite/icons";
 import { FaBook } from "react-icons/fa";
@@ -11,13 +19,19 @@ import { CiClock1, CiLocationOn } from "react-icons/ci";
 import { IoLanguage } from "react-icons/io5";
 /* components */
 import Image from "next/image";
+import AlertModal from "@/components/Pars/AlertModal";
 import { Dropdown, IconButton } from "rsuite";
 
-import tmpImage from "@/../public/main-background.jpg"; //TMP
-
-const Course = () => {
+const Course = ({ course }: { course: courseType }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
+
+  const [deleteModal, setDeleteModal] = useState<boolean>(false);
+
+  const { status, operationLoading, operationError } = useSelector(
+    (state: GlobalState) => state.courses
+  );
+  const dispatch = useDispatch<any>();
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -37,17 +51,15 @@ const Course = () => {
   };
 
   const handleDelete = () => {
-    //   setDeleteModal(true);
+    setDeleteModal(true);
   };
 
   const handleShowDetails = () => {
-    router.push(`/admin-dashboard/courses/course-info/${1}`);
+    router.push(`/admin-dashboard/courses/course-info/${course.id}`);
   };
 
   const handleEdit = () => {
-    //   router.push(
-    //     `/admin-dashboard/courses/training-session/update/${session.id}`
-    //   );
+    router.push(`/admin-dashboard/courses/update/${course.id}`);
   };
 
   const handleDuplicate = () => {
@@ -71,53 +83,65 @@ const Course = () => {
       className={`p-3 sm:p-6 flex justify-between gap-2
       rounded-[16px] ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
     >
+      <AlertModal
+        open={deleteModal}
+        setOpen={setDeleteModal}
+        requestType="delete"
+        label={`Are you sure you want to delete "${course.title}" ?`}
+        deleteAction={deleteCourse}
+        completed={courseOperationCompleted}
+        id={course.id}
+        status={status}
+      />
       <div className="flex justify-between gap-2">
         <div className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
-          <Image
-            src={tmpImage}
-            alt="Course Ad Image"
-            width={400}
-            height={400}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: "8px",
-            }}
-          />
+          {course.image && (
+            <Image
+              src={storageURL + course.image}
+              alt="course image"
+              width={400}
+              height={400}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "8px",
+              }}
+            />
+          )}
         </div>
 
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
-            Lorem ipsum dolor sit amet
+            {course.title && course.title.slice(0, 16)}
             <span
               className="w-fit bg-[var(--primary-color1)] text-white text-[10px] sm:text-[12px]
             text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
             >
-              Active
+              STATUS UNKNOWN
             </span>
           </p>
           <p className="m-0 text-[10px] sm:text-[14px] sm:text-[16px] text-[#888]">
-            #225897
+            {`#${course?.code}`}
           </p>
           <div
             className="w-fit bg-[#00d4d4] text-black text-[10px] sm:text-[12px]
             text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
           >
-            Strategy
+            {course.category.title && course.category.title}
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <IoLanguage />
-            <p>Spanish</p>
+            <p>{course.language && course.language}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
               <CiClock1 />
-              <p>{`${calculateHours(new Date(), new Date())} hr`}</p>
+              <p>{`${course?.houres} hr`}</p>
             </div>
             <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
               <Peoples />
-              <p>21 st</p>
+              <p>{course.count_trainees && course.count_trainees}</p>
             </div>
           </div>
         </div>
@@ -163,7 +187,7 @@ const Course = () => {
             hover:bg-slate-100"
               onClick={handleActivation}
             >
-              {"Active" === "Active" ? "Deactivate" : "Activate"}
+              CHANGE STATUS
             </Dropdown.Item>
           </Dropdown>
         </div>
@@ -178,19 +202,21 @@ const Course = () => {
             rounded-full`}
           >
             <CiLocationOn />
-            <p className="xs: text-[10px] sm:text-[12px]">London</p>
+            <p className="xs: text-[10px] sm:text-[12px]">
+              {course?.venue?.title && course.venue.title}
+            </p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <FaBook />
-            <p>56 sessions</p>
+            <p>{`${course?.count_training_session} sessions`}</p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <Calendar />
-            <p>{`${getLocalDate(new Date())}`}</p>
+            <p>{`${getLocalDate(new Date(course?.start_date))}`}</p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <Calendar />
-            <p>{`${getLocalDate(new Date())}`}</p>
+            <p>{`${getLocalDate(new Date(course?.end_date))}`}</p>
           </div>
         </div>
       </div>

@@ -1,47 +1,51 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import { baseURL } from "@/utils/api";
+import {
+  getCategories,
+  getCurrencies,
+  getVenues,
+} from "@/store/endUser/endUserSlice";
+import { createInvoice } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
+import { getUTCDate } from "@/utils/dateFuncs";
+import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
+import { GlobalState } from "@/types/storeTypes";
 
-import { LuImagePlus } from "react-icons/lu";
+import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
 
-import { Modal, Uploader } from "rsuite";
+import { Loader, Modal } from "rsuite";
 import CustomInput from "@/components/rsuiteInput/CustomInput";
+import Image from "next/image";
+import ImageUploader from "../CustomUploader/ImageUploader";
 
 // Validation Schema
 const invoiceSchema = yup.object().shape({
-  title: yup.string().required("Title is Required"),
-  subtitle: yup.string().required("Title is Required"),
-  date_from: yup
+  title: yup.string().required("Title is required"),
+  sub_title: yup.string().required("Subtitle is required"),
+  start_date: yup
     .date()
-    .required("Start Date is Required")
-    .min(new Date(), "Please enter a valid Start Date"),
-  date_to: yup
+    .required("Start date is required")
+    .min(new Date(), "Please enter a valid start date"),
+  end_date: yup
     .date()
-    .required("End Date is Required")
+    .required("End date is required")
     .test(
       "is-valid-end-date",
-      "End Date must be greater than Start Date",
+      "End date must be greater than start date",
       function (value) {
-        const { date_from } = this.parent;
+        const { start_date } = this.parent;
 
-        return value > date_from;
+        return value > start_date;
       }
     ),
-  hours: yup.number().required("Number is Required"),
-  fee: yup.number().required("Fee is Required"),
-  language: yup.string().required("Language is Reqiured"),
-  // image: yup
-  //   .mixed()
-  //   .test("is-image", "Please upload a valid image", (value) => {
-  //     if (!value) {
-  //       return true;
-  //     }
-  //     return value instanceof File && value.type.startsWith("image/");
-  //   }),
-  venue: yup.string(),
-  category: yup.string(),
+  houres: yup.number().required("Hours is required"),
+  fee: yup.number().required("Fee is required"),
+  lang: yup.string().required("Language is reqiured"),
+  image: yup.mixed().nullable(),
+  venue_id: yup.number(),
+  category_id: yup.number(),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -50,41 +54,15 @@ const invoiceSchema = yup.object().shape({
       }
       return true;
     }),
-  submitCourse: yup.string().required("Submit Course is Required"),
-  status: yup.string().required("Status is Required"),
-  location: yup.string().required("Location is Required"),
-  outline: yup.string().required("Outline is Required"),
+  submit_courses_id: yup.string().required("Submit course is required"),
+  status: yup.string().required("Status is required"),
+  location: yup.string().required("Location is required"),
+  outlines: yup.string().required("Outline is required"),
   description: yup.string(),
-  price: yup.number().required("Price is Required"),
-  currency: yup.string().required("Currency is Required"),
-  invoiceName: yup.string().required("Invoice Name is Required"),
+  price: yup.number().required("Price is required"),
+  currencies_id: yup.number().required("Currency is required"),
+  invoice_name: yup.string().required("Invoice Name is required"),
 });
-
-const initialValues = {
-  title: "",
-  subtitle: "",
-  date_from: new Date(),
-  date_to: new Date(),
-  hours: 0,
-  fee: 0,
-  language: "",
-  image: null,
-  venue: "",
-  category: "",
-  code: "",
-  submitCourse: "",
-  status: "",
-  location: "",
-  outline: "",
-  description: "",
-  price: 0,
-  currency: "dollar",
-  invoiceName: "",
-};
-
-const submitHandler = (values: any) => {
-  console.log(values);
-};
 
 const fields = [
   {
@@ -98,7 +76,16 @@ const fields = [
   },
   {
     type: "text",
-    name: "submitCourse",
+    name: "course_ads_id",
+    label: "Course Ad Id",
+    placeholder: "Course Ad Id",
+    optional: false,
+    required: true,
+    disabled: true,
+  },
+  {
+    type: "text",
+    name: "submit_courses_id",
     label: "Submit Course",
     placeholder: "Submit Course",
     optional: false,
@@ -116,18 +103,9 @@ const fields = [
   },
   {
     type: "text",
-    name: "subtitle",
+    name: "sub_title",
     label: "Sub Title",
     placeholder: "Sub Title",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "text",
-    name: "language",
-    label: "Language",
-    placeholder: "Language",
     optional: false,
     required: true,
     disabled: false,
@@ -143,7 +121,7 @@ const fields = [
   },
   {
     type: "date",
-    name: "date_from",
+    name: "start_date",
     label: "Start Date",
     placeholder: "Start Date",
     optional: false,
@@ -152,7 +130,7 @@ const fields = [
   },
   {
     type: "date",
-    name: "date_to",
+    name: "end_date",
     label: "End Date",
     placeholder: "End Date",
     optional: false,
@@ -161,7 +139,7 @@ const fields = [
   },
   {
     type: "number",
-    name: "hours",
+    name: "houres",
     label: "Hours",
     placeholder: "Hours",
     optional: false,
@@ -177,16 +155,160 @@ const fields = [
     required: true,
     disabled: false,
   },
+  {
+    type: "textarea",
+    name: "description",
+    label: "Description",
+    placeholder: "Description",
+    optional: true,
+    required: false,
+    disabled: false,
+  },
 ];
 
 const InvoiceModal = ({
   modalOpen,
   setModalOpen,
+  submitInfo,
 }: {
-  modalOpen: boolean;
+  modalOpen?: boolean;
   setModalOpen: any;
+  submitInfo?: submitCourseType;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
+  const [expand, setExpand] = useState(false);
+  const [venueTerm, setVenueTerm] = useState("");
+  const [categoryTerm, setCategoryTerm] = useState("");
+  const [currencyTerm, setCurrencyTerm] = useState("");
+
+  const { isLoading, venues, categories, currencies } = useSelector(
+    (state: GlobalState) => state.endUser
+  );
+  const { operationLoading } = useSelector(
+    (state: GlobalState) => state.submitCourses
+  );
+
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    dispatch(getVenues(venueTerm));
+    dispatch(getCategories(categoryTerm));
+    dispatch(getCurrencies(currencyTerm));
+  }, [categoryTerm, currencyTerm, dispatch, venueTerm]);
+
+  let statusData = [
+    { label: "Pending", value: "Pending" },
+    { label: "Rejected", value: "Rejected" },
+    { label: "Accepted", value: "Accepted" },
+  ];
+  let venuesList: any, categoriesList: any, currenciesList: any;
+  if (categories && venues && currencies) {
+    venuesList = venues.map((venue: any) => ({
+      label: (
+        <div key={venue.id} className="flex items-center gap-2">
+          <div className="bg-slate-400 w-[25px]">
+            {venue.image && (
+              <Image
+                src={venue.image}
+                alt="venue image"
+                width={25}
+                height={25}
+              />
+            )}
+          </div>
+          <p className="m-0">{venue?.title}</p>
+        </div>
+      ),
+      value: venue.id,
+    }));
+    categoriesList = categories.map((category: any) => ({
+      label: (
+        <div key={category.id} className="flex items-center gap-2">
+          <div className="bg-slate-400 w-[25px]">
+            {category.image && (
+              <Image
+                src={category.image}
+                alt="category image"
+                width={25}
+                height={25}
+              />
+            )}
+          </div>
+          <p className="m-0">{category?.title}</p>
+        </div>
+      ),
+      value: category.id,
+    }));
+    currenciesList = currencies.map((currency: any) => ({
+      label: (
+        <div key={currency.id} className="flex items-center gap-2">
+          <div className="bg-slate-400 w-[25px]">
+            {currency.image && (
+              <Image
+                src={currency.image}
+                alt="currency image"
+                width={25}
+                height={25}
+              />
+            )}
+          </div>
+          <p className="m-0">{currency?.currency}</p>
+        </div>
+      ),
+      value: currency.id,
+    }));
+  }
+
+  const submitHandler = (values: any) => {
+    const data: any = {
+      ...values,
+      start_date: getUTCDate(values.start_date),
+      end_date: getUTCDate(values.end_date),
+    };
+
+    Object.keys(data).forEach((key) => {
+      if (data[key] === null || data[key] === "") {
+        delete data[key];
+      }
+    });
+
+    const formData = new FormData();
+    for (let key in data) {
+      formData.append(key, data[key]);
+    }
+
+    dispatch(createInvoice(formData));
+  };
+
+  let initialValues;
+  if (submitInfo)
+    initialValues = {
+      title: submitInfo.title ? submitInfo.title : "",
+      sub_title: "",
+      start_date: submitInfo.start_date
+        ? new Date(submitInfo.start_date)
+        : new Date(),
+      end_date: submitInfo.end_date
+        ? new Date(submitInfo.end_date)
+        : new Date(),
+      houres: submitInfo.hours ? submitInfo.hours : null,
+      fee: submitInfo.fee ? submitInfo.fee : null,
+      lang: submitInfo.language ? submitInfo.language : "",
+      image: null,
+      venue_id: submitInfo.venue.id ? submitInfo.venue.id : null,
+      category_id: submitInfo.category.id ? submitInfo.category.id : null,
+      code: "",
+      course_ads_id: submitInfo.course_ad_id,
+      submit_courses_id: submitInfo.id,
+      status: submitInfo.status ? submitInfo.status : "",
+      location: "",
+      outlines: "",
+      description: submitInfo.description ? submitInfo.description : "",
+      price: null,
+      currencies_id: 1,
+      invoice_name: "",
+    };
 
   return (
     <Modal
@@ -220,102 +342,16 @@ const InvoiceModal = ({
             <Form className="flex flex-col">
               <div className="bg-light text-dark py-1 px-1 sm:px-3 rounded-sm">
                 <p className="text-center text-[16px] py-1">
-                  Emit invoice for request with id: #125548
+                  {`Create invoice for request with id: #${
+                    submitInfo?.id && submitInfo.id
+                  }`}
                 </p>
-                <div className="p-2">
-                  <p className="font-bold mb-2">Course Info</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                    {fields.map((field) => (
-                      <CustomInput
-                        key={field.name}
-                        type={field.type}
-                        name={field.name}
-                        label={field.label}
-                        placeholder={field.placeholder}
-                        optional={field.optional}
-                        required={field.required}
-                        disabled={field.disabled}
-                      />
-                    ))}
-
-                    <CustomInput
-                      type="select"
-                      selectData={[]}
-                      name="venue"
-                      label="Venue"
-                      optional
-                      placeholder="Venue"
-                    />
-                    <CustomInput
-                      type="select"
-                      selectData={[]}
-                      name="category"
-                      label="Category"
-                      optional
-                      placeholder="Category"
-                    />
-                    <CustomInput
-                      type="select"
-                      selectData={[]}
-                      name="status"
-                      label="Status"
-                      required
-                      placeholder="Status"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 gap-y-2">
-                    <CustomInput
-                      type="textarea"
-                      textAreaRows={2}
-                      name="outline"
-                      label="Outline"
-                      required
-                      placeholder="Outline"
-                    />
-                    <CustomInput
-                      type="textarea"
-                      textAreaRows={2}
-                      name="description"
-                      label="Description"
-                      optional
-                      placeholder="Description"
-                    />
-                    <Uploader
-                      action={baseURL + ""}
-                      draggable
-                      listType="picture-text"
-                      className="text-[#888] mt-4"
-                      renderFileInfo={(file) => {
-                        return (
-                          <>
-                            <span>{file.name}</span>
-                          </>
-                        );
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          borderColor: "#888",
-                          padding: "25px",
-                        }}
-                      >
-                        <span className="element-center gap-2">
-                          <LuImagePlus />
-                          <p>Click or Drag Image to Upload (optional)</p>
-                        </span>
-                      </div>
-                    </Uploader>
-                  </div>
-                </div>
                 <div className="p-2">
                   <p className="font-bold mb-2">Invoice Info</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
                     <CustomInput
                       type="text"
-                      name="invoiceName"
+                      name="invoice_name"
                       label="Invoice Name"
                       required
                       placeholder="Invoice Name"
@@ -329,13 +365,99 @@ const InvoiceModal = ({
                     />
                     <CustomInput
                       type="select"
-                      selectData={[]}
-                      name="currency"
+                      selectData={currenciesList}
+                      selectOnSearch={(value: string) => setCurrencyTerm(value)}
+                      selectLoading={isLoading}
+                      selectSearchable
+                      name="currencies_id"
                       label="Currency"
                       required
                       placeholder="Currency"
                     />
                   </div>
+                </div>
+
+                <div className="p-2">
+                  <p className="font-bold mb-2">Course Info</p>
+                  <div className="grid grid-cols-1 gap-y-1">
+                    <CustomInput
+                      type="select"
+                      selectData={[
+                        { label: "English", value: "en" },
+                        { label: "Arabic", value: "ar" },
+                      ]}
+                      name="lang"
+                      label="Language"
+                      required
+                      placeholder="Language"
+                    />
+                    <CustomInput
+                      type="textarea"
+                      textAreaRows={2}
+                      name="outlines"
+                      label="Outline"
+                      required
+                      placeholder="Outline"
+                    />
+                    <ImageUploader formikProps={props} />
+                  </div>
+
+                  <div
+                    className="my-7 element-center gap-7 text-[14px] font-[500] cursor-pointer"
+                    onClick={() => setExpand(!expand)}
+                  >
+                    Show More Advance{" "}
+                    {expand ? <ArrowUpLine /> : <ArrowDownLine />}
+                  </div>
+                  {expand && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                      {fields.map((field) => (
+                        <CustomInput
+                          key={field.name}
+                          type={field.type}
+                          name={field.name}
+                          label={field.label}
+                          placeholder={field.placeholder}
+                          optional={field.optional}
+                          required={field.required}
+                          disabled={field.disabled}
+                        />
+                      ))}
+
+                      <CustomInput
+                        type="select"
+                        selectData={statusData}
+                        name="status"
+                        label="Status"
+                        required
+                        placeholder="Status"
+                      />
+                      <CustomInput
+                        type="select"
+                        selectData={venuesList}
+                        selectOnSearch={(value: string) => setVenueTerm(value)}
+                        selectLoading={isLoading}
+                        selectSearchable
+                        name="venue_id"
+                        label="Venue"
+                        optional
+                        placeholder="Venue"
+                      />
+                      <CustomInput
+                        type="select"
+                        selectData={categoriesList}
+                        selectSearchable
+                        selectOnSearch={(value: string) =>
+                          setCategoryTerm(value)
+                        }
+                        selectLoading={isLoading}
+                        name="category_id"
+                        label="Category"
+                        optional
+                        placeholder="Category"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 m-2 self-end">
@@ -346,12 +468,8 @@ const InvoiceModal = ({
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="colored-btn"
-                  onClick={() => console.log(props.values)}
-                >
-                  Emit Invoice
+                <button type="submit" className="colored-btn">
+                  {operationLoading ? <Loader /> : "Create Invoice"}
                 </button>
               </div>
             </Form>

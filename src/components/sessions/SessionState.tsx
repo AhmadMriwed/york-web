@@ -16,7 +16,7 @@ const SessionState = ({ state }: { state: sessionState; key: any }) => {
     >
       <div className="flex justify-between items-center gap-11">
         <div className="flex items-center gap-1">
-          <Avatar src={state.user.image} circle alt="User Image" />
+          <Avatar src={state.user.image} circle alt="user image" />
           <div>
             <div className="font-bold text-[12px] sm:text-[14px]">{`${state.user.first_name} ${state.user.last_name}`}</div>
           </div>

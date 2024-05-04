@@ -165,7 +165,7 @@ const JoinedUsers = ({ params }: any) => {
   return (
     <section className="px-2 pt-6 lg:px-6">
       <OperationAlert
-        messageOnSuccess="Success !"
+        messageOnSuccess="operation accomplished successfully!"
         messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}

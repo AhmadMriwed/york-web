@@ -44,7 +44,7 @@ const UserReportModal = ({
               src={userData.user.image}
               width={150}
               height={150}
-              alt="User Image"
+              alt="user image"
               style={{ borderRadius: "100%" }}
             />
           )}

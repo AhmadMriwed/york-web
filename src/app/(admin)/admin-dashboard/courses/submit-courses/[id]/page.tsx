@@ -1,7 +1,13 @@
 "use client";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
+import { getLocalDate } from "@/utils/dateFuncs";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getSubmitDetails,
+  submitCourseOperationCompleted,
+} from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
+import { GlobalState } from "@/types/storeTypes";
 
 import {
   Calendar,
@@ -18,74 +24,162 @@ import { RiProfileLine } from "react-icons/ri";
 import { PiHandbag } from "react-icons/pi";
 
 import Header from "@/components/Pars/Header";
+import Loading from "@/components/Pars/Loading";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import InvoiceModal from "@/components/courses/InvoiceModal";
+import CauseModal from "@/components/courses/CauseModal";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
-const SubmitCourseInfo = () => {
+const SubmitCourseInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const { id } = params;
+
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  const {
+    submitDetails,
+    isLoading,
+    error,
+    status,
+    operationError,
+    operationLoading,
+  } = useSelector((state: GlobalState) => state.submitCourses);
+
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    dispatch(getSubmitDetails(id));
+  }, [dispatch, id]);
+
+  if (isLoading) return <Loading />;
+
+  if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
   return (
     <section className="p-3 sm:p-6">
       <Header title="Submit Course Details" />
 
+      <OperationAlert
+        messageOnSuccess="operation accomplished successfully"
+        messageOnError={`Oops! ${operationError}`}
+        error={operationError}
+        status={status}
+        completedAction={submitCourseOperationCompleted}
+      />
+
+      {submitDetails && (
+        <>
+          <InvoiceModal
+            modalOpen={invoiceOpen}
+            setModalOpen={setInvoiceOpen}
+            submitInfo={submitDetails}
+          />
+          <CauseModal
+            role="reject"
+            submitId={submitDetails.id}
+            modalOpen={rejectOpen}
+            setModalOpen={setRejectOpen}
+          />
+        </>
+      )}
+
       <div className="mt-4 p-3 sm:p-6 bg-[var(--dark-bg-color)] text-white rounded-md">
         <p className="font-bold">Info Submit Course :</p>
+
         <div className="flex items-center gap-2 mt-4">
-          <p className="text-[14px] font-light"> #225544</p>
+          <p className="text-[14px] font-light">{`#${submitDetails?.code}`}</p>
           <p
             className="bg-[var(--primary-color2)] text-[#000] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
               xs: text-[10px] sm:text-[12px] m-0"
           >
-            Web development
+            {submitDetails?.category.title}
           </p>
           <p
             className="bg-[var(--primary-color2)] text-[#000] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
               xs: text-[10px] sm:text-[12px] m-0"
           >
-            $ 40
+            {`$ ${submitDetails?.fee}`}
           </p>
         </div>
-        <p className="sm:text-[16px] font-500">Title</p>
-        <p className="max-w-md text-[12px]">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quasi cumque
-          ullam doloribus consequatur veritatis, earum iure sit amet consectetur
-          adipisicing elit. Quasi cumque ullam doloribus consequatur veritatis,
-          earum iure
-        </p>
+
+        <p className="sm:text-[16px] font-500 my-2">{submitDetails?.title}</p>
+        <p className="max-w-md text-[12px]">{submitDetails?.description}</p>
+
         <div className="flex justify-between sm:justify-start sm:gap-4 items-center mt-4">
           <div className="bg-black text-white w-fit py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full">
             <CiLocationOn />
-            <p className="text-[10px] sm:text-[12px]">London</p>
+            <p className="text-[10px] sm:text-[12px]">
+              {submitDetails?.venue.title}
+            </p>
           </div>
+
           <div className="flex items-center gap-2">
-            <p className="m-0 text-[12px] sm:text-[14px]">Entity type</p>
+            <p className="m-0 text-[12px] sm:text-[14px]">
+              {submitDetails?.entity_type}
+            </p>
             <p className="m-0 text-[12px] sm:text-[14px]">|</p>
-            <p className="m-0 text-[12px] sm:text-[14px]">course ad #225666</p>
+            <p className="m-0 text-[12px] sm:text-[14px]">{`course ad id #${submitDetails?.course_ad_id}`}</p>
           </div>
         </div>
+
         <div className="flex flex-wrap justify-between sm:justify-start items-center gap-1 sm:gap-4 mt-4">
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <IoLanguage />
-            <p>Spanish</p>
-          </div>
+          {submitDetails?.language && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <IoLanguage />
+              <p>{submitDetails?.language}</p>
+            </div>
+          )}
+
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <CiClock1 />
-            <p>{`${calculateHours(new Date(), new Date())} hr`}</p>
+            <p>{`${submitDetails?.hours} hr`}</p>
           </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <Calendar />
-            <p>{`${getLocalDate(new Date())}`}</p>
-          </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <Calendar />
-            <p>{`${getLocalDate(new Date())}`}</p>
-          </div>
+
+          {submitDetails?.start_date && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <Calendar />
+              <p>{`${getLocalDate(new Date(submitDetails?.start_date))}`}</p>
+            </div>
+          )}
+
+          {submitDetails?.end_date && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <Calendar />
+              <p>{`${getLocalDate(new Date(submitDetails?.end_date))}`}</p>
+            </div>
+          )}
         </div>
+
         <div className="flex items-center gap-4 mt-4">
-          <button className="p-3 bg-green-400 rounded-full cursor-pointer element-center">
-            <Check />
-          </button>
-          <button className="p-3 bg-red-400 rounded-full cursor-pointer element-center">
-            <Close />
-          </button>
+          {submitDetails?.status === "Pending" && (
+            <>
+              <button
+                className="p-3 bg-green-400 rounded-full cursor-pointer element-center"
+                onClick={() => setInvoiceOpen(true)}
+              >
+                <Check />
+              </button>
+              <button
+                className="p-3 bg-red-400 rounded-full cursor-pointer element-center"
+                onClick={() => setRejectOpen(true)}
+              >
+                <Close />
+              </button>
+            </>
+          )}
+
+          {submitDetails?.status === "Accepted" && (
+            <div className="py-2 px-6 bg-green-400 rounded-full element-center gap-2">
+              <Check /> Accepted
+            </div>
+          )}
+
+          {submitDetails?.status === "Rejected" && (
+            <div className="py-2 px-6 bg-red-400 rounded-full element-center gap-2">
+              <Close /> Rejected
+            </div>
+          )}
         </div>
       </div>
 
@@ -98,61 +192,67 @@ const SubmitCourseInfo = () => {
           <p className="font-bold font-bold border-b-[1px]">
             Info Department :
           </p>
+
           <div className="mt-4 flex flex-col gap-2">
-            <p className="flex items-center gap-1">
-              <RiProfileLine /> Department Name
-            </p>
-            <p className="flex items-center gap-1">
-              <Email /> department@email.com
-            </p>
-            <p className="flex items-center gap-1 max-w-md">
-              <Global /> https://url.com
-            </p>
-            <p className="flex items-center gap-1">
-              <PiHandbag /> Job title : web development
-            </p>
-            <p className="flex items-center gap-1">
-              <InfoOutline /> cv trainee
-            </p>
+            {submitDetails?.department.name && (
+              <p className="flex items-center gap-1">
+                <RiProfileLine /> {submitDetails?.department.name}
+              </p>
+            )}
+
+            {submitDetails?.department.email && (
+              <p className="flex items-center gap-1">
+                <Email /> {submitDetails?.department.email}
+              </p>
+            )}
+
+            {submitDetails?.department.url && (
+              <p className="flex items-center gap-1 max-w-md">
+                <Global />{" "}
+                <a href={submitDetails.department.url}>department url</a>
+              </p>
+            )}
+
+            {submitDetails?.department.job_title && (
+              <p className="flex items-center gap-1">
+                <PiHandbag />{" "}
+                {`Job title : ${submitDetails?.department.job_title}`}
+              </p>
+            )}
+
+            {submitDetails?.department.cv_trainer && (
+              <p className="flex items-center gap-1">
+                <InfoOutline />{" "}
+                {`cv trainee : ${submitDetails?.department.cv_trainer}`}
+              </p>
+            )}
           </div>
         </div>
+
         <div
           className={`p-3 sm:p-6 ${
             mode === "dark" ? "bg-light" : "bg-white"
           } text-black rounded-md`}
         >
-          <p className="font-bold border-b-[1px]">Selection Trainer :</p>
+          <p className="font-bold border-b-[1px]">Selection Trainer :??????</p>
           <div className="mt-4 flex flex-col gap-2">
             <p className="flex items-center gap-1">
               <InfoOutline />
-              Trainer Name | id: #112255
+              Trainer Name | id: #??????
             </p>
-            <p className="max-w-md text-[12px]">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim
-              omnis dignissimos corrupti dolore maxime velit, minus ab repellat
-              possimus incidunt
+            <p className="max-w-md text-[12px]">description :??????</p>
+            <p className="flex items-center gap-1">
+              <Email /> ??????
             </p>
             <p className="flex items-center gap-1">
-              <Email /> trainer@email.com
-            </p>
-            <p className="flex items-center gap-1">
-              <Phone /> 558-448-777
+              <Phone /> ??????
             </p>
             <p className="flex items-center gap-1">
               <PiHandbag />
-              functional specialization
+              functional specialization :??????
             </p>
           </div>
         </div>
-
-        {/* <div>
-          <p className="font-bold border-b-[1px]">Invoice :</p>
-          <div className="mt-4 p-6 bg-light text-dark w-fit h-fit rounded-xl cursor-pointer">
-            <p className="flex items-center gap-2 font-[500]">
-              Show Invoice Details <FaCreditCard />
-            </p>
-          </div>
-        </div> */}
       </div>
     </section>
   );

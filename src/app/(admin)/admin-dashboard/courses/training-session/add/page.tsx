@@ -72,7 +72,7 @@ const AddNewSession = () => {
       />
       <NewSessionModal modalOpen={modalOpen} setModalOpen={setModalOpen} />
       <OperationAlert
-        messageOnSuccess="The session was added successfully."
+        messageOnSuccess="operation accomplished successfully!"
         messageOnError="Oops! There was an error, please try again later."
         status={status}
         error={operationError}

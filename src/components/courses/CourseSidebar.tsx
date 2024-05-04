@@ -1,6 +1,8 @@
 "use client";
-import { Ref, forwardRef, useContext, useEffect, useState } from "react";
-import { ThemeContext } from "../Pars/ThemeContext";
+import { Ref, forwardRef, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { GlobalState } from "@/types/storeTypes";
+import { storageURL } from "@/utils/api";
 
 import {
   PiCertificate,
@@ -10,11 +12,11 @@ import {
   PiPen,
   PiUsers,
 } from "react-icons/pi";
-import { MdOutlineModelTraining } from "react-icons/md";
+import { MdOutlineErrorOutline, MdOutlineModelTraining } from "react-icons/md";
 
 import Link from "next/link";
 import Image from "next/image";
-import { Sidenav, Nav } from "rsuite";
+import { Sidenav, Nav, Loader } from "rsuite";
 
 interface NavLinkProps {
   as: string;
@@ -32,10 +34,12 @@ NavLink.displayName = "NavLink";
 
 const CourseSidebar = () => {
   const [expanded, setExpanded] = useState(true);
-  const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
-    useContext(ThemeContext);
 
-  const accountType = "Admin";
+  const {
+    isLoading: courseLoading,
+    error: courseError,
+    courseInfo,
+  } = useSelector((state: GlobalState) => state.courses);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -61,22 +65,22 @@ const CourseSidebar = () => {
     {
       id: 1,
       title: "Trainers",
-      url: "trainers",
+      url: `trainers/${courseInfo?.id}`,
     },
     {
       id: 2,
       title: "Trainees",
-      url: "trainees",
+      url: `trainees/${courseInfo?.id}`,
     },
     {
       id: 3,
       title: "Clients",
-      url: "clients",
+      url: `clients/${courseInfo?.id}`,
     },
     {
       id: 4,
       title: "Requests to Join",
-      url: "requests-to-join",
+      url: `requests-to-join/${courseInfo?.id}`,
     },
   ];
 
@@ -105,11 +109,45 @@ const CourseSidebar = () => {
         className={`max-w-[130px] mx-auto mt-2 `}
       />
 
-      {expanded && (
-        <p className="px-2 mx-3 my-4 text-center">
-          Welcome To Course #122555 Dashboard
-        </p>
-      )}
+      <div className={`px-3 mt-3 ${expanded ? "!block" : "!hidden"}`}>
+        {courseError ? (
+          <div className="element-center text-[16px] text-red-500 py-2">
+            <MdOutlineErrorOutline />
+          </div>
+        ) : courseLoading ? (
+          <div className="my-7 element-center">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            {courseInfo?.title && courseInfo.code && (
+              <p className="text-[12px] text-center">
+                {`${courseInfo.title} | #${courseInfo.code}`}
+              </p>
+            )}
+
+            <div className="bg-slate-400 w-full h-[100px] rounded-[8px] mt-2">
+              {courseInfo?.image && (
+                <Image
+                  src={storageURL + courseInfo.image}
+                  alt="course image"
+                  width={400}
+                  height={400}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+              )}
+            </div>
+
+            <div className="mt-2 text-[#888] text-end">User type: Admin</div>
+            <div className="bg-[#888] w-full h-[1px] my-1"></div>
+          </>
+        )}
+      </div>
 
       <Sidenav
         className={`!bg-inherit !mt-[10px] transition-all duration-500 !text-inherit`}
@@ -132,7 +170,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard/courses/course-info/2"
+              href={`/admin-dashboard/courses/course-info/${courseInfo?.id}`}
             >
               Information Course
             </Nav.Item>
@@ -150,7 +188,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard/courses/course-info/training-session"
+              href={`/admin-dashboard/courses/course-info/training-session/${courseInfo?.id}`}
             >
               Training Sessions
             </Nav.Item>
@@ -261,7 +299,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="/admin-dashboard/courses/my-courses"
             >
               Home
             </Nav.Item>

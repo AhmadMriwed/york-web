@@ -21,7 +21,7 @@ const ImageCell = ({ rowData, dataKey, ...props }: any) => {
             src={rowData.user.image}
             width={40}
             height={40}
-            alt="User Image"
+            alt="user image"
           />
         )}
       </div>

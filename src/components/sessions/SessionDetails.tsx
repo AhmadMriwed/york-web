@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
+import { storageURL } from "@/utils/api";
 /* icons */
 import { Location, Calendar, ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
 import { FaLanguage, FaClock } from "react-icons/fa";
@@ -121,8 +122,8 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
         <div className="bg-slate-400 min-w-[200px] w-full sm:w-fit min-h-[200px] rounded-[8px] self-start">
           {sessionInfo?.image && (
             <Image
-              src={sessionInfo.image}
-              alt="Session Image"
+              src={storageURL + sessionInfo.image}
+              alt="session image"
               width={400}
               height={400}
               style={{
