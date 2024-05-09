@@ -24,7 +24,6 @@ import {
 import Image from "next/image";
 import AlertModal from "../Pars/AlertModal";
 import UserReportModal from "./UserReportModal";
-import AddJoinedUserModal from "./AddJoinedUserModal";
 import { More } from "@rsuite/icons";
 
 const UpdateModal = ({
@@ -208,15 +207,9 @@ const UpdateModal = ({
 const CourseUser = ({
   user,
   userType,
-  addModal,
-  setAddModal,
-  courseId,
 }: {
   user: clientType | traineeType;
   userType: "trainer" | "trainee" | "client";
-  addModal: boolean;
-  setAddModal: any;
-  courseId: number;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
@@ -257,12 +250,6 @@ const CourseUser = ({
           modalOpen={reportOpen}
           setModalOpen={setReportOpen}
           userData={user}
-        />
-        <AddJoinedUserModal
-          modalOpen={addModal}
-          setModalOpen={setAddModal}
-          userType={userType}
-          courseId={courseId}
         />
         <UpdateModal
           modalOpen={updateModal}

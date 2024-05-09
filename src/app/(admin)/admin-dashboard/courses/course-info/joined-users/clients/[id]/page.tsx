@@ -14,6 +14,7 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import AddJoinedUserModal from "@/components/courses/AddJoinedUserModal";
 
 const JoinedClients = ({ params }: any) => {
   const { id } = params;
@@ -51,6 +52,12 @@ const JoinedClients = ({ params }: any) => {
         btnTitle="Add Client"
         btnAction={() => setAddModal(true)}
       />
+      <AddJoinedUserModal
+        modalOpen={addModal}
+        setModalOpen={setAddModal}
+        userType="client"
+        courseId={id}
+      />
       <OperationAlert
         status={status}
         error={operationError}
@@ -64,14 +71,7 @@ const JoinedClients = ({ params }: any) => {
           <Loading />
         ) : courseClients.length > 0 ? (
           courseClients.map((user) => (
-            <CourseUser
-              key={user.id}
-              user={user}
-              userType="client"
-              addModal={addModal}
-              setAddModal={setAddModal}
-              courseId={id}
-            />
+            <CourseUser key={user.id} user={user} userType="client" />
           ))
         ) : (
           <EmptyResult />
