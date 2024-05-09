@@ -16,7 +16,6 @@ export const getCourseAds = createAsyncThunk(
         filterValues
       );
       if (res.status === 200) {
-        console.log("success course ads");
         return {
           data: res.data.data,
         };
@@ -35,7 +34,6 @@ export const getFilterData = createAsyncThunk(
     try {
       const res = await Axios.get("admin/course_ads/getMap/filterCourse");
       if (res.status === 200) {
-        console.log("success filter data");
         return {
           data: res.data.data,
         };
@@ -54,7 +52,6 @@ export const getCourseAdInfo = createAsyncThunk(
     try {
       const res = await Axios.get(`admin/course_ads/${id}`);
       if (res.status === 200) {
-        console.log("success course ad info");
         return {
           data: res.data.data,
         };
@@ -73,7 +70,6 @@ export const createCourseAd = createAsyncThunk(
     try {
       const res = await Axios.post("admin/course_ads", data);
       if (res.status === 201) {
-        console.log("success ad created");
         return res.data.data;
       }
     } catch (error: any) {
@@ -93,7 +89,6 @@ export const updateCourseAd = createAsyncThunk(
         params.data
       );
       if (res.status === 200) {
-        console.log("success ad updated");
         return { status: true };
       }
     } catch (error: any) {
@@ -110,7 +105,6 @@ export const deleteCourseAd = createAsyncThunk(
     try {
       const res = await Axios.delete(`admin/course_ads/${id}`);
       if (res.status === 200) {
-        console.log("success ad deleted");
         return { id };
       }
     } catch (error: any) {
@@ -127,7 +121,6 @@ export const duplicateCourseAd = createAsyncThunk(
     try {
       const res = await Axios.post(`admin/course_ads/replicate/${id}`);
       if (res.status === 200) {
-        console.log("success ad duplicated");
         return res.data.data;
       }
     } catch (error: any) {
@@ -144,8 +137,10 @@ export const changeAdStatus = createAsyncThunk(
     try {
       const res = await Axios.post(`admin/course_ads/operation/activity/${id}`);
       if (res.status === 200) {
-        console.log("success ad status changed");
-        return res.data.data;
+        return {
+          data: res.data.data,
+          id: id,
+        };
       }
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -313,13 +308,12 @@ const courseAds = createSlice({
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
-        // updateStatusForAllArrays(
-        //   state,
-        //   action.payload.ids,
-        //   action.payload.status,
-        //   action.payload.classification
-        // );
-        // if (state.courseAdInfo) state.courseAdInfo.status = action.payload.status;
+
+        if (state.courseAdInfo) state.courseAdInfo = { ...action.payload.data };
+
+        state.courseAds = state.courseAds.map((ad) => {
+          return ad.id === action.payload.id ? { ...action.payload.data } : ad;
+        });
       })
       .addCase(changeAdStatus.rejected, (state, action: any) => {
         state.operationLoading = false;

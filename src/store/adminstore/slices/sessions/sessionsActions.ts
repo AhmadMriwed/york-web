@@ -1,16 +1,35 @@
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-// get all sesions
-export const getAllSessions = createAsyncThunk(
-  "sessions/getAllSessions",
-  async (_, thunkAPI) => {
+// // get all sessions
+// export const getAllSessions = createAsyncThunk(
+//   "sessions/getAllSessions",
+//   async (_, thunkAPI) => {
+//     const { rejectWithValue } = thunkAPI;
+//     try {
+//       const res = await Axios.get("admin/trainingSession");
+//       if (res.status === 200) {
+//         return {
+//           data: res.data.data,
+//         };
+//       }
+//     } catch (error: any) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
+
+// get sessions by type
+export const getSessionsByType = createAsyncThunk(
+  "sessions/getSessionsByType",
+  async (type: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get("admin/trainingSession");
+      const res = await Axios.get(`admin/trainingSession/get${type}Sessions`);
       if (res.status === 200) {
         return {
           data: res.data.data,
+          type,
         };
       }
     } catch (error: any) {
@@ -19,17 +38,18 @@ export const getAllSessions = createAsyncThunk(
   }
 );
 
-// get sessions by type
-export const getSessionsByType = createAsyncThunk(
-  "sessions/getSessionsByType",
-  async (type: string, thunkAPI) => {
+// get sessions by course id
+export const getCourseSessionsByType = createAsyncThunk(
+  "courses/getCourseSessionsByType",
+  async (params: { type: string; id: number }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/trainingSession/get${type}Sessions/1`);
+      const res = await Axios.get(
+        `admin/trainingSession/get${params.type}Sessions/${params.id}`
+      );
       if (res.status === 200) {
         return {
           data: res.data.data,
-          type,
         };
       }
     } catch (error: any) {
@@ -121,6 +141,7 @@ export const createSession = createAsyncThunk(
     try {
       const res = await Axios.post("admin/trainingSession", data);
       if (res.status === 201) {
+        console.log("new session created");
         return res.data.data;
       }
     } catch (error: any) {
@@ -140,6 +161,7 @@ export const updateSession = createAsyncThunk(
         params.data
       );
       if (res.status === 200) {
+        console.log("session updated");
         return { status: true };
       }
     } catch (error: any) {
@@ -156,6 +178,7 @@ export const deleteSession = createAsyncThunk(
     try {
       const res = await Axios.delete(`admin/trainingSession/${id}`);
       if (res.status === 200) {
+        console.log("session deleted");
         return { id };
       }
     } catch (error: any) {
@@ -172,6 +195,7 @@ export const duplicateSession = createAsyncThunk(
     try {
       const res = await Axios.post(`admin/trainingSession/replicate/${id}`);
       if (res.status === 201) {
+        console.log("session duplicated");
         return res.data.data;
       }
     } catch (error: any) {
@@ -198,6 +222,7 @@ export const changeStatus = createAsyncThunk(
         status: data.status,
       });
       if (res.status === 200) {
+        console.log("session status changed");
         return {
           ...data,
         };

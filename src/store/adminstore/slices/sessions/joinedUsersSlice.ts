@@ -66,6 +66,7 @@ const updateUserStatus = (
     user.user.user_id === userId ? { ...user, status: status } : user
   );
 };
+
 const updateStatusForAllArrays = (
   state: joinedUsersState,
   ids: number[],

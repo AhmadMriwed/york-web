@@ -8,7 +8,7 @@ interface Currency {
   id: number;
 }
 
-interface Trainer {
+interface User {
   id: number;
   user_id: number;
   first_name: string;
@@ -31,10 +31,12 @@ interface permissionCourses {
 export interface endUserState {
   isLoading: boolean;
   error: any | null;
-  venues: Venue[];
-  categories: Category[];
-  courseads: courseAdType[];
+  venues: Venue[] | [];
+  categories: Category[] | [];
+  courseads: courseAdType[] | [];
   currencies: Currency[];
-  trainers: Trainer[];
+  trainers: User[] | [];
+  trainees: User[] | [];
+  clients: User[] | [];
   coursePermissions: permissionCourses[] | [];
 }

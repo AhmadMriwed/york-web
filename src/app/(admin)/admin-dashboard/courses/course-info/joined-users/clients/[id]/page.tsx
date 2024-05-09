@@ -1,20 +1,24 @@
 "use client";
-import React, { useEffect } from "react";
-
-import Header from "@/components/Pars/Header";
-import CourseUser from "@/components/courses/CourseUser";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
 import {
   courseUserOperationCopmleted,
   getCourseClients,
 } from "@/store/adminstore/slices/courses/joinedUsers/courseJoinedUsersSlice";
+import { getClients, getCoursePermissions } from "@/store/endUser/endUserSlice";
+import { GlobalState } from "@/types/storeTypes";
+
+import Header from "@/components/Pars/Header";
+import CourseUser from "@/components/courses/CourseUser";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const JoinedClients = ({ params }: any) => {
   const { id } = params;
+
+  const [addModal, setAddModal] = useState(false);
 
   const { isLoading, error, courseClients } = useSelector(
     (state: GlobalState) => state.courseJoinedUsers
@@ -30,9 +34,13 @@ const JoinedClients = ({ params }: any) => {
     dispatch(getCourseClients(id));
   }, [dispatch, id]);
 
-  console.log(courseClients);
+  useEffect(() => {
+    dispatch(getCoursePermissions());
+  }, [dispatch]);
 
-  if (isLoading) return <Loading />;
+  useEffect(() => {
+    dispatch(getClients(""));
+  }, [dispatch]);
 
   if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
@@ -41,7 +49,7 @@ const JoinedClients = ({ params }: any) => {
       <Header
         title="Course Clients"
         btnTitle="Add Client"
-        btnAction={() => {}}
+        btnAction={() => setAddModal(true)}
       />
       <OperationAlert
         status={status}
@@ -52,9 +60,22 @@ const JoinedClients = ({ params }: any) => {
       />
 
       <div className="mt-7 sm:px-11">
-        {courseClients.map((user) => (
-          <CourseUser key={user.id} user={user} userType="client" />
-        ))}
+        {isLoading ? (
+          <Loading />
+        ) : courseClients.length > 0 ? (
+          courseClients.map((user) => (
+            <CourseUser
+              key={user.id}
+              user={user}
+              userType="client"
+              addModal={addModal}
+              setAddModal={setAddModal}
+              courseId={id}
+            />
+          ))
+        ) : (
+          <EmptyResult />
+        )}
       </div>
     </section>
   );

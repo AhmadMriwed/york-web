@@ -22,7 +22,7 @@ import { MdRequestPage } from "react-icons/md";
 import { IoLanguage } from "react-icons/io5";
 /* components */
 import Image from "next/image";
-import { Dropdown, IconButton } from "rsuite";
+import { Dropdown, IconButton, Loader } from "rsuite";
 import AlertModal from "@/components/Pars/AlertModal";
 
 const CourseAd = ({ ad }: { ad: courseAdType }) => {
@@ -76,7 +76,9 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
   return (
     <article
       className={`p-3 sm:p-6 flex justify-between gap-2
-      rounded-[16px] ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
+      rounded-[16px] ${
+        mode === "dark" ? "bg-[#212A34] text-[#FFF]" : "bg-white text-[#000]"
+      }`}
     >
       <AlertModal
         open={deleteModal}
@@ -91,18 +93,20 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
 
       <div className="flex justify-between gap-2">
         <div className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
-          <Image
-            src={storageURL + ad.image}
-            alt="course ad image"
-            width={400}
-            height={400}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderRadius: "8px",
-            }}
-          />
+          {ad.image && (
+            <Image
+              src={storageURL + ad.image}
+              alt="course ad image"
+              width={400}
+              height={400}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "8px",
+              }}
+            />
+          )}
         </div>
 
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">

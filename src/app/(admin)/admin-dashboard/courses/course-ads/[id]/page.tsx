@@ -13,6 +13,11 @@ import {
   getCourseAdInfo,
 } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
 import {
+  getCategories,
+  getCurrencies,
+  getVenues,
+} from "@/store/endUser/endUserSlice";
+import {
   getAdSubmitCourses,
   submitCourseOperationCompleted,
 } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
@@ -32,18 +37,17 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import AlertModal from "@/components/Pars/AlertModal";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const filterData = ["Current", "Upcoming", "Expired"];
 
 const CourseAdInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const { id } = params;
   const router = useRouter();
+  const { id } = params;
 
   const [filterBy, setFilterBy] = useState("Current");
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
-  const [rejectModalOpen, setRejectModalOpen] = useState(false);
-  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   const {
     courseAdInfo,
@@ -72,6 +76,18 @@ const CourseAdInfo = ({ params }: any) => {
   useEffect(() => {
     dispatch(getAdSubmitCourses({ id: id, type: filterBy }));
   }, [dispatch, filterBy, id]);
+
+  useEffect(() => {
+    dispatch(getCategories(""));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getVenues(""));
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getCurrencies(""));
+  }, [dispatch]);
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -137,13 +153,15 @@ const CourseAdInfo = ({ params }: any) => {
 
       <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7">
         <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">
-          <Image
-            src={storageURL + courseAdInfo.image}
-            alt="course ad image"
-            width={275}
-            height={175}
-            className="sm:!min-w-[275px] bg-center bg-cover object-fit rounded-md"
-          />
+          {courseAdInfo.image && (
+            <Image
+              src={storageURL + courseAdInfo.image}
+              alt="course ad image"
+              width={275}
+              height={175}
+              className="sm:!min-w-[275px] bg-center bg-cover object-fit rounded-md"
+            />
+          )}
         </div>
 
         <div className="text-white">
@@ -308,18 +326,12 @@ const CourseAdInfo = ({ params }: any) => {
             <div className="element-center m-7">
               <Loader size="lg" />
             </div>
-          ) : (
+          ) : adSubmitCourses.length > 0 ? (
             adSubmitCourses.map((submitCourse) => (
-              <CourseRequest
-                key={submitCourse.id}
-                loc="courseAd"
-                details={submitCourse}
-                rejectModalOpen={rejectModalOpen}
-                setRejectModalOpen={setRejectModalOpen}
-                invoiceModalOpen={invoiceModalOpen}
-                setInvoiceModalOpen={setInvoiceModalOpen}
-              />
+              <CourseRequest key={submitCourse.id} details={submitCourse} />
             ))
+          ) : (
+            <EmptyResult />
           )}
         </div>
 
@@ -330,7 +342,7 @@ const CourseAdInfo = ({ params }: any) => {
                 <PiInfoBold />
                 <h3 className="font-bold">Description</h3>
               </div>
-              <p className="sm:max-w-[325px] text-[12px] text-[#888]">
+              <p className="lg:max-w-[325px] text-[12px] text-[#888]">
                 {courseAdInfo.description}
               </p>
             </div>
@@ -341,7 +353,7 @@ const CourseAdInfo = ({ params }: any) => {
                 <PiInfoBold />
                 <h3 className="font-bold">Outlines</h3>
               </div>
-              <p className="sm:max-w-[325px] text-[12px] text-[#888]">
+              <p className="lg:max-w-[325px] text-[12px] text-[#888]">
                 {courseAdInfo.outlines}
               </p>
             </div>

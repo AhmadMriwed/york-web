@@ -10,7 +10,6 @@ export const getMyCourses = createAsyncThunk(
     try {
       const res = await Axios.get(`admin/course/getMyCourses?status=${status}`);
       if (res.status === 200) {
-        console.log("success my courses");
         return {
           data: res.data.data,
         };

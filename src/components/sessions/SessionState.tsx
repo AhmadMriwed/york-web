@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { sessionState } from "@/types/adminTypes/sessions/sessionsTypes";
 import { getLocalISODate } from "@/utils/dateFuncs";
-
 import { Avatar } from "rsuite";
 
 const SessionState = ({ state }: { state: sessionState; key: any }) => {
@@ -11,7 +10,7 @@ const SessionState = ({ state }: { state: sessionState; key: any }) => {
   return (
     <div
       className={`p-2 rounded-[8px] ${
-        mode === "dark" ? "bg-[var(--dark-color)]" : "bg-[var(--light-color)]"
+        mode === "dark" ? "bg-dark text-[#FFF]" : "bg-light text-[#000]"
       }`}
     >
       <div className="flex justify-between items-center gap-11">

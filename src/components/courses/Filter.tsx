@@ -2,10 +2,8 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { getCourseAds } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
 import { getAllCourses } from "@/store/adminstore/slices/courses/coursesSlice";
-
-import { ArrowDownLine } from "@rsuite/icons";
+import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
 import { CiFilter, CiSearch } from "react-icons/ci";
-
 import { CheckPicker, DatePicker, InputPicker } from "rsuite";
 
 const Filter = ({
@@ -42,18 +40,18 @@ const Filter = ({
   };
 
   return (
-    <div className="w-full max-w-lg bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-4 rounded-md flex flex-col gap-4 justify-center items-center">
+    <div className="w-full max-w-md bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-4 rounded-md flex flex-col justify-center items-center">
       <div>
         <div className="text-white flex flex-col element-center">
-          <p className="text-[18px] font-[400]">
+          <p className="text-[16px] font-[400] leading-[1.6rem]">
             Learn A New Skills On Your Time
           </p>
           {coursesCount && (
-            <p className="text-[14px]">{`Search Over ${coursesCount} Online Courses`}</p>
+            <p className="text-[12px] leading-[1.6rem] m-0">{`Search Over ${coursesCount} Online Courses`}</p>
           )}
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 mt-2.5">
         <div className="flex justify-center items-center rounded-full py-2 px-3 bg-white">
           <input
             type="text"
@@ -74,21 +72,20 @@ const Filter = ({
         </div>
         <button
           className="flex justify-center items-center gap-1 text-white bg-gradient-to-tl from-[#01395F] to-[#02B5A0] py-2 px-4 rounded-lg
-            hover:font-bold transition-all duration-200"
+            text-[12px] hover:translate-y-[-2px] transition-all duration-200"
           onClick={handleApplyFilter}
         >
           <CiFilter />
-          <p className="text-[12px] m-0">Apply</p>
+          <p className="m-0">Apply</p>
         </button>
       </div>
-      <div className="w-full flex flex-wrap gap-1 element-center">
-        <div
-          className="mb-2 w-full flex justify-center items-center gap-2 cursor-pointer text-dark font-[400]"
+      <div className="w-full flex flex-wrap gap-1 element-center mt-2.5">
+        <button
+          className="mb-2 w-full flex justify-center items-center gap-2 cursor-pointer text-[12px] text-[#000] font-semibold"
           onClick={() => setExpanded(!expanded)}
         >
-          <p>More Advanced</p> <ArrowDownLine />
-        </div>
-
+          <p>More Advanced</p> {expanded ? <ArrowUpLine /> : <ArrowDownLine />}
+        </button>
         <div className="grid grid-cols-3 gap-2">
           {expanded &&
             filterFields.map((field: any, index: number) => {

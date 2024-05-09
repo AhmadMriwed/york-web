@@ -14,6 +14,7 @@ import OperationAlert from "@/components/Pars/OperationAlert";
 
 const AddCourseAd = () => {
   const dispatch = useDispatch<any>();
+
   const { operationLoading, operationError, status } = useSelector(
     (state: GlobalState) => state.courseAds
   );

@@ -10,7 +10,6 @@ export const getVenues = createAsyncThunk(
     try {
       const res = await Axios.get(`venue?term=${term}`);
       if (res.status === 200) {
-        console.log("success venues dropdown");
         return {
           data: res.data.data,
         };
@@ -29,7 +28,6 @@ export const getCategories = createAsyncThunk(
     try {
       const res = await Axios.get(`category?term=${term}`);
       if (res.status === 200) {
-        console.log("success categories dropdown");
         return {
           data: res.data.data,
         };
@@ -48,7 +46,6 @@ export const getCourseads = createAsyncThunk(
     try {
       const res = await Axios.get(`course_ad?term=${term}`);
       if (res.status === 200) {
-        console.log("success course ads dropdown");
         return {
           data: res.data.data,
         };
@@ -67,7 +64,6 @@ export const getCurrencies = createAsyncThunk(
     try {
       const res = await Axios.get(`currency?term=${term}`);
       if (res.status === 200) {
-        console.log("success currencies dropdown");
         return {
           data: res.data.data,
         };
@@ -84,10 +80,44 @@ export const getTrainers = createAsyncThunk(
   async (term: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("fetching..");
       const res = await Axios.get(`trainers?term=${term}`);
       if (res.status === 200) {
-        console.log("success");
+        return {
+          data: res.data.data,
+        };
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// get trainees
+export const getTrainees = createAsyncThunk(
+  "endUser/getTrainees",
+  async (term: string, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await Axios.get(`trainees?term=${term}`);
+      if (res.status === 200) {
+        return {
+          data: res.data.data,
+        };
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// get clients
+export const getClients = createAsyncThunk(
+  "endUser/getClients",
+  async (term: string, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await Axios.get(`clients?term=${term}`);
+      if (res.status === 200) {
         return {
           data: res.data.data,
         };
@@ -106,7 +136,6 @@ export const getCoursePermissions = createAsyncThunk(
     try {
       const res = await Axios.get("admin/permissionCourse");
       if (res.status === 200) {
-        console.log("success course permissions");
         return {
           data: res.data.data,
         };
@@ -127,6 +156,8 @@ const endUser = createSlice({
     courseads: [],
     currencies: [],
     trainers: [],
+    trainees: [],
+    clients: [],
     coursePermissions: [],
   } as endUserState,
 
@@ -209,6 +240,38 @@ const endUser = createSlice({
         state.trainers = action.payload.data;
       })
       .addCase(getTrainers.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // get trainees
+    builder
+      .addCase(getTrainees.pending, (state) => {
+        state.error = null;
+        state.isLoading = true;
+      })
+      .addCase(getTrainees.fulfilled, (state, action: any) => {
+        state.error = null;
+        state.isLoading = false;
+        state.trainees = action.payload.data;
+      })
+      .addCase(getTrainees.rejected, (state, action: any) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // get clients
+    builder
+      .addCase(getClients.pending, (state) => {
+        state.error = null;
+        state.isLoading = true;
+      })
+      .addCase(getClients.fulfilled, (state, action: any) => {
+        state.error = null;
+        state.isLoading = false;
+        state.clients = action.payload.data;
+      })
+      .addCase(getClients.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload;
       });

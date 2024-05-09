@@ -41,7 +41,6 @@ a:hover {
   text-decoration: none !important;
 }
 
-
 /* sidebar background color */
 .dark_gradient_background {
   background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
@@ -49,8 +48,6 @@ a:hover {
 
 .adel {
   background-color: #0f0f0f17;
-
-
 }
 
 .sidebar-text-color {
@@ -245,10 +242,10 @@ Linear Gradient
   background-size: cover;
 }
 .mailbox-layer-light {
-  color: white;
+  color: #000;
 }
 .mailbox-layer-dark {
-  color: #656565;
+  color: #fff;
 }
 .mailbox-layer-light::before,
 .mailbox-layer-dark::before {
@@ -273,9 +270,9 @@ Linear Gradient
 }
 .mailbox-dark {
   background-color: #212a34;
-  color: white;
+  color: #656565;
 }
 .mailbox-light {
   background-color: #c5c5c5;
-  color: #656565;
+  color: white;
 }

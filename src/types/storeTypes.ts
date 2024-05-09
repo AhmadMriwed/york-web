@@ -17,6 +17,7 @@ import {
 import {
   courseAdsState,
   courseJoinedUsersState,
+  courseRequestsState,
   coursesState,
   myCoursesState,
   submitCourseState,
@@ -60,6 +61,7 @@ export interface GlobalState {
   submitCourses: submitCourseState;
   trainingPlan: trainingPlanState;
   courseJoinedUsers: courseJoinedUsersState;
+  courseRequests: courseRequestsState;
 
   mailbox: MailState;
   files: FileState;

@@ -1,19 +1,18 @@
 "use client";
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
-
-import Header from "@/components/Pars/Header";
-import { trainingPlanType } from "@/types/adminTypes/courses/coursesTypes";
-import CustomInput from "@/components/rsuiteInput/CustomInput";
-import ImageUploader from "@/components/CustomUploader/ImageUploader";
-import { useDispatch, useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
 import {
   getPlanInfo,
   planOperationCompleted,
   updatePlan,
 } from "@/store/adminstore/slices/courses/training-plan/trainingPlanSlice";
+import { GlobalState } from "@/types/storeTypes";
+
+import Header from "@/components/Pars/Header";
+import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
+import ImageUploader from "@/components/inputs/CustomUploader/ImageUploader";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";

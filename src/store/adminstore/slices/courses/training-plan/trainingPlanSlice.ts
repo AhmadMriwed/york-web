@@ -8,10 +8,8 @@ export const getTrainingPlan = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("fetching training plan");
       const res = await Axios.get("admin/training_plan/get_last");
       if (res.status === 200) {
-        console.log("success training plan");
         return {
           data: res.data.data,
         };
@@ -28,10 +26,8 @@ export const getPlanInfo = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("fetching training plan info");
       const res = await Axios.get(`admin/training_plan/${id}`);
       if (res.status === 200) {
-        console.log("success training plan info");
         return {
           data: res.data.data,
         };
@@ -48,13 +44,11 @@ export const updatePlan = createAsyncThunk(
   async (params: { id: number; data: any }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("updating training plan info");
       const res = await Axios.post(
         `admin/training_plan/update/${params.id}`,
         params.data
       );
       if (res.status === 200) {
-        console.log("success update training plan info");
         return {
           data: res.data.data,
         };

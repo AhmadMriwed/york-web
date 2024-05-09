@@ -19,6 +19,7 @@ const UpdateCourseAd = ({ params }: any) => {
   const { id } = params;
 
   const dispatch = useDispatch<any>();
+
   const {
     operationLoading,
     operationError,

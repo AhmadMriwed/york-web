@@ -1,22 +1,29 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSessionsTypes } from "@/store/adminstore/slices/sessions/sessionsActions";
-import { calculateHours } from "@/utils/dateFuncs";
-import { sessionTypeType } from "@/types/adminTypes/sessions/sessionsTypes";
+import {
+  getCourseSessionsByType,
+  getSessionsTypes,
+} from "@/store/adminstore/slices/sessions/sessionsActions";
+import {
+  sessionType,
+  sessionTypeType,
+} from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { Form, Formik } from "formik";
+import { calculateHours } from "@/utils/dateFuncs";
+import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 /* icons */
-import { Trash } from "@rsuite/icons";
+import { Close } from "@rsuite/icons";
+import { LuFilePlus } from "react-icons/lu";
 import { IoMdAttach } from "react-icons/io";
 /* components */
-import Image from "next/image";
-import CustomInput from "@/components/rsuiteInput/CustomInput";
-import { Loader } from "rsuite";
+import { InputPicker, Loader } from "rsuite";
+import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
+import ImageUploader from "../inputs/CustomUploader/ImageUploader";
 
 // Validation Schema
 const sessionSchema = yup.object().shape({
+  course_id: yup.number(),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -25,17 +32,17 @@ const sessionSchema = yup.object().shape({
       }
       return true;
     }),
-  title: yup.string().required("Title is Required"),
+  title: yup.string().required("Title is required"),
   date_from: yup
     .date()
-    .required("Start Date is Required")
-    .min(new Date(), "Please enter a valid Start Date"),
+    .required("Start date is required")
+    .min(new Date(), "Please enter a valid start date"),
   date_to: yup
     .date()
-    .required("End Date is Required")
+    .required("End date is required")
     .test(
       "is-valid-end-date",
-      "End Date must be greater than Start Date and a maximum of one day after the Start Date",
+      "End date must be greater than start date and a maximum of one day after",
       function (value) {
         const { date_from } = this.parent;
         const maxEndDate = new Date(date_from);
@@ -44,21 +51,13 @@ const sessionSchema = yup.object().shape({
         return value > date_from && value <= maxEndDate;
       }
     ),
-  outline: yup.string().required("Outline is Required"),
-  description: yup.string().required("Description is Required"),
+  outline: yup.string().required("Outline is required"),
+  description: yup.string().required("Description is required"),
   url: yup.string(),
-  status: yup.string(),
-  training_sessions_type: yup.number(),
+  status: yup.string().nullable(),
+  training_sessions_type: yup.number().nullable(),
   files: yup.array(),
-  image: yup
-    .mixed()
-    .nullable()
-    .test("is-image", "Please upload a valid image", (value) => {
-      if (!value) {
-        return true;
-      }
-      return value instanceof File && value.type.startsWith("image/");
-    }),
+  image: yup.mixed().nullable(),
 });
 
 const SessionOperation = ({
@@ -66,21 +65,24 @@ const SessionOperation = ({
   submitHandler,
   operationLoading,
   op,
+  courseId,
 }: any) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-
-  const { sessionsTypes } = useSelector((state: GlobalState) => {
-    return state.sessions;
-  });
+  const { sessionsTypes, allSessions, isLoading } = useSelector(
+    (state: GlobalState) => {
+      return state.sessions;
+    }
+  );
   const dispatch: any = useDispatch();
 
   const [fileNames, setFileNames] = useState<any[]>([]);
-  const [uploadedImage, setUploadedImage] = useState<any>(null);
+
   const [hours, setHours] = useState<number>(
     calculateHours(initialValues.date_from, initialValues.date_to)
   );
 
-  const imageInput = useRef<HTMLInputElement>(null);
+  const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<any>(null);
+
   const filesInput = useRef<HTMLInputElement>(null);
 
   // Type field data
@@ -89,18 +91,17 @@ const SessionOperation = ({
     value: type.id,
   }));
   // Status field data
-  const sessionStatus = ["Active", "Inactive"].map((status: string) => ({
-    label: status,
-    value: status,
+  const sessionStatus = ["Active", "Pend", "Pass", "Finish"].map(
+    (status: string) => ({
+      label: status,
+      value: status,
+    })
+  );
+  // Sessions data
+  const sessionsList = allSessions.map((s: sessionType) => ({
+    label: s.title,
+    value: s.id,
   }));
-
-  const handleImageRemove = (props: any) => {
-    setUploadedImage(null);
-    props.values.image = null;
-    if (imageInput.current) {
-      imageInput.current.value = "";
-    }
-  };
 
   const handleFileRemove = (props: any, indexToRemove: number) => {
     const updatedFiles = props.values.files.filter(
@@ -117,315 +118,296 @@ const SessionOperation = ({
     dispatch(getSessionsTypes());
   }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(getCourseSessionsByType({ id: courseId, type: "All" }));
+  }, [courseId, dispatch]);
+
+  const populateFieldsFromSession = () => {
+    if (!selectedSessionId || !allSessions) return;
+
+    const session = allSessions.find(
+      (session: sessionType) => session.id === selectedSessionId
+    );
+
+    if (session) {
+      const populatedValues = {
+        course_id: session.course_id ? session.course_id : null,
+        code: "",
+        title: session.title ? session.title : "",
+        date_from: session.date_from ? session.date_from : null,
+        date_to: session.date_to ? session.date_to : null,
+        image: null,
+        status: session.status ? session.status : null,
+        outline: session.outline ? session.outline : "",
+        description: session.description ? session.description : "",
+        files: [],
+        training_sessions_type:
+          session.training_session_type && session.training_session_type.id
+            ? session.training_session_type.id
+            : 0,
+        url: session.url ? session.url : "",
+      };
+
+      setSelectedSession({ ...populatedValues });
+    }
+  };
+
+  useEffect(() => {
+    populateFieldsFromSession();
+  }, [selectedSessionId]);
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={sessionSchema}
       onSubmit={submitHandler}
     >
-      {(props) => (
-        <Form className="flex flex-col md:flex-row justify-between">
-          <div
-            className={`my-7 w-[100%] md:w-[50%] p-[15px] sm:p-[30px]
-              rounded-[10px] ${mode === "dark" ? "bg-light" : "bg-white"}`}
-          >
-            {/* CODE */}
-            <CustomInput
-              type="text"
-              name="code"
-              label="Code"
-              optional
-              placeholder="Code"
-              value={props.values.code}
-              onChange={(value: any) => (props.values.code = value)}
-              formikErrors={props.errors.code}
-              formikTouched={props.touched.code}
-            />
-            {/* TITLE */}
-            <CustomInput
-              type="text"
-              name="title"
-              label="Title"
-              required
-              placeholder="Title"
-              value={props.values.title}
-              onChange={(value: any) => (props.values.title = value)}
-              formikErrors={props.errors.title}
-              formikTouched={props.touched.title}
-            />
-            {/* DATE FROM */}
-            <CustomInput
-              type="date"
-              name="date_from"
-              label="Start Date"
-              required
-              placeholder="Start Date"
-              value={props.values.date_from}
-              onChange={(value: any) => {
-                if (value) {
-                  props.values.date_from = value;
-                  setHours(
-                    calculateHours(props.values.date_from, props.values.date_to)
-                  );
-                } else {
-                  props.values.date_from = null;
-                  setHours(0);
+      {(props: FormikProps<any>) => (
+        <Form>
+          <div className="mt-4 px-2 sm:px-20 lg:px-40 py-11 rounded-sm bg-light">
+            {op === "add" && (
+              <div className="mb-11 flex flex-col justify-center gap-2 ">
+                <p className="font-[500] text-black max-w-lg">
+                  Choose session to fill the fields :
+                </p>
+                <InputPicker
+                  size="lg"
+                  renderMenu={(menu) => {
+                    if (isLoading) {
+                      return (
+                        <p
+                          style={{
+                            padding: 10,
+                            color: "#999",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Loader />
+                        </p>
+                      );
+                    }
+                    return menu;
+                  }}
+                  data={sessionsList}
+                  onChange={(value: number) => {
+                    let selectedsession: sessionType | undefined =
+                      allSessions.find(
+                        (session: sessionType) => session.id === value
+                      );
+                    setSelectedSessionId(selectedsession?.id);
+                  }}
+                  placeholder="Course sessions"
+                  className="text-black w-full"
+                />
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 sm:gap-y-2">
+              <CustomInput
+                type="text"
+                name="course_id"
+                label="Course Id"
+                required
+                placeholder="Course Id"
+                disabled
+              />
+              <CustomInput
+                type="text"
+                name="code"
+                label="Code"
+                optional
+                placeholder="Code"
+              />
+              <CustomInput
+                type="text"
+                name="title"
+                label="Title"
+                required
+                placeholder="Title"
+                value={
+                  selectedSession &&
+                  selectedSession.title &&
+                  selectedSession.title
                 }
-              }}
-              formikErrors={props.errors.date_from}
-              formikTouched={props.touched.date_from}
-            />
-            <div
-              className={`text-end font-bold ${
-                hours <= 0 || hours > 24 ? "text-red-600" : "text-green-600"
-              }`}
-            >{`hours: ${hours}`}</div>
-            {/* DATE TO */}
-            <CustomInput
-              type="date"
-              name="date_to"
-              label="End Date"
-              required
-              placeholder="End Date"
-              value={props.values.date_to}
-              onChange={(value: any) => {
-                if (value) {
-                  props.values.date_to = value;
-                  setHours(
-                    calculateHours(props.values.date_from, props.values.date_to)
-                  );
-                } else {
-                  props.values.date_to = null;
-                  setHours(0);
+              />
+              <CustomInput
+                type="text"
+                name="url"
+                label="Url"
+                optional
+                placeholder="Url"
+                value={
+                  selectedSession && selectedSession.url && selectedSession.url
                 }
-              }}
-              formikErrors={props.errors.date_to}
-              formikTouched={props.touched.date_to}
-            />
-            {/* TYPES */}
-            <CustomInput
-              type="select"
-              selectData={sessionTypes}
-              name="training_sessions_type"
-              label="Type"
-              optional
-              placeholder="Type"
-              value={props.values.type}
-              onChange={(value: any) =>
-                (props.values.training_sessions_type = value)
-              }
-              formikErrors={props.errors.training_sessions_type}
-              formikTouched={props.touched.training_sessions_type}
-            />
-            {/* STATUS */}
-            <CustomInput
-              type="select"
-              selectData={sessionStatus}
-              name="status"
-              label="Status"
-              optional
-              placeholder="Status"
-              value={props.values.status}
-              onChange={(value: any) => (props.values.status = value)}
-              formikErrors={props.errors.status}
-              formikTouched={props.touched.status}
-            />
-            {/* OUTLINE */}
-            <CustomInput
-              type="textarea"
-              name="outline"
-              label="Outline"
-              required
-              placeholder="Outline"
-              value={props.values.outline}
-              onChange={(value: any) => (props.values.outline = value)}
-              formikErrors={props.errors.outline}
-              formikTouched={props.touched.outline}
-            />
-            {/* DESCRIPTION */}
-            <CustomInput
-              type="textarea"
-              name="description"
-              label="Description"
-              required
-              placeholder="Description"
-              value={props.values.description}
-              onChange={(value: any) => (props.values.description = value)}
-              formikErrors={props.errors.description}
-              formikTouched={props.touched.description}
-            />
-            {/* URL */}
-            <CustomInput
-              type="text"
-              name="url"
-              label="Url"
-              optional
-              placeholder="Url"
-              value={props.values.url}
-              onChange={(value: any) => (props.values.url = value)}
-              formikErrors={props.errors.url}
-              formikTouched={props.touched.url}
-            />
-            {/* ADD BUTTON */}
-            <button
-              type="submit"
-              className="py-2 mt-6 rounded-[8px] text-[18px] text-white
-                bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)]
-                transition-all duration-300 w-full flex justify-center items-center"
-            >
+              />
+
+              <CustomInput
+                type="select"
+                selectData={sessionTypes}
+                name="training_sessions_type"
+                label="Type"
+                optional
+                placeholder="Type"
+                value={
+                  selectedSession &&
+                  selectedSession.training_session_type &&
+                  selectedSession.training_session_type.id &&
+                  selectedSession.training_session_type.id
+                }
+              />
+              <CustomInput
+                type="select"
+                selectData={sessionStatus}
+                name="status"
+                label="Status"
+                optional
+                placeholder="Status"
+                value={
+                  selectedSession &&
+                  selectedSession.status &&
+                  selectedSession.status
+                }
+              />
+
+              <CustomInput
+                type="date"
+                name="date_from"
+                label="Start date"
+                required
+                placeholder="Start date"
+                value={
+                  selectedSession &&
+                  selectedSession.date_from &&
+                  selectedSession.date_from
+                }
+              />
+              <CustomInput
+                type="date"
+                name="date_to"
+                label="End date"
+                required
+                placeholder="End date"
+                value={
+                  selectedSession &&
+                  selectedSession.date_to &&
+                  selectedSession.date_to
+                }
+              />
+
+              {/* <div
+                className={`self-center text-center font-[500] ${
+                  hours <= 0 || hours > 24 ? "text-red-700" : "text-green-700"
+                }`}
+              >
+                {`hours : ${hours}`}
+              </div> */}
+            </div>
+
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
+              <CustomInput
+                type="textarea"
+                textAreaRows={3}
+                name="outline"
+                label="Outline"
+                required
+                placeholder="Outline"
+                value={
+                  selectedSession &&
+                  selectedSession.outline &&
+                  selectedSession.outline
+                }
+              />
+              <CustomInput
+                type="textarea"
+                textAreaRows={3}
+                name="description"
+                label="Description"
+                required
+                placeholder="Description"
+                value={
+                  selectedSession &&
+                  selectedSession.description &&
+                  selectedSession.description
+                }
+              />
+              <ImageUploader formikProps={props} />
+
+              <div
+                className="w-full mt-3 px-3 py-5 border-[1px] border-dashed border-black bg-transparent
+      cursor-pointer flex justify-center items-center"
+                onClick={() => filesInput.current && filesInput.current.click()}
+              >
+                <input
+                  type="file"
+                  name="files"
+                  multiple
+                  onChange={(event: any) => {
+                    const files: any = Array.from(event.target.files);
+                    const names = files.map((file: any) => file.name);
+
+                    props.setFieldValue("files", [
+                      ...props.values.files,
+                      ...files,
+                    ]);
+                    setFileNames((prev: any) => [...prev, names]);
+                  }}
+                  ref={filesInput}
+                  style={{ display: "none" }}
+                />
+                <div className="w-full">
+                  {fileNames.length === 0 && (
+                    <div className="flex justify-center items-center">
+                      <p className="text-[12px] text-black font-[500] flex items-center gap-2">
+                        <LuFilePlus />
+                        Click here to upload files (optional)
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex flex-col element-center gap-2">
+                    {fileNames.length > 0 &&
+                      fileNames.map((fileName: any, index: number) => {
+                        return (
+                          <div
+                            key={index}
+                            className="flex justify-between items-center gap-2 w-full bg-slate-200 p-2 rounded-md"
+                          >
+                            <div className="flex items-center gap-1 overflow-hidden text-[12px] text-black">
+                              <IoMdAttach
+                                style={{
+                                  color: "black",
+                                  fontSize: "16px",
+                                }}
+                              />
+                              <div
+                                className="overflow-hidden"
+                                style={{
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {fileName}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="p-3 rounded-full hover:bg-slate-100 transition:bg duration-200 flex justify-center items-center text-black"
+                              onClick={() => handleFileRemove(props, index)}
+                            >
+                              <Close />
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="submit" className="colored-btn !w-full !text-[16px]">
               {operationLoading ? (
                 <Loader />
               ) : (
-                `${op === "update" ? "Update Session" : "Add Session"}`
+                `${op === "update" ? "Update session" : "Add session"}`
               )}
             </button>
-          </div>
-          <div className="mt-7 flex flex-col gap-4 order-[-1] md:order-[1]">
-            {/* IMAGE */}
-            <div
-              className={`text-black h-[312px] lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto
-                lg:mx-0  ${mode === "dark" ? "bg-light" : "bg-white"}`}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  imageInput.current && imageInput.current.click();
-                }}
-                className="block mx-auto py-[10px] px-[30px] w-[75%] bg-[var(--primary-color1)]
-                  hover:bg-[var(--primary-color2)] transition-all duration-200 text-white rounded-[0px_0px_10px_10px]"
-              >
-                Send Image (optional)
-              </button>
-              <input
-                type="file"
-                name="image"
-                onChange={(event) => {
-                  if (
-                    imageInput.current &&
-                    imageInput.current.files &&
-                    imageInput.current.files.length > 0
-                  ) {
-                    const file = imageInput.current.files[0];
-                    props.setFieldValue("image", file);
-
-                    if (
-                      event.target.files &&
-                      event.target.files[0] &&
-                      event.target.files[0].type.startsWith("image/")
-                    )
-                      setUploadedImage(
-                        URL.createObjectURL(event.target.files[0])
-                      );
-                  }
-                }}
-                ref={imageInput}
-                style={{ display: "none" }}
-              />
-              <div className="flex justify-center items-center">
-                {uploadedImage && (
-                  <div className="pt-6 flex flex-col gap-2">
-                    <Image
-                      src={uploadedImage}
-                      alt="Uploaded Image"
-                      width={200}
-                      height={200}
-                    />
-                    <button
-                      type="button"
-                      className="px-2 py-1 flex gap-1 items-center self-center rounded-full
-                        border border-[var(--primary-color1)] text-[var(--primary-color1)]"
-                      onClick={() => handleImageRemove(props)}
-                    >
-                      <Trash /> Remove
-                    </button>
-                  </div>
-                )}
-                {!uploadedImage && (
-                  <div className="pt-[100px] text-center text-[18px]">
-                    {props.errors.image && props.touched.image ? (
-                      <p className="text-red-600">{`${props.errors.image}`}</p>
-                    ) : (
-                      <p>There is no image chosen</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* FILES */}
-            <div
-              className={`text-black h-[312px] lg:w-[300px] pb-[30px] px-[15px] rounded-[10px] overflow-y-auto lg:mx-0  ${
-                mode === "dark" ? "bg-light" : "bg-white"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  filesInput.current && filesInput.current.click();
-                }}
-                className="block mx-auto py-[10px] px-[30px] w-[75%] bg-[var(--primary-color1)]
-                  hover:bg-[var(--primary-color2)] transition-all duration-200 text-white rounded-[0px_0px_10px_10px]"
-              >
-                Send Files (optional)
-              </button>
-              <input
-                type="file"
-                name="files"
-                multiple
-                onChange={(event: any) => {
-                  const files: any = Array.from(event.target.files);
-                  const names = files.map((file: any) => file.name);
-
-                  props.setFieldValue("files", [
-                    ...props.values.files,
-                    ...files,
-                  ]);
-                  setFileNames((prev: any) => [...prev, names]);
-                }}
-                ref={filesInput}
-                style={{ display: "none" }}
-              />
-              <div>
-                {fileNames.length > 0 &&
-                  fileNames.map((fileName: any, index: number) => {
-                    return (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center gap-1 mt-3"
-                      >
-                        <div className="flex items-center gap-1 overflow-hidden">
-                          <div className="w-5 h-5 rounded-[50%] bg-[#bb9be6] element-center">
-                            <IoMdAttach
-                              style={{
-                                color: "white",
-                                fontSize: "16px",
-                              }}
-                            />
-                          </div>
-                          <div
-                            className="overflow-hidden"
-                            style={{ wordWrap: "break-word" }}
-                          >
-                            {fileName}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="rounded-full flex justidy-center items-center p-1
-                        border border-[var(--primary-color1)] text-[var(--primary-color1)]"
-                          onClick={() => handleFileRemove(props, index)}
-                        >
-                          <Trash />
-                        </button>
-                      </div>
-                    );
-                  })}
-                {fileNames.length === 0 && (
-                  <div className="pt-[100px] text-center text-[18px]">
-                    There is no file chosen
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </Form>
       )}

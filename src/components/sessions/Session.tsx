@@ -21,7 +21,7 @@ import Image from "next/image";
 import { Dropdown, IconButton } from "rsuite";
 import AlertModal from "../Pars/AlertModal";
 
-const Session = ({ pickable, session }: any) => {
+const Session = ({ session }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
 
@@ -41,9 +41,9 @@ const Session = ({ pickable, session }: any) => {
         circle
         className={`${
           mode === "dark"
-            ? "!text-[var(--light-color)] hover:!bg-[var(--dark-color)]"
-            : "!text-[var(--dark-color)] hover:!bg-[var(--light-color)]"
-        }`}
+            ? "!text-[var(--light-bg-color)]"
+            : "!text-[var(--dark-color)]"
+        } !bg-transparent`}
       />
     );
   };
@@ -83,7 +83,9 @@ const Session = ({ pickable, session }: any) => {
   return (
     <article
       className={`p-3 sm:p-6 flex justify-between gap-2
-      rounded-[16px] ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
+      rounded-[16px] ${
+        mode === "dark" ? "bg-[#212A34] text-[#FFF]" : "bg-white text-[#000]"
+      }`}
     >
       <AlertModal
         open={deleteModal}
@@ -96,27 +98,25 @@ const Session = ({ pickable, session }: any) => {
         status={status}
       />
       <div className="flex justify-between gap-2">
-        {!pickable && (
-          <div
-            className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]"
-            onClick={() => console.log(storageURL + session.image)}
-          >
-            {session.image && (
-              <Image
-                src={storageURL + session.image}
-                alt="session image"
-                width={400}
-                height={400}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-            )}
-          </div>
-        )}
+        <div
+          className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]"
+          onClick={() => console.log(storageURL + session.image)}
+        >
+          {session.image && (
+            <Image
+              src={storageURL + session.image}
+              alt="session image"
+              width={400}
+              height={400}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "8px",
+              }}
+            />
+          )}
+        </div>
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
             {`${session.title && session.title.slice(0, 24)} `}
@@ -161,57 +161,53 @@ const Session = ({ pickable, session }: any) => {
         </div>
       </div>
       <div className="flex flex-col justify-between items-end">
-        {!pickable ? (
-          <div>
-            <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
-              <Dropdown.Item
-                icon={<Paragraph />}
-                className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-                onClick={handleShowDetails}
-              >
-                Show Details
-              </Dropdown.Item>
-              <Dropdown.Item
-                icon={<Trash />}
-                className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-                onClick={handleDelete}
-              >
-                Delete
-              </Dropdown.Item>
-              <Dropdown.Item
-                icon={<Edit />}
-                className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-                onClick={handleEdit}
-              >
-                Edit
-              </Dropdown.Item>
-              <Dropdown.Item
-                icon={<HiOutlineDuplicate />}
-                className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
+        <div>
+          <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
+            <Dropdown.Item
+              icon={<Paragraph />}
+              className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+              onClick={handleShowDetails}
+            >
+              Show Details
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={<Trash />}
+              className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+              onClick={handleDelete}
+            >
+              Delete
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={<Edit />}
+              className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+              onClick={handleEdit}
+            >
+              Edit
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={<HiOutlineDuplicate />}
+              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
             hover:bg-slate-100"
-                onClick={handleDuplicate}
-              >
-                Duplicate
-              </Dropdown.Item>
-              <Dropdown.Item
-                icon={
-                  session.status === "Active" ? (
-                    <PiToggleRightFill />
-                  ) : (
-                    <PiToggleLeft />
-                  )
-                }
-                className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
+              onClick={handleDuplicate}
+            >
+              Duplicate
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={
+                session.status === "Active" ? (
+                  <PiToggleRightFill />
+                ) : (
+                  <PiToggleLeft />
+                )
+              }
+              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
             hover:bg-slate-100"
-                onClick={handleActivation}
-              >
-                {session.status === "Active" ? "Deactivate" : "Activate"}
-              </Dropdown.Item>
-            </Dropdown>
-          </div>
-        ) : (
-          <div></div>
-        )}
+              onClick={handleActivation}
+            >
+              {session.status === "Active" ? "Deactivate" : "Activate"}
+            </Dropdown.Item>
+          </Dropdown>
+        </div>
         <div className="flex flex-col xl:flex-row gap-1 sm:gap-2">
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <FaClock />

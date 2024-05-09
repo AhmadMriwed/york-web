@@ -7,9 +7,8 @@ import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { Formik, Form, FormikProps } from "formik";
 import * as yup from "yup";
-import { Avatar, Modal } from "rsuite";
-import CustomInput from "../rsuiteInput/CustomInput";
-import Loading from "../Pars/Loading";
+import { Avatar, Loader, Modal } from "rsuite";
+import CustomInput from "../inputs/rsuiteInput/CustomInput";
 
 const validationSchema = yup.object().shape({
   attend_time: yup
@@ -78,16 +77,16 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
       size="sm"
       className={`${
         mode === "dark"
-          ? "[&>div>*]:!bg-dark [&>div>*]:text-[var(--light-color)]"
-          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--dark-color)]"
+          ? "[&>div>*]:!bg-[var(--dark-bg-color)] [&>div>*]:text-[var(--dark-text-color)]"
+          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--light-text-color)]"
       }`}
     >
       <Modal.Header className="flex items-center mt-1">
         <Modal.Title
           className={`${
             mode === "dark"
-              ? "text-[var(--light-color)]"
-              : "text-[var(--dark-color)]"
+              ? "text-[var(--dark-text-color)]"
+              : "text-[var(--light-text-color)]"
           }`}
         >
           Add Attendant
@@ -102,12 +101,11 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
           {(props: FormikProps<any>) => (
             <Form>
               {operationLoading ? (
-                <Loading />
+                <div className="element-center">
+                  <Loader size="lg" />
+                </div>
               ) : (
-                <div
-                  className={`w-[100%] p-6
-              rounded-[10px] ${mode === "dark" ? "bg-light" : "bg-white"}`}
-                >
+                <div className="w-[100%] p-6 rounded-sm bg-light">
                   <CustomInput
                     type="date"
                     name="attend_time"

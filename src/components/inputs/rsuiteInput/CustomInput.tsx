@@ -51,7 +51,6 @@ const CustomInput = ({
         {label} {optional ? "(optional)" : ""}
         {required && <span style={{ color: "#dc2626" }}>*</span>}
       </label>
-
       {type === "text" && (
         <Input
           className={`!w-full ${
@@ -68,11 +67,10 @@ const CustomInput = ({
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
-
       {type === "textarea" && (
         <Input
           as="textarea"
-          rows={textAreaRows}
+          rows={textAreaRows ? textAreaRows : 1}
           className={`!w-full ${
             meta.error && meta.touched
               ? "!border-[1px] !border-red-600 rounded-lg"
@@ -86,7 +84,6 @@ const CustomInput = ({
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
-
       {type === "date" && (
         <DatePicker
           format="yyyy-MM-dd HH:mm"
@@ -103,7 +100,6 @@ const CustomInput = ({
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
-
       {type === "select" && (
         <InputPicker
           placement="auto"
@@ -138,7 +134,6 @@ const CustomInput = ({
           onChange={(value) => field.onChange({ target: { name, value } })}
         />
       )}
-
       {type === "number" && (
         <InputNumber
           className={`!w-full ${

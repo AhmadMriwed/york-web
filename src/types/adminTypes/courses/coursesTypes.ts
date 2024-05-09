@@ -143,6 +143,7 @@ export interface courseType {
   outlines: string;
   language: string;
   course_status: string;
+  status: string;
   image: string;
   location: any;
   course_ad: {
@@ -179,6 +180,7 @@ export interface coursesState {
   allCourses: courseType[] | [];
   filterData: filterDataType;
   courseInfo: null | courseType;
+  courseId: null | number;
   /* operations */
   operationLoading: boolean;
   operationError: null | any;
@@ -261,12 +263,52 @@ export interface traineeType {
   };
 }
 
+export interface requestToJoinType {
+  id: number;
+  permission_courses: {
+    id: number;
+    name: string;
+    guard_name: string;
+  };
+  cv_file: any;
+  courses_id: number;
+  user_id: number;
+  status: string;
+  cause: null | string;
+  date_accept: string;
+  date_reject: string;
+  user: {
+    user_id: number;
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    image: string | null;
+    domains: null | any;
+    gender: string;
+  };
+}
+
 export interface courseJoinedUsersState {
   isLoading: boolean;
   error: null | any;
   courseClients: clientType[] | [];
   courseTrainers: clientType[] | [];
   courseTrainees: traineeType[] | [];
+  requestsToJoin: requestToJoinType[] | [];
+  /* operations */
+  operationError: null | any;
+  operationLoading: boolean;
+  status: boolean;
+}
+
+// COURSE REQUESTS
+
+export interface courseRequestsState {
+  isLoading: boolean;
+  error: any | null;
+  courseRequests: courseType[] | [];
   /* operations */
   operationError: null | any;
   operationLoading: boolean;

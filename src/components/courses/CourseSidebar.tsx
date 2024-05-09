@@ -1,8 +1,8 @@
 "use client";
 import { Ref, forwardRef, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
+import { useDispatch, useSelector } from "react-redux";
 import { storageURL } from "@/utils/api";
+import { GlobalState } from "@/types/storeTypes";
 
 import {
   PiCertificate,
@@ -17,6 +17,8 @@ import { MdOutlineErrorOutline, MdOutlineModelTraining } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
 import { Sidenav, Nav, Loader } from "rsuite";
+import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
+import { useParams } from "next/navigation";
 
 interface NavLinkProps {
   as: string;
@@ -34,12 +36,20 @@ NavLink.displayName = "NavLink";
 
 const CourseSidebar = () => {
   const [expanded, setExpanded] = useState(true);
+  const { id } = useParams();
 
   const {
     isLoading: courseLoading,
     error: courseError,
     courseInfo,
+    courseId,
   } = useSelector((state: GlobalState) => state.courses);
+
+  const dispatch = useDispatch<any>();
+
+  useEffect(() => {
+    dispatch(getCourseInfo(id));
+  }, [dispatch, id]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -65,22 +75,22 @@ const CourseSidebar = () => {
     {
       id: 1,
       title: "Trainers",
-      url: `trainers/${courseInfo?.id}`,
+      url: `trainers/${courseId}`,
     },
     {
       id: 2,
       title: "Trainees",
-      url: `trainees/${courseInfo?.id}`,
+      url: `trainees/${courseId}`,
     },
     {
       id: 3,
       title: "Clients",
-      url: `clients/${courseInfo?.id}`,
+      url: `clients/${courseId}`,
     },
     {
       id: 4,
       title: "Requests to Join",
-      url: `requests-to-join/${courseInfo?.id}`,
+      url: `requests-to-join/${courseId}`,
     },
   ];
 
@@ -99,7 +109,7 @@ const CourseSidebar = () => {
     <aside
       className={`${
         expanded ? "w-[200px]" : "w-fit"
-      } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
+      } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2`}
     >
       <Image
         src={"/logo.png"}
@@ -170,7 +180,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/course-info/${courseInfo?.id}`}
+              href={`/admin-dashboard/courses/course-info/${courseId}`}
             >
               Information Course
             </Nav.Item>
@@ -188,7 +198,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/course-info/training-session/${courseInfo?.id}`}
+              href={`/admin-dashboard/courses/course-info/training-session/${courseId}`}
             >
               Training Sessions
             </Nav.Item>
@@ -299,7 +309,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard/courses/my-courses"
+              href="/admin-dashboard"
             >
               Home
             </Nav.Item>

@@ -8,7 +8,7 @@ import {
   createSession,
   deleteSession,
   duplicateSession,
-  getAllSessions,
+  getCourseSessionsByType,
   getOtherSessions,
   getSessionInfo,
   getSessionStates,
@@ -117,21 +117,24 @@ const sessions = createSlice({
       state.status = false;
       state.operationError = null;
     },
+    updateSessionId: (state: sessionsState, action) => {
+      state.sessionID = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
-    // get all sessions
+    // get all sessions for one course
     builder
-      .addCase(getAllSessions.pending, (state) => {
+      .addCase(getCourseSessionsByType.pending, (state) => {
         state.error = null;
         state.isLoading = true;
       })
-      .addCase(getAllSessions.fulfilled, (state, action: any) => {
+      .addCase(getCourseSessionsByType.fulfilled, (state, action: any) => {
         state.error = null;
         state.isLoading = false;
         state.allSessions = action.payload.data;
       })
-      .addCase(getAllSessions.rejected, (state, action: any) => {
+      .addCase(getCourseSessionsByType.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload;
       });
@@ -324,6 +327,7 @@ const sessions = createSlice({
       .addCase(changeStatus.fulfilled, (state, action: any) => {
         state.operationError = null;
         state.operationLoading = false;
+        state.status = true;
         updateStatusForAllArrays(
           state,
           action.payload.ids,
@@ -335,6 +339,7 @@ const sessions = createSlice({
       .addCase(changeStatus.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // life session operation
@@ -357,4 +362,4 @@ const sessions = createSlice({
 });
 
 export default sessions.reducer;
-export const { sessionOperationCompleted } = sessions.actions;
+export const { sessionOperationCompleted, updateSessionId } = sessions.actions;

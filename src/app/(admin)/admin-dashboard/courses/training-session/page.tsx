@@ -14,6 +14,7 @@ import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const filteringBtns: string[] = ["Current", "Upcoming", "Expired"];
 
@@ -28,7 +29,6 @@ const TrainingSession = () => {
     status,
   } = useSelector((state: GlobalState) => state.sessions);
   const [filterBy, setFilterBy] = useState<string>("Current");
-  const router = useRouter();
   const dispatch: any = useDispatch();
 
   const sessions = useMemo(() => {
@@ -57,20 +57,7 @@ const TrainingSession = () => {
       <Header
         title="Sessions"
         description="Schedule all your Sessions , edit and track your teaching process."
-        btnTitle="Add New Session"
-        btnAction={() =>
-          router.push("/admin-dashboard/courses/training-session/add")
-        }
       />
-
-      <div className="flex items-center gap-2 mt-7">
-        <button className="outlined-btn flex justify-center items-center gap-1">
-          <CiImport /> Import
-        </button>
-        <button className="outlined-btn flex justify-center items-center gap-1">
-          <CiExport /> Export
-        </button>
-      </div>
 
       {error ? (
         <ErrorMessage msg="Oops! There was an error, please try again later." />
@@ -104,7 +91,7 @@ const TrainingSession = () => {
                 <Session key={index} session={session} />
               ))
             ) : (
-              <p className="text-[16px] text-center font-bold mt-7">{`There are no ${filterBy.toLocaleLowerCase()} sessions.`}</p>
+              <EmptyResult />
             )}
           </div>
         </div>

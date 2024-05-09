@@ -80,7 +80,10 @@ const UpdateCourse = ({ params }: any) => {
       category_id: courseInfo?.category?.id ? courseInfo.category.id : null,
       code: "",
       location: courseInfo?.location ? courseInfo?.location : "",
-      course_ads_id: courseInfo?.course_ad.id,
+      course_ads_id:
+        courseInfo?.course_ad && courseInfo?.course_ad.id
+          ? courseInfo?.course_ad.id
+          : null,
       status: courseInfo?.change_active_date ? "active" : "inactive",
       outlines: courseInfo?.outlines ? courseInfo.outlines : "",
       description: courseInfo?.description ? courseInfo?.description : "",

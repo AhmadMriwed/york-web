@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import {
@@ -31,11 +31,13 @@ import Timer from "@/components/sessions/Timer";
 import SessionState from "@/components/sessions/SessionState";
 import SessionDetails from "@/components/sessions/SessionDetails";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const LifeSession = ({ params }: any) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const { id } = params;
-  const courseID = 1;
+
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
   const router = useRouter();
 
   const {
@@ -64,14 +66,14 @@ const LifeSession = ({ params }: any) => {
   }, [dispatch, id]);
 
   useEffect(() => {
-    dispatch(getCourseInfo(courseID));
-  }, [dispatch, courseID]);
+    if (sessionInfo?.course_id) dispatch(getCourseInfo(sessionInfo.course_id));
+  }, [dispatch, sessionInfo?.course_id]);
 
   const handleLifeOperation = (status: "Expierd" | "Pass" | "Active") => {
     dispatch(lifeSessionOperation({ id, status }));
   };
 
-  if (sessionLoading && courseLoading) return <Loading />;
+  if (sessionLoading || courseLoading) return <Loading />;
 
   if (sessionError || courseError)
     return (
@@ -147,7 +149,7 @@ const LifeSession = ({ params }: any) => {
         />
         <div
           className="px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
-        bg-[#212A34] text-[var(--light-color)]"
+        bg-[#212A34] text-[#FFF]"
         >
           <div className="flex flex-col sm:flex-row justify-center sm:justify-between gap-2 sm:gap-7">
             <div className="flex flex-col gap-4">
@@ -260,7 +262,7 @@ const LifeSession = ({ params }: any) => {
             ) : (
               <>
                 <div>
-                  <div className="flex items-center gap-2 text-[18px]">
+                  <div className="flex items-center gap-2 text-[16px]">
                     <PiInfoBold />
                     <h3 className="font-bold">About The Session</h3>
                   </div>
@@ -269,7 +271,7 @@ const LifeSession = ({ params }: any) => {
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-[18px] mt-3">
+                  <div className="flex items-center gap-2 text-[16px] mt-3">
                     <FaChartLine />
                     <h3 className="font-bold">Other Sessions</h3>
                   </div>
@@ -277,23 +279,27 @@ const LifeSession = ({ params }: any) => {
                     <Loader />
                   ) : (
                     <div className="flex flex-col gap-2 px-1 max-h-[275px] overflow-y-scroll">
-                      {otherSessions.map(
-                        (session: sessionType, index: number) => (
-                          <div
-                            key={index}
-                            className="cursor-pointer hover:opacity-[0.9]"
-                            onClick={() =>
-                              router.push(
-                                `/admin-dashboard/courses/training-session/session-info/${session.id}`
-                              )
-                            }
-                          >
-                            <MiniSession
-                              session={session}
-                              course={courseInfo}
-                            />
-                          </div>
+                      {otherSessions.length > 0 ? (
+                        otherSessions.map(
+                          (session: sessionType, index: number) => (
+                            <div
+                              key={index}
+                              className="cursor-pointer hover:opacity-[0.9]"
+                              onClick={() =>
+                                router.push(
+                                  `/admin-dashboard/courses/training-session/session-info/${session.id}`
+                                )
+                              }
+                            >
+                              <MiniSession
+                                session={session}
+                                course={courseInfo}
+                              />
+                            </div>
+                          )
                         )
+                      ) : (
+                        <EmptyResult />
                       )}
                     </div>
                   )}
@@ -308,7 +314,7 @@ const LifeSession = ({ params }: any) => {
             mode === "dark" ? "bg-[#212A34]" : "bg-white"
           }`}
         >
-          <h3 className="text-[20px] font-bold mb-3">Session States</h3>
+          <h3 className="text-[16px] font-bold mb-3">Session States</h3>
           <div className="flex flex-col gap-1 px-1 overflow-y-scroll max-h-[300px]">
             {isLoading ? (
               <Loader />

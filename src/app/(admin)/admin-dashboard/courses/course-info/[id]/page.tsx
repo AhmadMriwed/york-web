@@ -7,8 +7,14 @@ import { getLocalDate } from "@/utils/dateFuncs";
 import {
   courseOperationCompleted,
   deleteCourse,
+  duplicateCourse,
   getCourseInfo,
+  updateCourse,
 } from "@/store/adminstore/slices/courses/coursesSlice";
+import {
+  courseUserOperationCopmleted,
+  getRequestsToJoin,
+} from "@/store/adminstore/slices/courses/joinedUsers/courseJoinedUsersSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { storageURL } from "@/utils/api";
 
@@ -22,8 +28,9 @@ import {
   PiToggleRightFill,
 } from "react-icons/pi";
 import { FaBook } from "react-icons/fa";
+import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 
-import { Dropdown, IconButton } from "rsuite";
+import { Dropdown, IconButton, Loader } from "rsuite";
 import Image from "next/image";
 import UserRequest from "@/components/courses/UserRequest";
 import TrainerInfo from "@/components/sessions/TrainerInfo";
@@ -31,13 +38,17 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import AlertModal from "@/components/Pars/AlertModal";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import { getCoursePermissions } from "@/store/endUser/endUserSlice";
 
 const CourseInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
   const { id } = params;
 
-  const [filterBy, setFilterBy] = useState("All");
+  const [filterBy, setFilterBy] = useState<"Accepted" | "Rejected" | "Current">(
+    "Current"
+  );
   const [deleteModal, setDeleteModal] = useState(false);
 
   const {
@@ -49,13 +60,27 @@ const CourseInfo = ({ params }: any) => {
     operationLoading,
   } = useSelector((state: GlobalState) => state.courses);
 
+  const {
+    isLoading: requestLoading,
+    error: requestError,
+    requestsToJoin,
+    status: requestStatus,
+    operationError: requestOperationError,
+  } = useSelector((state: GlobalState) => state.courseJoinedUsers);
+
   const dispatch = useDispatch<any>();
 
   useEffect(() => {
     dispatch(getCourseInfo(id));
   }, [dispatch, id]);
 
-  console.log(courseInfo);
+  useEffect(() => {
+    dispatch(getRequestsToJoin({ id: id, type: filterBy }));
+  }, [dispatch, id, filterBy]);
+
+  useEffect(() => {
+    dispatch(getCoursePermissions());
+  }, [dispatch]);
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -79,19 +104,12 @@ const CourseInfo = ({ params }: any) => {
   };
 
   const handleDuplicate = () => {
-    //   dispatch(duplicateSession(session.id));
+    if (courseInfo?.id) dispatch(duplicateCourse(courseInfo.id));
   };
 
   const handleActivation = () => {
-    //   const status: "Active" | "Inactive" =
-    //     session.status === "Active" ? "Inactive" : "Active";
-    //   dispatch(
-    //     changeStatus({
-    //       ids: [session.id],
-    //       status: status,
-    //       classification: session.classification_session,
-    //     })
-    //   );
+    const newStatus = !courseInfo?.active;
+    dispatch(updateCourse({ id: courseInfo?.id, data: { active: newStatus } }));
   };
 
   if (isLoading) return <Loading />;
@@ -117,6 +135,13 @@ const CourseInfo = ({ params }: any) => {
         error={operationError}
         completedAction={courseOperationCompleted}
       />
+      <OperationAlert
+        messageOnSuccess="The operation was completed successfully"
+        messageOnError={`Oops! ${requestOperationError}`}
+        status={requestStatus}
+        error={requestOperationError}
+        completedAction={courseUserOperationCopmleted}
+      />
 
       <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7">
         <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">
@@ -139,7 +164,9 @@ const CourseInfo = ({ params }: any) => {
                 className="bg-[var(--primary-color2)] text-[#000] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
               xs: text-[10px] sm:text-[12px] m-0"
               >
-                {courseInfo?.category.title && courseInfo?.category.title}
+                {courseInfo?.category &&
+                  courseInfo?.category.title &&
+                  courseInfo?.category.title}
               </p>
               <p
                 className="bg-[var(--primary-color2)] text-[#000] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
@@ -165,18 +192,22 @@ const CourseInfo = ({ params }: any) => {
                 Edit
               </Dropdown.Item>
               <Dropdown.Item
+                icon={<HiOutlineDocumentDuplicate />}
+                className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
+            hover:bg-slate-100"
+                onClick={handleDuplicate}
+              >
+                Duplicate
+              </Dropdown.Item>
+              <Dropdown.Item
                 icon={
-                  "Active" === "Active" ? (
-                    <PiToggleRightFill />
-                  ) : (
-                    <PiToggleLeft />
-                  )
+                  courseInfo?.active ? <PiToggleRightFill /> : <PiToggleLeft />
                 }
                 className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
             hover:bg-slate-100"
                 onClick={handleActivation}
               >
-                {"Active" === "Active" ? "Deactivate" : "Activate"}
+                {courseInfo?.active ? "Deactivate" : "Activate"}
               </Dropdown.Item>
             </Dropdown>
           </div>
@@ -193,7 +224,9 @@ const CourseInfo = ({ params }: any) => {
               <div className="bg-black text-white w-fit py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full">
                 <CiLocationOn />
                 <p className="xs: text-[10px] sm:text-[12px]">
-                  {courseInfo?.venue.title && courseInfo.venue.title}
+                  {courseInfo?.venue &&
+                    courseInfo?.venue.title &&
+                    courseInfo.venue.title}
                 </p>
               </div>
               <div className="bg-black text-white w-fit py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full">
@@ -208,7 +241,7 @@ const CourseInfo = ({ params }: any) => {
                 className="bg-[var(--primary-color1)] text-[#FFF] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
               xs: text-[10px] sm:text-[12px] m-0 font-bold"
               >
-                STATUS UNKNOWN
+                {courseInfo?.status && courseInfo.status}
               </p>
               <p
                 className="bg-[var(--primary-color1)] text-[#FFF] w-fit py-[1.5px] px-[12px] sm:py-[3px] rounded-full
@@ -220,7 +253,8 @@ const CourseInfo = ({ params }: any) => {
           </div>
 
           <p className="mt-2 text-[12px]">
-            {courseInfo?.course_ad?.code &&
+            {courseInfo?.course_ad &&
+              courseInfo?.course_ad?.code &&
               `course ad code: #${courseInfo.course_ad.code}`}
           </p>
 
@@ -263,7 +297,7 @@ const CourseInfo = ({ params }: any) => {
             Requests to Join
           </h3>
           <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
-            {["All", "Trainer", "Trainee", "Client"].map((btnName) => (
+            {["Current", "Rejected", "Accepted"].map((btnName: any) => (
               <button
                 key={btnName}
                 onClick={() => setFilterBy(btnName)}
@@ -277,9 +311,18 @@ const CourseInfo = ({ params }: any) => {
               </button>
             ))}
           </div>
-          {[1, 2, 3, 4, 5, 6].map((item) => (
-            <UserRequest key={item} />
-          ))}
+
+          {requestLoading ? (
+            <div className="m-7 element-center">
+              <Loader size="lg" />
+            </div>
+          ) : requestsToJoin.length > 0 ? (
+            requestsToJoin.map((request) => (
+              <UserRequest key={request.id} request={request} />
+            ))
+          ) : (
+            <EmptyResult />
+          )}
         </div>
 
         <div className="order-first lg:order-last">
@@ -308,7 +351,7 @@ const CourseInfo = ({ params }: any) => {
                 <PiInfoBold />
                 <h3 className="font-bold">Description</h3>
               </div>
-              <p className="sm:max-w-[325px] text-[12px] text-[#888]">
+              <p className="lg:max-w-[325px] text-[12px] text-[#888]">
                 {courseInfo?.description}
               </p>
             </div>
@@ -319,7 +362,7 @@ const CourseInfo = ({ params }: any) => {
               <PiInfoBold />
               <h3 className="font-bold">Outlines</h3>
             </div>
-            <p className="sm:max-w-[325px] text-[12px] text-[#888]">
+            <p className="lg:max-w-[325px] text-[12px] text-[#888]">
               {courseInfo?.outlines}
             </p>
           </div>

@@ -6,6 +6,8 @@ import { getLocalDate } from "@/utils/dateFuncs";
 import {
   courseOperationCompleted,
   deleteCourse,
+  duplicateCourse,
+  updateCourse,
 } from "@/store/adminstore/slices/courses/coursesSlice";
 import { courseType } from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
@@ -63,39 +65,39 @@ const Course = ({ course }: { course: courseType }) => {
   };
 
   const handleDuplicate = () => {
-    //   dispatch(duplicateSession(session.id));
+    dispatch(duplicateCourse(course.id));
   };
 
   const handleActivation = () => {
-    //   const status: "Active" | "Inactive" =
-    //     session.status === "Active" ? "Inactive" : "Active";
-    //   dispatch(
-    //     changeStatus({
-    //       ids: [session.id],
-    //       status: status,
-    //       classification: session.classification_session,
-    //     })
-    //   );
+    const newStatus = !course.active;
+    dispatch(updateCourse({ id: course.id, data: { active: newStatus } }));
   };
 
   return (
     <article
       className={`p-3 sm:p-6 flex justify-between gap-2
-      rounded-[16px] ${mode === "dark" ? "bg-[#212A34]" : "bg-white"}`}
+      rounded-[16px] ${
+        mode === "dark"
+          ? "bg-[var(--dark-bg-color)] text-[#FFF]"
+          : "bg-white text-[#000]"
+      }`}
     >
       <AlertModal
         open={deleteModal}
         setOpen={setDeleteModal}
         requestType="delete"
-        label={`Are you sure you want to delete "${course.title}" ?`}
+        label={`Are you sure you want to delete "${
+          course?.title && course.title
+        }" ?`}
         deleteAction={deleteCourse}
         completed={courseOperationCompleted}
         id={course.id}
         status={status}
       />
+
       <div className="flex justify-between gap-2">
         <div className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
-          {course.image && (
+          {course?.image && (
             <Image
               src={storageURL + course.image}
               alt="course image"
@@ -113,35 +115,37 @@ const Course = ({ course }: { course: courseType }) => {
 
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
-            {course.title && course.title.slice(0, 16)}
+            {`${course?.title && course.title.slice(0, 16)} `}
             <span
               className="w-fit bg-[var(--primary-color1)] text-white text-[10px] sm:text-[12px]
             text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
             >
-              STATUS UNKNOWN
+              {course?.status && course.status}
             </span>
           </p>
           <p className="m-0 text-[10px] sm:text-[14px] sm:text-[16px] text-[#888]">
-            {`#${course?.code}`}
+            {course?.code && `#${course.code}`}
           </p>
           <div
             className="w-fit bg-[#00d4d4] text-black text-[10px] sm:text-[12px]
             text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
           >
-            {course.category.title && course.category.title}
+            {course?.category &&
+              course?.category?.title &&
+              course.category.title}
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <IoLanguage />
-            <p>{course.language && course.language}</p>
+            <p>{course?.language && course.language}</p>
           </div>
           <div className="flex items-center gap-2">
             <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
               <CiClock1 />
-              <p>{`${course?.houres} hr`}</p>
+              <p>{course?.houres && `${course.houres} hr`}</p>
             </div>
             <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
               <Peoples />
-              <p>{course.count_trainees && course.count_trainees}</p>
+              <p>{course?.count_trainees && course.count_trainees}</p>
             </div>
           </div>
         </div>
@@ -180,14 +184,12 @@ const Course = ({ course }: { course: courseType }) => {
               Duplicate
             </Dropdown.Item>
             <Dropdown.Item
-              icon={
-                "Active" === "Active" ? <PiToggleRightFill /> : <PiToggleLeft />
-              }
+              icon={course.active ? <PiToggleRightFill /> : <PiToggleLeft />}
               className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
             hover:bg-slate-100"
               onClick={handleActivation}
             >
-              CHANGE STATUS
+              {course.active ? "Deactivate" : "Activate"}
             </Dropdown.Item>
           </Dropdown>
         </div>
@@ -203,20 +205,28 @@ const Course = ({ course }: { course: courseType }) => {
           >
             <CiLocationOn />
             <p className="xs: text-[10px] sm:text-[12px]">
-              {course?.venue?.title && course.venue.title}
+              {course?.venue && course?.venue?.title && course.venue.title}
             </p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <FaBook />
-            <p>{`${course?.count_training_session} sessions`}</p>
+            <p>
+              {course?.count_training_session &&
+                `${course?.count_training_session} sessions`}
+            </p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <Calendar />
-            <p>{`${getLocalDate(new Date(course?.start_date))}`}</p>
+            <p>
+              {course?.start_date &&
+                `${getLocalDate(new Date(course.start_date))}`}
+            </p>
           </div>
           <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
             <Calendar />
-            <p>{`${getLocalDate(new Date(course?.end_date))}`}</p>
+            <p>
+              {course?.end_date && `${getLocalDate(new Date(course.end_date))}`}
+            </p>
           </div>
         </div>
       </div>

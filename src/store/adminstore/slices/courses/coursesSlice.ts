@@ -5,7 +5,7 @@ import {
   coursesState,
 } from "@/types/adminTypes/courses/coursesTypes";
 
-// get filtered courses
+// get all courses
 export const getAllCourses = createAsyncThunk(
   "courses/getAllCourses",
   async (filterValues: any, thunkAPI) => {
@@ -13,7 +13,6 @@ export const getAllCourses = createAsyncThunk(
     try {
       const res = await Axios.post("admin/course/getAll?page=1", filterValues);
       if (res.status === 200) {
-        console.log("success filtered courses");
         return {
           data: res.data.data,
         };
@@ -34,26 +33,6 @@ export const getCoursesById = createAsyncThunk(
         `admin/course/getCoursesById?user_id=${params.id}&status=${params.status}`
       );
       if (res.status === 200) {
-        console.log("success courses by id");
-        return {
-          data: res.data.data,
-        };
-      }
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-// get filter data
-export const getFilterData = createAsyncThunk(
-  "courses/getFilterData",
-  async (_, thunkAPI) => {
-    const { rejectWithValue } = thunkAPI;
-    try {
-      const res = await Axios.get("admin/course/getMap/filterCourse");
-      if (res.status === 200) {
-        console.log("success course filtering data");
         return {
           data: res.data.data,
         };
@@ -72,7 +51,6 @@ export const getCourseInfo = createAsyncThunk(
     try {
       const res = await Axios.get(`admin/course/${id}`);
       if (res.status === 200) {
-        console.log("success course info");
         return {
           data: res.data.data,
         };
@@ -83,16 +61,32 @@ export const getCourseInfo = createAsyncThunk(
   }
 );
 
+// get filter data
+export const getFilterData = createAsyncThunk(
+  "courses/getFilterData",
+  async (_, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await Axios.get("admin/course/getMap/filterCourse");
+      if (res.status === 200) {
+        return {
+          data: res.data.data,
+        };
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 // create course
 export const createCourse = createAsyncThunk(
   "courses/createCourse",
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("creating course");
       const res = await Axios.post("admin/course", data);
       if (res.status === 200) {
-        console.log("course created");
         return res.data.data;
       }
     } catch (error: any) {
@@ -107,14 +101,12 @@ export const updateCourse = createAsyncThunk(
   async (params: { data: {}; id?: number }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("updating course");
       const res = await Axios.post(
         `admin/course/update/${params.id}`,
         params.data
       );
       if (res.status === 200) {
-        console.log("course updated");
-        return { status: true };
+        return { data: res.data.data, id: params.id };
       }
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -128,10 +120,8 @@ export const deleteCourse = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      console.log("deleting course");
       const res = await Axios.delete(`admin/course/${id}`);
       if (res.status === 200) {
-        console.log("course deleted");
         return { id };
       }
     } catch (error: any) {
@@ -140,37 +130,21 @@ export const deleteCourse = createAsyncThunk(
   }
 );
 
-// // duplicate course
-// export const duplicateCourse = createAsyncThunk(
-//   "courses/duplicateCourse",
-//   async (id: number, thunkAPI) => {
-//     const { rejectWithValue } = thunkAPI;
-//     try {
-//       const res = await Axios.post(`admin/course/replicate/${id}`);
-//       if (res.status === 200) {
-//         return res.data.data;
-//       }
-//     } catch (error: any) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-// // activation operation
-// export const changeCourseStatus = createAsyncThunk(
-//   "courses/changeCourseStatus",
-//   async (id: number, thunkAPI) => {
-//     const { rejectWithValue } = thunkAPI;
-//     try {
-//       const res = await Axios.post(`admin/course/operation/activity/${id}`);
-//       if (res.status === 200) {
-//         return res.data.data;
-//       }
-//     } catch (error: any) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
+// duplicate course
+export const duplicateCourse = createAsyncThunk(
+  "courses/duplicateCourse",
+  async (id: number, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await Axios.post(`admin/course/replicate/${id}`);
+      if (res.status === 200) {
+        return res.data.data;
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const filterDeletedCourse = (courses: courseType[], id: number) => {
   return courses.filter((c) => c.id !== id);
@@ -189,6 +163,7 @@ const courses = createSlice({
     allCourses: [],
     filterData: {},
     courseInfo: null,
+    courseId: null,
     /* operations */
     operationLoading: false,
     operationError: null,
@@ -200,10 +175,13 @@ const courses = createSlice({
       state.operationError = null;
       state.status = false;
     },
+    updateCourseId: (state: coursesState, action) => {
+      state.courseId = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
-    // get filtered courses
+    // get all courses
     builder
       .addCase(getAllCourses.pending, (state) => {
         state.error = null;
@@ -261,6 +239,7 @@ const courses = createSlice({
         state.error = null;
         state.isLoading = false;
         state.courseInfo = action.payload.data;
+        if (state.courseInfo) state.courseId = state.courseInfo.id;
       })
       .addCase(getCourseInfo.rejected, (state, action: any) => {
         state.isLoading = false;
@@ -290,10 +269,16 @@ const courses = createSlice({
         state.operationError = null;
         state.operationLoading = true;
       })
-      .addCase(updateCourse.fulfilled, (state) => {
+      .addCase(updateCourse.fulfilled, (state, action: any) => {
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
+
+        if (state.courseInfo) state.courseInfo = { ...action.payload.data };
+
+        state.allCourses = state.allCourses.map((course) =>
+          course.id === action.payload.id ? { ...action.payload.data } : course
+        );
       })
       .addCase(updateCourse.rejected, (state, action: any) => {
         state.operationLoading = false;
@@ -321,8 +306,26 @@ const courses = createSlice({
         state.operationError = action.payload;
         state.status = true;
       });
+
+    // duplicate course
+    builder
+      .addCase(duplicateCourse.pending, (state) => {
+        state.operationError = null;
+        state.operationLoading = true;
+      })
+      .addCase(duplicateCourse.fulfilled, (state, action: any) => {
+        state.error = null;
+        state.operationLoading = false;
+        addElementToArr(action.payload, state.allCourses);
+        state.status = true;
+      })
+      .addCase(duplicateCourse.rejected, (state, action: any) => {
+        state.operationLoading = false;
+        state.operationError = action.payload;
+        state.status = true;
+      });
   },
 });
 
 export default courses.reducer;
-export const { courseOperationCompleted } = courses.actions;
+export const { courseOperationCompleted, updateCourseId } = courses.actions;

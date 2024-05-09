@@ -9,16 +9,15 @@ import {
 } from "@/store/endUser/endUserSlice";
 import { courseAdType } from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
-
 import { InputPicker, Loader } from "rsuite";
-import CustomInput from "@/components/rsuiteInput/CustomInput";
+import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
+import ImageUploader from "@/components/inputs/CustomUploader/ImageUploader";
 import Image from "next/image";
-import ImageUploader from "@/components/CustomUploader/ImageUploader";
 
 // Validation Schema
 const courseSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
-  sub_title: yup.string(),
+  sub_title: yup.string().required("Subtitle is required"),
   start_date: yup
     .date()
     .required("Start date is required")
@@ -80,9 +79,15 @@ const CourseOperation = ({
 
   useEffect(() => {
     dispatch(getVenues(venueTerm));
+  }, [dispatch, venueTerm]);
+
+  useEffect(() => {
     dispatch(getCategories(categoryTerm));
+  }, [categoryTerm, dispatch]);
+
+  useEffect(() => {
     dispatch(getCourseads(courseadTerm));
-  }, [categoryTerm, courseadTerm, dispatch, venueTerm]);
+  }, [courseadTerm, dispatch]);
 
   let statusData = [
     { label: "Active", value: "active" },
@@ -157,8 +162,8 @@ const CourseOperation = ({
       name: "sub_title",
       label: "Sub Title",
       placeholder: "Sub Title",
-      optional: true,
-      required: false,
+      optional: false,
+      required: true,
       disabled: false,
     },
     {
@@ -292,7 +297,7 @@ const CourseOperation = ({
                     setSelectedAdId(selectedAd?.id);
                   }}
                   placeholder="Course ads"
-                  className="text-black w-full"
+                  className="!text-[#000] !w-full"
                 />
               </div>
             )}

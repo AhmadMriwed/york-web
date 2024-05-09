@@ -15,6 +15,7 @@ import Filter from "@/components/courses/Filter";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const CoursesAds = () => {
   const router = useRouter();
@@ -165,8 +166,6 @@ const CoursesAds = () => {
     },
   ];
 
-  if (isLoading) return <Loading />;
-
   if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
   return (
@@ -178,35 +177,42 @@ const CoursesAds = () => {
         status={status}
         completedAction={courseAdOperationCompleted}
       />
-      <div className="flex justify-between items-start gap-4 flex-col md:flex-row">
+      <div className="flex flex-wrap justify-between items-center md:items-start gap-4">
         <div>
           <h3 className="font-bold text-[24px] sm:text-[32px] text-[var(--primary-color1)]">
             Course ads
           </h3>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+
+          {/* <div className="mt-4 flex flex-wrap items-center gap-2">
             <button className="outlined-btn">Import</button>
             <button className="outlined-btn">Export</button>
-          </div>
+          </div> */}
         </div>
-        <Filter
-          role="course_ads"
-          filterValues={filterValues}
-          setFilterValues={setFilterValues}
-          filterFields={filterFields}
-          coursesCount={filterData.count_course_ad}
-        />
         <button
-          className="colored-btn !w-full sm:!w-fit"
+          className="colored-btn md:order-last"
           onClick={() => router.push("/admin-dashboard/courses/course-ads/add")}
         >
-          Add Course Ad
+          Add Course ad
         </button>
+        <div className="w-full md:w-fit">
+          <Filter
+            role="course_ads"
+            filterValues={filterValues}
+            setFilterValues={setFilterValues}
+            filterFields={filterFields}
+            coursesCount={filterData.count_course_ad}
+          />
+        </div>
       </div>
 
       <div className="my-7 flex flex-col gap-2">
-        {courseAds.map((ad: courseAdType) => (
-          <CourseAd ad={ad} key={ad.id} />
-        ))}
+        {isLoading ? (
+          <Loading />
+        ) : courseAds.length > 0 ? (
+          courseAds.map((ad: courseAdType) => <CourseAd ad={ad} key={ad.id} />)
+        ) : (
+          <EmptyResult />
+        )}
       </div>
     </section>
   );

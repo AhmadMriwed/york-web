@@ -1,10 +1,11 @@
 "use client";
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "next/navigation";
 import { getSessionInfo } from "@/store/adminstore/slices/sessions/sessionsActions";
-import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "../Pars/ThemeContext";
+import { storageURL } from "@/utils/api";
 /* icons */
 import {
   PiStudentLight,
@@ -21,7 +22,7 @@ import { MdOutlineErrorOutline } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
 import { Sidenav, Nav, Loader } from "rsuite";
-import { storageURL } from "@/utils/api";
+import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 
 interface NavLinkProps {
   as: string;
@@ -42,6 +43,8 @@ const SessionSidebar = () => {
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
 
+  const { id } = useParams();
+
   const { sessionLoading, sessionError, sessionInfo, sessionID } = useSelector(
     (state: GlobalState) => state.sessions
   );
@@ -49,8 +52,17 @@ const SessionSidebar = () => {
     isLoading: courseLoading,
     error: courseError,
     courseInfo,
-  } = useSelector((state: GlobalState) => state.singleCourse);
-  // const dispatch: any = useDispatch();
+  } = useSelector((state: GlobalState) => state.courses);
+
+  const dispatch: any = useDispatch();
+
+  useEffect(() => {
+    dispatch(getSessionInfo(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (sessionInfo?.course_id) dispatch(getCourseInfo(sessionInfo.course_id));
+  }, [dispatch, sessionInfo?.course_id]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -89,7 +101,7 @@ const SessionSidebar = () => {
           <div className="element-center text-[16px] text-red-500 py-2">
             <MdOutlineErrorOutline />
           </div>
-        ) : sessionLoading && courseLoading ? (
+        ) : sessionLoading || courseLoading ? (
           <div className="my-7 element-center">
             <Loader />
           </div>
@@ -166,7 +178,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/life-session/${sessionID}`}
+              href={`/admin-dashboard/courses/training-session/session-info/life-session/${sessionID}`}
             >
               Life Session
             </Nav.Item>
@@ -184,7 +196,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/joined-users/${sessionID}`}
+              href={`/admin-dashboard/courses/training-session/session-info/joined-users/${sessionID}`}
             >
               Joined Users
             </Nav.Item>
@@ -202,7 +214,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/attendance-requests/${sessionID}`}
+              href={`/admin-dashboard/courses/training-session/session-info/attendance-requests/${sessionID}`}
             >
               Attendance requests
             </Nav.Item>
@@ -256,7 +268,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="/admin-dashboard"
             >
               Home
             </Nav.Item>
@@ -274,7 +286,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href={`/admin-dashboard/courses/course-info/${sessionInfo?.course_id}`}
             >
               Back to course
             </Nav.Item>

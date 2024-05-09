@@ -1,7 +1,6 @@
 import { Close } from "@rsuite/icons";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
-
 import { LuImagePlus } from "react-icons/lu";
 
 const ImageUploader = ({ formikProps }: any) => {
@@ -58,7 +57,7 @@ const ImageUploader = ({ formikProps }: any) => {
           </div>
         )}
         {uploadedImage && (
-          <div className="flex justify-between items-center gap-2 w-full bg-slate-200 p-2 rounded-sm">
+          <div className="flex justify-between items-center gap-2 w-full bg-slate-200 p-2 rounded-md">
             <div className="flex flex-col gap-1">
               <Image
                 src={uploadedImage}

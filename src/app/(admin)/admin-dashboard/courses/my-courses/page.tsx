@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { courseType } from "@/types/adminTypes/courses/coursesTypes";
-import { GlobalState } from "@/types/storeTypes";
 import {
   courseOperationCompleted,
   getAllCourses,
@@ -12,6 +11,7 @@ import {
 } from "@/store/adminstore/slices/courses/coursesSlice";
 import { getTrainers } from "@/store/endUser/endUserSlice";
 import { getMyCourses } from "@/store/adminstore/slices/courses/my-courses/myCoursesSlice";
+import { GlobalState } from "@/types/storeTypes";
 
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
@@ -22,6 +22,8 @@ import Course from "@/components/courses/myCourses/Course";
 import Filter from "@/components/courses/Filter";
 import Loading from "@/components/Pars/Loading";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 
 export default function MyCourses() {
   const router = useRouter();
@@ -200,6 +202,8 @@ export default function MyCourses() {
     value: t.user_id,
   }));
 
+  if (myCoursesError) return <ErrorMessage msg={`Oops! ${myCoursesError}`} />;
+
   return (
     <section className="p-3 sm:p-6 overflow-hidden">
       <Header
@@ -215,15 +219,15 @@ export default function MyCourses() {
         completedAction={courseOperationCompleted}
       />
 
-      <div className="my-4 flex flex-wrap items-center gap-2">
+      {/* <div className="my-4 flex flex-wrap items-center gap-2">
         <button className="outlined-btn">Import</button>
         <button className="outlined-btn">Export</button>
-      </div>
+      </div> */}
 
-      <div className="mt-4 p-3 bg-[#212A34] w-full rounded-lg text-white flex flex-col lg:flex-row gap-4 md:gap-11">
+      <div className="mt-4 px-3 py-7 bg-[#212A34] w-full rounded-lg text-white flex flex-col lg:flex-row gap-4 md:gap-11">
         <div className="border-l border-l-[2px] border-[var(--primary-color1)] pl-2 shrink-0">
-          <p className="text-[26px] font-[400]">My Courses</p>
-          <p className="text-[#888] m-0">check out all your current courses</p>
+          <p className="text-[20px] font-[400]">My Courses</p>
+          <p className="text-[#888] my-1">check out all your current courses</p>
           <InputPicker
             data={[
               { label: "Current", value: "Current" },
@@ -242,7 +246,7 @@ export default function MyCourses() {
           <div className="m-11">
             <Loader size="md" />
           </div>
-        ) : (
+        ) : myCourses.length > 0 ? (
           <div className="flex items-center gap-2 overflow-hidden py-2 relative">
             <div
               className="flex items-center gap-2 overflow-x-scroll pb-2 no-scrollbar"
@@ -267,6 +271,8 @@ export default function MyCourses() {
               <FaArrowRight />
             </button>
           </div>
+        ) : (
+          <EmptyResult />
         )}
       </div>
 
@@ -286,12 +292,14 @@ export default function MyCourses() {
           />
         </div>
         {showBy === "all" && (
-          <Filter
-            role="courses"
-            filterValues={filterValues}
-            setFilterValues={setFilterValues}
-            filterFields={filterFields}
-          />
+          <div className="element-center lg:mr-11">
+            <Filter
+              role="courses"
+              filterValues={filterValues}
+              setFilterValues={setFilterValues}
+              filterFields={filterFields}
+            />
+          </div>
         )}
       </div>
 
@@ -358,9 +366,7 @@ export default function MyCourses() {
               <Course key={course.id} course={course} />
             ))
           ) : (
-            <div className="my-16 text-[18px] font-[500] element-center">
-              There are no courses, try another trainer or status
-            </div>
+            <EmptyResult />
           )}
         </div>
       )}

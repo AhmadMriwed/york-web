@@ -32,11 +32,13 @@ import AlertModal from "@/components/Pars/AlertModal";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import SessionDetails from "@/components/sessions/SessionDetails";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/EmptyResult/EmptyResult";
 
 const SessionInfo = ({ params }: any) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const { id } = params;
-  const courseID = 1;
+
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
   const router = useRouter();
 
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
@@ -65,8 +67,8 @@ const SessionInfo = ({ params }: any) => {
   }, [dispatch, id]);
 
   useEffect(() => {
-    dispatch(getCourseInfo(courseID));
-  }, [dispatch, courseID]);
+    if (sessionInfo?.course_id) dispatch(getCourseInfo(sessionInfo.course_id));
+  }, [dispatch, sessionInfo?.course_id]);
 
   const handleEdit = () => {
     router.push(`/admin-dashboard/courses/training-session/update/${id}`);
@@ -89,7 +91,7 @@ const SessionInfo = ({ params }: any) => {
       );
   };
 
-  if (sessionLoading && courseLoading) return <Loading />;
+  if (sessionLoading || courseLoading) return <Loading />;
 
   if (sessionError || courseError)
     return (
@@ -107,8 +109,6 @@ const SessionInfo = ({ params }: any) => {
         completed={sessionOperationCompleted}
         id={sessionInfo?.id}
         status={status}
-        // deleteLoading={operationLoading}
-        // exitPath="/admin-dashboard/courses/training-session"
       />
       <OperationAlert
         messageOnSuccess="operation accomplished successfully!"
@@ -151,7 +151,7 @@ const SessionInfo = ({ params }: any) => {
         <SessionDetails sessionInfo={sessionInfo} courseInfo={courseInfo} />
         <div
           className="flex flex-col sm:flex-row justify-center sm:justify-between gap-2 sm:gap-7 px-3 sm:px-12 xl:px-6 py-6 rounded-[16px]
-        bg-[#212A34] text-[var(--light-color)]"
+        bg-[#212A34] text-[#FFF]"
         >
           <div className="flex flex-col gap-4">
             <h6 className="w-fit text-[14px] px-2 py-1 rounded-full bg-[var(--primary-color1)] text-white">
@@ -227,7 +227,7 @@ const SessionInfo = ({ params }: any) => {
           <div className="w-[1px] h-full bg-[var(--primary-color1)] mx-6"></div>
           <div>
             <div>
-              <div className="flex items-center gap-2 text-[18px]">
+              <div className="flex items-center gap-2 text-[16px]">
                 <PiInfoBold />
                 <h3 className="font-bold">About The Session</h3>
               </div>
@@ -236,7 +236,7 @@ const SessionInfo = ({ params }: any) => {
               </p>
             </div>
             <div>
-              <div className="flex items-center gap-2 text-[18px] mt-3">
+              <div className="flex items-center gap-2 text-[16px] mt-3">
                 <FaChartLine />
                 <h3 className="font-bold">Other Sessions</h3>
               </div>
@@ -244,19 +244,23 @@ const SessionInfo = ({ params }: any) => {
                 <Loader />
               ) : (
                 <div className="flex flex-col gap-2 px-1 max-h-[275px] overflow-y-scroll">
-                  {otherSessions.map((session: sessionType, index: number) => (
-                    <div
-                      key={index}
-                      className="cursor-pointer hover:opacity-[0.9]"
-                      onClick={() =>
-                        router.push(
-                          `/admin-dashboard/courses/training-session/session-info/${session.id}`
-                        )
-                      }
-                    >
-                      <MiniSession session={session} course={courseInfo} />
-                    </div>
-                  ))}
+                  {otherSessions.length > 0 ? (
+                    otherSessions.map((session: sessionType, index: number) => (
+                      <div
+                        key={index}
+                        className="cursor-pointer hover:opacity-[0.9]"
+                        onClick={() =>
+                          router.push(
+                            `/admin-dashboard/courses/training-session/session-info/${session.id}`
+                          )
+                        }
+                      >
+                        <MiniSession session={session} course={courseInfo} />
+                      </div>
+                    ))
+                  ) : (
+                    <EmptyResult />
+                  )}
                 </div>
               )}
             </div>
@@ -268,7 +272,7 @@ const SessionInfo = ({ params }: any) => {
             mode === "dark" ? "bg-[#212A34]" : "bg-white"
           }`}
         >
-          <h3 className="text-[20px] font-bold mb-2">Trainers</h3>
+          <h3 className="text-[16px] font-bold mb-2">Trainers</h3>
           <div className="flex flex-col sm:flex-row xl:flex-col gap-2">
             {[1].map((item, index) => (
               <TrainerInfo

@@ -12,7 +12,6 @@ export const getSubmitCoursesByType = createAsyncThunk(
         `admin/submit_courses/get${type}SubmitCourse`
       );
       if (res.status === 200) {
-        console.log("success submit courses");
         return {
           data: res.data.data,
         };
@@ -31,7 +30,6 @@ export const getSubmitDetails = createAsyncThunk(
     try {
       const res = await Axios.get(`admin/submit_courses/${id}`);
       if (res.status === 200) {
-        console.log("success submit details");
         return {
           data: res.data.data,
         };
@@ -52,7 +50,6 @@ export const getAdSubmitCourses = createAsyncThunk(
         `admin/course_ads/${params.id}/submitCourses?status=${params.type}`
       );
       if (res.status === 200) {
-        console.log("success course ad submits");
         return {
           data: res.data.data,
         };
@@ -76,11 +73,10 @@ export const replySubmitCourse = createAsyncThunk(
         `admin/submit_courses/${params.type}SubmitCourseById/${params.id}`,
         { cause: params.cause }
       );
-      console.log(res);
       if (res.status === 200) {
-        console.log("success accept/reject");
         return {
           data: res.data.data,
+          id: params.id,
         };
       }
     } catch (error: any) {
@@ -96,9 +92,7 @@ export const createInvoice = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await Axios.post("admin/invoice", invoiceData);
-      console.log(res);
       if (res.status === 201) {
-        console.log("success create invoice");
         return {
           data: res.data.data,
         };
@@ -188,6 +182,17 @@ const submitCourses = createSlice({
         state.operationError = null;
         state.operationLoading = false;
         state.status = true;
+
+        if (state.submitDetails)
+          state.submitDetails = { ...action.payload.data };
+
+        state.submitCourses = state.submitCourses.map((submit) =>
+          submit.id === action.payload.id ? { ...action.payload.data } : submit
+        );
+
+        state.adSubmitCourses = state.adSubmitCourses.map((submit) =>
+          submit.id === action.payload.id ? { ...action.payload.data } : submit
+        );
       })
       .addCase(replySubmitCourse.rejected, (state, action: any) => {
         state.operationLoading = false;

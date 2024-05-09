@@ -1,8 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-
-import { More } from "@rsuite/icons";
-
+import {
+  courseUserOperationCopmleted,
+  deleteClient,
+  deleteTrainee,
+  deleteTrainer,
+  updateJoinedUser,
+} from "@/store/adminstore/slices/courses/joinedUsers/courseJoinedUsersSlice";
+import {
+  clientType,
+  traineeType,
+} from "@/types/adminTypes/courses/coursesTypes";
+import { GlobalState } from "@/types/storeTypes";
 import {
   Dropdown,
   IconButton,
@@ -12,24 +22,10 @@ import {
   Modal,
 } from "rsuite";
 import Image from "next/image";
-
-import {
-  clientType,
-  traineeType,
-} from "@/types/adminTypes/courses/coursesTypes";
-import { useDispatch, useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
-import { getCoursePermissions } from "@/store/endUser/endUserSlice";
-import {
-  courseUserOperationCopmleted,
-  deleteClient,
-  deleteTrainee,
-  deleteTrainer,
-  updateJoinedUser,
-} from "@/store/adminstore/slices/courses/joinedUsers/courseJoinedUsersSlice";
-import OperationAlert from "../Pars/OperationAlert";
 import AlertModal from "../Pars/AlertModal";
 import UserReportModal from "./UserReportModal";
+import AddJoinedUserModal from "./AddJoinedUserModal";
+import { More } from "@rsuite/icons";
 
 const UpdateModal = ({
   modalOpen,
@@ -61,10 +57,6 @@ const UpdateModal = ({
   );
 
   const dispatch = useDispatch<any>();
-
-  useEffect(() => {
-    dispatch(getCoursePermissions());
-  }, [dispatch]);
 
   const handleUpdate = () => {
     const type =
@@ -128,7 +120,7 @@ const UpdateModal = ({
                 Select new permission : *
               </p>
               <InputPicker
-                className="!w-full"
+                className="!text-[#000] !w-full"
                 data={coursePermissions.map((p) => ({
                   label: p.name,
                   value: p.id,
@@ -161,7 +153,7 @@ const UpdateModal = ({
               <div className="flex flex-col gap-1 w-full">
                 <p className="text-[12px] font-[500]">Select new status : *</p>
                 <InputPicker
-                  className="!w-full"
+                  className="!text-[#000] !w-full"
                   data={[
                     { label: "Accepted", value: "Accepted" },
                     { label: "Rejected", value: "Rejected" },
@@ -171,6 +163,7 @@ const UpdateModal = ({
                   onChange={(value: string) => setNewStatus(value)}
                 />
               </div>
+
               {newStatus === "Rejected" && (
                 <div className="flex flex-col gap-1 w-full">
                   <p className="text-[12px] font-[500]">
@@ -215,9 +208,15 @@ const UpdateModal = ({
 const CourseUser = ({
   user,
   userType,
+  addModal,
+  setAddModal,
+  courseId,
 }: {
   user: clientType | traineeType;
   userType: "trainer" | "trainee" | "client";
+  addModal: boolean;
+  setAddModal: any;
+  courseId: number;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
@@ -236,9 +235,13 @@ const CourseUser = ({
         {...props}
         ref={ref}
         icon={<More />}
-        size="sm"
+        size="md"
         circle
-        className={`!text-[var(--dark-bg-color)] hover:!bg-transparent`}
+        className={`${
+          mode === "dark"
+            ? "!text-[var(--light-bg-color)]"
+            : "!text-[var(--dark-color)]"
+        } !bg-transparent`}
       />
     );
   };
@@ -246,14 +249,20 @@ const CourseUser = ({
   return (
     <>
       <div
-        className={`flex justify-between items-center mt-4 p-3 rounded-md text-black ${
-          mode === "dark" ? "bg-light" : "bg-white"
+        className={`flex justify-between items-center mt-4 p-3 rounded-md ${
+          mode === "dark" ? "bg-[var(--dark-bg-color)]" : "bg-white text-[#000]"
         }`}
       >
         <UserReportModal
           modalOpen={reportOpen}
           setModalOpen={setReportOpen}
           userData={user}
+        />
+        <AddJoinedUserModal
+          modalOpen={addModal}
+          setModalOpen={setAddModal}
+          userType={userType}
+          courseId={courseId}
         />
         <UpdateModal
           modalOpen={updateModal}
@@ -267,6 +276,10 @@ const CourseUser = ({
           setOpen={setDeleteModal}
           requestType="delete"
           label={`Are you sure you want to delete "${
+            user &&
+            user?.user &&
+            user?.user?.first_name &&
+            user?.user?.last_name &&
             user.user.first_name + " " + user.user.last_name
           }" ?`}
           deleteAction={
@@ -280,6 +293,7 @@ const CourseUser = ({
           id={user.id}
           status={status}
         />
+
         <div>
           <div className="flex items-start gap-2">
             {user?.user?.image && (
@@ -295,20 +309,22 @@ const CourseUser = ({
             <div>
               <p className="font-bold">
                 {user?.user &&
-                  `${user?.user?.user_id && user?.user?.user_id}. ${
+                  `${user?.user && user?.user?.user_id}. ${
                     user?.user?.first_name &&
                     user?.user?.last_name &&
-                    user?.user?.first_name + " " + user?.user?.last_name
+                    user.user.first_name + " " + user.user.last_name
                   }`}
               </p>
 
               <div className="mt-1 flex items-center flex-wrap gap-2">
                 <p className="m-0 text-[12px]">
-                  {user?.user?.phone_number && user?.user?.phone_number}
+                  {user?.user &&
+                    user?.user?.phone_number &&
+                    user.user.phone_number}
                 </p>
                 <span>|</span>
                 <p className="m-0 text-[12px]">
-                  {user?.user?.email && user?.user?.email}
+                  {user?.user && user?.user?.email && user.user.email}
                 </p>
               </div>
             </div>
@@ -352,10 +368,12 @@ const CourseUser = ({
           </div>
 
           <div className="mt-1 flex items-center flex-wrap gap-2">
-            <p className="m-0 text-[12px]">{user?.status && user?.status}</p>
+            <p className="m-0 text-[12px]">{user?.status && user.status}</p>
             <span>|</span>
             <p className="m-0 text-[12px]">
-              {user?.permission_courses?.name && user?.permission_courses?.name}
+              {user?.permission_courses &&
+                user?.permission_courses?.name &&
+                user.permission_courses.name}
             </p>
           </div>
         </div>
