@@ -33,7 +33,7 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
 
   return (
     <div
-      className={`xl:flex-1 flex justify-between gap-2 sm:gap-4 flex-wrap-reverse sm:flex-nowrap p-3 sm:p-6 rounded-[16px]
+      className={`xl:flex-1 flex justify-between gap-4 flex-wrap-reverse sm:flex-nowrap p-3 sm:p-6 rounded-[16px]
         ${
           mode === "dark" ? "bg-[#212A34] text-[#FFF]" : "bg-white text-[#000]"
         }`}
@@ -116,8 +116,8 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
           </div>
         </div>
       )}
-      <div className="flex w-full sm:w-fit">
-        <div className="bg-slate-400 min-w-[200px] max-h-[175px] w-full sm:w-fit  rounded-[8px] self-start">
+      <div className="flex justify-between w-full sm:w-fit">
+        <div className="bg-slate-400 h-[175px] w-full sm:w-fit sm:min-w-[250px] max-w-[250px] rounded-[8px] self-start">
           {sessionInfo?.image && (
             <Image
               src={storageURL + sessionInfo.image}
