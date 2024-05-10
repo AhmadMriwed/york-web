@@ -45,6 +45,8 @@ const CourseRequests = () => {
         completedAction={courseRequestOperationCompleted}
       />
 
+      {operationLoading && <Loading backdrop />}
+
       <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-4">
         {["Current", "Rejected", "Accepted"].map((btnName) => (
           <button

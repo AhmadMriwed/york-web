@@ -66,6 +66,7 @@ const CourseInfo = ({ params }: any) => {
     requestsToJoin,
     status: requestStatus,
     operationError: requestOperationError,
+    operationLoading: requestOperationLoading,
   } = useSelector((state: GlobalState) => state.courseJoinedUsers);
 
   const dispatch = useDispatch<any>();
@@ -142,6 +143,8 @@ const CourseInfo = ({ params }: any) => {
         error={requestOperationError}
         completedAction={courseUserOperationCopmleted}
       />
+
+      {(operationLoading || requestOperationLoading) && <Loading backdrop />}
 
       <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7">
         <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">

@@ -83,6 +83,9 @@ const SubmitCourseInfo = ({ params }: any) => {
         status={status}
         completedAction={submitCourseOperationCompleted}
       />
+
+      {operationLoading && <Loading backdrop />}
+
       {submitDetails && (
         <>
           <InvoiceModal

@@ -61,6 +61,8 @@ const CourseTrainingSession = ({ params }: any) => {
         completedAction={sessionOperationCompleted}
       />
 
+      {operationLoading && <Loading backdrop />}
+
       {/* <div className="flex items-center gap-2 mt-7">
         <button className="outlined-btn flex justify-center items-center gap-1">
           <CiImport /> Import

@@ -219,6 +219,8 @@ export default function MyCourses() {
         completedAction={courseOperationCompleted}
       />
 
+      {operationLoading && <Loading backdrop />}
+
       {/* <div className="my-4 flex flex-wrap items-center gap-2">
         <button className="outlined-btn">Import</button>
         <button className="outlined-btn">Export</button>

@@ -99,6 +99,9 @@ const TrainingPlan = () => {
           error={operationError}
           completedAction={courseAdOperationCompleted}
         />
+
+        {operationLoading && <Loading backdrop />}
+
         <PDF
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}

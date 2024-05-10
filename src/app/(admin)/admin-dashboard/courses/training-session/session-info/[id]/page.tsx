@@ -117,6 +117,9 @@ const SessionInfo = ({ params }: any) => {
         error={operationError}
         completedAction={sessionOperationCompleted}
       />
+
+      {operationLoading && <Loading backdrop />}
+
       {/* TOP BAR */}
       <div className="flex flex-wrap justify-between items-center my-2">
         <BackBtn textColor="" />

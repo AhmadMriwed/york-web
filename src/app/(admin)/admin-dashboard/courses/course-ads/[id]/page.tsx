@@ -151,6 +151,8 @@ const CourseAdInfo = ({ params }: any) => {
         completedAction={submitCourseOperationCompleted}
       />
 
+      {(operationLoading || submitOperationLoading) && <Loading backdrop />}
+
       <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7">
         <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">
           {courseAdInfo.image && (

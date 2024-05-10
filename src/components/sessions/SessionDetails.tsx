@@ -53,7 +53,7 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
             </span>
           </h6>
 
-          <p className="text-[14px] sm:text-[16px] text-[#888]">
+          <p className="text-[14px] text-[#888]">
             {`${courseInfo?.title && courseInfo.title} #${
               courseInfo?.code && courseInfo.code
             }`}

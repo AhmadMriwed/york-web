@@ -26,6 +26,7 @@ const TrainingSession = () => {
     expiredSessions,
     upcomingSessions,
     operationError,
+    operationLoading,
     status,
   } = useSelector((state: GlobalState) => state.sessions);
   const [filterBy, setFilterBy] = useState<string>("Current");
@@ -58,6 +59,8 @@ const TrainingSession = () => {
         title="Sessions"
         description="Schedule all your Sessions , edit and track your teaching process."
       />
+
+      {operationLoading && <Loading backdrop />}
 
       {error ? (
         <ErrorMessage msg="Oops! There was an error, please try again later." />

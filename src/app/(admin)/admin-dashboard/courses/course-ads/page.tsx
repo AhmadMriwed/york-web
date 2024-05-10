@@ -177,6 +177,9 @@ const CoursesAds = () => {
         status={status}
         completedAction={courseAdOperationCompleted}
       />
+
+      {operationLoading && <Loading backdrop />}
+
       <div className="flex flex-wrap justify-between items-center md:items-start gap-4">
         <div>
           <h3 className="font-bold text-[24px] sm:text-[32px] text-[var(--primary-color1)]">

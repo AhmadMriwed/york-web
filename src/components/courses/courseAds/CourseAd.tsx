@@ -22,7 +22,7 @@ import { MdRequestPage } from "react-icons/md";
 import { IoLanguage } from "react-icons/io5";
 /* components */
 import Image from "next/image";
-import { Dropdown, IconButton, Loader } from "rsuite";
+import { Dropdown, IconButton } from "rsuite";
 import AlertModal from "@/components/Pars/AlertModal";
 
 const CourseAd = ({ ad }: { ad: courseAdType }) => {
