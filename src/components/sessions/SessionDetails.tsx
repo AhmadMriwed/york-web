@@ -117,17 +117,14 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
         </div>
       )}
       <div className="flex justify-between w-full sm:w-fit">
-        <div className="bg-slate-400 h-[175px] w-full sm:w-fit sm:min-w-[250px] max-w-[250px] rounded-[8px] self-start">
-          {sessionInfo?.image && (
+        <div className="bg-slate-400 min-w-[250px] h-[175px] rounded-md">
+          {courseInfo.image && (
             <Image
-              src={storageURL + sessionInfo.image}
-              alt="session image"
+              src={storageURL + courseInfo.image}
+              alt="course ad image"
               width={250}
               height={175}
-              style={{
-                objectFit: "cover",
-                borderRadius: "8px",
-              }}
+              className="sm:!min-w-[250px] bg-center bg-cover object-fit rounded-md"
             />
           )}
         </div>
