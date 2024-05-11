@@ -121,7 +121,7 @@ const SessionDetails = ({ sessionInfo, courseInfo, life }: any) => {
           {courseInfo.image && (
             <Image
               src={storageURL + courseInfo.image}
-              alt="course ad image"
+              alt="session image"
               width={250}
               height={175}
               className="sm:!min-w-[250px] bg-center bg-cover object-fit rounded-md"

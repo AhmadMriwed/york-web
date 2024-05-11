@@ -1,5 +1,6 @@
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { useContext, useState } from "react";
+import { Minus, Plus } from "@rsuite/icons";
+import { useContext, useEffect, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Modal } from "rsuite";
 
@@ -20,12 +21,28 @@ export default function PDFViewer({
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
   const [numPages, setNumPages] = useState(null);
+  const [pageWidth, setPageWidth] = useState(900);
 
-  const [file, setFile] = useState(null); //TMP
+  useEffect(() => {
+    const handleResize = () => {
+      setPageWidth(window.innerWidth * 0.75);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  /* TMP */
+  const [file, setFile] = useState(null);
   function onFileChange(event: any) {
-    //TMP
     setFile(event.target.files[0]);
   }
+  /* TMP */
 
   function onDocumentLoadSuccess({
     numPages: nextNumPages,
@@ -39,14 +56,14 @@ export default function PDFViewer({
     <Modal
       open={modalOpen}
       onClose={() => setModalOpen(false)}
-      size="lg"
+      size="full"
       className={`${
         mode === "dark"
           ? "[&>div>*]:!bg-[var(--dark-bg-color)] [&>div>*]:text-[var(--dark-text-color)]"
           : "[&>div>*]:!bg-light [&>div>*]:text-[var(--light-text-color)]"
       }`}
     >
-      <Modal.Header className="flex items-center mt-1">
+      <Modal.Header>
         <Modal.Title
           className={`${
             mode === "dark"
@@ -58,12 +75,31 @@ export default function PDFViewer({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="">
-        {/* TMP */}
+        {/* TEMP */}
         <div className="flex flex-col gap-2 my-2">
           <label htmlFor="file">Load from file:</label>{" "}
           <input onChange={onFileChange} type="file" />
         </div>
+        {/* TEMP */}
 
+        <div className="flex justify-center items-center gap-2 m-4">
+          <button
+            type="button"
+            className="p-1.5 element-center gap-2 bg-slate-200 hover:bg-slate-100 rounded-lg text-[#000] text-[12px] font-semibold"
+            onClick={() => setPageWidth((prev) => prev + 50)}
+          >
+            <Plus />
+            <p>Zoom in</p>
+          </button>
+          <button
+            type="button"
+            className="p-1.5 element-center gap-2 bg-slate-200 hover:bg-slate-100 rounded-lg text-[#000] text-[12px] font-semibold"
+            onClick={() => setPageWidth((prev) => prev - 50)}
+          >
+            <Minus />
+            <p>Zoom out</p>
+          </button>
+        </div>
         <div className="justify-center items-center flex">
           <Document
             file={file}
@@ -73,6 +109,7 @@ export default function PDFViewer({
             {Array.from({ length: numPages }, (_, index) => (
               <Page
                 key={`page_${index + 1}`}
+                width={pageWidth}
                 pageNumber={index + 1}
                 renderAnnotationLayer={false}
                 renderTextLayer={false}
