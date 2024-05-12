@@ -9,7 +9,7 @@ import { GlobalState } from "@/types/storeTypes";
 import { getUTCDate } from "@/utils/dateFuncs";
 
 import Header from "@/components/Pars/Header";
-import CourseAdOperation from "@/components/courses/courseAds/CourseAdOperation";
+import CourseAdOperation from "@/components/courses/course-ads/CourseAdOperation";
 import OperationAlert from "@/components/Pars/OperationAlert";
 
 const AddCourseAd = () => {

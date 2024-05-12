@@ -24,15 +24,15 @@ import {
 import { CiEdit } from "react-icons/ci";
 /* components */
 import { Loader } from "rsuite";
-import TrainerInfo from "@/components/sessions/TrainerInfo";
+import TrainerInfo from "@/components/courses/TrainerInfo";
 import MiniSession from "@/components/sessions/MiniSession";
 import Loading from "@/components/Pars/Loading";
 import BackBtn from "@/components/backbtn/BackBtn";
 import AlertModal from "@/components/Pars/AlertModal";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import SessionDetails from "@/components/sessions/SessionDetails";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const SessionInfo = ({ params }: any) => {
   const { id } = params;

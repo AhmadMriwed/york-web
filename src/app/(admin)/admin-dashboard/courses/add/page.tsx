@@ -9,7 +9,7 @@ import {
 import { getUTCDate } from "@/utils/dateFuncs";
 
 import Header from "@/components/Pars/Header";
-import CourseOperation from "@/components/courses/myCourses/CourseOperation";
+import CourseOperation from "@/components/courses/my-courses/CourseOperation";
 import OperationAlert from "@/components/Pars/OperationAlert";
 
 const AddCourse = () => {

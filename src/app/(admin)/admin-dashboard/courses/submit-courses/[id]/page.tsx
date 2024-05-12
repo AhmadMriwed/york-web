@@ -30,7 +30,7 @@ import { PiHandbag } from "react-icons/pi";
 
 import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import InvoiceModal from "@/components/courses/InvoiceModal";
 import CauseModal from "@/components/courses/CauseModal";
 import OperationAlert from "@/components/Pars/OperationAlert";

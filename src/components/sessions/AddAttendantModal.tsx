@@ -8,7 +8,7 @@ import { ThemeContext } from "../Pars/ThemeContext";
 import { Formik, Form, FormikProps } from "formik";
 import * as yup from "yup";
 import { Avatar, Loader, Modal } from "rsuite";
-import CustomInput from "../inputs/rsuiteInput/CustomInput";
+import CustomInput from "../inputs/custom-field/CustomInput";
 
 const validationSchema = yup.object().shape({
   attend_time: yup

@@ -17,13 +17,16 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 import { InputPicker, Loader } from "rsuite";
 import Header from "@/components/Pars/Header";
-import MyCourse from "@/components/courses/myCourses/MyCourse";
-import Course from "@/components/courses/myCourses/Course";
+import MyCourse from "@/components/courses/my-courses/MyCourse";
+import Course from "@/components/courses/my-courses/Course";
 import Filter from "@/components/courses/Filter";
 import Loading from "@/components/Pars/Loading";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import EmptyResult from "@/components/empty-result/EmptyResult";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
+import FilteringBar from "@/components/Pars/FilteringBar";
+
+const filterALlBtns = ["Current", "Closed", "Expired"];
 
 export default function MyCourses() {
   const router = useRouter();
@@ -307,21 +310,12 @@ export default function MyCourses() {
 
       {showBy === "trainer" && (
         <>
-          <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-11">
-            {["Current", "Closed", "Expired"].map((btnName) => (
-              <button
-                key={btnName}
-                onClick={() => setFilterAll(btnName)}
-                className={`py-2 sm:px-4 text-[16px] font-[500] ${
-                  filterAll === btnName
-                    ? "border-b-2 border-[var(--primary-color1)]"
-                    : ""
-                }`}
-              >
-                {btnName}
-              </button>
-            ))}
-          </div>
+          <FilteringBar
+            filterBy={filterAll}
+            setFilterBy={setFilterAll}
+            filterData={filterALlBtns}
+            dataLength={allCourses.length}
+          />
 
           <div className="mt-2 flex justify-end">
             <div className="flex flex-col gap-2">

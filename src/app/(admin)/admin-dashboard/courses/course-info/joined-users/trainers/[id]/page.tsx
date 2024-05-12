@@ -14,9 +14,9 @@ import { GlobalState } from "@/types/storeTypes";
 import Header from "@/components/Pars/Header";
 import CourseUser from "@/components/courses/CourseUser";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 import AddJoinedUserModal from "@/components/courses/AddJoinedUserModal";
 
 const JoinedTrainers = ({ params }: any) => {

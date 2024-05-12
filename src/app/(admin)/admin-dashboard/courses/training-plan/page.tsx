@@ -16,11 +16,11 @@ import { CiFileOn } from "react-icons/ci";
 
 import { DatePicker, Dropdown, IconButton, Loader } from "rsuite";
 import Header from "@/components/Pars/Header";
-import CourseAd from "@/components/courses/courseAds/CourseAd";
+import CourseAd from "@/components/courses/course-ads/CourseAd";
 import Image from "next/image";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import PDF from "@/components/PDF/PDF/PDF";
 

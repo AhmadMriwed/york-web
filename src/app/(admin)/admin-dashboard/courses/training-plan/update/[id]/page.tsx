@@ -11,10 +11,10 @@ import {
 import { GlobalState } from "@/types/storeTypes";
 
 import Header from "@/components/Pars/Header";
-import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
-import ImageUploader from "@/components/inputs/CustomUploader/ImageUploader";
+import CustomInput from "@/components/inputs/custom-field/CustomInput";
+import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
 
 const planSchema = yup.object().shape({

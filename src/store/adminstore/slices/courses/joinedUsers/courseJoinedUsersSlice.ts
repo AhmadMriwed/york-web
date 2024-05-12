@@ -65,10 +65,7 @@ export const getCourseClients = createAsyncThunk(
 // get course requests to join
 export const getRequestsToJoin = createAsyncThunk(
   "courseJoinedUsers/getRequestsToJoin",
-  async (
-    params: { id: number; type: "Accepted" | "Rejected" | "Current" },
-    thunkAPI
-  ) => {
+  async (params: { id: number; type: string }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await Axios.get(

@@ -10,14 +10,14 @@ import {
 import { courseAdType } from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
 import { InputPicker, Loader } from "rsuite";
-import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
-import ImageUploader from "@/components/inputs/CustomUploader/ImageUploader";
+import CustomInput from "@/components/inputs/custom-field/CustomInput";
+import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
 import Image from "next/image";
 
 // Validation Schema
-const courseAdSchema = yup.object().shape({
+const courseSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
-  sub_title: yup.string(),
+  sub_title: yup.string().required("Subtitle is required"),
   start_date: yup
     .date()
     .required("Start date is required")
@@ -38,8 +38,8 @@ const courseAdSchema = yup.object().shape({
   fee: yup.number().required("Fee is required"),
   lang: yup.string().required("Language is required"),
   image: yup.mixed().nullable(),
-  venue_id: yup.string().required("Venue is required"),
-  category_id: yup.string().required("Category is required"),
+  venue_id: yup.string(),
+  category_id: yup.string(),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -48,12 +48,14 @@ const courseAdSchema = yup.object().shape({
       }
       return true;
     }),
+  location: yup.string(),
+  submit_courses_id: yup.string(),
   status: yup.string(),
   outlines: yup.string().required("Outlines is required"),
-  description: yup.string().required("Description is required"),
+  description: yup.string(),
 });
 
-const CourseAdOperation = ({
+const CourseOperation = ({
   initialValues,
   submitHandler,
   operationLoading,
@@ -160,9 +162,27 @@ const CourseAdOperation = ({
       name: "sub_title",
       label: "Sub Title",
       placeholder: "Sub Title",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "text",
+      name: "location",
+      label: "Location",
+      placeholder: "Location",
       optional: true,
       required: false,
       disabled: false,
+    },
+    {
+      type: "text",
+      name: "submit_courses_id",
+      label: "Submit Course Ad",
+      placeholder: "Submit Course Ad",
+      optional: true,
+      required: false,
+      disabled: true,
     },
     {
       type: "date",
@@ -235,7 +255,7 @@ const CourseAdOperation = ({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={courseAdSchema}
+      validationSchema={courseSchema}
       onSubmit={submitHandler}
     >
       {(props: FormikProps<any>) => (
@@ -244,7 +264,8 @@ const CourseAdOperation = ({
             {op === "add" && (
               <div className="mb-11 flex flex-col justify-center gap-2 ">
                 <p className="font-[500] text-black max-w-lg">
-                  Choose the course ad to fill the fields automatically :
+                  If a course following course ad select to fill the fields
+                  automatically :
                 </p>
                 <InputPicker
                   size="lg"
@@ -325,7 +346,7 @@ const CourseAdOperation = ({
                 selectOnSearch={(value: string) => setVenueTerm(value)}
                 name="venue_id"
                 label="Venue"
-                required
+                optional
                 placeholder="Venue"
                 value={
                   selectedAd && selectedAd?.venue_id && selectedAd?.venue_id
@@ -339,7 +360,7 @@ const CourseAdOperation = ({
                 selectOnSearch={(value: string) => setCategoryTerm(value)}
                 name="category_id"
                 label="Category"
-                required
+                optional
                 placeholder="Category"
                 value={
                   selectedAd &&
@@ -365,7 +386,7 @@ const CourseAdOperation = ({
                 textAreaRows={2}
                 name="description"
                 label="Description"
-                required
+                optional
                 placeholder="Description"
                 value={
                   selectedAd &&
@@ -383,9 +404,9 @@ const CourseAdOperation = ({
                 {operationLoading ? (
                   <Loader />
                 ) : op === "add" ? (
-                  "Add course ad"
+                  "Add course"
                 ) : (
-                  "Update course ad"
+                  "Update course"
                 )}
               </button>
             </div>
@@ -396,4 +417,4 @@ const CourseAdOperation = ({
   );
 };
 
-export default CourseAdOperation;
+export default CourseOperation;

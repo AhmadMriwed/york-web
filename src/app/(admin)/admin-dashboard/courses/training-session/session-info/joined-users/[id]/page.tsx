@@ -16,10 +16,10 @@ import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
 import UserReportModal from "@/components/sessions/UserReportModal";
 import EditUserStatusModal from "@/components/sessions/EditUserStatusModal";
-import NameCell from "@/components/sessions/CustomCells/NameCell";
-import ImageCell from "@/components/sessions/CustomCells/ImageCell";
-import TimeCell from "@/components/sessions/CustomCells/TimeCell";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import NameCell from "@/components/sessions/custom-cells/NameCell";
+import ImageCell from "@/components/sessions/custom-cells/ImageCell";
+import TimeCell from "@/components/sessions/custom-cells/TimeCell";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
 
 const { Column, HeaderCell, Cell } = Table;

@@ -15,9 +15,10 @@ import { GlobalState } from "@/types/storeTypes";
 import Header from "@/components/Pars/Header";
 import CourseRequest from "@/components/courses/CourseRequest";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import FilteringBar from "@/components/Pars/FilteringBar";
 
 const filters = ["Current", "Expired", "Rejected", "Accepted"];
 
@@ -66,21 +67,12 @@ const SubmitCourses = () => {
 
       {operationLoading && <Loading backdrop />}
 
-      <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-4">
-        {filters.map((btnName) => (
-          <button
-            key={btnName}
-            onClick={() => setFilterBy(btnName)}
-            className={`py-2 sm:px-4 text-[14px] sm:text-[16px] font-[500] ${
-              filterBy === btnName
-                ? "border-b-2 border-[var(--primary-color1)]"
-                : ""
-            }`}
-          >
-            {btnName}
-          </button>
-        ))}
-      </div>
+      <FilteringBar
+        filterBy={filterBy}
+        setFilterBy={setFilterBy}
+        filterData={filters}
+        dataLength={submitCourses.length}
+      />
 
       {isLoading ? (
         <Loading />

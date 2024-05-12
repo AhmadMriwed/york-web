@@ -33,22 +33,23 @@ import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { Dropdown, IconButton, Loader } from "rsuite";
 import Image from "next/image";
 import UserRequest from "@/components/courses/UserRequest";
-import TrainerInfo from "@/components/sessions/TrainerInfo";
+import TrainerInfo from "@/components/courses/TrainerInfo";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import AlertModal from "@/components/Pars/AlertModal";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 import { getCoursePermissions } from "@/store/endUser/endUserSlice";
+import FilteringBar from "@/components/Pars/FilteringBar";
+
+const filterData = ["Current", "Rejected", "Accepted"];
 
 const CourseInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
   const { id } = params;
 
-  const [filterBy, setFilterBy] = useState<"Accepted" | "Rejected" | "Current">(
-    "Current"
-  );
+  const [filterBy, setFilterBy] = useState<string>("Current");
   const [deleteModal, setDeleteModal] = useState(false);
 
   const {
@@ -299,21 +300,12 @@ const CourseInfo = ({ params }: any) => {
           <h3 className="sm:text-[22px] text-[var(--primary-color1)] font-bold mb-2">
             Requests to Join
           </h3>
-          <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
-            {["Current", "Rejected", "Accepted"].map((btnName: any) => (
-              <button
-                key={btnName}
-                onClick={() => setFilterBy(btnName)}
-                className={`py-2 sm:px-4 text-[14px] sm:text-[16px] font-[500] ${
-                  filterBy === btnName
-                    ? "border-b-2 border-[var(--primary-color1)]"
-                    : ""
-                }`}
-              >
-                {btnName}
-              </button>
-            ))}
-          </div>
+          <FilteringBar
+            filterBy={filterBy}
+            setFilterBy={setFilterBy}
+            filterData={filterData}
+            dataLength={requestsToJoin.length}
+          />
 
           {requestLoading ? (
             <div className="m-7 element-center">

@@ -9,9 +9,9 @@ import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
 import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
 import { Loader, Modal } from "rsuite";
-import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
+import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import Image from "next/image";
-import ImageUploader from "../inputs/CustomUploader/ImageUploader";
+import ImageUploader from "../inputs/image-uploader/ImageUploader";
 
 // Validation Schema
 const invoiceSchema = yup.object().shape({

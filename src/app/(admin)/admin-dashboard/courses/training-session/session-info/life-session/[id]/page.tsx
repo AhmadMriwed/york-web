@@ -26,12 +26,12 @@ import MiniSession from "@/components/sessions/MiniSession";
 import BackBtn from "@/components/backbtn/BackBtn";
 import { Loader } from "rsuite";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import Timer from "@/components/sessions/Timer";
 import SessionState from "@/components/sessions/SessionState";
 import SessionDetails from "@/components/sessions/SessionDetails";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const LifeSession = ({ params }: any) => {
   const { id } = params;

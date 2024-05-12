@@ -11,16 +11,17 @@ import { GlobalState } from "@/types/storeTypes";
 import Header from "@/components/Pars/Header";
 import UserRequest from "@/components/courses/UserRequest";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
+import FilteringBar from "@/components/Pars/FilteringBar";
+
+const filterData = ["Current", "Rejected", "Accepted"];
 
 const RequestsToJoin = ({ params }: any) => {
   const { id } = params;
 
-  const [filterBy, setFilterBy] = useState<"Current" | "Accepted" | "Rejected">(
-    "Current"
-  );
+  const [filterBy, setFilterBy] = useState<string>("Current");
 
   const { isLoading, error, requestsToJoin, status, operationError } =
     useSelector((state: GlobalState) => state.courseJoinedUsers);
@@ -48,21 +49,13 @@ const RequestsToJoin = ({ params }: any) => {
         completedAction={courseUserOperationCopmleted}
       />
 
-      <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center sm:px-11 mt-4">
-        {["Current", "Rejected", "Accepted"].map((btnName: any) => (
-          <button
-            key={btnName}
-            onClick={() => setFilterBy(btnName)}
-            className={`py-2 sm:px-4 text-[16px] font-[500] ${
-              filterBy === btnName
-                ? "border-b-2 border-[var(--primary-color1)]"
-                : ""
-            }`}
-          >
-            {btnName}
-          </button>
-        ))}
-      </div>
+      <FilteringBar
+        filterBy={filterBy}
+        setFilterBy={setFilterBy}
+        filterData={filterData}
+        dataLength={requestsToJoin.length}
+      />
+
       {isLoading ? (
         <Loading />
       ) : requestsToJoin.length > 0 ? (

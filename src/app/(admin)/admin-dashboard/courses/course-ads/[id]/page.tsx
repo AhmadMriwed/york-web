@@ -34,10 +34,11 @@ import { Dropdown, IconButton, Loader } from "rsuite";
 import CourseRequest from "@/components/courses/CourseRequest";
 import Image from "next/image";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import AlertModal from "@/components/Pars/AlertModal";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import EmptyResult from "@/components/EmptyResult/EmptyResult";
+import EmptyResult from "@/components/empty-result/EmptyResult";
+import FilteringBar from "@/components/Pars/FilteringBar";
 
 const filterData = ["Current", "Upcoming", "Expired"];
 
@@ -308,21 +309,12 @@ const CourseAdInfo = ({ params }: any) => {
             Submit Courses
           </h3>
 
-          <div className="border-b-[1px] border-[#303030] flex justify-evenly sm:justify-start items-center">
-            {filterData.map((btnName) => (
-              <button
-                key={btnName}
-                onClick={() => setFilterBy(btnName)}
-                className={`py-2 sm:px-4 text-[16px] font-[500] ${
-                  filterBy === btnName
-                    ? "border-b-2 border-[var(--primary-color1)]"
-                    : ""
-                }`}
-              >
-                {btnName}
-              </button>
-            ))}
-          </div>
+          <FilteringBar
+            filterBy={filterBy}
+            setFilterBy={setFilterBy}
+            filterData={filterData}
+            dataLength={adSubmitCourses.length}
+          />
 
           {submitLoading ? (
             <div className="element-center m-7">

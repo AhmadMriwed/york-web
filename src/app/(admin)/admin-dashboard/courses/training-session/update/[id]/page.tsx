@@ -11,7 +11,7 @@ import { GlobalState } from "@/types/storeTypes";
 /* components */
 import Header from "@/components/Pars/Header";
 import SessionOperation from "@/components/sessions/SessionOperation";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import Loading from "@/components/Pars/Loading";
 import OperationAlert from "@/components/Pars/OperationAlert";
 

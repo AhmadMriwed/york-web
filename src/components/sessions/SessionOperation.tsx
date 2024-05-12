@@ -18,8 +18,8 @@ import { LuFilePlus } from "react-icons/lu";
 import { IoMdAttach } from "react-icons/io";
 /* components */
 import { InputPicker, Loader } from "rsuite";
-import CustomInput from "@/components/inputs/rsuiteInput/CustomInput";
-import ImageUploader from "../inputs/CustomUploader/ImageUploader";
+import CustomInput from "@/components/inputs/custom-field/CustomInput";
+import ImageUploader from "../inputs/image-uploader/ImageUploader";
 
 // Validation Schema
 const sessionSchema = yup.object().shape({
