@@ -17,7 +17,7 @@ const Header = ({
   const router = useRouter();
 
   return (
-    <div className="flex justify-between items-start sm:items-center flex-wrap gap-4 flex-col sm:flex-row">
+    <div className="flex justify-between items-center flex-wrap gap-4">
       <div>
         <div className="flex items-center gap-2">
           <IoArrowBackSharp
@@ -35,7 +35,7 @@ const Header = ({
         <p className="text-[14px] sm:text-[16px] mt-2">{description}</p>
       </div>
       {btnTitle && btnAction && (
-        <button className="colored-btn !w-fit" onClick={btnAction}>
+        <button className="colored-btn" onClick={btnAction}>
           {btnTitle}
         </button>
       )}

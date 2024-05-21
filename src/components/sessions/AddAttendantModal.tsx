@@ -5,11 +5,10 @@ import { getUTCDate } from "@/utils/dateFuncs";
 import { unattendUserType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
 import { ThemeContext } from "../Pars/ThemeContext";
-import { Formik, Form } from "formik";
+import { Formik, Form, FormikProps } from "formik";
 import * as yup from "yup";
-import { Avatar, Modal } from "rsuite";
-import CustomInput from "./CustomInput";
-import Loading from "../Pars/Loading";
+import { Avatar, Loader, Modal } from "rsuite";
+import CustomInput from "../inputs/custom-field/CustomInput";
 
 const validationSchema = yup.object().shape({
   attend_time: yup
@@ -39,7 +38,7 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
   const usersData = attendUsers.map((user: unattendUserType) => ({
     label: (
       <div className="flex items-center gap-2">
-        <Avatar src={user.image} size="xs" alt="User Image" />
+        <Avatar src={user.image} size="xs" alt="user image" />
         <div className="flex gap-2 items-end">
           <p className="m-0">{`${user.first_name} ${user.last_name}`}</p>
           <p className="m-0 text-[10px] text-[#888]">Id:{user.user_id}</p>
@@ -78,16 +77,16 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
       size="sm"
       className={`${
         mode === "dark"
-          ? "[&>div>*]:!bg-dark [&>div>*]:text-[var(--light-color)]"
-          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--dark-color)]"
+          ? "[&>div>*]:!bg-[var(--dark-bg-color)] [&>div>*]:text-[var(--dark-text-color)]"
+          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--light-text-color)]"
       }`}
     >
       <Modal.Header className="flex items-center mt-1">
         <Modal.Title
           className={`${
             mode === "dark"
-              ? "text-[var(--light-color)]"
-              : "text-[var(--dark-color)]"
+              ? "text-[var(--dark-text-color)]"
+              : "text-[var(--light-text-color)]"
           }`}
         >
           Add Attendant
@@ -99,27 +98,20 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
           validationSchema={validationSchema}
           onSubmit={submitHandler}
         >
-          {(props) => (
+          {(props: FormikProps<any>) => (
             <Form>
               {operationLoading ? (
-                <Loading />
+                <div className="element-center">
+                  <Loader size="lg" />
+                </div>
               ) : (
-                <div
-                  className={`w-[100%] p-6
-              rounded-[10px] ${mode === "dark" ? "bg-light" : "bg-white"}`}
-                >
+                <div className="w-[100%] p-6 rounded-sm bg-light">
                   <CustomInput
                     type="date"
                     name="attend_time"
                     label="Attend Time"
                     required
                     placeholder="Attend Time"
-                    value={props.values.attend_time}
-                    onChange={(value: any) => {
-                      props.values.attend_time = value;
-                    }}
-                    formikErrors={props.errors.attend_time}
-                    formikTouched={props.touched.attend_time}
                   />
                   <CustomInput
                     type="select"
@@ -128,10 +120,6 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
                     label="User"
                     required
                     placeholder="Select User"
-                    value={props.values.user_id}
-                    onChange={(value: any) => (props.values.user_id = value)}
-                    formikErrors={props.errors.user_id}
-                    formikTouched={props.touched.user_id}
                   />
                   <CustomInput
                     type="select"
@@ -140,10 +128,6 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
                     label="Status"
                     optional
                     placeholder="Status"
-                    value={props.values.status}
-                    onChange={(value: any) => (props.values.status = value)}
-                    formikErrors={props.errors.status}
-                    formikTouched={props.touched.status}
                   />
                   <CustomInput
                     type="text"
@@ -151,13 +135,9 @@ const AddAttendantModal = ({ modalOpen, setModalOpen, sessionID }: any) => {
                     label="Cause"
                     optional
                     placeholder="Enter Cause"
-                    value={props.values.cuase}
-                    onChange={(value: any) => (props.values.cuase = value)}
-                    formikErrors={props.errors.cuase}
-                    formikTouched={props.touched.cuase}
                   />
                   <button type="submit" className="colored-btn !w-full mt-4">
-                    Add
+                    Add Attendant
                   </button>
                 </div>
               )}

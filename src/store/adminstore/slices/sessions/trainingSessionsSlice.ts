@@ -8,7 +8,7 @@ import {
   createSession,
   deleteSession,
   duplicateSession,
-  getAllSessions,
+  getCourseSessionsByType,
   getOtherSessions,
   getSessionInfo,
   getSessionStates,
@@ -110,36 +110,31 @@ const sessions = createSlice({
     /* session operations state */
     operationLoading: false,
     operationError: null,
-    deleteError: null,
-    addStatus: false,
-    updateStatus: false,
-    deleteStatus: false,
-    duplicateStatus: false,
+    status: false,
   } as sessionsState,
   reducers: {
     sessionOperationCompleted: (state: sessionsState) => {
-      state.addStatus = false;
-      state.updateStatus = false;
-      state.deleteStatus = false;
-      state.duplicateStatus = false;
+      state.status = false;
       state.operationError = null;
-      state.deleteError = null;
+    },
+    updateSessionId: (state: sessionsState, action) => {
+      state.sessionID = action.payload;
     },
   },
 
   extraReducers: (builder) => {
-    // get all sessions
+    // get all sessions for one course
     builder
-      .addCase(getAllSessions.pending, (state) => {
+      .addCase(getCourseSessionsByType.pending, (state) => {
         state.error = null;
         state.isLoading = true;
       })
-      .addCase(getAllSessions.fulfilled, (state, action: any) => {
+      .addCase(getCourseSessionsByType.fulfilled, (state, action: any) => {
         state.error = null;
         state.isLoading = false;
         state.allSessions = action.payload.data;
       })
-      .addCase(getAllSessions.rejected, (state, action: any) => {
+      .addCase(getCourseSessionsByType.rejected, (state, action: any) => {
         state.isLoading = false;
         state.error = action.payload;
       });
@@ -247,11 +242,12 @@ const sessions = createSlice({
         state.operationError = null;
         state.operationLoading = false;
         state.allSessions.unshift(action.payload);
-        state.addStatus = true;
+        state.status = true;
       })
       .addCase(createSession.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // update session
@@ -263,17 +259,18 @@ const sessions = createSlice({
       .addCase(updateSession.fulfilled, (state) => {
         state.operationError = null;
         state.operationLoading = false;
-        state.updateStatus = true;
+        state.status = true;
       })
       .addCase(updateSession.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // delete session
     builder
       .addCase(deleteSession.pending, (state) => {
-        state.deleteError = null;
+        state.operationError = null;
         state.operationLoading = true;
       })
       .addCase(deleteSession.fulfilled, (state, action: any) => {
@@ -295,11 +292,12 @@ const sessions = createSlice({
           state.upcomingSessions,
           action.payload.id
         );
-        state.deleteStatus = true;
+        state.status = true;
       })
       .addCase(deleteSession.rejected, (state, action: any) => {
         state.operationLoading = false;
-        state.deleteError = action.payload;
+        state.operationError = action.payload;
+        state.status = true;
       });
 
     // duplicate session
@@ -312,11 +310,12 @@ const sessions = createSlice({
         state.operationError = null;
         state.operationLoading = false;
         addDuplicatedSession(state, action.payload);
-        state.duplicateStatus = true;
+        state.status = true;
       })
       .addCase(duplicateSession.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // activate/deactivate session
@@ -328,6 +327,7 @@ const sessions = createSlice({
       .addCase(changeStatus.fulfilled, (state, action: any) => {
         state.operationError = null;
         state.operationLoading = false;
+        state.status = true;
         updateStatusForAllArrays(
           state,
           action.payload.ids,
@@ -339,6 +339,7 @@ const sessions = createSlice({
       .addCase(changeStatus.rejected, (state, action: any) => {
         state.operationLoading = false;
         state.operationError = action.payload;
+        state.status = true;
       });
 
     // life session operation
@@ -361,4 +362,4 @@ const sessions = createSlice({
 });
 
 export default sessions.reducer;
-export const { sessionOperationCompleted } = sessions.actions;
+export const { sessionOperationCompleted, updateSessionId } = sessions.actions;

@@ -1,5 +1,10 @@
 "use client";
+<<<<<<< HEAD
 import BackBtn from "@/components/buttons/BackBtn";
+=======
+import BackBtn from "@/components/backbtn/BackBtn";
+
+>>>>>>> cad077e3213bc200ee05936ade79cee21098023a
 import {
    Container,
    Flex,
@@ -31,7 +36,7 @@ import { useFormik } from "formik";
 import { SignatureComponent, Signature } from "@syncfusion/ej2-react-inputs";
 import * as yup from "yup";
 import { GlobalState } from "@/types/storeTypes";
-
+import {AiFillDelete} from "react-icons/ai"
 export interface FormVal {
    email: string;
    first_name: string;
@@ -41,9 +46,9 @@ export interface FormVal {
    phone_number: string;
    image: null | string;
    location: {
-      address: string;
-      latitude: number;
-      longitude: number;
+    
+      lat: number;
+      lng: number;
    };
    Category: number[];
    digital_signature: string;
@@ -65,7 +70,14 @@ const TrainerSignupPage = () => {
    let trainer_type_id = useSearchParams().get("id");
    const [fileName, setFileName] = useState("");
    const [fileSize, setFileSize] = useState("");
-   const [position, setPosition] = useState("");
+   const [position, setPosition] = useState<{
+      lat: number;
+      lng: number;
+   }>({
+      lat: 0,
+      lng: 0,
+   });
+   
    console.log(trainer_type_id);
    // let sign = useRef(null)
    let signObj: Signature | null;
@@ -81,7 +93,7 @@ const TrainerSignupPage = () => {
    const validationSchema = yup.object().shape({
       about_me: yup.string().required("Please add the Your info "),
       domains: yup.string().required("Required "),
-      digital_signature: yup.string().required("Required "),
+      digital_signature: yup.string().required("Sign is required , Sign and press the Save button"),
       email: yup.string().email("Invalid email").required("Email Is Required"),
       password: yup
          .string()
@@ -103,7 +115,7 @@ const TrainerSignupPage = () => {
          .array()
          .min(1, "At least one category is required")
          .required("Categories are required"),
-      // location: yup.string(),
+         location: yup.object().required("Location is required"),
    });
 
    const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,13 +216,12 @@ const TrainerSignupPage = () => {
          password_confirmation: "",
          phone_number: "",
          image: "",
-         location: {
-            address: "address",
-            latitude: 3,
-            longitude: 0,
+         location:{
+            lat :position.lat ,
+            lng: position.lng
          },
          Category: [],
-         digital_signature: "default_value",
+         digital_signature: "",
          gender: "Male",
          birth_date: "",
          resume: "",
@@ -218,7 +229,7 @@ const TrainerSignupPage = () => {
          domains: "",
          about_me: "",
          account_type: trainer_type,
-      } as FormVal,
+      }as FormVal ,
       validationSchema: validationSchema,
       onSubmit: handleSubmit,
    });
@@ -247,18 +258,15 @@ const TrainerSignupPage = () => {
             .then((res) => res.json())
             .then((data) => {
                setAddress(data.address.country);
-               formik.setFieldValue("location", {
-                  address: data.address.country,
-                  latitude: latitude,
-                  longitude: longitude,
-               });
+               // setPosition({lat:latitude,lng:longitude})
+               // formik.setFieldValue("location",position);
             });
       });
    }, []);
 
    return (
       <>
-         <Box overflow={"auto"} h={"full"}>
+         <Box overflow={"auto"} w={"100vw"} h={"100vh"}>
             <Image
                src="/register.png"
                alt=""
@@ -276,24 +284,17 @@ const TrainerSignupPage = () => {
                <Box display={{ base: "none", md: "block" }}>
                   <BackBtn textColor="text-white" />
                </Box>
+               <Box style={{position:"relative"}}  display={{ base: "block", md: "none" }}>
                <Avatar
                   onClick={() => inputRef?.current?.click()}
-                  display={{ base: "block", md: "none" }}
                   size={"lg"}
-                  src={image}
+                  src={image ? image:"/default.jpg"}
                />
                {formik.values.image && (
-                  <Text
-                     display={{ base: "block", md: "none" }}
-                     color={"red"}
-                     fontWeight={"bold"}
-                     fontSize={"medium"}
-                     cursor={"pointer"}
-                     onClick={handleOnImageRemoveClick}
-                  >
-                     Delete Image
-                  </Text>
+                  <AiFillDelete cursor={"pointer"} onClick={()=>handleOnImageRemoveClick()} style={{position:"absolute",bottom:-10,right:0}} color="red"  size={30}/>
+                
                )}
+                </Box>
                <Flex
                   direction={"column"}
                   marginLeft={{ md: 2 }}
@@ -328,35 +329,39 @@ const TrainerSignupPage = () => {
                      gap={4}
                      justifyContent={{ base: "center", xl: "space-around" }}
                      alignItems={{ base: "center", xl: "start" }}
+                   
                   >
                      <Flex
                         gap={4}
-                        direction={{ base: "column-reverse", md: "row" }}
+                        direction={{ base: "column", md: "row" }}
                         justifyContent={"center"}
                         alignItems={{ base: "center", md: "start" }}
                      >
-                        <Box>
-                           <FormLabel color={"white"} fontWeight={"bold"}>
-                              Last Name
+                        <Box >
+                        <FormLabel color={"white"} fontWeight={"bold"}>
+                              First Name
                            </FormLabel>
                            <Input
-                              placeholder="Enter Your Last Name"
+                              placeholder="Enter Your Full Name"
                               type="text"
-                              value={formik.values.last_name}
-                              id="last_name"
+                              value={formik.values.first_name}
                               onChange={formik.handleChange}
-                              name="last_name"
+                              name="first_name"
+                              id="first_name"
                               color={"black"}
                               bg={"white"}
+                              fontSize={14}
                               size="md"
                               w={350}
                            />
-                           {formik.touched.last_name &&
-                              formik.errors.last_name && (
+                           {formik.touched.first_name &&
+                              formik.errors.first_name && (
                                  <p className="error-mesage">
-                                    {formik.errors.last_name}
+                                    {formik.errors.first_name}
                                  </p>
                               )}
+                          
+                          
                            <FormLabel color={"white"} fontWeight={"bold"}>
                               email
                            </FormLabel>
@@ -547,34 +552,35 @@ const TrainerSignupPage = () => {
                               </Box>
                            </Box>
                            <LocationModal
-                              open={openLocationModal}
-                              setOpen={setOpenLocationModal}
-                              position={position}
-                              setPosition={setPosition}
-                              // setLocation={setLocation}
-                           />
+                           open={openLocationModal}
+                           setOpen={setOpenLocationModal}
+                           position={position}
+                           setPosition={setPosition}
+                           setLocation={() => {
+                              formik.setFieldValue("location",position)
+                           }}
+                        />
                         </Box>
                         <Box>
-                           <FormLabel color={"white"} fontWeight={"bold"}>
-                              First Name
+                        <FormLabel color={"white"} fontWeight={"bold"}>
+                              Last Name
                            </FormLabel>
                            <Input
-                              placeholder="Enter Your Full Name"
+                              placeholder="Enter Your Last Name"
                               type="text"
-                              value={formik.values.first_name}
+                              value={formik.values.last_name}
+                              id="last_name"
                               onChange={formik.handleChange}
-                              name="first_name"
-                              id="first_name"
+                              name="last_name"
                               color={"black"}
                               bg={"white"}
-                              fontSize={14}
                               size="md"
                               w={350}
                            />
-                           {formik.touched.first_name &&
-                              formik.errors.first_name && (
+                            {formik.touched.last_name &&
+                              formik.errors.last_name && (
                                  <p className="error-mesage">
-                                    {formik.errors.first_name}
+                                    {formik.errors.last_name}
                                  </p>
                               )}
                            <FormLabel color={"white"} fontWeight={"bold"}>
@@ -696,7 +702,11 @@ const TrainerSignupPage = () => {
                            >
                               Save Sign
                            </Button>
+                          {formik.touched.digital_signature&&formik.errors.digital_signature&&(
+                           <Text className="error-mesage">{formik.errors.digital_signature}</Text>
+                          )}
                         </Box>
+                       
                      </Flex>
                      <Flex
                         direction={"column"}
@@ -736,6 +746,7 @@ const TrainerSignupPage = () => {
                               </Text>
                            )}
                         </Box>
+                        {formik.values.image&& 
                         <Text
                            fontSize={15}
                            fontWeight={"bold"}
@@ -743,8 +754,10 @@ const TrainerSignupPage = () => {
                            onClick={() => handleOnImageRemoveClick()}
                            display={{ base: "none", md: "block" }}
                         >
-                           Delete
+                         
+                       Delete
                         </Text>
+                       }
                         {formik.touched.image && formik.errors.image && (
                            <p className="error-mesage">{formik.errors.image}</p>
                         )}

@@ -12,8 +12,9 @@ import { CiImport, CiExport } from "react-icons/ci";
 import Session from "@/components/sessions/Session";
 import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
+import OperationAlert from "@/components/Pars/OperationAlert";
+import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const filteringBtns: string[] = ["Current", "Upcoming", "Expired"];
 
@@ -25,11 +26,10 @@ const TrainingSession = () => {
     expiredSessions,
     upcomingSessions,
     operationError,
-    duplicateStatus,
+    operationLoading,
+    status,
   } = useSelector((state: GlobalState) => state.sessions);
   const [filterBy, setFilterBy] = useState<string>("Current");
-  const [duplicateOpen, setDuplicateOpen] = useState<boolean>(false);
-  const router = useRouter();
   const dispatch: any = useDispatch();
 
   const sessions = useMemo(() => {
@@ -48,37 +48,20 @@ const TrainingSession = () => {
 
   return (
     <section className="px-2 pt-6 lg:px-6">
-      <ConfirmModal
-        open={duplicateOpen}
-        setOpen={setDuplicateOpen}
-        successMsg="The session was duplicated successfully."
-        failMsg="Oops! There was an error, please try again later."
-        status={duplicateStatus}
+      <OperationAlert
+        messageOnSuccess="operation accomplished successfully!"
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
       <Header
         title="Sessions"
         description="Schedule all your Sessions , edit and track your teaching process."
       />
-      <div className="flex flex-wrap-reverse gap-2 justify-between items-center mt-7">
-        <div className="flex items-center gap-1">
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiImport /> Import
-          </button>
-          <button className="outlined-btn flex justify-center items-center gap-2">
-            <CiExport /> Export
-          </button>
-        </div>
-        <button
-          className="colored-btn !w-fit"
-          onClick={() =>
-            router.push("/admin-dashboard/courses/training-session/add")
-          }
-        >
-          Add Session
-        </button>
-      </div>
+
+      {operationLoading && <Loading backdrop />}
+
       {error ? (
         <ErrorMessage msg="Oops! There was an error, please try again later." />
       ) : isLoading ? (
@@ -111,7 +94,7 @@ const TrainingSession = () => {
                 <Session key={index} session={session} />
               ))
             ) : (
-              <p className="text-[16px] text-center font-bold mt-7">{`There are no ${filterBy.toLocaleLowerCase()} sessions.`}</p>
+              <EmptyResult />
             )}
           </div>
         </div>

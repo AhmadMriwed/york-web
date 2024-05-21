@@ -179,6 +179,7 @@ const authSlice = createSlice({
          .addCase(loginAdmin.rejected, (state, action: any) => {
             state.loading = false;
             state.error = action.payload;
+           
          })
          .addCase(getAdminProfile.pending, (state) => {
             state.profileLoading = true;

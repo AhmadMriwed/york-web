@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getSessionInfo,
@@ -11,15 +11,14 @@ import { GlobalState } from "@/types/storeTypes";
 /* components */
 import Header from "@/components/Pars/Header";
 import SessionOperation from "@/components/sessions/SessionOperation";
-import ConfirmModal from "@/components/Pars/ConfirmModal";
-import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
+import ErrorMessage from "@/components/error-message/ErrorMessage";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 const UpdateSession = ({ params }: any) => {
   const { id } = params;
-  const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
 
-  const { operationLoading, operationError, updateStatus } = useSelector(
+  const { operationLoading, operationError, status } = useSelector(
     (state: GlobalState) => state.sessions
   );
   const { sessionLoading, sessionError, sessionInfo } = useSelector(
@@ -30,16 +29,17 @@ const UpdateSession = ({ params }: any) => {
   const submitHandler = (values: any) => {
     const data = {
       ...values,
-      course_id: 1,
       date_from: getUTCDate(values.date_from),
       date_to: getUTCDate(values.date_to),
     };
 
-    if (!(data.image instanceof File)) {
-      delete data.image;
-    }
+    Object.keys(data).forEach((key) => {
+      if (data[key] === null || data[key] === "") {
+        delete data[key];
+      }
+    });
 
-    const formData = new FormData(); //TMP
+    const formData = new FormData();
     for (let key in data) {
       formData.append(key, data[key]);
     }
@@ -61,19 +61,21 @@ const UpdateSession = ({ params }: any) => {
     );
 
   const initialValues = {
-    code: sessionInfo?.code,
-    title: sessionInfo?.title,
-    date_from: sessionInfo && new Date(sessionInfo.date_from),
-    date_to: sessionInfo && new Date(sessionInfo.date_to),
-    image: sessionInfo?.image,
-    status: sessionInfo?.status,
-    outline: sessionInfo?.outline,
-    description: sessionInfo?.description,
-    files: sessionInfo?.files,
+    code: "",
+    title: sessionInfo?.title ? sessionInfo?.title : "",
+    date_from: sessionInfo?.date_from
+      ? new Date(sessionInfo.date_from)
+      : new Date(),
+    date_to: sessionInfo?.date_to ? new Date(sessionInfo.date_to) : new Date(),
+    image: null,
+    status: sessionInfo?.status ? sessionInfo?.status : "",
+    outline: sessionInfo?.outline ? sessionInfo?.outline : "",
+    description: sessionInfo?.description ? sessionInfo?.description : "",
+    files: [],
     training_sessions_type: sessionInfo?.training_session_type
       ? sessionInfo.training_session_type.id
-      : 0,
-    url: sessionInfo?.url,
+      : null,
+    url: sessionInfo?.url ? sessionInfo?.url : "",
   };
 
   return (
@@ -82,20 +84,20 @@ const UpdateSession = ({ params }: any) => {
         title="Update Session"
         description="Modify just the fields that you want to update then click 'Update Session'."
       />
+
       <SessionOperation
         submitHandler={submitHandler}
         initialValues={initialValues}
         operationLoading={operationLoading}
         op="update"
       />
-      <ConfirmModal
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        successMsg="The session was updated successfully."
-        failMsg="Oops! There was an error, please try again later."
-        status={updateStatus}
+
+      <OperationAlert
+        messageOnSuccess="operation accomplished successfully!"
+        messageOnError="Oops! There was an error, please try again later."
+        status={status}
         error={operationError}
-        completed={sessionOperationCompleted}
+        completedAction={sessionOperationCompleted}
       />
     </div>
   );

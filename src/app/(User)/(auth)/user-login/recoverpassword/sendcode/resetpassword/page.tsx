@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { userResetPassword } from '@/store/userStore/slices/userSlice';
 import { useRouter } from 'next/navigation';
 import { GlobalState } from '@/types/storeTypes';
+import Image from 'next/image';
 const ResetPassword = () => {
   const email = useSearchParams().get("email")
   const code = useSearchParams().get("code")
@@ -74,6 +75,7 @@ const ResetPassword = () => {
   return (
     <>
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8' display={{ base: "none", md: "block" }}>Password Recovery: Password Change</Text>
+      <Image src='/loo.png'  style={{opacity:0.1}}  alt='' fill objectFit='contain' />
       <Flex justifyContent={"center"} alignItems={"center"} className='h-[calc(100vh-142px)]'>
         <Box className='lg:border-l-2 border-[#01989F] p-8'>
           <Flex direction={{ base: "column", md: "row" }} justifyContent={"space-between"} alignItems={"center"} gap={2}>
@@ -106,7 +108,7 @@ const ResetPassword = () => {
               />
             </Box>
           </Flex>
-          <Button onClick={handleSubmit} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={5} marginLeft={1} width={{ base: 300, md: 150 }}>{loading ? <Spinner color='red' size={"sm"} /> : "SetUp"}</Button>
+          <Button onClick={handleSubmit} backgroundColor={"#11cdef"} textColor={"white"} variant={"black"} marginTop={12} marginLeft={1} width={{ base: 300, md: 150 }}>{loading ? <Spinner color='red' size={"sm"} /> : "SetUp"}</Button>
         </Box>
       </Flex>
     </>

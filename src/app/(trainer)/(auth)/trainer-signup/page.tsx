@@ -1,15 +1,21 @@
+"use client"
 import { Container, Flex, Text, Center } from "@chakra-ui/react"
 import Image from "next/image"
 import Link from "next/link"
+import Reveal from "react-awesome-reveal"
 const TrainerSignup = () => {
     return (
         <>
-            <Flex minH={"100vh"} justifyContent={"center"} alignItems={"center"} >
+            <Flex minH={"100vh"} minW={"100vw"} justifyContent={"center"} alignItems={"center"} >
+            
                 <Container maxW={"container.lg"}>
+               
                     <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
                         <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
                         <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
-                        <Center>
+                        <Reveal triggerOnce duration={2000}>
+                       <Center>
+
                             <Flex direction={"column"}>
                                 <Text color={"white"} fontSize={"20"}>welcome to</Text>
                                 <Text color={"white"} fontSize={"35"} fontWeight={"bold"}>York British Academy</Text>
@@ -34,8 +40,11 @@ const TrainerSignup = () => {
                                 <Text className="text-white text-xl p-2 hover:no-underline">Certified  Trainer</Text>
                             </Link>
                         </Flex>
+                    </Reveal>
+                      
                     </div>
                 </Container>
+               
             </Flex>
         </>
     )

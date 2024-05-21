@@ -16,16 +16,17 @@ import { CompleteUserProfile } from "@/store/userStore/slices/userSlice"
 import Cookies from "universal-cookie"
 import { useFormik } from "formik"
 import * as yup from "yup"
+import { AiFillDelete } from "react-icons/ai"
 import { Input as Inputt } from "rsuite"
 export interface FormVal {
     url: string;
     phone_number: string;
     image: null | string;
     location: {
-        address: string,
-        latitude: number,
-        longitude: number,
-    };
+    
+        lat: number;
+        lng: number;
+     };
     categories: number[];
     gender: string;
     birth_date: string;
@@ -38,12 +39,19 @@ const UserCompleteSignup = () => {
     const dispatch: any = useDispatch()
     const router = useRouter()
     const inputRef: any = useRef()
-    const [location, setLocation] = useState("")
+    const [address, setAddress] = useState("")
     console.log(location)
-    const { error, user, loading} = useSelector((state: any) => state.userSlice)
+    const { error, user, loading } = useSelector((state: any) => state.userSlice)
     console.log(error, user, loading)
+    const [position, setPosition] = useState<{
+        lat: number;
+        lng: number;
+     }>({
+        lat: 0,
+        lng: 0,
+     });
+     const [openLocationModal, setOpenLocationModal] = useState(false);
     const [image, setImage] = useState("")
-    const [openLocationModal, setOpenLocationModal] = useState(false);
     const validationSchema = yup.object().shape({
         about_me: yup.string().required("Please add the Your info "),
         url: yup.string().required("Please add the Your URL "),
@@ -60,7 +68,7 @@ const UserCompleteSignup = () => {
             .array()
             .min(1, "At least one category is required")
             .required("Categories are required"),
-        // location: yup.string(),
+            location: yup.object().required("Location is required"),
     });
 
     const HandleSubmit = (values: any, actions: any) => {
@@ -123,11 +131,10 @@ const UserCompleteSignup = () => {
             url: "",
             phone_number: "",
             image: "",
-            location: {
-                address: "address",
-                latitude: 3,
-                longitude: 0,
-            },
+            location:{
+                lat :position.lat ,
+                lng: position.lng
+             },
             categories: [],
             gender: "Male",
             birth_date: "",
@@ -166,7 +173,7 @@ const UserCompleteSignup = () => {
             </Flex>
         )
     }));
-   
+
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(pos => {
@@ -174,15 +181,15 @@ const UserCompleteSignup = () => {
             console.log(latitude, longitude)
             const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
             fetch(url).then(res => res.json()).then(data => {
-                setLocation(data.address.country)
-                formik.setFieldValue("location", { address: data.address.country, latitude: latitude, longitude: longitude })
+                setAddress(data.address.country)
+               
             })
         })
     }, [])
 
     return (
         <>
-            <Box overflow={{ base: "auto", md: "hidden" }} maxH={"100vh"}>
+            <Box overflow={{ base: "auto", md: "auto" }} maxH={"100vh"}>
                 <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
                 <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
                 <Flex gap={2} justifyContent={{ base: "center", md: "space-between" }} alignItems={{ base: "center", md: "" }} padding={{ base: 2, md: 3 }} direction={{ base: "column-reverse", md: "row" }}>
@@ -190,8 +197,20 @@ const UserCompleteSignup = () => {
                         <Text color={"white"} fontSize={"large"} textAlign={{ base: "center", md: "start" }}>welcome to</Text>
                         <Text color={"white"} fontSize={{ base: "x-large", md: "xx-large" }} fontWeight={"bold"}>York British Academy</Text>
                     </Box>
-                    <Avatar onClick={() => inputRef?.current?.click()} display={{ base: "block", md: "none" }} size={"lg"} src={image} />
-                    {formik.values.image && <Text display={{ base: "block", md: "none" }} color={"red"} fontWeight={"bold"} fontSize={"medium"} cursor={"pointer"} onClick={handleOnImageRemoveClick}>Delete Image</Text>}
+                    <Box style={{ position: "relative" }} display={{ base: "block", md: "none" }}>
+                        <Avatar
+                            onClick={() => inputRef?.current?.click()}
+                            size={"lg"}
+                            src={image ? image : "/default.jpg"}
+                        />
+                        {formik.values.image && (
+
+
+                            <AiFillDelete cursor={"pointer"} onClick={() => handleOnImageRemoveClick()} style={{ position: "absolute", bottom: -10, right: 0 }} color="red" size={30} />
+
+
+                        )}
+                    </Box>
                     <Box><Image src={"/logo.png"} alt="" width={100} height={100} /></Box>
                 </Flex>
                 <Container maxW={"container"} padding={{ md: 10, lg: 20, xl: 0 }} my={4}>
@@ -220,7 +239,7 @@ const UserCompleteSignup = () => {
 
                                     <Box className='lg:border-l-2 border-[#11cdef]  p-8 mt-3 '  >
                                         <FormLabel onClick={() => setOpenLocationModal(true)} color={"white"} fontWeight={"bold"}>Location: <Location color="red" />
-                                            {location} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
+                                            {address} <span style={{ color: "#11cdef", cursor: "pointer", fontWeight: "bold" }}>change</span></FormLabel>
                                     </Box>
                                 </Box>
                                 <Box>
@@ -255,7 +274,11 @@ const UserCompleteSignup = () => {
                                     <LocationModal
                                         open={openLocationModal}
                                         setOpen={setOpenLocationModal}
-                                    />
+                                        position={position}
+                                        setPosition={setPosition}
+                                        setLocation={() => {
+                                            formik.setFieldValue("location", position)
+                                        }} />
                                 </Box>
                             </Flex>
                             <Flex direction={"column"} gap={2} justifyContent={{ md: "center", lg: "start" }} alignItems={{ md: "center", lg: "start" }} marginTop={{ md: 10, xl: 0 }}>
@@ -263,7 +286,7 @@ const UserCompleteSignup = () => {
 
                                     {formik.values.image ? <Image src={image} alt="" width={300} height={300} style={{ position: "absolute" }} /> : <Text textAlign={"center"} fontSize={"x-small"} color={"green"} fontWeight={"bold"}>Upload your Image</Text>}
                                 </Box>
-                                <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>
+                                {formik.values.image && <Text fontWeight={"bold"} cursor={"pointer"} onClick={handleOnImageRemoveClick} display={{ base: "none", md: "block" }} >Delete</Text>}
                                 {formik.touched.image && formik.errors.image && (
                                     <p className="error-mesage">{formik.errors.image}</p>
                                 )}

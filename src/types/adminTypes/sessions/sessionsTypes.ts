@@ -71,17 +71,15 @@ export interface sessionsState {
   sessionsTypes: sessionTypeType[];
   otherSessions: sessionType[];
   sessionStates: sessionState[];
+
   sessionLoading: boolean;
   sessionError: null | any;
   sessionInfo: null | sessionType;
   sessionID: number;
+
   operationLoading: boolean;
   operationError: null | any;
-  deleteError: null | any;
-  addStatus: boolean;
-  updateStatus: boolean;
-  deleteStatus: boolean;
-  duplicateStatus: boolean;
+  status: boolean;
 }
 
 // JOINED USERS
@@ -109,6 +107,7 @@ export interface joinedUsersState {
   clients: joinedUserType[];
   operationLoading: boolean;
   operationError: null | any;
+  status: boolean;
 }
 
 // ATTENDACE REQUESTS

@@ -11,9 +11,7 @@ const MiniSession = ({ session, course }: any) => {
     <div
       className={`p-3 rounded-[16px] lg:max-w-[350px]
               ${
-                mode === "dark"
-                  ? "bg-[var(--dark-color)]"
-                  : "bg-[var(--light-color)]"
+                mode === "dark" ? "bg-dark text-[#FFF]" : "bg-light text-[#000]"
               }`}
     >
       <p className="text-[12px] sm:text-[14px] font-bold mb-3">

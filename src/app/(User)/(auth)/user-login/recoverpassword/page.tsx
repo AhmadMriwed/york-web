@@ -7,6 +7,7 @@ import { Flex, Box } from '@chakra-ui/react'
 import { userForgotPassword } from '@/store/userStore/slices/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { GlobalState } from '@/types/storeTypes'
+import Image from 'next/image'
 const RecoverPassword1 = () => {
   const dispatch: any = useDispatch()
   const { error, loading, msg } = useSelector((state: any) => state.userSlice)
@@ -60,6 +61,7 @@ const RecoverPassword1 = () => {
   return (
     <>
       <Text className='py-5 text-xl font-bold text-white tracking-wider leading-8 ' display={{ base: "none", md: "block" }}  >Password Recovery:  Email</Text>
+      <Image src='/loo.png'  style={{opacity:0.1}}  alt='' fill objectFit='contain' />
       <Flex w={"full"} alignItems={"center"} direction={{ base: "column", md: "row" }} justifyContent={"center"} className="h-[calc(100vh-142px)]">
         <Box className='lg:border-l-2 border-[#01989F]  p-8 '>
           <Box width={"full"}>

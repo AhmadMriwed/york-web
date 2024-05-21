@@ -32,16 +32,16 @@ const EditUserStatusModal = ({
       size="sm"
       className={`${
         mode === "dark"
-          ? "[&>div>*]:!bg-dark [&>div>*]:text-[var(--light-color)]"
-          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--dark-color)]"
+          ? "[&>div>*]:!bg-[var(--dark-bg-color)] [&>div>*]:text-[var(--dark-text-color)]"
+          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--light-text-color)]"
       }`}
     >
       <Modal.Header className="flex items-center mt-1">
         <Modal.Title
           className={`${
             mode === "dark"
-              ? "text-[var(--light-color)]"
-              : "text-[var(--dark-color)]"
+              ? "text-[var(--dark-text-color)]"
+              : "text-[var(--light-text-color)]"
           }`}
         >
           Edit User Status

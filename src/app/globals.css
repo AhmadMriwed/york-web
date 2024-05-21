@@ -10,6 +10,14 @@
    .element-center {
       @apply flex justify-center items-center;
    }
+
+   .no-scrollbar::-webkit-scrollbar {
+      display: none;
+   }
+   .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+   }
 }
 
 :root {
@@ -27,6 +35,7 @@
    --second: 0.4;
    --third: 0.2; */
 }
+
 a {
    color: black;
    text-decoration: none !important;
@@ -70,44 +79,28 @@ a:hover {
 }
 
 .colored-btn {
-   justify-self: center;
-   background-color: #01989f;
-   color: #fff;
+   --color: #01989f;
+   padding-inline: 2rem;
+   padding-block: 0.6rem;
+   transition: all 0.2s;
    font-size: 16px;
-   /* width: 150px; */
-   /* height: 40px; */
-   padding: 10px 24px;
-   /* margin-top: 44px; */
-   border-radius: 4px;
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
-   -ms-border-radius: 4px;
-   -o-border-radius: 4px;
+   border-radius: 6px;
+   font-weight: 500;
+   color: #fff;
+   background-color: var(--color);
 }
 
 .outlined-btn {
-   justify-self: center;
-   border: 1px solid #01989fcc;
+   box-sizing: border-box;
+   --color: #01989f;
+   padding-inline: calc(2rem - 2px);
+   padding-block: calc(0.6rem - 2px);
+   border: 2px solid var(--color);
+   transition: all 0.2s;
    font-size: 16px;
-   padding: 9px 24px;
-   border-radius: 4px;
-   -webkit-border-radius: 4px;
-   -moz-border-radius: 4px;
-   -ms-border-radius: 4px;
-   -o-border-radius: 4px;
-}
-
-@media (max-width: 767px) {
-   .colored-btn {
-      padding: 8px 16px;
-      font-size: 14px;
-      width: 100%;
-   }
-
-   .outlined-btn {
-      padding: 7px 16px;
-      font-size: 14px;
-   }
+   border-radius: 6px;
+   font-weight: 500;
+   color: #01989f;
 }
 
 .colored-btn:hover {
@@ -115,8 +108,20 @@ a:hover {
 }
 
 .outlined-btn:hover {
-   background-color: #01979fcc;
+   background-color: #01979f;
    color: #fff;
+}
+
+@media (max-width: 767px) {
+   .colored-btn {
+      padding-inline: 1rem;
+      font-size: 12px;
+   }
+
+   .outlined-btn {
+      padding-inline: calc(1rem - 2px);
+      font-size: 12px;
+   }
 }
 
 .btn-wrap {
@@ -214,10 +219,10 @@ a:hover {
    background-size: cover;
 }
 .mailbox-layer-light {
-   color: white;
+   color: #000;
 }
 .mailbox-layer-dark {
-   color: #656565;
+   color: #fff;
 }
 .mailbox-layer-light::before,
 .mailbox-layer-dark::before {
@@ -242,7 +247,7 @@ a:hover {
 }
 .mailbox-dark {
    background-color: #212a34;
-   color: white;
+   color: #656565;
 }
 .mailbox-light {
    background-color: #c5c5c5;
