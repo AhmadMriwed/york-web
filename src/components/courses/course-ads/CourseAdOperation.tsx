@@ -7,39 +7,37 @@ import {
   getCourseads,
   getVenues,
 } from "@/store/endUser/endUserSlice";
-import { courseAdType } from "@/types/adminTypes/courses/coursesTypes";
+import { courseAdType, Venue } from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { InputPicker, Loader } from "rsuite";
+import { Checkbox, InputPicker, Loader } from "rsuite";
 import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
 import Image from "next/image";
+import TextEditor from "@/components/inputs/editor/Editor";
 
 // Validation Schema
 const courseAdSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
   sub_title: yup.string(),
-  start_date: yup
-    .date()
-    .required("Start date is required")
-    .min(new Date(), "Please enter a valid start date"),
+  start_date: yup.date().required("Start date is required"),
   end_date: yup
     .date()
-    .required("End date is required")
+    .nullable()
     .test(
       "is-valid-end-date",
       "End date must be greater than start date",
       function (value) {
         const { start_date } = this.parent;
-
-        return value > start_date;
+        if (value) return value > start_date;
+        return true;
       }
     ),
   houres: yup.number().required("Hours is required"),
   fee: yup.number().required("Fee is required"),
   lang: yup.string().required("Language is required"),
   image: yup.mixed().nullable(),
-  venue_id: yup.string().required("Venue is required"),
-  category_id: yup.string().required("Category is required"),
+  venue_id: yup.number().required("Venue is required"),
+  category_id: yup.number().required("Category is required"),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -62,6 +60,8 @@ const CourseAdOperation = ({
   const [venueTerm, setVenueTerm] = useState("");
   const [categoryTerm, setCategoryTerm] = useState("");
   const [courseadTerm, setCourseadTerm] = useState("");
+
+  const [onlineVenueChecked, setOnlineVenueChecked] = useState(false);
 
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [selectedAdId, setSelectedAdId] = useState<any>(null);
@@ -317,20 +317,45 @@ const CourseAdOperation = ({
                 placeholder="Language"
                 value={selectedAd && selectedAd?.lang && selectedAd?.lang}
               />
-              <CustomInput
-                type="select"
-                selectData={venuesList}
-                selectLoading={dataLoading}
-                selectSearchable={true}
-                selectOnSearch={(value: string) => setVenueTerm(value)}
-                name="venue_id"
-                label="Venue"
-                required
-                placeholder="Venue"
-                value={
-                  selectedAd && selectedAd?.venue_id && selectedAd?.venue_id
-                }
-              />
+              <div className="flex justify-start items-center">
+                <CustomInput
+                  type="select"
+                  selectData={venuesList}
+                  selectLoading={dataLoading}
+                  selectSearchable={true}
+                  selectOnSearch={(value: string) => setVenueTerm(value)}
+                  name="venue_id"
+                  label="Venue"
+                  required
+                  placeholder="Venue"
+                  value={
+                    selectedAd && selectedAd?.venue_id && selectedAd?.venue_id
+                  }
+                  disabled={onlineVenueChecked}
+                />
+                <Checkbox
+                  className="!text-[#000]"
+                  onChange={(value, checked) => {
+                    if (checked) {
+                      const onlineVenue = venues.find(
+                        (venue: Venue) => venue.title === "online"
+                      );
+                      if (onlineVenue) {
+                        props.values.venue_id = onlineVenue.id;
+                      } else {
+                        props.values.venue_id = -1;
+                      }
+                      setOnlineVenueChecked(true);
+                      console.log();
+                    } else {
+                      props.values.venue_id = null;
+                      setOnlineVenueChecked(false);
+                    }
+                  }}
+                >
+                  online
+                </Checkbox>
+              </div>
               <CustomInput
                 type="select"
                 selectData={categoriesList}
@@ -349,24 +374,18 @@ const CourseAdOperation = ({
               />
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
-              <CustomInput
-                type="textarea"
-                textAreaRows={2}
+              <TextEditor
                 name="outlines"
                 label="Outlines"
                 required
-                placeholder="Outlines"
                 value={
                   selectedAd && selectedAd?.outlines && selectedAd?.outlines
                 }
               />
-              <CustomInput
-                type="textarea"
-                textAreaRows={2}
+              <TextEditor
                 name="description"
                 label="Description"
                 required
-                placeholder="Description"
                 value={
                   selectedAd &&
                   selectedAd?.description &&

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { courseType } from "@/types/adminTypes/courses/coursesTypes";
@@ -12,6 +12,7 @@ import {
 import { getTrainers } from "@/store/endUser/endUserSlice";
 import { getMyCourses } from "@/store/adminstore/slices/courses/my-courses/myCoursesSlice";
 import { GlobalState } from "@/types/storeTypes";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
@@ -29,6 +30,7 @@ import FilteringBar from "@/components/Pars/FilteringBar";
 const filterALlBtns = ["Current", "Closed", "Expired"];
 
 export default function MyCourses() {
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
   const containerRef = useRef<any>(null);
 
@@ -49,6 +51,20 @@ export default function MyCourses() {
     years: [],
     months: [],
   });
+
+  const resetFilterValues = () => {
+    setFilterValues({
+      code: "",
+      title: "",
+      category_ids: [],
+      venue_ids: [],
+      lang: null,
+      start_date: null,
+      end_date: null,
+      years: [],
+      months: [],
+    });
+  };
 
   const {
     myCourses,
@@ -200,7 +216,7 @@ export default function MyCourses() {
     },
   ];
 
-  const trainersList = trainers.map((t) => ({
+  const trainersList = trainers.map((t: any) => ({
     label: `${t.first_name} ${t.last_name}`,
     value: t.user_id,
   }));
@@ -229,7 +245,11 @@ export default function MyCourses() {
         <button className="outlined-btn">Export</button>
       </div> */}
 
-      <div className="mt-4 px-3 py-7 bg-[#212A34] w-full rounded-lg text-white flex flex-col lg:flex-row gap-4 md:gap-11">
+      <div
+        className={`mt-4 px-3 py-7 ${
+          mode === "dark" ? "bg-[#212A34] text-white" : "bg-white text-black"
+        } w-full rounded-lg flex flex-col lg:flex-row gap-4 md:gap-11`}
+      >
         <div className="border-l border-l-[2px] border-[var(--primary-color1)] pl-2 shrink-0">
           <p className="text-[20px] font-[400]">My Courses</p>
           <p className="text-[#888] my-1">check out all your current courses</p>
@@ -263,15 +283,15 @@ export default function MyCourses() {
             </div>
             <button
               onClick={() => scrollTo("left")}
-              className="absolute top-[50%] left-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
-              style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
+              className="text-white absolute top-[50%] left-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
+              style={{ backgroundColor: "rgb(0, 0, 0, 0.55)" }}
             >
               <FaArrowLeft />
             </button>
             <button
               onClick={() => scrollTo("right")}
-              className="absolute top-[50%] right-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
-              style={{ backgroundColor: "rgb(0, 0, 0, 0.3)" }}
+              className="text-white absolute top-[50%] right-0 translate-y-[-50%] rounded-full element-center p-3 hidden sm:block hover:scale-[1.1]"
+              style={{ backgroundColor: "rgb(0, 0, 0, 0.55)" }}
             >
               <FaArrowRight />
             </button>
@@ -297,14 +317,13 @@ export default function MyCourses() {
           />
         </div>
         {showBy === "all" && (
-          <div className="element-center lg:mr-11">
-            <Filter
-              role="courses"
-              filterValues={filterValues}
-              setFilterValues={setFilterValues}
-              filterFields={filterFields}
-            />
-          </div>
+          <Filter
+            role="courses"
+            filterValues={filterValues}
+            setFilterValues={setFilterValues}
+            resetFilterValues={resetFilterValues}
+            filterFields={filterFields}
+          />
         )}
       </div>
 

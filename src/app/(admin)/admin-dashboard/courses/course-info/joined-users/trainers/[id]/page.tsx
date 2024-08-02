@@ -23,6 +23,7 @@ const JoinedTrainers = ({ params }: any) => {
   const { id } = params;
 
   const [addModal, setAddModal] = useState(false);
+  const [trainerSearchTerm, setTrainerSearchTerm] = useState("");
 
   const { isLoading, error, courseTrainers } = useSelector(
     (state: GlobalState) => state.courseJoinedUsers
@@ -43,8 +44,8 @@ const JoinedTrainers = ({ params }: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getTrainers(""));
-  }, [dispatch]);
+    dispatch(getTrainers(trainerSearchTerm));
+  }, [dispatch, trainerSearchTerm]);
 
   if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
@@ -58,6 +59,7 @@ const JoinedTrainers = ({ params }: any) => {
       <AddJoinedUserModal
         modalOpen={addModal}
         setModalOpen={setAddModal}
+        setSearchTerm={setTrainerSearchTerm}
         userType="trainer"
         courseId={id}
       />

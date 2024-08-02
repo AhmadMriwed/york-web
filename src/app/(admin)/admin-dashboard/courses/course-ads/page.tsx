@@ -51,6 +51,26 @@ const CoursesAds = () => {
     months: [],
   });
 
+  const resetFilterValues = () => {
+    setFilterValues({
+      code: "",
+      title: "",
+
+      start_date: null,
+      end_date: null,
+
+      validate: null,
+      active: null,
+      lang: null,
+
+      category_ids: [],
+      venue_ids: [],
+
+      years: [],
+      months: [],
+    });
+  };
+
   let categories, venues, languages, years, months;
   if (
     filterData.categories &&
@@ -180,7 +200,7 @@ const CoursesAds = () => {
 
       {operationLoading && <Loading backdrop />}
 
-      <div className="flex flex-wrap justify-between items-center md:items-start gap-4">
+      <div className="flex flex-wrap lg:flex-nowrap justify-between items-center lg:items-start gap-4">
         <div>
           <h3 className="font-bold text-[24px] sm:text-[32px] text-[var(--primary-color1)]">
             Course ads
@@ -192,20 +212,23 @@ const CoursesAds = () => {
           </div> */}
         </div>
         <button
-          className="colored-btn md:order-last"
+          className="colored-btn lg:order-last"
+          style={{
+            whiteSpace: "nowrap",
+            maxWidth: "100%",
+          }}
           onClick={() => router.push("/admin-dashboard/courses/course-ads/add")}
         >
           Add Course ad
         </button>
-        <div className="w-full md:w-fit">
-          <Filter
-            role="course_ads"
-            filterValues={filterValues}
-            setFilterValues={setFilterValues}
-            filterFields={filterFields}
-            coursesCount={filterData.count_course_ad}
-          />
-        </div>
+        <Filter
+          role="course_ads"
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+          resetFilterValues={resetFilterValues}
+          filterFields={filterFields}
+          coursesCount={filterData.count_course_ad}
+        />
       </div>
 
       <div className="my-7 flex flex-col gap-2">

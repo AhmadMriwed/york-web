@@ -12,11 +12,13 @@ import { InputPicker, Loader, Modal } from "rsuite";
 const AddJoinedUserModal = ({
   modalOpen,
   setModalOpen,
+  setSearchTerm,
   userType,
   courseId,
 }: {
   modalOpen: boolean;
   setModalOpen: any;
+  setSearchTerm: any;
   userType: "trainer" | "trainee" | "client";
   courseId: number;
 }) => {
@@ -130,6 +132,7 @@ const AddJoinedUserModal = ({
                   : "Clients"
               }
               searchable
+              onSearch={(value) => setSearchTerm(value)}
               value={selectedId}
               onChange={(value: number) => setSelectedId(value)}
               renderMenu={(menu) => {

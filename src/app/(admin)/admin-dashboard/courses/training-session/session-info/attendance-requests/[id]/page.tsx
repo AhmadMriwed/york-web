@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   attendanceOperationCompleted,
@@ -9,19 +9,10 @@ import {
 } from "@/store/adminstore/slices/sessions/attendanceRequestsSlice";
 import { getUTCDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
 /* icons */
 import { Check, Close, More } from "@rsuite/icons";
 /* components */
-import {
-  Dropdown,
-  IconButton,
-  Loader,
-  Modal,
-  Popover,
-  Table,
-  Whisper,
-} from "rsuite";
+import { Dropdown, IconButton, Loader, Popover, Table, Whisper } from "rsuite";
 import Header from "@/components/Pars/Header";
 import Loading from "@/components/Pars/Loading";
 import NameCell from "@/components/sessions/custom-cells/NameCell";
@@ -30,41 +21,9 @@ import TimeCell from "@/components/sessions/custom-cells/TimeCell";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import AddAttendantModal from "@/components/sessions/AddAttendantModal";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import RejectionCauseModal from "@/components/courses/RejectionCauseModal";
 
 const { Column, HeaderCell, Cell } = Table;
-
-const CauseModal = ({
-  modalOpen,
-  setModalOpen,
-  adminCause,
-  trainerCause,
-}: any) => {
-  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  return (
-    <Modal
-      open={modalOpen}
-      onClose={() => setModalOpen(false)}
-      size="sm"
-      className={`${
-        mode === "dark"
-          ? "[&>div>*]:!bg-[var(--dark-bg-color)] [&>div>*]:text-[var(--dark-text-color)]"
-          : "[&>div>*]:!bg-light [&>div>*]:text-[var(--light-text-color)]"
-      }`}
-    >
-      <Modal.Header className="flex items-center mt-1">
-        <Modal.Title
-          className={`${mode === "dark" ? "text-[#FFF]" : "text-[#000]"}`}
-        >
-          Rejection Cause
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body className="p-3">
-        <p>{adminCause && adminCause}</p>
-        <p>{trainerCause && trainerCause}</p>
-      </Modal.Body>
-    </Modal>
-  );
-};
 
 const ActionCell = ({ rowData, dataKey, sessionId, ...props }: any) => {
   const [causeModalOpen, setCauseModalOpen] = useState<boolean>(false);
@@ -85,7 +44,7 @@ const ActionCell = ({ rowData, dataKey, sessionId, ...props }: any) => {
       verticalAlign="center"
       style={{ padding: "6px" }}
     >
-      <CauseModal
+      <RejectionCauseModal
         modalOpen={causeModalOpen}
         setModalOpen={setCauseModalOpen}
         adminCause={

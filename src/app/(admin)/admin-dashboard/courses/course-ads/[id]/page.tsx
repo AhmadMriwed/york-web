@@ -330,26 +330,31 @@ const CourseAdInfo = ({ params }: any) => {
         </div>
 
         <div className="order-first lg:order-last flex flex-col gap-4">
-          {courseAdInfo.description && (
-            <div>
+          {courseAdInfo?.description && (
+            <div className="mt-4 lg:max-w-sm">
               <div className="flex items-center gap-2 text-[16px]">
                 <PiInfoBold />
                 <h3 className="font-bold">Description</h3>
               </div>
-              <p className="lg:max-w-[325px] text-[12px] text-[#888]">
-                {courseAdInfo.description}
-              </p>
+
+              <div
+                className="p-1"
+                dangerouslySetInnerHTML={{ __html: courseAdInfo.description }}
+              />
             </div>
           )}
-          {courseAdInfo.outlines && (
-            <div>
+
+          {courseAdInfo?.outlines && (
+            <div className="mt-4 lg:max-w-sm">
               <div className="flex items-center gap-2 text-[16px]">
                 <PiInfoBold />
                 <h3 className="font-bold">Outlines</h3>
               </div>
-              <p className="lg:max-w-[325px] text-[12px] text-[#888]">
-                {courseAdInfo.outlines}
-              </p>
+
+              <div
+                className="p-1"
+                dangerouslySetInnerHTML={{ __html: courseAdInfo.outlines }}
+              />
             </div>
           )}
         </div>

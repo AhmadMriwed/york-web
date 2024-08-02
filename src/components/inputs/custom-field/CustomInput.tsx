@@ -132,6 +132,7 @@ const CustomInput = ({
           placeholder={placeholder}
           value={field.value}
           onChange={(value) => field.onChange({ target: { name, value } })}
+          disabled={disabled}
         />
       )}
       {type === "number" && (

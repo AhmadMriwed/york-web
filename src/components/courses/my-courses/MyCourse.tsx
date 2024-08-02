@@ -11,7 +11,7 @@ const MyCourse = ({ course }: { course: courseType }) => {
 
   return (
     <div
-      className={`relative flex element-center before:absolute before:w-[100px] before:h-[100px] before:rounded-[50%]
+      className={`relative flex element-center before:absolute before:w-[75px] before:h-[75px] before:rounded-[50%]
       before:right-1 before:top-1 before:transition-all before:duration-300 before:ease-in-out hover:before:translate-x-[-25px]
       hover:before:translate-y-[25px] ${
         course.status === "Current"
@@ -27,7 +27,7 @@ const MyCourse = ({ course }: { course: courseType }) => {
     >
       <div
         className={`p-3 border-l border-l-[6px] rounded-md min-w-[325px] cursor-pointer relative
-      backdrop-blur-2xl bg-[#4141414f] ${
+      backdrop-blur-2xl bg-[#9999993f] ${
         course.status === "Current"
           ? "border-l-[var(--primary-color2)]"
           : course.status === "Accepted"
@@ -44,7 +44,7 @@ const MyCourse = ({ course }: { course: courseType }) => {
           <p className="text-[16px] font-[500]">
             {course?.title && course.title.slice(0, 16)}
           </p>
-          <p className="px-1 m-0 rounded-full bg-gray-600 text-[12px] font-bold element-center">
+          <p className="px-1 m-0 rounded-full bg-gray-600 text-white text-[12px] font-bold element-center">
             {`#${course?.code && course.code}`}
           </p>
         </div>

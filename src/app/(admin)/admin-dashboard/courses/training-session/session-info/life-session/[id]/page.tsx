@@ -160,12 +160,15 @@ const LifeSession = ({ params }: any) => {
               <h6 className="w-fit text-[14px] px-2 py-1 rounded-full bg-[var(--primary-color1)] text-white">
                 Currently Available
               </h6>
-              <div className="flex flex-col">
-                <p className="text-[16px] font-bold">Session Topics:</p>
-                <p className="sm:max-w-[225px] text-[12px] text-[#888]">
-                  {sessionInfo?.outline && sessionInfo.outline}
-                </p>
-              </div>
+              {sessionInfo?.outline && (
+                <div className="flex flex-col">
+                  <p className="text-[16px] font-bold">Session Topics:</p>
+                  <div
+                    className="p-1 lg:max-w-[225px]"
+                    dangerouslySetInnerHTML={{ __html: sessionInfo.outline }}
+                  />
+                </div>
+              )}
             </div>
             <div className="mt-2 sm:mt-0 flex sm:flex-col justify-between sm:justify-center items-center gap-4">
               <div>
@@ -223,7 +226,7 @@ const LifeSession = ({ params }: any) => {
                   )}`}
               </p>
             </div>
-            {sessionInfo?.start_time && sessionInfo.date_to && (
+            {sessionInfo?.start_time && sessionInfo?.date_to && (
               <Timer
                 startTime={getLocalTimezoneDate(sessionInfo.start_time)}
                 endTime={getLocalTimezoneDate(sessionInfo.date_to)}
@@ -265,15 +268,20 @@ const LifeSession = ({ params }: any) => {
               </div>
             ) : (
               <>
-                <div>
-                  <div className="flex items-center gap-2 text-[16px]">
-                    <PiInfoBold />
-                    <h3 className="font-bold">About The Session</h3>
+                {sessionInfo?.description && (
+                  <div>
+                    <div className="flex items-center gap-2 text-[16px]">
+                      <PiInfoBold />
+                      <h3 className="font-bold">About The Session</h3>
+                    </div>
+                    <div
+                      className="p-1 lg:max-w-[325px]"
+                      dangerouslySetInnerHTML={{
+                        __html: sessionInfo.description,
+                      }}
+                    />
                   </div>
-                  <p className="sm:max-w-[325px] text-[12px] text-[#888]">
-                    {sessionInfo?.description && sessionInfo.description}
-                  </p>
-                </div>
+                )}
                 <div>
                   <div className="flex items-center gap-2 text-[16px] mt-3">
                     <FaChartLine />

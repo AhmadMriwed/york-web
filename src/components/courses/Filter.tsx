@@ -3,13 +3,14 @@ import { useDispatch } from "react-redux";
 import { getCourseAds } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
 import { getAllCourses } from "@/store/adminstore/slices/courses/coursesSlice";
 import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
-import { CiFilter, CiSearch } from "react-icons/ci";
+import { CiEraser, CiFilter, CiSearch } from "react-icons/ci";
 import { CheckPicker, DatePicker, InputPicker } from "rsuite";
 
 const Filter = ({
   role,
   filterValues,
   setFilterValues,
+  resetFilterValues,
   filterFields,
   coursesCount,
 }: any) => {
@@ -40,7 +41,7 @@ const Filter = ({
   };
 
   return (
-    <div className="w-full max-w-md bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-4 rounded-md flex flex-col justify-center items-center">
+    <div className="w-full max-w-lg bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-6 rounded-md flex flex-col justify-center items-center">
       <div>
         <div className="text-white flex flex-col element-center">
           <p className="text-[16px] font-[400] leading-[1.6rem]">
@@ -51,8 +52,8 @@ const Filter = ({
           )}
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 mt-2.5">
-        <div className="flex justify-center items-center rounded-full py-2 px-3 bg-white">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-2 mt-2.5">
+        <div className="flex flex-1 justify-center items-center rounded-full py-2 px-3 bg-white">
           <input
             type="text"
             placeholder="Search by course name, code or details"
@@ -64,20 +65,29 @@ const Filter = ({
                 title: e.target.value,
               })
             }
-            className="flex-1 lg:w-[225px] text-[#888] text-[12px] border-none outline-none"
+            className="w-full lg:w-[225px] min-w-[100px] text-[#888] text-[12px] border-none outline-none"
           />
           <div className="text-[#00d4d4] text-[20px] font-bold">
             <CiSearch />
           </div>
         </div>
-        <button
-          className="flex justify-center items-center gap-1 text-white bg-gradient-to-tl from-[#01395F] to-[#02B5A0] py-2 px-4 rounded-lg
+        <div className="flex justify-center items-center gap-1">
+          <button
+            className="flex justify-center items-center gap-1 text-white bg-gradient-to-tl from-[#01395F] to-[#02B5A0] py-2 px-4 rounded-full
             text-[12px] hover:translate-y-[-2px] transition-all duration-200"
-          onClick={handleApplyFilter}
-        >
-          <CiFilter />
-          <p className="m-0">Apply</p>
-        </button>
+            onClick={handleApplyFilter}
+          >
+            <CiFilter />
+            <p className="m-0">Apply</p>
+          </button>
+          <button
+            className="text-black bg-white py-2 px-4 rounded-full
+            text-[12px] hover:translate-y-[-2px] transition-all duration-200"
+            onClick={resetFilterValues}
+          >
+            <p className="m-0">Clear all</p>
+          </button>
+        </div>
       </div>
       <div className="w-full flex flex-wrap gap-1 element-center mt-2.5">
         <button

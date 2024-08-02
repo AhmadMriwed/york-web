@@ -194,20 +194,29 @@ export interface myCoursesState {
 }
 
 // TRAINING PLAN
+export interface PDFType {
+  id: number;
+  name: string;
+  path: string;
+  size: number;
+  sub_type: string;
+  type: string;
+}
+
 export interface trainingPlanType {
   id: number;
   title: string;
   sub_title: string;
   image: string | null;
-  file: null | any;
+  file: null | PDFType;
   year: number;
 }
 
 export interface trainingPlanState {
   isLoading: boolean;
   error: any | null;
-  trainingPlan: trainingPlanType;
-  planInfo: trainingPlanType;
+  trainingPlan: trainingPlanType | null;
+  planInfo: trainingPlanType | null;
   /* plan operation */
   status: boolean;
   operationLoading: boolean;

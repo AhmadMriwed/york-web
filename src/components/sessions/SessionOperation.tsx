@@ -20,6 +20,7 @@ import { IoMdAttach } from "react-icons/io";
 import { InputPicker, Loader } from "rsuite";
 import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import ImageUploader from "../inputs/image-uploader/ImageUploader";
+import TextEditor from "../inputs/editor/Editor";
 
 // Validation Schema
 const sessionSchema = yup.object().shape({
@@ -33,22 +34,17 @@ const sessionSchema = yup.object().shape({
       return true;
     }),
   title: yup.string().required("Title is required"),
-  date_from: yup
-    .date()
-    .required("Start date is required")
-    .min(new Date(), "Please enter a valid start date"),
+  date_from: yup.date().required("Start date is required"),
   date_to: yup
     .date()
-    .required("End date is required")
+    .nullable()
     .test(
       "is-valid-end-date",
-      "End date must be greater than start date and a maximum of one day after",
+      "End date must be greater than start date",
       function (value) {
         const { date_from } = this.parent;
-        const maxEndDate = new Date(date_from);
-        maxEndDate.setDate(maxEndDate.getDate() + 1);
-
-        return value > date_from && value <= maxEndDate;
+        if (value) return value > date_from;
+        return true;
       }
     ),
   outline: yup.string().required("Outline is required"),
@@ -76,9 +72,9 @@ const SessionOperation = ({
 
   const [fileNames, setFileNames] = useState<any[]>([]);
 
-  const [hours, setHours] = useState<number>(
-    calculateHours(initialValues.date_from, initialValues.date_to)
-  );
+  // const [hours, setHours] = useState<number>(
+  //   calculateHours(initialValues.date_from, initialValues.date_to)
+  // );
 
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [selectedSessionId, setSelectedSessionId] = useState<any>(null);
@@ -284,7 +280,6 @@ const SessionOperation = ({
                 type="date"
                 name="date_to"
                 label="End date"
-                required
                 placeholder="End date"
                 value={
                   selectedSession &&
@@ -303,26 +298,20 @@ const SessionOperation = ({
             </div>
 
             <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
-              <CustomInput
-                type="textarea"
-                textAreaRows={3}
+              <TextEditor
                 name="outline"
                 label="Outline"
                 required
-                placeholder="Outline"
                 value={
                   selectedSession &&
                   selectedSession.outline &&
                   selectedSession.outline
                 }
               />
-              <CustomInput
-                type="textarea"
-                textAreaRows={3}
+              <TextEditor
                 name="description"
                 label="Description"
                 required
-                placeholder="Description"
                 value={
                   selectedSession &&
                   selectedSession.description &&

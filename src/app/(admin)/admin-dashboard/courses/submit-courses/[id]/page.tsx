@@ -127,9 +127,12 @@ const SubmitCourseInfo = ({ params }: any) => {
         <p className="sm:text-[16px] font-500 my-2">
           {submitDetails?.title && submitDetails?.title}
         </p>
-        <p className="max-w-md text-[12px]">
-          {submitDetails?.description && submitDetails?.description}
-        </p>
+        {submitDetails?.description && (
+          <div
+            className="p-1 lg:max-w-sm"
+            dangerouslySetInnerHTML={{ __html: submitDetails.description }}
+          />
+        )}
         <div className="flex justify-between sm:justify-start sm:gap-4 items-center mt-4">
           <div className="bg-black text-white w-fit py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full">
             <CiLocationOn />

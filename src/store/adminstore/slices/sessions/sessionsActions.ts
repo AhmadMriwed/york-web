@@ -25,7 +25,7 @@ export const getSessionsByType = createAsyncThunk(
   async (type: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/trainingSession/get${type}Sessions`);
+      const res = await Axios.get(`admin/trainingSession/getMySessions?type=${type}`);
       if (res.status === 200) {
         return {
           data: res.data.data,

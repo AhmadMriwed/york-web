@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { courseAdType } from "@/types/adminTypes/courses/coursesTypes";
@@ -8,7 +8,10 @@ import {
   courseAdOperationCompleted,
   getCourseAds,
 } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
-import { getTrainingPlan } from "@/store/adminstore/slices/courses/training-plan/trainingPlanSlice";
+import {
+  downloadTrainingPlan,
+  getTrainingPlan,
+} from "@/store/adminstore/slices/courses/training-plan/trainingPlanSlice";
 import { storageURL } from "@/utils/api";
 
 import { More } from "@rsuite/icons";
@@ -23,8 +26,10 @@ import ErrorMessage from "@/components/error-message/ErrorMessage";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import PDF from "@/components/PDF/PDF/PDF";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 const TrainingPlan = () => {
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
 
   const [stDate, setStDate] = useState(null);
@@ -105,17 +110,17 @@ const TrainingPlan = () => {
         <PDF
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}
-          fileSource="https://dummyfile.pdf" // trainingPlan.file
+          PDF={trainingPlan?.file}
         />
 
         {trainingPlan ? (
           <div className="flex flex-col lg:flex-row justify-center gap-7 mt-7 p-3 sm:p-6 w-full bg-[var(--dark-bg-color)] text-white rounded-md">
-            <div className="bg-slate-400 rounded-md w-full lg:w-fit ">
+            <div className="bg-slate-400 rounded-md w-full lg:w-fit">
               {trainingPlan.image && (
                 <Image
                   src={storageURL + trainingPlan.image}
                   alt="training plan image"
-                  width={275}
+                  width={350}
                   height={175}
                   className="bg-center bg-cover object-fit rounded-md"
                 />
@@ -159,34 +164,64 @@ const TrainingPlan = () => {
               <p className="lg:max-w-lg text-[12px] leading-[1.6rem]">
                 {trainingPlan.sub_title && trainingPlan.sub_title}
               </p>
-              {/* {trainingPlan.file && ( */}
-              <div className="flex justify-between sm:justify-start items-center gap-11 mt-6">
-                <div className="flex items-center gap-1">
-                  <CiFileOn />
-                  <p>File</p>
-                </div>
-                <div>
-                  <Dropdown
-                    renderToggle={renderIconButton}
-                    placement="bottomEnd"
-                  >
-                    <Dropdown.Item className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100">
-                      Download file
-                    </Dropdown.Item>
-                    <Dropdown.Item
-                      className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-                      onClick={() => setModalOpen(true)}
+              {trainingPlan?.file && (
+                <div className="flex justify-between sm:justify-start items-center gap-11 mt-6">
+                  <div className="flex items-center gap-1">
+                    <CiFileOn />
+                    <p>File</p>
+                  </div>
+                  <div>
+                    <Dropdown
+                      renderToggle={renderIconButton}
+                      placement="bottomEnd"
                     >
-                      Preview file
-                    </Dropdown.Item>
-                  </Dropdown>
+                      <a
+                        href={storageURL + trainingPlan.file.path}
+                        download
+                        target="_blank"
+                      >
+                        <Dropdown.Item
+                          className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                          // onClick={() =>
+                          //   dispatch(downloadTrainingPlan(trainingPlan.file.path))
+                          // }
+                        >
+                          Download file
+                        </Dropdown.Item>
+                      </a>
+                      <Dropdown.Item
+                        className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                        onClick={() => setModalOpen(true)}
+                      >
+                        Preview file
+                      </Dropdown.Item>
+                    </Dropdown>
+                  </div>
                 </div>
-              </div>
-              {/* )} */}
+              )}
             </div>
           </div>
         ) : (
-          <EmptyResult />
+          <div
+            className={`flex flex-col element-center my-11 p-6 sm:p-11 rounded-2xl ${
+              mode === "dark" ? "bg-[var(--dark-bg-color)]" : "bg-white"
+            }`}
+          >
+            <p className="text-[20px] font-bold text-center">
+              There is no Training Plan
+            </p>
+            <p className="text-[14px] text-center">
+              If you want to add a new training plan click the button below
+            </p>
+            <button
+              className="outlined-btn mt-6"
+              onClick={() =>
+                router.push("/admin-dashboard/courses/training-plan/add")
+              }
+            >
+              Add Training Plan
+            </button>
+          </div>
         )}
 
         <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">

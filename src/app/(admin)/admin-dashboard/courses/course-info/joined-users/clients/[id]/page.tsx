@@ -20,6 +20,7 @@ const JoinedClients = ({ params }: any) => {
   const { id } = params;
 
   const [addModal, setAddModal] = useState(false);
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
 
   const { isLoading, error, courseClients } = useSelector(
     (state: GlobalState) => state.courseJoinedUsers
@@ -40,8 +41,8 @@ const JoinedClients = ({ params }: any) => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getClients(""));
-  }, [dispatch]);
+    dispatch(getClients(clientSearchTerm));
+  }, [clientSearchTerm, dispatch]);
 
   if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
@@ -55,6 +56,7 @@ const JoinedClients = ({ params }: any) => {
       <AddJoinedUserModal
         modalOpen={addModal}
         setModalOpen={setAddModal}
+        setSearchTerm={setClientSearchTerm}
         userType="client"
         courseId={id}
       />

@@ -7,6 +7,7 @@ import { Dropdown, IconButton } from "rsuite";
 import CauseModal from "@/components/courses/CauseModal";
 import InvoiceModal from "@/components/courses/InvoiceModal";
 import Image from "next/image";
+import RejectionCauseModal from "./RejectionCauseModal";
 
 const CourseRequest = ({ details }: { details?: submitCourseType }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -14,6 +15,7 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
   const router = useRouter();
 
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectionCauseModalOpen, setRejectionCauseModalOpen] = useState(false);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
 
   const renderIconButton = (props: any, ref: any) => {
@@ -35,7 +37,7 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
 
   return (
     <div
-      className={`flex justify-between items-center mt-4 p-3 rounded-md ${
+      className={`flex justify-between items-start gap-0.5 mt-4 p-3 rounded-md ${
         mode === "dark" ? "bg-[var(--dark-bg-color)]" : "bg-white text-[#000]"
       }`}
     >
@@ -51,9 +53,14 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
         setModalOpen={setInvoiceModalOpen}
         submitInfo={details}
       />
+      <RejectionCauseModal
+        modalOpen={rejectionCauseModalOpen}
+        setModalOpen={setRejectionCauseModalOpen}
+        adminCause={details?.cause}
+      />
 
       <div>
-        <div className="flex items-start gap-2">
+        <div className="flex items-start gap-2.5">
           {details?.user && details?.user?.image && (
             <Image
               src={details.user.image}
@@ -63,27 +70,30 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
               className="rounded-full"
             />
           )}
-          <div>
-            <p className="font-bold">
-              {details?.user_id &&
-                details?.user?.first_name &&
-                details?.user?.last_name &&
-                `${details?.user_id}. ${
-                  details.user.first_name + " " + details.user.last_name
-                }`}
-            </p>
-            <div className="mt-1 flex items-center flex-wrap gap-2">
+          <div className="flex flex-col gap-1">
+            <div>
+              <p className="font-bold">
+                {details?.user_id &&
+                  details?.user?.first_name &&
+                  details?.user?.last_name &&
+                  `${details?.user_id}. ${
+                    details.user.first_name + " " + details.user.last_name
+                  }`}
+              </p>
+              <p className="text-[12px] font-bold">
+                {details?.title && details.title}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
               <p className="m-0 text-[12px]">
                 {details?.code && `#${details.code}`}
               </p>
-              <span>|</span>
               <p className="m-0 text-[12px]">
                 {details?.user &&
                   details?.user?.phone_number &&
                   details.user.phone_number}
               </p>
-              <span>|</span>
-              <p className="m-0 text-[12px]">
+              <p className="m-0 text-[12px] break-all">
                 {details?.user && details?.user?.email && details.user.email}
               </p>
             </div>
@@ -103,7 +113,7 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
           >
             Show Details
           </Dropdown.Item>
-          {details?.status === "Pending" && (
+          {(details?.status === "Pending" || details?.status === null) && (
             <>
               <Dropdown.Item
                 className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
@@ -120,7 +130,7 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
             </>
           )}
         </Dropdown>
-        {details?.status === "Pending" && (
+        {(details?.status === "Pending" || details?.status === null) && (
           <div className="py-1 px-2 bg-[var(--primary-color1)] rounded-full element-center gap-1 text-[12px] text-white font-[500]">
             <Wait /> Pending
           </div>
@@ -131,7 +141,10 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
           </div>
         )}
         {details?.status === "Rejected" && (
-          <div className="py-1 px-2 bg-red-500 rounded-full element-center gap-1 text-[12px] text-white font-[500]">
+          <div
+            className="py-1 px-2 bg-red-500 rounded-full element-center gap-1 text-[12px] text-white font-[500] cursor-pointer"
+            onClick={() => setRejectionCauseModalOpen(true)}
+          >
             <Close /> Rejected
           </div>
         )}

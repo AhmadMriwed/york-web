@@ -1,20 +1,17 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 import {
-  getPlanInfo,
+  addPlan,
   planOperationCompleted,
-  updatePlan,
 } from "@/store/adminstore/slices/courses/training-plan/trainingPlanSlice";
 import { GlobalState } from "@/types/storeTypes";
 
 import Header from "@/components/Pars/Header";
 import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
-import Loading from "@/components/Pars/Loading";
-import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import { Loader } from "rsuite";
 
@@ -25,29 +22,18 @@ const planSchema = yup.object().shape({
   year: yup.number().required("Year is required"),
 });
 
-const UpdateTrainingPlan = ({ params }: any) => {
-  const { id } = params;
-
-  const {
-    planInfo,
-    isLoading,
-    error,
-    status,
-    operationError,
-    operationLoading,
-  } = useSelector((state: GlobalState) => state.trainingPlan);
+const AddTrainingPlan = () => {
+  const { status, operationError, operationLoading } = useSelector(
+    (state: GlobalState) => state.trainingPlan
+  );
 
   const dispatch = useDispatch<any>();
 
-  useEffect(() => {
-    dispatch(getPlanInfo(id));
-  }, [dispatch, id]);
-
   const initialValues = {
     image: null,
-    title: planInfo?.title ? planInfo.title : "",
-    sub_title: planInfo?.sub_title ? planInfo.sub_title : "",
-    year: planInfo?.year ? planInfo.year : null,
+    title: "",
+    sub_title: "",
+    year: new Date().getFullYear(),
   };
 
   const submitHandler = (values: any) => {
@@ -64,16 +50,12 @@ const UpdateTrainingPlan = ({ params }: any) => {
       formData.append(key, data[key]);
     }
 
-    dispatch(updatePlan({ id: id, data: formData }));
+    dispatch(addPlan(formData));
   };
-
-  if (isLoading) return <Loading />;
-
-  if (error) return <ErrorMessage msg={`Oops! ${error}`} />;
 
   return (
     <section className="p-3 sm:p-6">
-      <Header title="Update Training Plan" />
+      <Header title="Add Training Plan" />
       <OperationAlert
         messageOnError={`Oops! ${operationError}`}
         messageOnSuccess="The operation was completed successfully"
@@ -120,7 +102,7 @@ const UpdateTrainingPlan = ({ params }: any) => {
                   type="submit"
                   className="colored-btn !w-full !text-[16px]"
                 >
-                  {operationLoading ? <Loader /> : "Update Training Plan"}
+                  {operationLoading ? <Loader /> : "Add Training Plan"}
                 </button>
               </div>
             </div>
@@ -131,4 +113,4 @@ const UpdateTrainingPlan = ({ params }: any) => {
   );
 };
 
-export default UpdateTrainingPlan;
+export default AddTrainingPlan;

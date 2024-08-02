@@ -57,7 +57,7 @@ const ImageUploader = ({ formikProps }: any) => {
           </div>
         )}
         {uploadedImage && (
-          <div className="flex justify-between items-center gap-2 w-full bg-slate-200 p-2 rounded-md">
+          <div className="flex justify-between items-center gap-2 w-full bg-slate-100 p-2 rounded-md">
             <div className="flex flex-col gap-1">
               <Image
                 src={uploadedImage}
