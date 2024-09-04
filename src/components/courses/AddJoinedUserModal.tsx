@@ -23,6 +23,7 @@ const AddJoinedUserModal = ({
   courseId: number;
 }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
   const [permission_id, setPermission_id] = useState<number | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
