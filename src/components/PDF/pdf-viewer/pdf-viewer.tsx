@@ -106,7 +106,7 @@ export default function PDFViewer({
             onLoadSuccess={onDocumentLoadSuccess}
             className="flex flex-col gap-2"
           >
-            {Array.from({ length: numPages }, (_, index) => (
+            {Array.from({ length: numPages ?? 0 }, (_, index) => (
               <Page
                 key={`page_${index + 1}`}
                 width={pageWidth}

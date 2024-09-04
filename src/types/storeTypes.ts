@@ -35,7 +35,9 @@ import {
 } from "./adminTypes/enums/enumsTypes";
 import { FileState, MailState } from "./adminTypes/mailbox/mailboxTypes";
 import { couresesAdsState } from "./userTypes/courses/coursesTypes";
+import { UserState } from "./userTypes/auth/authTypes";
 import { endUserState } from "./endUserTypes/endUserTypes";
+import { statisticsState } from "./adminTypes/statistics/statisticsTypes";
 
 export interface ThemeState {
   theme: "light" | "dark";
@@ -75,8 +77,10 @@ export interface GlobalState {
   courseTypes: CourseTypesState;
   singleEnum: SingleEnumState;
   endUser: endUserState;
+  statistics: statisticsState;
 }
 
 export interface GlobalUserState {
-   coursesAds: couresesAdsState;
+  coursesAds: couresesAdsState;
+  userSlice: UserState;
 }
