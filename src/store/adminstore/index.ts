@@ -20,6 +20,7 @@ import questionTypes from "./slices/enums/questionTypesSlice";
 import singleEnum from "./slices/enums/singleEnumSlice";
 import courseTypes from "./slices/enums/courseTypeSlice";
 import coursesAds from "../userStore/slices/courses/courseAdsSlice";
+import statistics from "./slices/statistics/statisticsSlice";
 
 import userSlice from "../userStore/slices/userSlice";
 import trainerSlice from "../trainerStore/slices/trainerSlice";
@@ -59,9 +60,11 @@ export default configureStore({
     courseTypes,
     userSlice,
     trainerSlice,
-    sessions,
-    joinedUsers,
-    attendanceRequests,
+    statistics,
+    sessions: sessions,
+    joinedUsers: joinedUsers,
+    attendanceRequests: attendanceRequests,
+    coursesAds,
     courses,
     myCourses,
     courseAds,
@@ -70,6 +73,5 @@ export default configureStore({
     trainingPlan,
     courseJoinedUsers,
     endUser,
-    coursesAds,
   },
 });

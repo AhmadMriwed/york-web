@@ -46,10 +46,13 @@
       "yup": "^1.4.0"
    },
    "devDependencies": {
+      "@types/draft-js": "^0.11.18",
+      "@types/draftjs-to-html": "^0.8.4",
       "@types/leaflet": "^1.9.8",
       "@types/node": "^20",
       "@types/react": "^18",
       "@types/react-dom": "^18",
+      "@types/react-draft-wysiwyg": "^1.13.8",
       "autoprefixer": "^10",
       "eslint": "^8",
       "eslint-config-next": "13.5.6",

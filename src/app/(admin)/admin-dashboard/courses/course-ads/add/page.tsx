@@ -9,8 +9,15 @@ import { GlobalState } from "@/types/storeTypes";
 import { getUTCDate } from "@/utils/dateFuncs";
 
 import Header from "@/components/Pars/Header";
-import CourseAdOperation from "@/components/courses/course-ads/CourseAdOperation";
 import OperationAlert from "@/components/Pars/OperationAlert";
+
+import dynamic from "next/dynamic";
+const CourseAdOperation = dynamic(
+  () => import("@/components/courses/course-ads/CourseAdOperation"),
+  {
+    ssr: false,
+  }
+);
 
 const AddCourseAd = () => {
   const dispatch = useDispatch<any>();

@@ -13,6 +13,7 @@ const nextConfig = {
     config.resolve.alias.encoding = false;
     return config;
   },
+  distDir: "build",
 };
 
 module.exports = nextConfig;

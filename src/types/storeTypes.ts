@@ -34,43 +34,16 @@ import {
   VenuesState,
 } from "./adminTypes/enums/enumsTypes";
 import { FileState, MailState } from "./adminTypes/mailbox/mailboxTypes";
-<<<<<<< HEAD
 import { couresesAdsState } from "./userTypes/courses/coursesTypes";
-=======
+import { UserState } from "./userTypes/auth/authTypes";
 import { endUserState } from "./endUserTypes/endUserTypes";
->>>>>>> cad077e3213bc200ee05936ade79cee21098023a
+import { statisticsState } from "./adminTypes/statistics/statisticsTypes";
 
 export interface ThemeState {
   theme: "light" | "dark";
 }
 
 export interface GlobalState {
-<<<<<<< HEAD
-   theme: ThemeState;
-   permissions: PermissionsState;
-   roles: RolesState;
-   supervisors: SupervisorsState;
-   trainees: TraineesState;
-   trainers: TrainersState;
-   users: UsersState;
-   singleUser: SingleUserState;
-   singleRole: SingleRoleState;
-   authSlice: AdminState;
-   sessions: sessionsState;
-   joinedUsers: joinedUsersState;
-   attendanceRequests: attendanceState;
-   singleCourse: singleCourseState;
-   mailbox: MailState;
-   files: FileState;
-   requestTypes: RequestTypesState;
-   venues: VenuesState;
-   categories: CategoriesState;
-   examTypes: ExamTypesState;
-   trainerTypes: TrainerTypesState;
-   questionTypes: QuestionTypesState;
-   courseTypes: CourseTypesState;
-   singleEnum: SingleEnumState;
-=======
   theme: ThemeState;
   permissions: PermissionsState;
   roles: RolesState;
@@ -104,9 +77,10 @@ export interface GlobalState {
   courseTypes: CourseTypesState;
   singleEnum: SingleEnumState;
   endUser: endUserState;
->>>>>>> cad077e3213bc200ee05936ade79cee21098023a
+  statistics: statisticsState;
 }
 
 export interface GlobalUserState {
-   coursesAds: couresesAdsState;
+  coursesAds: couresesAdsState;
+  userSlice: UserState;
 }

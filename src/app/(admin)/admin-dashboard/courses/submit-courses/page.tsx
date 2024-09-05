@@ -13,12 +13,20 @@ import {
 import { GlobalState } from "@/types/storeTypes";
 
 import Header from "@/components/Pars/Header";
-import CourseRequest from "@/components/courses/CourseRequest";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import FilteringBar from "@/components/Pars/FilteringBar";
+import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
+
+import dynamic from "next/dynamic";
+const CourseRequest = dynamic(
+  () => import("@/components/courses/CourseRequest"),
+  {
+    ssr: false,
+  }
+);
 
 const filters = ["Current", "Expired", "Rejected", "Accepted"];
 
@@ -76,16 +84,14 @@ const SubmitCourses = () => {
 
       {isLoading ? (
         <Loading />
-      ) : (
+      ) : submitCourses.length > 0 ? (
         <div className="mt-7 sm:px-11">
-          {submitCourses.length > 0 ? (
-            submitCourses.map((submitCourse) => (
-              <CourseRequest key={submitCourse.id} details={submitCourse} />
-            ))
-          ) : (
-            <EmptyResult />
-          )}
+          {submitCourses.map((submitCourse: submitCourseType) => (
+            <CourseRequest key={submitCourse.id} details={submitCourse} />
+          ))}
         </div>
+      ) : (
+        <EmptyResult />
       )}
     </section>
   );

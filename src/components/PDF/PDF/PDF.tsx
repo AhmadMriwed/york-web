@@ -15,7 +15,7 @@ export default function PDF({
 }: {
   modalOpen: boolean;
   setModalOpen: any;
-  PDF: PDFType;
+  PDF?: PDFType | null;
 }) {
   return (
     <PDFViewer modalOpen={modalOpen} setModalOpen={setModalOpen} PDF={PDF} />

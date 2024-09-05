@@ -37,7 +37,7 @@ export default function PDFViewer({
 }: {
   modalOpen: boolean;
   setModalOpen: any;
-  PDF: PDFType;
+  PDF?: PDFType | null;
 }) {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
@@ -148,7 +148,7 @@ export default function PDFViewer({
               onLoadSuccess={onDocumentLoadSuccess}
               className="flex flex-col gap-2"
             >
-              {Array.from({ length: numPages }, (_, index) => (
+              {Array.from({ length: numPages ?? 0 }, (_, index) => (
                 <Page
                   key={`page_${index + 1}`}
                   width={pageWidth}
@@ -161,17 +161,19 @@ export default function PDFViewer({
           </div>
         ) : (
           <div className="flex flex-col justify-center items-center overflow-hidden">
+            {/* @ts-ignore */}
             <HTMLFlipBook width={bookPageWidth} height={600}>
-              {[...Array(numPages).keys()].map((pg) => (
-                <Pages key={pg} number={pg + 1}>
+              {Array.from({ length: numPages ?? 0 }, (_, index) => (
+                <Pages key={index} number={index + 1}>
                   <Document
-                    file={storageURL + PDF?.path}
+                    file={storageURL + (PDF ? PDF.path : "")}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     <Page
-                      pageNumber={pg}
+                      key={`page_${index + 1}`}
                       width={bookPageWidth}
                       height={600}
+                      pageNumber={index}
                       renderAnnotationLayer={false}
                       renderTextLayer={false}
                     />

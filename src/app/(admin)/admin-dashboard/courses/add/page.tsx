@@ -9,8 +9,15 @@ import {
 import { getUTCDate } from "@/utils/dateFuncs";
 
 import Header from "@/components/Pars/Header";
-import CourseOperation from "@/components/courses/my-courses/CourseOperation";
 import OperationAlert from "@/components/Pars/OperationAlert";
+
+import dynamic from "next/dynamic";
+const CourseOperation = dynamic(
+  () => import("@/components/courses/my-courses/CourseOperation"),
+  {
+    ssr: false,
+  }
+);
 
 const AddCourse = () => {
   const dispatch = useDispatch<any>();
