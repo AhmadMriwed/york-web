@@ -1,5 +1,4 @@
 "use client";
-
 import { useContext, useEffect, useRef, useState } from "react";
 import { Dropdown, Input } from "rsuite";
 import { FaCamera } from "react-icons/fa";
@@ -11,11 +10,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { GlobalUserState } from "@/types/storeTypes";
 import Loading from "@/components/Pars/Loading";
 import UpdatePasswordModal from "@/components/UpdatePassModal/UpdatePasswordModal";
-import Cookies from "universal-cookie";
+// import Cookies from "universal-cookie";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { getUserProfile } from "@/store/userStore/slices/userSlice";
-import LocationModal from "@/components/accounts/trainers/LocationModal";
 import photo from "../../../../public/avatar.png";
+
+import dynamic from "next/dynamic";
+
+const LocationModal = dynamic(
+  () => import("@/components/accounts/trainers/LocationModal"),
+  {
+    ssr: false,
+  }
+);
 
 export default function Profile() {
   const [changePassword, setChangePassword] = useState(false);
@@ -29,7 +36,7 @@ export default function Profile() {
   const [openLocation, setOpenLocation] = useState(false);
   const [newImage, setNewImage] = useState("");
 
-  const inputRef: any = useRef();
+  const inputRef: any = useRef(null);
 
   const categories = [
     {
@@ -44,7 +51,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user?.id) {
-      console.log("request");
+      // console.log("request");
       // let cookie = new Cookies();
       // let token = cookie.get("user_token");
       dispatch(
@@ -96,7 +103,7 @@ export default function Profile() {
                     className="hidden"
                     name="image"
                     onChange={(value, e: any) => {
-                      console.log(e);
+                      // console.log(e);
                       setNewImage(e.target.files[0]);
                     }}
                     accept="image/*"
@@ -104,7 +111,6 @@ export default function Profile() {
                   />
                 </div>
               )}
-
               <div className="text-center">
                 <p className="mb-2 text-[20px] font-semibold">
                   {user.first_name + " " + user.last_name}
@@ -115,23 +121,22 @@ export default function Profile() {
                 </p>
                 {user.user_type && (
                   <p className="mb-2 text-[#777] text-[16px]">
-                    <MdPerson className="text-[var(--primary-color2)] inline me-2" />{" "}
+                    <MdPerson className="text-[var(--primary-color2)] inline me-2" />
                     {user.user_type}
                   </p>
                 )}
               </div>
             </header>
+
             <div className="mt-5 p-5 w-fit mx-auto min-w-[60%] min-h-[200px]">
               <div className="flex justify-between items-center flex-wrap gap-7">
                 <div className="flex gap-2 items-center">
-                  {" "}
-                  <p className="text-[#777]">Birthday :</p>{" "}
+                  <p className="text-[#777]">Birthday :</p>
                   {/* <span>{user.birth_date}</span> */}
                   <span>21,21 0124.3</span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  {" "}
-                  <p className="text-[#777]">Phone Number : </p>{" "}
+                  <p className="text-[#777]">Phone Number : </p>
                   {/* <span>{user.phone_number}</span> */}
                   <span>194022 214021 -</span>
                   {/* <InlineEdit defaultValue={user.phone_number} /> */}
@@ -139,8 +144,7 @@ export default function Profile() {
               </div>
               <div className="flex justify-between items-center flex-wrap gap-7 mt-7">
                 <div className="flex gap-2 items-center">
-                  {" "}
-                  <p className="text-[#777]">Categories :</p>{" "}
+                  <p className="text-[#777]">Categories :</p>
                   {user.categories?.length !== 0 ? (
                     <p>No Categories</p>
                   ) : (
@@ -169,10 +173,8 @@ export default function Profile() {
                     </Dropdown>
                   )}
                 </div>
-
                 <div className="flex gap-2 items-center">
-                  {" "}
-                  <p className="text-[#777]">Location :</p>{" "}
+                  <p className="text-[#777]">Location :</p>
                   <div
                     className="bg-[var(--primary-color1)] text-white px-1 py-[6px] w-[130px] rounded-[6px] flex element-center cursor-pointer"
                     onClick={() => setOpenLocation(true)}
@@ -193,7 +195,9 @@ export default function Profile() {
                 </p>
               </div>
             </div>
+
             <hr className="mt-8 mx-10 p-2 opacity-8 border-[#777]" />
+
             <div className="flex gap-2 mt-2 mx-2 sm:mx-auto p-2 justify-between sm:w-[80%] md:[60%]">
               <button
                 className="element-center bg-[var(--primary-color1)] text-white py-2 px-5 rounded-[30px] w-fit text-[14px] hover:bg-[var(--primary-color2)] transition-all duration-300"
@@ -207,7 +211,7 @@ export default function Profile() {
               <button className="element-center border border-[var(--primary-color1)] text-[var(--primary-color1)] px-5 rounded-[30px] text-[14px] w-fit hover:bg-[var(--primary-color2)] hover:text-white transition-all duration-300">
                 Change Profile
               </button>
-            </div>{" "}
+            </div>
           </div>
         )}
 
@@ -215,6 +219,7 @@ export default function Profile() {
           <p className="text-red-400 text-center">{error}</p>
         )}
       </div>
+
       <UpdatePasswordModal
         isOpen={changePassword}
         onClose={() => setChangePassword(false)}
