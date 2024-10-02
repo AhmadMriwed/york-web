@@ -28,9 +28,9 @@ const ConfirmEmail = () => {
         console.log(err.message);
       });
   };
-  useEffect(() => {
-    Verify();
-  }, []);
+  // useEffect(() => {
+  //   Verify();
+  // }, []);
   return (
     <div className="overflow-x-hidden">
       <div className="h-50px w-[100vw] p-4">
