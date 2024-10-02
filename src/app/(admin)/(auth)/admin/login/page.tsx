@@ -41,17 +41,16 @@ const AdminLogin = () => {
   const handleSubmit = (values: FormValues) => {
     let data = { email: values.email, password: values.password };
 
-    try {
-      dispatch(loginAdmin(data)).then((res: any) => {
-        if (res.payload.is_verified) {
-          router.push("/admin-dashboard");
-        } else {
-          router.push("/admin/login/confirmemail");
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(loginAdmin(data)).then((res: any) => {
+      console.log(res);
+      if (res?.error?.message.toLowerCase() === "rejected") {
+        return;
+      } else if (!res?.payload?.is_verified) {
+        router.push("/admin/login/confirmemail");
+      } else {
+        router.push("/admin-dashboard");
+      }
+    });
   };
 
   const formik = useFormik({

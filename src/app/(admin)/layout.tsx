@@ -14,10 +14,8 @@ const AdminLayout = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const token = coockie.get("admin_token");
-    console.log(token);
 
     dispatch(getAdminProfile(token)).then((res: any) => {
-      console.log(res);
       if (res?.error?.message.toLowerCase() === "rejected") {
         router.push("/admin/login");
       } else if (!res.payload.is_verified) {

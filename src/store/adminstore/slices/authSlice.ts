@@ -12,7 +12,7 @@ export const loginAdmin = createAsyncThunk(
 
     try {
       const res = await axios.post(`${baseURL}admin/login`, data);
-      if (res.status === 200) {
+      if (res?.status === 200) {
         let token = res.data.data.access_token;
 
         const expiryDate = new Date();
@@ -22,7 +22,7 @@ export const loginAdmin = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      if (error.response.status === 403) {
+      if (error?.response?.status === 403) {
         return rejectWithValue("Invalid Email or Password");
       } else {
         return rejectWithValue("Internal Server Error");
