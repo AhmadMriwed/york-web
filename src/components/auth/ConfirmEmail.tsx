@@ -83,7 +83,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
     <div className="p-6 h-full">
       <BackBtn textColor="text-black" />
 
-      <div className="text-center flex flex-col items-center justify-center gap-2.5">
+      <div className="text-center flex flex-col items-center justify-center gap-2.5 h-full">
         {error && (
           <div
             className="flex gap-2.5 justify-between items-center py-[10px] px-[15px] mb-4 border-[var(--secondary-color-red)] border-[1px]
@@ -106,7 +106,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
           alt="Email photo"
           height={400}
           width={400}
-          className="rounded-full !w-[200px] !h-[200px] object-cover"
+          className="rounded-full !w-[175px] !h-[175px] object-cover shadow-2xl mb-6"
         />
 
         <p className="font-bold text-2xl">Verify Your Email Address</p>
