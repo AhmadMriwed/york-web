@@ -38,7 +38,9 @@ const MyCourse = ({ course }: { course: courseType }) => {
           ? "border-l-yellow-400"
           : ""
       }`}
-        onClick={() => router.push("/admin-dashboard/courses/course-info/6")}
+        onClick={() =>
+          router.push(`/admin/dashboard/courses/course-info/${course?.id}`)
+        }
       >
         <div className="flex justify-between gap-11">
           <p className="text-[16px] font-[500]">

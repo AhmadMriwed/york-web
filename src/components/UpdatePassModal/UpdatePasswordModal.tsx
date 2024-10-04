@@ -159,7 +159,7 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
                      formik.values.old_password = "";
                      formik.values.new_password = "";
                      formik.values.new_password_confirmation = "";
-                     router.push("/url/admin/admin-login")
+                     router.push("/admin/login")
 
                   }
                }

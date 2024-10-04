@@ -8,6 +8,14 @@ export const Axios = axios.create({
   baseURL: baseURL,
 });
 
+export const TrainerAxios = axios.create({
+  baseURL: baseURL,
+});
+
+export const UserAxios = axios.create({
+  baseURL: baseURL,
+});
+
 Axios.interceptors.request.use(
   (config) => {
     const adminToken = cookie.get("admin_token");
@@ -19,9 +27,13 @@ Axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export const UserAxios = axios.create({
-  baseURL: baseURL,
-  headers: {
-    Authorization: `Bearer 78|3PzjMYbKuGOdZ8HNQGHprPwp1lPyQEP6xlLkdAGK4f63e1cc`,
+TrainerAxios.interceptors.request.use(
+  (config) => {
+    const trainerToken = cookie.get("trainer_token");
+    if (trainerToken) {
+      config.headers.Authorization = `Bearer ${trainerToken}`;
+    }
+    return config;
   },
-});
+  (error) => Promise.reject(error)
+);

@@ -3,6 +3,7 @@ import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
 import { baseURL } from "@/utils/api";
 import Cookies from "universal-cookie";
 import axios from "axios";
+import { Axios } from "@/utils/axios";
 
 export const loginAdmin = createAsyncThunk(
   "login",
@@ -11,7 +12,7 @@ export const loginAdmin = createAsyncThunk(
     const cookies = new Cookies();
 
     try {
-      const res = await axios.post(`${baseURL}admin/login`, data);
+      const res = await Axios.post(`admin/login`, data);
       if (res?.status === 200) {
         let token = res.data.data.access_token;
 
@@ -33,20 +34,16 @@ export const loginAdmin = createAsyncThunk(
 
 export const getAdminProfile = createAsyncThunk(
   "getProfile",
-  async (token: string, thunkAPI) => {
+  async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.get(`${baseURL}admin`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await Axios.get(`admin`);
       if (res.status === 200) {
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -57,12 +54,12 @@ export const adminForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(`${baseURL}admin/forgot-password`, data);
+      const res = await Axios.post(`admin/forgot-password`, data);
       if (res.status === 200) {
         return res.data;
       }
     } catch (error: any) {
-      if (error.response.status === 422) {
+      if (error?.response?.status === 422) {
         return rejectWithValue("Invalid Email");
       } else {
         return rejectWithValue("Internel Server Error");
@@ -77,13 +74,10 @@ export const adminValidateForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(
-        `${baseURL}admin/validate-forgot-password-otp`,
-        data
-      );
+      const res = await Axios.post(`admin/validate-forgot-password-otp`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -94,10 +88,10 @@ export const adminResetPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(`${baseURL}admin/reset-password`, data);
+      const res = await Axios.post(`admin/reset-password`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error?.message);
     }
   }
 );
@@ -108,6 +102,7 @@ export const adminUpdatePassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
+      // REVIEW
       const res = await axios.put(
         `${baseURL}admin/updatePassword?old_password=${params.data.old_password}&new_password=${params.data.new_password}&new_password_confirmation=${params.data.new_password_confirmation}`,
         {
@@ -135,11 +130,7 @@ export const adminLogOut = createAsyncThunk(
     const { rejectWithValue } = thunAPI;
 
     try {
-      const res = await axios.delete(`${baseURL}admin/logout`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await Axios.delete(`admin/logout`);
 
       let cookie = new Cookies();
       cookie.remove("admin_token");
@@ -159,7 +150,6 @@ const authSlice = createSlice({
     adminProfile: null,
     profileLoading: false,
     profileError: null,
-    admin: null,
     msg: "",
     loadingPass: false,
     errorPass: null,
@@ -176,7 +166,7 @@ const authSlice = createSlice({
       .addCase(loginAdmin.fulfilled, (state, action: any) => {
         state.loading = false;
         state.error = null;
-        state.admin = action.payload;
+        state.adminProfile = action.payload;
       })
       .addCase(loginAdmin.rejected, (state, action: any) => {
         state.loading = false;
@@ -246,7 +236,7 @@ const authSlice = createSlice({
       .addCase(adminUpdatePassword.fulfilled, (state, action: any) => {
         state.loadingPass = false;
         state.errorPass = null;
-        state.admin = action.payload;
+        state.adminProfile = action.payload;
       })
       .addCase(adminUpdatePassword.rejected, (state, action: any) => {
         state.loadingPass = false;
@@ -260,7 +250,7 @@ const authSlice = createSlice({
       .addCase(adminLogOut.fulfilled, (state, action: any) => {
         state.loadingPass = false;
         state.error = null;
-        state.admin = null;
+        state.adminProfile = null;
       })
       .addCase(adminLogOut.rejected, (state, action: any) => {
         state.loadingPass = false;

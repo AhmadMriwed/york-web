@@ -54,11 +54,11 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
   };
 
   const handleShowDetails = () => {
-    router.push(`/admin-dashboard/courses/course-ads/${ad.id}`);
+    router.push(`/admin/dashboard/courses/course-ads/${ad.id}`);
   };
 
   const handleEdit = () => {
-    router.push(`/admin-dashboard/courses/course-ads/update/${ad.id}`);
+    router.push(`/admin/dashboard/courses/course-ads/update/${ad.id}`);
   };
 
   const handleDelete = () => {
