@@ -54,9 +54,7 @@ export default function Profile() {
       // console.log("request");
       // let cookie = new Cookies();
       // let token = cookie.get("user_token");
-      dispatch(
-        getUserProfile("78|3PzjMYbKuGOdZ8HNQGHprPwp1lPyQEP6xlLkdAGK4f63e1cc")
-      );
+      dispatch(getUserProfile());
     }
   }, [user?.id, dispatch]);
 
