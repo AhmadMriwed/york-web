@@ -17,8 +17,6 @@ const TrainerLayout = ({ children }: PropsWithChildren) => {
         if (!res.error) {
           if (!res.payload.is_verified) {
             router.push("/trainer/login/confirm-email");
-          } else {
-            router.push("/");
           }
         } else {
           if (!pathName.includes("recover-password")) {

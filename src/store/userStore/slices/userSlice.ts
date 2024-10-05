@@ -11,20 +11,22 @@ export const userLogin = createAsyncThunk(
     console.log("success", data);
     const cookies = new Cookies();
     try {
-      const res = await axios.post(`${baseURL}user/login`, data);
+      const res = await UserAxios.post(`user/login`, data);
       console.log(res, "user login");
       if (res.status === 200) {
         console.log("login success");
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 10);
         let token = res.data.data.access_token;
-        cookies.set("user_token", token);
+        cookies.set("user_token", token, { path: "/", expires: expiryDate });
         return res.data.data;
       }
     } catch (error: any) {
       console.log("Error", error.message);
       if (error.response.status === 403) {
-        return rejectWithValue("invalid email or password");
+        return rejectWithValue("Invalid email or password");
       } else {
-        return rejectWithValue("internel server error");
+        return rejectWithValue("Internel server error");
       }
     }
   }

@@ -32,20 +32,22 @@ export const trainerLogin = createAsyncThunk(
     console.log("success", data);
     const cookies = new Cookies();
     try {
-      const res = await axios.post(`${baseURL}trainer/login`, data);
+      const res = await TrainerAxios.post(`trainer/login`, data);
       console.log(res, "trainer login");
       if (res.status === 200) {
         console.log("login success");
         let token = res.data.data.access_token;
-        cookies.set("trainer_token", token);
+        const expiryDate = new Date();
+        expiryDate.setFullYear(expiryDate.getFullYear() + 10);
+        cookies.set("trainer_token", token, { path: "/", expires: expiryDate });
         return res.data.data;
       }
     } catch (error: any) {
       console.log("Error", error.message);
-      if (error.response.status === 403) {
-        return rejectWithValue("invalid email or password");
+      if (error?.response?.status === 403) {
+        return rejectWithValue("Invalid email or password");
       } else {
-        return rejectWithValue("internel server error");
+        return rejectWithValue("Internel server error");
       }
     }
   }

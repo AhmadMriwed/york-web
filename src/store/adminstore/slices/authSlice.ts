@@ -1,8 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
-import { baseURL } from "@/utils/api";
 import Cookies from "universal-cookie";
-import axios from "axios";
 import { Axios } from "@/utils/axios";
 
 export const loginAdmin = createAsyncThunk(
@@ -43,7 +41,7 @@ export const getAdminProfile = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error?.message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -77,7 +75,7 @@ export const adminValidateForgotPassword = createAsyncThunk(
       const res = await Axios.post(`admin/validate-forgot-password-otp`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error?.message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -91,7 +89,7 @@ export const adminResetPassword = createAsyncThunk(
       const res = await Axios.post(`admin/reset-password`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error?.message);
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -103,16 +101,11 @@ export const adminUpdatePassword = createAsyncThunk(
 
     try {
       // REVIEW
-      const res = await axios.put(
-        `${baseURL}admin/updatePassword?old_password=${params.data.old_password}&new_password=${params.data.new_password}&new_password_confirmation=${params.data.new_password_confirmation}`,
+      const res = await Axios.put(
+        `admin/updatePassword?old_password=${params.data.old_password}&new_password=${params.data.new_password}&new_password_confirmation=${params.data.new_password_confirmation}`,
         {
           old_password: params.data.old_password,
           new_password: params.data.new_password,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${params.token}`,
-          },
         }
       );
       if (res.status === 200) {
