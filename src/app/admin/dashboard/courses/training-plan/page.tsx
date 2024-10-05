@@ -25,7 +25,7 @@ import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import OperationAlert from "@/components/Pars/OperationAlert";
-import PDF from "@/components/pdf/PDF/PDF";
+import PDF from "@/components/PDF/PDF/PDF";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 const TrainingPlan = () => {
