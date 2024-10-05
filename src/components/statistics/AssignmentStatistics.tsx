@@ -1,6 +1,6 @@
 "use client";
 import { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { MdAssignment } from "react-icons/md";
 import { MdGroups } from "react-icons/md";
 import { MdMenuBook } from "react-icons/md";

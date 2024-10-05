@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import { Button, Checkbox, Dropdown, Input, Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import CustomInput from "../pars/CustomInput";
+import CustomInput from "../Pars/CustomInput";
 import { useDispatch } from "react-redux";
 
 interface ModalType {

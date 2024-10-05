@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { getLocalISODate } from "@/utils/dateFuncs";
 import { joinedUserType } from "@/types/adminTypes/sessions/sessionsTypes";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import Image from "next/image";
 import { Modal } from "rsuite";
 

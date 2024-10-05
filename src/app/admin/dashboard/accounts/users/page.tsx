@@ -1,6 +1,6 @@
 "use client";
-import AlertModal from "@/components/pars/AlertModal";
-import Loading from "@/components/pars/Loading";
+import AlertModal from "@/components/Pars/AlertModal";
+import Loading from "@/components/Pars/Loading";
 import EditUser from "@/components/accounts/users/EditUser";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";

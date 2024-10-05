@@ -8,11 +8,11 @@ import {
 import { getClients, getCoursePermissions } from "@/store/endUser/endUserSlice";
 import { GlobalState } from "@/types/storeTypes";
 
-import Header from "@/components/pars/Header";
+import Header from "@/components/Pars/Header";
 import CourseUser from "@/components/courses/CourseUser";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import OperationAlert from "@/components/pars/OperationAlert";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import AddJoinedUserModal from "@/components/courses/AddJoinedUserModal";
 

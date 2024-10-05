@@ -4,7 +4,7 @@ import ExitIcon from "@rsuite/icons/Exit"; // logout icons
 import Link from "next/link";
 import { Ref, forwardRef, useContext, useEffect } from "react";
 import Image from "next/image";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@chakra-ui/react";
 import {

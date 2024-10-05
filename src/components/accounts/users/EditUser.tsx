@@ -9,10 +9,10 @@ import { GlobalState } from "@/types/storeTypes";
 import Image from "next/image";
 import { storageURL } from "@/utils/api";
 import { CiEdit } from "react-icons/ci";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
-import Loading from "@/components/pars/Loading";
-import CustomInput from "@/components/pars/CustomInput";
+import Loading from "@/components/Pars/Loading";
+import CustomInput from "@/components/Pars/CustomInput";
 
 interface ModalType {
   open: boolean;

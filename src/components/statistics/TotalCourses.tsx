@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Tooltip, Whisper } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 
 export default function TotalCourses() {
   const amounts = [0, 10, 100, 1000, 10000];

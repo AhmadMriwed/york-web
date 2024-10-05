@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Tooltip, Whisper } from "rsuite";
 
 export default function StudentsStatistics() {

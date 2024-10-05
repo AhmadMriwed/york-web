@@ -1,6 +1,6 @@
 "use client";
-import Loading from "@/components/pars/Loading";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import Loading from "@/components/Pars/Loading";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
 import { GlobalState } from "@/types/storeTypes";
 import Image from "next/image";

@@ -1,8 +1,8 @@
 "use client";
 
-import Sidebar from "@/components/pars/Sidebar";
-import Topbar from "@/components/pars/Topbar";
-import { ThemeProvider } from "@/components/pars/ThemeContext";
+import Sidebar from "@/components/Pars/Sidebar";
+import Topbar from "@/components/Pars/Topbar";
+import { ThemeProvider } from "@/components/Pars/ThemeContext";
 import Profile from "@/components/profile/Profile";
 import React, { useEffect, useState } from "react";
 import SessionSidebar from "@/components/sessions/SessionSidebar";

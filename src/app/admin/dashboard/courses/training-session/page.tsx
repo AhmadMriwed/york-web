@@ -10,10 +10,10 @@ import { GlobalState } from "@/types/storeTypes";
 import { CiImport, CiExport } from "react-icons/ci";
 /* components */
 import Session from "@/components/sessions/Session";
-import Header from "@/components/pars/Header";
-import Loading from "@/components/pars/Loading";
+import Header from "@/components/Pars/Header";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import OperationAlert from "@/components/pars/OperationAlert";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const filteringBtns: string[] = ["Current", "Upcoming", "Expired"];

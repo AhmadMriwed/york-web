@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { IoMdAttach } from "react-icons/io";
 import { FaDownload } from "react-icons/fa6";
 import { FileType } from "@/types/adminTypes/mailbox/mailboxTypes";

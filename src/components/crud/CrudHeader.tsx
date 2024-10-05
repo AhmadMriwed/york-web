@@ -1,6 +1,6 @@
 import SearchIcon from "@rsuite/icons/Search";
 import { ReactNode, useContext, useRef, useState } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 
 import ExportImportContainer from "./ExportImportContainer";
 

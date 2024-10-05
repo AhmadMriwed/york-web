@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { MdOutgoingMail } from "react-icons/md";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { RiFolderDownloadFill } from "react-icons/ri";
 import Link from "next/link";
 import HeaderMail from "@/components/mailbox/HeaderMail";
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 
 import { MailType } from "@/types/adminTypes/mailbox/mailboxTypes";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import { Badge, Pagination } from "rsuite";
 import MailMessage from "@/components/mailbox/MailMessage";
 import {

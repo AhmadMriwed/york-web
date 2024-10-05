@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { Location, Calendar } from "@rsuite/icons";
 import { FaClock } from "react-icons/fa";
 

@@ -6,8 +6,8 @@ import { sessionOperationCompleted } from "@/store/adminstore/slices/sessions/tr
 import { getUTCDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
 
-import Header from "@/components/pars/Header";
-import OperationAlert from "@/components/pars/OperationAlert";
+import Header from "@/components/Pars/Header";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import SessionOperation from "@/components/sessions/SessionOperation";
 
 const AddSession = ({ params }: any) => {

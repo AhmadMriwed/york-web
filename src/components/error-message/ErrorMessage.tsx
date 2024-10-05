@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { RiErrorWarningLine } from "react-icons/ri";
 
 const ErrorMessage = ({ msg }: { msg: string }) => {

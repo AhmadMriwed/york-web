@@ -1,9 +1,9 @@
 import { useContext, useEffect } from "react";
 import { Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
-import Loading from "../pars/Loading";
+import Loading from "../Pars/Loading";
 import Image from "next/image";
 import { getSingleEnum } from "@/store/adminstore/slices/enums/singleEnumSlice";
 import { storageURL } from "@/utils/api";

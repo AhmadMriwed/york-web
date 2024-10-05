@@ -1,7 +1,7 @@
 "use client";
-import AlertModal from "@/components/pars/AlertModal";
-import Loading from "@/components/pars/Loading";
-import OperationAlert from "@/components/pars/OperationAlert";
+import AlertModal from "@/components/Pars/AlertModal";
+import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
 import AddEnums from "@/components/enums/AddEnums";

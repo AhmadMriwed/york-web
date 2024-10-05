@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Input, Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import CustomInput from "../pars/CustomInput";
-import Loading from "../pars/Loading";
+import CustomInput from "../Pars/CustomInput";
+import Loading from "../Pars/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 import { getSingleEnum } from "@/store/adminstore/slices/enums/singleEnumSlice";

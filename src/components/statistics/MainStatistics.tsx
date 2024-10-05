@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { useRouter } from "next/navigation";
 import { PiArrowLineUpRightLight } from "react-icons/pi";
 

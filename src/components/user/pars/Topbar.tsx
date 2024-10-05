@@ -2,7 +2,7 @@
 import Image from "next/image";
 import React, { useContext, useState } from "react";
 import { Badge, Toggle } from "rsuite";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import NoticeIcon from "@rsuite/icons/Notice";
 import profile from "../../../../public/avatar.png";
 import { MdOutlineLightMode } from "react-icons/md";

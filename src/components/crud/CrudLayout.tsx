@@ -9,7 +9,7 @@ import React, {
 import DataTable, { createTheme } from "react-data-table-component";
 import { Dropdown, Loader } from "rsuite";
 import CrudHeader from "./CrudHeader";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { useDispatch } from "react-redux";
 import ExportImportContainer from "./ExportImportContainer";
 

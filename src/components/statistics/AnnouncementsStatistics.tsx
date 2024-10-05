@@ -2,7 +2,7 @@ import Image from "next/image";
 import React, { useContext, useState } from "react";
 import { TfiAnnouncement } from "react-icons/tfi";
 import photo from "../../../public/avatar.png";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { FaCheck } from "react-icons/fa6";
 import { IoCloseOutline } from "react-icons/io5";
 

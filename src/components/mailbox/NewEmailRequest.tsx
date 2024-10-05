@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { InputPicker, Progress, Uploader } from "rsuite";
 import { Input } from "rsuite";
 import { useContext, useEffect, useState } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import Cookie from "universal-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";

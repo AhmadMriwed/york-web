@@ -7,13 +7,13 @@ import {
 } from "@/store/adminstore/slices/courses/course-requests/courseRequestsSlice";
 import { GlobalState } from "@/types/storeTypes";
 
-import Header from "@/components/pars/Header";
-import Loading from "@/components/pars/Loading";
+import Header from "@/components/Pars/Header";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import TrainerCourseRequest from "@/components/courses/TrainerCourseRequest";
-import OperationAlert from "@/components/pars/OperationAlert";
-import FilteringBar from "@/components/pars/FilteringBar";
+import OperationAlert from "@/components/Pars/OperationAlert";
+import FilteringBar from "@/components/Pars/FilteringBar";
 
 const filterData = ["Current", "Rejected", "Accepted"];
 

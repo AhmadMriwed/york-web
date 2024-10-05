@@ -1,10 +1,10 @@
 import { Modal, Button, InputPicker, Dropdown, Input } from "rsuite";
-import { ThemeContext } from "../../pars/ThemeContext";
+import { ThemeContext } from "../../Pars/ThemeContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import CustomInput from "@/components/pars/CustomInput";
-import CustomPassword from "@/components/pars/CustomPassword";
+import CustomInput from "@/components/Pars/CustomInput";
+import CustomPassword from "@/components/Pars/CustomPassword";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 import { getRolesAsMenue } from "@/store/adminstore/slices/accounts/rolesSlice";
@@ -15,7 +15,7 @@ import {
   updateSupervisor,
 } from "@/store/adminstore/slices/accounts/supervisorsSlice";
 import Image from "next/image";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
 import mergeDifferentProperties from "@/utils/mergeDifferentProperties";
 

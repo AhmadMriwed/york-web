@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import { getSessionInfo } from "@/store/adminstore/slices/sessions/sessionsActions";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { storageURL } from "@/utils/api";
 /* icons */
 import {

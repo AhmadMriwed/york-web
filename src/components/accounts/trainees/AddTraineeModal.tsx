@@ -1,11 +1,11 @@
 import { Button, Dropdown, Modal } from "rsuite";
 
-import { ThemeContext } from "../../pars/ThemeContext";
+import { ThemeContext } from "../../Pars/ThemeContext";
 import { useContext, useState } from "react";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import CustomPassword from "@/components/pars/CustomPassword";
-import CustomInput from "@/components/pars/CustomInput";
+import CustomPassword from "@/components/Pars/CustomPassword";
+import CustomInput from "@/components/Pars/CustomInput";
 
 interface ModalType {
   open: boolean;

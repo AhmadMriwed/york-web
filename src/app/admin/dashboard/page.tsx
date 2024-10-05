@@ -1,5 +1,5 @@
 "use client";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import AnnouncementsStatistics from "@/components/statistics/AnnouncementsStatistics";
 import AssignmentStatistics from "@/components/statistics/AssignmentStatistics";
 import MainStatistics from "@/components/statistics/MainStatistics";

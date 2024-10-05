@@ -12,7 +12,7 @@ import {
 import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 import { sessionType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 /* icons */
 import { FaRegFile, FaLink, FaChartLine } from "react-icons/fa";
 import {
@@ -26,12 +26,12 @@ import { CiEdit } from "react-icons/ci";
 import { Loader } from "rsuite";
 import TrainerInfo from "@/components/courses/TrainerInfo";
 import MiniSession from "@/components/sessions/MiniSession";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import BackBtn from "@/components/buttons/BackBtn";
-import AlertModal from "@/components/pars/AlertModal";
+import AlertModal from "@/components/Pars/AlertModal";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import SessionDetails from "@/components/sessions/SessionDetails";
-import OperationAlert from "@/components/pars/OperationAlert";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const SessionInfo = ({ params }: any) => {

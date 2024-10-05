@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Button, Input, Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
 

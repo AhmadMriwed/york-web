@@ -1,20 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { Modal } from "rsuite";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { FaCamera } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { MdPerson } from "react-icons/md";
 import profilePhoto from "../../../public/avatar.png";
 import Image from "next/image";
 import { Axios } from "@/utils/axios";
-import Loading from "../pars/Loading";
+import Loading from "../Pars/Loading";
 import { UsersType } from "@/types/adminTypes/accounts/accountsTypes";
 import { useDispatch, useSelector } from "react-redux";
 import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { GlobalState } from "@/types/storeTypes";
 import Cookies from "universal-cookie";
 // import RecoverPassword from "../RecoverPassword/RecoverPassword";
-import UpdatePasswordModal from "../update-pass-modal/UpdatePasswordModal";
+import UpdatePasswordModal from "../UpdatePassModal/UpdatePasswordModal";
 import { useDisclosure } from "@chakra-ui/react";
 
 export default function Profile({

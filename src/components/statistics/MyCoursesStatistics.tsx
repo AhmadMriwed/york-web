@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { Progress } from "rsuite";
 import { RiGraduationCapLine } from "react-icons/ri";
 import { MdMenuBook } from "react-icons/md";

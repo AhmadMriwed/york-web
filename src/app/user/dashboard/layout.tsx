@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeProvider } from "@/components/pars/ThemeContext";
+import { ThemeProvider } from "@/components/Pars/ThemeContext";
 import Profile from "@/components/profile/Profile";
 import Sidebar from "@/components/user/pars/Sidebar";
 import Topbar from "@/components/user/pars/Topbar";

@@ -12,9 +12,9 @@ import { GlobalState } from "@/types/storeTypes";
 
 import CourseAd from "@/components/courses/course-ads/CourseAd";
 import Filter from "@/components/courses/Filter";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import OperationAlert from "@/components/pars/OperationAlert";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const CoursesAds = () => {

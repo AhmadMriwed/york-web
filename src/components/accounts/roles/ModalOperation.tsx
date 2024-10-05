@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal, Button, Checkbox } from "rsuite";
-import { ThemeContext } from "../../pars/ThemeContext";
+
 import { useContext, useState } from "react";
 import { getPermissions } from "@/store/adminstore/slices/accounts/permissionsSlice";
 import { FaCheck } from "react-icons/fa";
@@ -20,8 +20,9 @@ import {
   PermissionsType,
   SingleRoleState,
 } from "@/types/adminTypes/accounts/accountsTypes";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import { getSingleRole } from "@/store/adminstore/slices/accounts/singleRoleSlice";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 interface ModalType {
   open: boolean;

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import Image from "next/image";
 import photo from "../../../public/avatar.png";
 import { MdGroups } from "react-icons/md";

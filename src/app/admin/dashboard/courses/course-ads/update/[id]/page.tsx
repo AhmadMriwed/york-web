@@ -9,10 +9,10 @@ import {
 import { GlobalState } from "@/types/storeTypes";
 import { getUTCDate } from "@/utils/dateFuncs";
 
-import Header from "@/components/pars/Header";
+import Header from "@/components/Pars/Header";
 import CourseAdOperation from "@/components/courses/course-ads/CourseAdOperation";
-import OperationAlert from "@/components/pars/OperationAlert";
-import Loading from "@/components/pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 
 const UpdateCourseAd = ({ params }: any) => {

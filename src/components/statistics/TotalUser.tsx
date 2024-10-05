@@ -1,6 +1,6 @@
 "use client";
 import { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import { useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 

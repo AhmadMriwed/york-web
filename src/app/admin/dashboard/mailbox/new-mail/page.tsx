@@ -1,5 +1,5 @@
 "use client";
-import OperationAlert from "@/components/pars/OperationAlert";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import HeaderMail from "@/components/mailbox/HeaderMail";
 import NewEmailRequest from "@/components/mailbox/NewEmailRequest";
 import { completedRequest } from "@/store/adminstore/slices/mailbox/mailboxSlice";

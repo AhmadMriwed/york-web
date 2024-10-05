@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { ThemeContext } from "@/components/pars/ThemeContext";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { getLocalDate } from "@/utils/dateFuncs";
 import {
   courseOperationCompleted,
@@ -34,13 +34,13 @@ import { Dropdown, IconButton, Loader } from "rsuite";
 import Image from "next/image";
 import UserRequest from "@/components/courses/UserRequest";
 import TrainerInfo from "@/components/courses/TrainerInfo";
-import Loading from "@/components/pars/Loading";
+import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import AlertModal from "@/components/pars/AlertModal";
-import OperationAlert from "@/components/pars/OperationAlert";
+import AlertModal from "@/components/Pars/AlertModal";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import { getCoursePermissions } from "@/store/endUser/endUserSlice";
-import FilteringBar from "@/components/pars/FilteringBar";
+import FilteringBar from "@/components/Pars/FilteringBar";
 
 const filterData = ["Current", "Rejected", "Accepted"];
 

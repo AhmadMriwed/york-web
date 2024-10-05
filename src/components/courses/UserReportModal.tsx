@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ThemeContext } from "../pars/ThemeContext";
+import { ThemeContext } from "../Pars/ThemeContext";
 import {
   clientType,
   traineeType,
