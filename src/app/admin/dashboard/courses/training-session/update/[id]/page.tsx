@@ -9,11 +9,11 @@ import { sessionOperationCompleted } from "@/store/adminstore/slices/sessions/tr
 import { getUTCDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
 /* components */
-import Header from "@/components/Pars/Header";
+import Header from "@/components/pars/Header";
 import SessionOperation from "@/components/sessions/SessionOperation";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import Loading from "@/components/Pars/Loading";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import Loading from "@/components/pars/Loading";
+import OperationAlert from "@/components/pars/OperationAlert";
 
 const UpdateSession = ({ params }: any) => {
   const { id } = params;

@@ -12,20 +12,20 @@ import {
 import { getTrainers } from "@/store/endUser/endUserSlice";
 import { getMyCourses } from "@/store/adminstore/slices/courses/my-courses/myCoursesSlice";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 import { InputPicker, Loader } from "rsuite";
-import Header from "@/components/Pars/Header";
+import Header from "@/components/pars/Header";
 import MyCourse from "@/components/courses/my-courses/MyCourse";
 import Course from "@/components/courses/my-courses/Course";
 import Filter from "@/components/courses/Filter";
-import Loading from "@/components/Pars/Loading";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import Loading from "@/components/pars/Loading";
+import OperationAlert from "@/components/pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import FilteringBar from "@/components/Pars/FilteringBar";
+import FilteringBar from "@/components/pars/FilteringBar";
 
 const filterALlBtns = ["Current", "Closed", "Expired"];
 

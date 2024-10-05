@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import {
   getSubmitDetails,
   submitCourseOperationCompleted,
@@ -28,12 +28,12 @@ import { IoLanguage } from "react-icons/io5";
 import { RiProfileLine } from "react-icons/ri";
 import { PiHandbag } from "react-icons/pi";
 
-import Header from "@/components/Pars/Header";
-import Loading from "@/components/Pars/Loading";
+import Header from "@/components/pars/Header";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import InvoiceModal from "@/components/courses/InvoiceModal";
 import CauseModal from "@/components/courses/CauseModal";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 
 const SubmitCourseInfo = ({ params }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

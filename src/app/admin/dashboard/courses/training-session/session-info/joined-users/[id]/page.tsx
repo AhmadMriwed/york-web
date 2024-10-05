@@ -12,15 +12,15 @@ import { joinedUserType } from "@/types/adminTypes/sessions/sessionsTypes";
 import MoreIcon from "@rsuite/icons/More";
 /* components */
 import { IconButton, Table, Dropdown, Popover, Whisper, Loader } from "rsuite";
-import Header from "@/components/Pars/Header";
-import Loading from "@/components/Pars/Loading";
+import Header from "@/components/pars/Header";
+import Loading from "@/components/pars/Loading";
 import UserReportModal from "@/components/sessions/UserReportModal";
 import EditUserStatusModal from "@/components/sessions/EditUserStatusModal";
 import NameCell from "@/components/sessions/custom-cells/NameCell";
 import ImageCell from "@/components/sessions/custom-cells/ImageCell";
 import TimeCell from "@/components/sessions/custom-cells/TimeCell";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 
 const { Column, HeaderCell, Cell } = Table;
 

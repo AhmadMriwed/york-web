@@ -1,5 +1,5 @@
 "use client";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 import HeaderMail from "@/components/mailbox/HeaderMail";
 import NewEmailRequest from "@/components/mailbox/NewEmailRequest";
 import { completedRequest } from "@/store/adminstore/slices/mailbox/mailboxSlice";
@@ -7,20 +7,20 @@ import { GlobalState } from "@/types/storeTypes";
 import { useSelector } from "react-redux";
 
 export default function NewMail() {
-   const { status, error } = useSelector((state: GlobalState) => state.mailbox);
-   return (
-      <main className="py-7 px-5 sm:px-8 relative">
-         <OperationAlert
-            status={status}
-            error={error}
-            messageOnSuccess="Email has been sending successfully"
-            messageOnError={`An error occurred while sending (${error}) , try again `}
-            completedAction={completedRequest}
-            navigateTo="/admin-dashboard/mailbox"
-         />
+  const { status, error } = useSelector((state: GlobalState) => state.mailbox);
+  return (
+    <main className="py-7 px-5 sm:px-8 relative">
+      <OperationAlert
+        status={status}
+        error={error}
+        messageOnSuccess="Email has been sending successfully"
+        messageOnError={`An error occurred while sending (${error}) , try again `}
+        completedAction={completedRequest}
+        navigateTo="/admin-dashboard/mailbox"
+      />
 
-         <HeaderMail title="New Request" />
-         <NewEmailRequest role="request" />
-      </main>
-   );
+      <HeaderMail title="New Request" />
+      <NewEmailRequest role="request" />
+    </main>
+  );
 }

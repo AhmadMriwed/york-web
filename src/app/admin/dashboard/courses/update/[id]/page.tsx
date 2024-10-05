@@ -9,9 +9,9 @@ import {
 import { GlobalState } from "@/types/storeTypes";
 import { getUTCDate } from "@/utils/dateFuncs";
 
-import Header from "@/components/Pars/Header";
-import OperationAlert from "@/components/Pars/OperationAlert";
-import Loading from "@/components/Pars/Loading";
+import Header from "@/components/pars/Header";
+import OperationAlert from "@/components/pars/OperationAlert";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import CourseOperation from "@/components/courses/my-courses/CourseOperation";
 

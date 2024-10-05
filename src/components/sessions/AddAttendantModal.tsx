@@ -4,7 +4,7 @@ import { addAttendant } from "@/store/adminstore/slices/sessions/attendanceReque
 import { getUTCDate } from "@/utils/dateFuncs";
 import { unattendUserType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "../Pars/ThemeContext";
+import { ThemeContext } from "../pars/ThemeContext";
 import { Formik, Form, FormikProps } from "formik";
 import * as yup from "yup";
 import { Avatar, Loader, Modal } from "rsuite";

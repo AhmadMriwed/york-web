@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { Modal } from "rsuite";
 
 const RejectionCauseModal = ({

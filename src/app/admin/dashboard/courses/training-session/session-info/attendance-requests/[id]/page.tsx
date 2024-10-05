@@ -13,14 +13,14 @@ import { GlobalState } from "@/types/storeTypes";
 import { Check, Close, More } from "@rsuite/icons";
 /* components */
 import { Dropdown, IconButton, Loader, Popover, Table, Whisper } from "rsuite";
-import Header from "@/components/Pars/Header";
-import Loading from "@/components/Pars/Loading";
+import Header from "@/components/pars/Header";
+import Loading from "@/components/pars/Loading";
 import NameCell from "@/components/sessions/custom-cells/NameCell";
 import ImageCell from "@/components/sessions/custom-cells/ImageCell";
 import TimeCell from "@/components/sessions/custom-cells/TimeCell";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import AddAttendantModal from "@/components/sessions/AddAttendantModal";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 import RejectionCauseModal from "@/components/courses/RejectionCauseModal";
 
 const { Column, HeaderCell, Cell } = Table;

@@ -1,5 +1,5 @@
 "use client";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { useContext } from "react";
 
 const CoursesLayout = ({ children }: { children: React.ReactNode }) => {

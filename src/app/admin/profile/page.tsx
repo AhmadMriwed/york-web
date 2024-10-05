@@ -11,10 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { useDisclosure } from "@chakra-ui/react";
-import Loading from "@/components/Pars/Loading";
-import UpdatePasswordModal from "@/components/UpdatePassModal/UpdatePasswordModal";
+import Loading from "@/components/pars/Loading";
+import UpdatePasswordModal from "@/components/update-pass-modal/UpdatePasswordModal";
 import Cookies from "universal-cookie";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 
 export default function Profile() {
   const [changePassword, setChangePassword] = useState(false);

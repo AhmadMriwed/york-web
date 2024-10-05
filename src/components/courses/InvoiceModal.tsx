@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { createInvoice } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
 import { getUTCDate } from "@/utils/dateFuncs";
 import {

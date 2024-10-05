@@ -12,7 +12,7 @@ import { getCourseInfo } from "@/store/adminstore/slices/courses/coursesSlice";
 import { sessionOperationCompleted } from "@/store/adminstore/slices/sessions/trainingSessionsSlice";
 import { sessionType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import {
   calculateHours,
   getLocalTimezoneDate,
@@ -25,12 +25,12 @@ import { PiInfoBold } from "react-icons/pi";
 import MiniSession from "@/components/sessions/MiniSession";
 import BackBtn from "@/components/buttons/BackBtn";
 import { Loader } from "rsuite";
-import Loading from "@/components/Pars/Loading";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import Timer from "@/components/sessions/Timer";
 import SessionState from "@/components/sessions/SessionState";
 import SessionDetails from "@/components/sessions/SessionDetails";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 
 const LifeSession = ({ params }: any) => {

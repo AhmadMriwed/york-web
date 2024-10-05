@@ -9,10 +9,10 @@ import {
 } from "@/store/adminstore/slices/courses/training-plan/trainingPlanSlice";
 import { GlobalState } from "@/types/storeTypes";
 
-import Header from "@/components/Pars/Header";
+import Header from "@/components/pars/Header";
 import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 import { Loader } from "rsuite";
 
 const planSchema = yup.object().shape({

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { requestToJoinType } from "@/types/adminTypes/courses/coursesTypes";
 import { Check, Close } from "@rsuite/icons";
 import Image from "next/image";

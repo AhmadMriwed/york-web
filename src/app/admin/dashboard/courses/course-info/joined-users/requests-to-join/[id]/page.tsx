@@ -8,13 +8,13 @@ import {
 import { getCoursePermissions } from "@/store/endUser/endUserSlice";
 import { GlobalState } from "@/types/storeTypes";
 
-import Header from "@/components/Pars/Header";
+import Header from "@/components/pars/Header";
 import UserRequest from "@/components/courses/UserRequest";
-import Loading from "@/components/Pars/Loading";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import OperationAlert from "@/components/pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
-import FilteringBar from "@/components/Pars/FilteringBar";
+import FilteringBar from "@/components/pars/FilteringBar";
 
 const filterData = ["Current", "Rejected", "Accepted"];
 

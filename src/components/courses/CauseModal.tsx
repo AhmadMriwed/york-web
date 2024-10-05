@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { replySubmitCourse } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
 import {
   acceptRequest,

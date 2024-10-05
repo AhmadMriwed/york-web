@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import {
   courseUserOperationCopmleted,
   deleteClient,
@@ -22,7 +22,7 @@ import {
   Modal,
 } from "rsuite";
 import Image from "next/image";
-import AlertModal from "../Pars/AlertModal";
+import AlertModal from "../pars/AlertModal";
 import UserReportModal from "./UserReportModal";
 import { More } from "@rsuite/icons";
 

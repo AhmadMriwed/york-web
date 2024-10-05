@@ -1,4 +1,4 @@
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { PDFType } from "@/types/adminTypes/courses/coursesTypes";
 import { storageURL } from "@/utils/api";
 import { Minus, Plus } from "@rsuite/icons";

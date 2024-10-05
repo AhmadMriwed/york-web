@@ -8,10 +8,10 @@ import profilePhoto from "../../../../public/avatar.png";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalUserState } from "@/types/storeTypes";
-import Loading from "@/components/Pars/Loading";
-import UpdatePasswordModal from "@/components/UpdatePassModal/UpdatePasswordModal";
+import Loading from "@/components/pars/Loading";
+import UpdatePasswordModal from "@/components/update-pass-modal/UpdatePasswordModal";
 // import Cookies from "universal-cookie";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { getUserProfile } from "@/store/userStore/slices/userSlice";
 import photo from "../../../../public/avatar.png";
 

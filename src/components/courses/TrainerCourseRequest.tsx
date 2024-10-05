@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { courseType } from "@/types/adminTypes/courses/coursesTypes";
 import { Check, Close, Location, More } from "@rsuite/icons";
 import { Dropdown, IconButton } from "rsuite";

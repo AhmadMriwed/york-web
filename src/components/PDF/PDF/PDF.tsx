@@ -2,7 +2,7 @@ import { PDFType } from "@/types/adminTypes/courses/coursesTypes";
 import dynamic from "next/dynamic";
 
 const PDFViewer = dynamic(
-  () => import("@/components/PDF/pdf-viewer/pdf-viewer"),
+  () => import("@/components/pdf/pdf-viewer/pdf-viewer"),
   {
     ssr: false,
   }

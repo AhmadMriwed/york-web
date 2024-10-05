@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { getLocalDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
 import {
@@ -33,12 +33,12 @@ import { HiOutlineDuplicate } from "react-icons/hi";
 import { Dropdown, IconButton, Loader } from "rsuite";
 import CourseRequest from "@/components/courses/CourseRequest";
 import Image from "next/image";
-import Loading from "@/components/Pars/Loading";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import AlertModal from "@/components/Pars/AlertModal";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import AlertModal from "@/components/pars/AlertModal";
+import OperationAlert from "@/components/pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
-import FilteringBar from "@/components/Pars/FilteringBar";
+import FilteringBar from "@/components/pars/FilteringBar";
 
 const filterData = ["Current", "Upcoming", "Expired"];
 

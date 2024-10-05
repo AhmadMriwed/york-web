@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ThemeContext } from "../Pars/ThemeContext";
+import { ThemeContext } from "../pars/ThemeContext";
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 import { storageURL } from "@/utils/api";
 /* icons */

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
 import { Check, Close, More, Peoples, Wait } from "@rsuite/icons";
 import { Dropdown, IconButton } from "rsuite";

@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { getLocalDate } from "@/utils/dateFuncs";
 import {
   courseOperationCompleted,
@@ -21,7 +21,7 @@ import { CiClock1, CiLocationOn } from "react-icons/ci";
 import { IoLanguage } from "react-icons/io5";
 /* components */
 import Image from "next/image";
-import AlertModal from "@/components/Pars/AlertModal";
+import AlertModal from "@/components/pars/AlertModal";
 import { Dropdown, IconButton } from "rsuite";
 
 const Course = ({ course }: { course: courseType }) => {

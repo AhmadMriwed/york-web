@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { useDispatch } from "react-redux";
 import { changeUserStatus } from "@/store/adminstore/slices/sessions/joinedUsersSlice";
-import { ThemeContext } from "../Pars/ThemeContext";
+import { ThemeContext } from "../pars/ThemeContext";
 import { joinedUserType } from "@/types/adminTypes/sessions/sessionsTypes";
 import { Modal, Radio, RadioGroup } from "rsuite";
 

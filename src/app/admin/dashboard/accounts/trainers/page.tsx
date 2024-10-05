@@ -1,6 +1,6 @@
 "use client";
-import AlertModal from "@/components/Pars/AlertModal";
-import Loading from "@/components/Pars/Loading";
+import AlertModal from "@/components/pars/AlertModal";
+import Loading from "@/components/pars/Loading";
 import ModalOperation from "@/components/accounts/roles/ModalOperation";
 import AddTrainerModal from "@/components/accounts/trainers/AddTrainerModal";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";

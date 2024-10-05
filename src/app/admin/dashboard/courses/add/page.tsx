@@ -8,8 +8,8 @@ import {
 } from "@/store/adminstore/slices/courses/coursesSlice";
 import { getUTCDate } from "@/utils/dateFuncs";
 
-import Header from "@/components/Pars/Header";
-import OperationAlert from "@/components/Pars/OperationAlert";
+import Header from "@/components/pars/Header";
+import OperationAlert from "@/components/pars/OperationAlert";
 
 import dynamic from "next/dynamic";
 const CourseOperation = dynamic(

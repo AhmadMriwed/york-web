@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import EmailIcon from "@rsuite/icons/Email";
 import PhoneIcon from "@rsuite/icons/Phone";
 import { Avatar } from "rsuite";

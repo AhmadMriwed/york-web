@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
 import { Sidenav, Nav } from "rsuite";
 import Link from "next/link";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { MdOutlineMarkunreadMailbox } from "react-icons/md";
 import { PiStudentLight } from "react-icons/pi";
 import { MdOutlineModelTraining } from "react-icons/md";

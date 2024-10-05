@@ -9,7 +9,7 @@ import {
 } from "@/store/adminstore/slices/sessions/sessionsActions";
 import { calculateHours, getLocalDate } from "@/utils/dateFuncs";
 import { GlobalState } from "@/types/storeTypes";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import { storageURL } from "@/utils/api";
 /* icons */
 import { Calendar, More, Edit, Trash, Paragraph } from "@rsuite/icons";
@@ -19,7 +19,7 @@ import { HiOutlineDuplicate } from "react-icons/hi";
 /* components */
 import Image from "next/image";
 import { Dropdown, IconButton } from "rsuite";
-import AlertModal from "../Pars/AlertModal";
+import AlertModal from "../pars/AlertModal";
 
 const Session = ({ session }: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

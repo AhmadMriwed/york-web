@@ -18,15 +18,15 @@ import { More } from "@rsuite/icons";
 import { CiFileOn } from "react-icons/ci";
 
 import { DatePicker, Dropdown, IconButton, Loader } from "rsuite";
-import Header from "@/components/Pars/Header";
+import Header from "@/components/pars/Header";
 import CourseAd from "@/components/courses/course-ads/CourseAd";
 import Image from "next/image";
-import Loading from "@/components/Pars/Loading";
+import Loading from "@/components/pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
 import EmptyResult from "@/components/empty-result/EmptyResult";
-import OperationAlert from "@/components/Pars/OperationAlert";
-import PDF from "@/components/PDF/PDF/PDF";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import OperationAlert from "@/components/pars/OperationAlert";
+import PDF from "@/components/pdf/PDF/PDF";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 
 const TrainingPlan = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

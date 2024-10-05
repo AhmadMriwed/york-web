@@ -1,6 +1,6 @@
 "use client";
 import { MdReplyAll } from "react-icons/md";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { ThemeContext } from "@/components/pars/ThemeContext";
 import HeaderMail from "@/components/mailbox/HeaderMail";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
@@ -12,7 +12,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleReqest } from "@/store/adminstore/slices/mailbox/mailboxSlice";
 import { GlobalState } from "@/types/storeTypes";
-import Loading from "@/components/Pars/Loading";
+import Loading from "@/components/pars/Loading";
 
 export default function Preview() {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
