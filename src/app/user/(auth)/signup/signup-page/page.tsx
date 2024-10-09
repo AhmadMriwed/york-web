@@ -1,683 +1,304 @@
 "use client";
-import BackBtn from "@/components/buttons/BackBtn";
-import {
-  Container,
-  Flex,
-  Text,
-  Input,
-  FormLabel,
-  Box,
-  Button,
-  Avatar,
-  Center,
-  useToast,
-  Spinner,
-} from "@chakra-ui/react";
-import Image from "next/image";
-import { Input as Inputt } from "rsuite";
 import React, { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaGoogle } from "react-icons/fa";
-import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
-import { userRegister } from "@/store/userStore/slices/userSlice";
 import { useFormik } from "formik";
-import * as Yup from "yup";
+import * as yup from "yup";
+import { Input, Loader } from "rsuite";
+import Image from "next/image";
+import BackBtn from "@/components/buttons/BackBtn";
+import { GlobalState } from "@/types/storeTypes";
+import { FaTrashCan } from "react-icons/fa6";
+import { userRegister } from "@/store/userStore/slices/userSlice";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+
+export interface FormVal {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+  image: null | any;
+}
+
 const UserSignupPage = () => {
-  const user_type = useSearchParams().get("user_type");
-  const router = useRouter();
-  const toast = useToast();
-  const inputRef: any = useRef();
+  let user_type = useSearchParams().get("user_type");
   const [image, setImage] = useState("");
-  const { error, user, loading } = useSelector((state: any) => state.userSlice);
-  console.log(error, user, loading);
+
   const dispatch: any = useDispatch();
-  const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required("Please add the Your first Name"),
-    last_name: Yup.string().required("Please add the Your last Name"),
-    email: Yup.string().email("Invalid email").required("Email Is Required"),
-    image: Yup.mixed(),
-    password: Yup.string()
+
+  const inputRef: any = useRef();
+
+  const { error, loading } = useSelector(
+    (state: GlobalState) => state.userSlice
+  );
+
+  const router = useRouter();
+
+  const validationSchema = yup.object().shape({
+    email: yup.string().email("Invalid email").required("Email is required"),
+    password: yup
+      .string()
       .required("Password is required")
       .min(8, "Password must be at least 8 characters"),
-    password_confirmation: Yup.string()
+    password_confirmation: yup
+      .string()
       .required("Confirm password is required")
-      .oneOf([Yup.ref("password")], "Passwords must match"),
-    language: Yup.string(),
+      .oneOf([yup.ref("password")], "Passwords must match"),
+    image: yup.mixed(),
+    last_name: yup.string().required("Last name is required"),
+    first_name: yup.string().required("First name is required"),
   });
-  const HandleSubmit = async (values: any, actions: any) => {
-    console.log("submitted");
-    console.log(values);
-    const formData = new FormData();
-    Object.keys(values).forEach((key) => {
-      formData.append(key, values[key]);
-    });
-    dispatch(userRegister(formData)).then((res: any) => {
-      console.log(res);
-      if (res.error) {
-        toast({
-          title: "Error",
-          description: "We couldnot create your account.",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-          position: "top",
-        });
-        console.log(error);
-        return;
-      } else {
-        toast({
-          title: "Account created",
-          description: "we have created your account successfully.",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "top",
-        });
-        router.push(`/user-signup/user-signupPage/user-completeSignup`);
-      }
-    });
-  };
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      first_name: "",
-      password: "",
-      password_confirmation: "",
-      image: "",
-      last_name: "",
-      user_type: user_type,
-    },
-    validationSchema,
-    onSubmit: HandleSubmit,
-  });
+
   const handleOnImageRemoveClick = () => {
     formik.setFieldValue("image", "");
     inputRef.current.value = "";
     setImage("");
   };
+
+  const handleSubmit = async (values: any, actions: any) => {
+    const formData = new FormData();
+    for (let key in values) {
+      formData.append(key, values[key]);
+    }
+
+    dispatch(userRegister(formData)).then((res: any) => {
+      if (res.error) {
+        return;
+      } else {
+        router.push(`/user/signup/signup-page/complete-signup`);
+      }
+    });
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      first_name: "",
+      last_name: "",
+      password: "",
+      password_confirmation: "",
+      image: "",
+      user_type: user_type,
+    } as FormVal,
+    validationSchema: validationSchema,
+    onSubmit: handleSubmit,
+  });
+
   return (
-    <>
-      <Box overflow={"auto"} maxH={"100vh"}>
-        <Image
-          src="/register.png"
-          alt=""
-          fill
-          className="object-cover z-[-1] dark_gradient_background "
-        />
-        <div className="w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]"></div>
-        <Flex
-          gap={4}
-          justifyContent={{ base: "center", md: "space-between" }}
-          alignItems={{ base: "center", md: "" }}
-          padding={{ base: 5, md: 2 }}
-          direction={{ base: "column-reverse", md: "row" }}
-        >
-          <Box display={{ base: "none", md: "block" }}>
-            <BackBtn textColor="text-white" />
-          </Box>
-          <Avatar
-            onClick={() => inputRef?.current?.click()}
-            display={{ base: "block", md: "none" }}
-            size={"lg"}
-            src={image}
+    <div
+      style={{
+        backgroundImage: "url(/register.png)",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        minHeight: "100vh",
+      }}
+    >
+      <div
+        className="min-h-[100vh] p-6"
+        style={{ backgroundColor: "#13181EDD" }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <BackBtn textColor="text-[#FFF]" />
+            <div className="flex flex-col">
+              <p className="text-[#FFF] text-[16px]">welcome to</p>
+              <p className="text-[#FFF] text-[18px] font-bold">
+                York British Academy
+              </p>
+            </div>
+          </div>
+          <Image src="/logo.png" alt="logo image" width={50} height={50} />
+        </div>
+
+        <form onSubmit={formik.handleSubmit}>
+          <Input
+            onChange={(value, e: any) => {
+              console.log(e);
+              formik.values.image = e.target.files[0];
+              setImage(URL.createObjectURL(e.target.files[0]));
+            }}
+            accept="image/png, image/gif, image/jpeg"
+            type="file"
+            ref={inputRef}
+            hidden
           />
-          {formik.values.image && (
-            <Text
-              display={{ base: "block", md: "none" }}
-              color={"red"}
-              fontWeight={"bold"}
-              fontSize={"medium"}
-              cursor={"pointer"}
-              onClick={handleOnImageRemoveClick}
-            >
-              Delete Image
-            </Text>
-          )}
-          <Box>
-            <Image src={"/logo.png"} alt="" width={100} height={100} />
-          </Box>
-        </Flex>
-        <Center>
-          <Box>
-            <Text
-              color={"white"}
-              fontSize={"large"}
-              textAlign={{ base: "center", md: "start" }}
-            >
-              welcome to
-            </Text>
-            <Text
-              color={"white"}
-              fontSize={{ base: "x-large", md: "xx-large" }}
-              fontWeight={"bold"}
-            >
-              York British Academy
-            </Text>
-          </Box>
-        </Center>
-        <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
-          <form action="" onSubmit={formik.handleSubmit}>
-            <Flex
-              marginBottom={10}
-              direction={{
-                lg: "column",
-                md: "column",
-                base: "column",
-                xl: "row",
-              }}
-              gap={6}
-              justifyContent={{ base: "center", md: "space-evenly" }}
-              alignItems={{ base: "center", xl: "start" }}
-            >
-              <Flex direction={"column"} alignItems={"center"} gap={2}>
-                <Flex
-                  gap={4}
-                  direction={{ base: "column", md: "row" }}
-                  justifyContent={"center"}
-                  alignItems={{ base: "center", md: "start" }}
+
+          <div className="flex flex-col lg:flex-row justify-between items-start md:gap-6 mt-9 md:px-20">
+            <div className="grid place-content-center grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 [&>div]:w-md w-full sm:max-w-[750px]">
+              <div>
+                <label htmlFor="first_name" className="text-[#FFF] text-[16px]">
+                  First Name
+                </label>
+                <Input
+                  size="lg"
+                  className="mt-2"
+                  type="text"
+                  placeholder="Enter your first name"
+                  onChange={(val: string) => (formik.values.first_name = val)}
+                  name="first_name"
+                  id="first_name"
+                />
+                {formik.touched.first_name && formik.errors.first_name && (
+                  <p className="error-mesage">{formik.errors.first_name}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="last_name" className="text-[#FFF] text-[16px]">
+                  Last Name
+                </label>
+                <Input
+                  size="lg"
+                  className="mt-2"
+                  placeholder="Enter your last name"
+                  type="text"
+                  onChange={(val: string) => (formik.values.last_name = val)}
+                  name="last_name"
+                  id="last_name"
+                />
+                {formik.touched.last_name && formik.errors.last_name && (
+                  <p className="error-mesage">{formik.errors.last_name}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="email" className="text-[#FFF] text-[16px]">
+                  Email
+                </label>
+                <Input
+                  size="lg"
+                  className="mt-2"
+                  type="email"
+                  placeholder="example@gmail.com"
+                  id="email"
+                  name="email"
+                  onChange={(val: string) => (formik.values.email = val)}
+                />
+                {formik.touched.email && formik.errors.email && (
+                  <p className="error-mesage">{formik.errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="password" className="text-[#FFF] text-[16px]">
+                  Password
+                </label>
+                <Input
+                  size="lg"
+                  className="mt-2"
+                  type="password"
+                  placeholder="Enter your password"
+                  onChange={(val: string) => (formik.values.password = val)}
+                  name="password"
+                  id="password"
+                />
+                {formik.touched.password && formik.errors.password && (
+                  <p className="error-mesage">{formik.errors.password}</p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password_confirmation"
+                  className="text-[#FFF] text-[16px]"
                 >
-                  <Box>
-                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>
-                      First Name
-                    </FormLabel>
-                    <Input
-                      height={50}
-                      type="text"
-                      value={formik.values.first_name}
-                      required
-                      onChange={formik.handleChange}
-                      name="first_name"
-                      id="first_name"
-                      color={"black"}
-                      bg={"white"}
-                      fontSize={14}
-                      size="md"
-                      w={350}
-                    />
-                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>
-                      email
-                    </FormLabel>
-                    <Input
-                      height={50}
-                      type="email"
-                      name="email"
-                      value={formik.values.email}
-                      id="email"
-                      onChange={formik.handleChange}
-                      color={"black"}
-                      bg={"white"}
-                      fontSize={14}
-                      placeholder="example@gmail.com"
-                      size="md"
-                      w={350}
-                    />
-                    {formik.touched.email && formik.errors.email && (
-                      <div className="error-mesage">{formik.errors.email}</div>
-                    )}
-                    <Inputt
-                      accept="image/png, image/gif, image/jpeg"
-                      type="file"
-                      name="image"
-                      onChange={(value, e: any) => {
-                        console.log(e);
-                        formik.values.image = e.target.files[0];
-                        setImage(URL.createObjectURL(e.target.files[0]));
-                      }}
-                      hidden
-                      ref={inputRef}
-                    />
-                  </Box>
-                  <Box display={"flex"} flexDirection={"column"}>
-                    <FormLabel padding={1} color={"white"} fontWeight={"bold"}>
-                      last_name
-                    </FormLabel>
-                    <Input
-                      height={50}
-                      type="text"
-                      name="last_name"
-                      value={formik.values.last_name}
-                      id="last_name"
-                      onChange={formik.handleChange}
-                      color={"black"}
-                      bg={"white"}
-                      fontSize={14}
-                      placeholder=""
-                      size="md"
-                      w={350}
-                    />
-                    {formik.touched.last_name && formik.errors.last_name && (
-                      <div className="error-mesage">
-                        {formik.errors.last_name}
-                      </div>
-                    )}
-                    <FormLabel color={"white"} fontWeight={"bold"} padding={1}>
-                      Password
-                    </FormLabel>
-                    <Input
-                      height={50}
-                      type="password"
-                      value={formik.values.password}
-                      onChange={formik.handleChange}
-                      name="password"
-                      id="password"
-                      color={"black"}
-                      bg={"white"}
-                      fontSize={14}
-                      size="md"
-                      w={350}
-                    />
-                    {formik.touched.password && formik.errors.password && (
-                      <div className="error-mesage">
-                        {formik.errors.password}
-                      </div>
-                    )}
-                  </Box>
-                </Flex>
-                <Box>
-                  <FormLabel
-                    padding={1}
-                    color={"white"}
-                    textAlign={{ base: "start", md: "center" }}
-                    fontWeight={"bold"}
-                  >
-                    ConfirmPassword
-                  </FormLabel>
-                  <Input
-                    height={50}
-                    type="password"
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    value={formik.values.password_confirmation}
-                    onChange={formik.handleChange}
-                    color={"black"}
-                    bg={"white"}
-                    fontSize={14}
-                    size="md"
-                    w={350}
-                  />
-                  {formik.touched.password_confirmation &&
-                    formik.errors.password_confirmation && (
-                      <div className="error-mesage">
-                        {formik.errors.password_confirmation}
-                      </div>
-                    )}
-                </Box>
-              </Flex>
-              <Flex
-                direction={"column"}
-                gap={2}
-                justifyContent={{ md: "center", lg: "start" }}
-                alignItems={{ md: "center", lg: "start" }}
-                marginTop={{ md: 10, xl: 0 }}
-              >
-                <Box
-                  cursor={"pointer"}
-                  border={"1px solid gray"}
-                  bg={"black"}
-                  position={"relative"}
-                  display={{ base: "none", md: "flex" }}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  width={120}
-                  height={120}
+                  Confirm Password
+                </label>
+                <Input
+                  size="lg"
+                  className="mt-2"
+                  type="password"
+                  placeholder="Confirm your password"
+                  onChange={(val: string) =>
+                    (formik.values.password_confirmation = val)
+                  }
+                  id="password_confirmation"
+                  name="password_confirmation"
+                />
+                {formik.touched.password_confirmation &&
+                  formik.errors.password_confirmation && (
+                    <p className="error-mesage">
+                      {formik.errors.password_confirmation}
+                    </p>
+                  )}
+              </div>
+            </div>
+
+            <div className="self-center min-w-fit order-first lg:order-last lg:self-start flex justify-center items-center flex-col mb-6 lg:mb-0">
+              <div className="relative">
+                <Image
                   onClick={() => inputRef?.current?.click()}
-                >
-                  {formik.values.image ? (
-                    <Image
-                      src={image}
-                      alt=""
-                      width={300}
-                      height={300}
-                      style={{ position: "absolute" }}
+                  src={image ? image : "/default.jpg"}
+                  width={150}
+                  height={150}
+                  alt="profile image"
+                  className="w-[125px] h-[125px] rounded-sm cursor-pointer object-cover"
+                />
+                {formik.values.image && (
+                  <div
+                    className="absolute bottom-1 right-1 p-2 rounded-full"
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+                  >
+                    <FaTrashCan
+                      cursor="pointer"
+                      color="red"
+                      onClick={() => handleOnImageRemoveClick()}
+                      size={20}
                     />
-                  ) : (
-                    <Text
-                      textAlign={"center"}
-                      fontSize={"x-small"}
-                      color={"green"}
-                      fontWeight={"bold"}
-                    >
-                      Upload your Image
-                    </Text>
-                  )}
-                </Box>
-                <Text
-                  fontWeight={"bold"}
-                  cursor={"pointer"}
-                  onClick={handleOnImageRemoveClick}
-                  display={{ base: "none", md: "block" }}
-                >
-                  Delete
-                </Text>
-              </Flex>
-            </Flex>
-            <Flex
-              my={2}
-              direction={{ base: "column", md: "row" }}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-              marginTop={{ base: 0, md: 20 }}
-              gap={5}
-            >
-              <Box
-                marginLeft={{ base: 0, md: 20 }}
-                w={{ base: 350, md: 200 }}
-                className="bg-[rgba(204,76,76,0.1)]  rounded-[5px] text-sm text-white p-2  "
-              >
-                <Link
-                  href={`http://localhost:8000/google/login`}
-                  className="flex items-center gap-2 justify-center  hover:no-underline hover:text-inherit  "
-                >
-                  <div>
-                    <FaGoogle />
                   </div>
-                  <p>
-                    <b>Login with Google</b>
-                  </p>
-                </Link>
-              </Box>
-              <Box marginRight={{ base: 0, md: 20 }}>
-                <Button
-                  type="submit"
-                  textColor={"white"}
-                  variant={"black"}
-                  fontSize={"small"}
-                  w={{ base: 350, md: 200 }}
-                  backgroundColor={"#11cdef"}
-                >
-                  {loading ? (
-                    <Spinner color="red" size={"sm"} />
-                  ) : (
-                    "Create account"
-                  )}
-                </Button>
-              </Box>
-            </Flex>
-          </form>
-        </Container>
-      </Box>
-    </>
+                )}
+              </div>
+              <p
+                className="text-center text-[#fff] font-[600] text-[12px] mt-1.5 cursor-pointer underline"
+                onClick={() => inputRef?.current?.click()}
+              >
+                {image ? "Change profile picture" : "Choose profile picture"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 md:px-20 w-full mt-20">
+            <GoogleOAuthProvider clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com">
+              <GoogleLogin
+                text="signup_with"
+                onSuccess={(credentialResponse) => {
+                  console.log(credentialResponse);
+                  // let token = credentialResponse.credential;
+                  // try {
+                  //   axios
+                  //     .post(
+                  //       `https://cms.yorkacademy.uk/api/google/callback?token=${token}`
+                  //     )
+                  //     .then((res) => {
+                  //       console.log(res);
+                  //     });
+                  // } catch (error) {
+                  //   console.log(error);
+                  // }
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              />
+            </GoogleOAuthProvider>
+
+            {error && (
+              <p className="error-mesage !text-[14px] !min-w-fit">{error}</p>
+            )}
+
+            <button
+              className="colored-btn min-w-full sm:min-w-fit !text-[16px]"
+              type="submit"
+            >
+              {loading ? <Loader size="sm" /> : "Create Account"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
+
 export default UserSignupPage;
-/// new code:
-// import Link from "next/link";
-// import { useDispatch, useSelector } from "react-redux";
-// import { userRegister } from "@/store/userStore/slices/userSlice";
-// import { useFormik } from "formik";
-// import * as Yup from "yup";
-// const UserSignupPage = () => {
-//    const user_type = useSearchParams().get("user_type");
-//    const router = useRouter();
-//    const toast = useToast();
-//    const inputRef: any = useRef();
-//    const [image, setImage] = useState("");
-//    const { error, user, loading } = useSelector(
-//       (state: any) => state.userSlice
-//    );
-//    console.log(error, user, loading);
-//    const dispatch: any = useDispatch();
-//    const validationSchema = Yup.object().shape({
-//       first_name: Yup.string().required("Please add the Your first Name"),
-//       last_name: Yup.string().required("Please add the Your last Name"),
-//       email: Yup.string().email("Invalid email").required("Email Is Required"),
-//       image: Yup.mixed(),
-//       password: Yup.string()
-//          .required("Password is required")
-//          .min(8, "Password must be at least 8 characters"),
-//       password_confirmation: Yup.string()
-//          .required("Confirm password is required")
-//          .oneOf([Yup.ref("password")], "Passwords must match"),
-//       language: Yup.string(),
-//    });
-//    const HandleSubmit = async (values: any, actions: any) => {
-//       console.log("submitted");
-//       console.log(values);
-//       const formData = new FormData();
-//       Object.keys(values).forEach((key) => {
-//          formData.append(key, values[key]);
-//       });
-//       dispatch(userRegister(formData)).then((res: any) => {
-//          console.log(res);
-//          if (res.error) {
-//             toast({
-//                title: "Error",
-//                description: "We couldnot create your account.",
-//                status: "error",
-//                duration: 3000,
-//                isClosable: true,
-//                position: "top",
-//             });
-//             console.log(error);
-//             return;
-//          } else {
-//             toast({
-//                title: "Account created",
-//                description: "we have created your account successfully.",
-//                status: "success",
-//                duration: 3000,
-//                isClosable: true,
-//                position: "top",
-//             });
-//             router.push(`/user-signup/user-signupPage/user-completeSignup`);
-//          }
-//       });
-//    };
-//    const formik = useFormik({
-//       initialValues: {
-//          email: "",
-//          first_name: "",
-//          password: "",
-//          password_confirmation: "",
-//          image: "",
-//          last_name: "",
-//          user_type: user_type,
-//       },
-//       validationSchema,
-//       onSubmit: HandleSubmit,
-//    });
-//    const handleOnImageRemoveClick = () => {
-//       formik.setFieldValue("image", "");
-//       inputRef.current.value = "";
-//       setImage("");
-//    };
-//    return (
-//       <>
-//          <Box overflow={"auto"} maxH={"100vh"}>
-//             <Image
-//                src="/register.png"
-//                alt=""
-//                fill
-//                className="object-cover z-[-1] dark_gradient_background "
-//             />
-//             <div className="w-full h-full  absolute top-0 left-0 mix-blend-color z-[-1]"></div>
-//             <Flex
-//                gap={4}
-//                justifyContent={{ base: "center", md: "space-between" }}
-//                alignItems={{ base: "center", md: "" }}
-//                padding={{ base: 5, md: 2 }}
-//                direction={{ base: "column-reverse", md: "row" }}
-//             >
-//                <Box display={{ base: "none", md: "block" }}>
-//                   <BackBtn textColor="text-white" />
-//                </Box>
-//                <Avatar
-//                   onClick={() => inputRef?.current?.click()}
-//                   display={{ base: "block", md: "none" }}
-//                   size={"lg"}
-//                   src={image}
-//                />
-//                {formik.values.image && (
-//                   <Text
-//                      display={{ base: "block", md: "none" }}
-//                      color={"red"}
-//                      fontWeight={"bold"}
-//                      fontSize={"medium"}
-//                      cursor={"pointer"}
-//                      onClick={handleOnImageRemoveClick}
-//                   >
-//                      Delete Image
-//                   </Text>
-//                )}
-//                <Box>
-//                   <Image src={"/logo.png"} alt="" width={100} height={100} />
-//                </Box>
-//             </Flex>
-//             <Center>
-//                <Box>
-//                   <Text
-//                      color={"white"}
-//                      fontSize={"large"}
-//                      textAlign={{ base: "center", md: "start" }}
-//                   >
-//                      welcome to
-//                   </Text>
-//                   <Text
-//                      color={"white"}
-//                      fontSize={{ base: "x-large", md: "xx-large" }}
-//                      fontWeight={"bold"}
-//                   >
-//                      York British Academy
-//                   </Text>
-//                </Box>
-//             </Center>
-//             <Container maxW={"container"} padding={{ lg: 10, xl: 0 }} my={2}>
-//                <form action="" onSubmit={formik.handleSubmit}>
-//                   <Flex
-//                      marginBottom={10}
-//                      direction={{
-//                         lg: "column",
-//                         md: "column",
-//                         base: "column",
-//                         xl: "row",
-//                      }}
-//                      gap={6}
-//                      justifyContent={{ base: "center", md: "space-evenly" }}
-//                      alignItems={{ base: "center", xl: "start" }}
-//                   >
-//                      <Flex direction={"column"} alignItems={"center"} gap={2}>
-//                         <Flex
-//                            gap={4}
-//                            direction={{ base: "column", md: "row" }}
-//                            justifyContent={"center"}
-//                            alignItems={{ base: "center", md: "start" }}
-//                         >
-//                            <Box>
-//                               <FormLabel
-//                                  padding={1}
-//                                  color={"white"}
-//                                  fontWeight={"bold"}
-//                               >
-//                                  First Name
-//                               </FormLabel>
-//                               <Input
-//                                  height={50}
-//                                  type="text"
-//                                  value={formik.values.first_name}
-//                                  required
-//                                  onChange={formik.handleChange}
-//                                  name="first_name"
-//                                  id="first_name"
-//                                  color={"black"}
-//                                  bg={"white"}
-//                                  fontSize={14}
-//                                  size="md"
-//                                  w={350}
-//                               />
-//                               <FormLabel
-//                                  padding={1}
-//                                  color={"white"}
-//                                  fontWeight={"bold"}
-//                               >
-//                                  email
-//                               </FormLabel>
-//                               <Input
-//                                  height={50}
-//                                  type="email"
-//                                  name="email"
-//                                  value={formik.values.email}
-//                                  id="email"
-//                                  onChange={formik.handleChange}
-//                                  color={"black"}
-//                                  bg={"white"}
-//                                  fontSize={14}
-//                                  placeholder="example@gmail.com"
-//                                  size="md"
-//                                  w={350}
-//                               />
-//                               {formik.touched.email && formik.errors.email && (
-//                                  <div className="error-mesage">
-//                                     {formik.errors.email}
-//                                  </div>
-//                               )}
-//                               <Inputt
-//                                  accept="image/png, image/gif, image/jpeg"
-//                                  type="file"
-//                                  name="image"
-//                                  onChange={(value, e: any) => {
-//                                     console.log(e);
-//                                     formik.values.image = e.target.files[0];
-//                                     setImage(
-//                                        URL.createObjectURL(e.target.files[0])
-//                                     );
-//                                  }}
-//                                  hidden
-//                                  ref={inputRef}
-//                               />
-//                            </Box>
-//                            <Box display={"flex"} flexDirection={"column"}>
-//                               <FormLabel
-//                                  padding={1}
-//                                  color={"white"}
-//                                  fontWeight={"bold"}
-//                               >
-//                                  last_name
-//                               </FormLabel>
-//                               <Input
-//                                  height={50}
-//                                  type="text"
-//                                  name="last_name"
-//                                  value={formik.values.last_name}
-//                                  id="last_name"
-//                                  onChange={formik.handleChange}
-//                                  color={"black"}
-//                                  bg={"white"}
-//                                  fontSize={14}
-//                                  placeholder=""
-//                                  size="md"
-//                                  w={350}
-//                               />
-//                               {formik.touched.last_name &&
-//                                  formik.errors.last_name && (
-//                                     <div className="error-mesage">
-//                                        {formik.errors.last_name}
-//                                     </div>
-//                                  )}
-//                               <FormLabel
-//                                  color={"white"}
-//                                  fontWeight={"bold"}
-//                                  padding={1}
-//                               >
-//                                  Password
-//                               </FormLabel>
-//                               <Input
-//                                  height={50}
-//                                  type="password"
-//                                  value={formik.values.password}
-//                                  onChange={formik.handleChange}
-//                                  name="password"
-//                                  id="password"
-//                                  color={"black"}
-//                                  bg={"white"}
-//                                  fontSize={14}
-//                                  size="md"
-//                                  w={350}
-//                               />
-//                               {formik.touched.password &&
-//                                  formik.errors.password && (
-//                                     <div className="error-mesage">
-//                                        {formik.errors.password}
-//                                     </div>
-//                                  )}
-//                            </Box>

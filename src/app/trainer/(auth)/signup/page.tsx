@@ -1,52 +1,69 @@
-"use client"
-import { Container, Flex, Text, Center } from "@chakra-ui/react"
-import Image from "next/image"
-import Link from "next/link"
-import Reveal from "react-awesome-reveal"
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import Reveal from "react-awesome-reveal";
 const TrainerSignup = () => {
-    return (
-        <>
-            <Flex minH={"100vh"} minW={"100vw"} justifyContent={"center"} alignItems={"center"} >
-            
-                <Container maxW={"container.lg"}>
-               
-                    <div className='max-w-[100vw] max-h-[100vh] overflow-hidden'>
-                        <Image src='/register.png' alt='' fill className='object-cover z-[-1] dark_gradient_background ' />
-                        <div className='w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]'></div>
-                        <Reveal triggerOnce duration={2000}>
-                       <Center>
-
-                            <Flex direction={"column"}>
-                                <Text color={"white"} fontSize={"20"}>welcome to</Text>
-                                <Text color={"white"} fontSize={"35"} fontWeight={"bold"}>York British Academy</Text>
-                                <Text color={"white"} fontSize={"20"}>welcome to York British Academy</Text>
-                            </Flex>
-                        </Center>
-                        <Flex marginTop={20} gap={4} alignItems={"center"} justifyContent={"center"}>
-                            <Link href={{
-                                pathname: "/trainer-signup/trainer-signupPage", query: {
-                                    trainer_type: "Uncertified",
-                                    id:2
-                                }
-                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
-                                <Text className="text-white text-xl p-2 hover:no-underline">UnCertified  Trainer</Text>
-                            </Link>
-                            <Link href={{
-                                pathname: "/trainer-signup/trainer-signupPage", query: {
-                                    trainer_type: "certified",
-                                    id:1
-                                }
-                            }} className="btn-wrap rounded flex items-center justify-center  hover:no-underline hover:text-inherit ">
-                                <Text className="text-white text-xl p-2 hover:no-underline">Certified  Trainer</Text>
-                            </Link>
-                        </Flex>
-                    </Reveal>
-                      
-                    </div>
-                </Container>
-               
-            </Flex>
-        </>
-    )
-}
-export default TrainerSignup
+  return (
+    <div className="min-h-[100vh] min-w-[100vw] flex items-center justify-center">
+      <div className="max-w-[100vw] max-h-[100vh] overflow-hidden">
+        <Image
+          src="/register.png"
+          alt="background image"
+          fill
+          className="object-cover z-[-1] dark_gradient_background"
+        />
+        <Image
+          src="/loo.png"
+          alt="background image"
+          fill
+          className="object-cover z-[-1] opacity-[0.05]"
+        />
+        <div className="w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]"></div>
+        <Reveal triggerOnce duration={1000}>
+          <div className="flex flex-col gap-20">
+            <div className="flex items-center justify-center">
+              <div className="flex flex-col text-center gap-2">
+                <p className="text-[whitesmoke] text-lg sm:text-xl tracking-widest">
+                  welcome to
+                </p>
+                <p className="text-[#FFF] text-3xl sm:text-4xl font-bold">
+                  York British Academy
+                </p>
+                <p className="text-[#FFF] text-lg sm:text-xl">
+                  Choose the type of coach you want
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-center items-center gap-4">
+              <Link
+                href={{
+                  pathname: "/trainer/signup/signup-page",
+                  query: {
+                    trainer_type: "Usncertified",
+                    id: 2,
+                  },
+                }}
+                className="colored-btn !px-[2rem] hover:text-[#FFF]"
+              >
+                Uncertified Trainer
+              </Link>
+              <Link
+                href={{
+                  pathname: "/trainer/signup/signup-page",
+                  query: {
+                    trainer_type: "Certified",
+                    id: 1,
+                  },
+                }}
+                className="colored-btn !px-[2rem] hover:text-[#FFF]"
+              >
+                Certified Trainer
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </div>
+  );
+};
+export default TrainerSignup;

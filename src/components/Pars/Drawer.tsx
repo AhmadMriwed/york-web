@@ -6,7 +6,6 @@ import { Ref, forwardRef, useContext } from "react";
 import Image from "next/image";
 import { ThemeContext } from "./ThemeContext";
 import { useDispatch, useSelector } from "react-redux";
-import { Spinner } from "@chakra-ui/react";
 import { adminLogOut } from "@/store/adminstore/slices/authSlice";
 import Cookies from "universal-cookie";
 import { useRouter } from "next/navigation";
@@ -55,7 +54,7 @@ export default function Drawer({
     console.log(token);
 
     try {
-      dispatch(adminLogOut(token)).then((res: any) => {
+      dispatch(adminLogOut()).then((res: any) => {
         console.log(res);
         if (res.error) {
           console.log("some thing went wrong");
@@ -183,7 +182,7 @@ export default function Drawer({
               className="text-center w-full hover:text-[var(--primary-color2)] transition-all duration-500"
             >
               {loadingPass ? (
-                <Spinner size={"sm"} color="red" />
+                <Loader size="sm" />
               ) : (
                 <>
                   <ExitIcon /> <span className="ms-[2px]">Log out</span>

@@ -16,7 +16,10 @@ export const loginAdmin = createAsyncThunk(
 
         const expiryDate = new Date();
         expiryDate.setFullYear(expiryDate.getFullYear() + 10);
-        cookies.set("admin_token", token, { path: "/", expires: expiryDate });
+        cookies.set("admin_token", token, {
+          path: "/admin",
+          expires: expiryDate,
+        });
 
         return res.data.data;
       }
@@ -96,16 +99,16 @@ export const adminResetPassword = createAsyncThunk(
 
 export const adminUpdatePassword = createAsyncThunk(
   "updateAdminPassword",
-  async (params: any, thunkAPI) => {
+  async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
 
     try {
       // REVIEW
       const res = await Axios.put(
-        `admin/updatePassword?old_password=${params.data.old_password}&new_password=${params.data.new_password}&new_password_confirmation=${params.data.new_password_confirmation}`,
+        `admin/updatePassword?old_password=${data.old_password}&new_password=${data.new_password}&new_password_confirmation=${data.new_password_confirmation}`,
         {
-          old_password: params.data.old_password,
-          new_password: params.data.new_password,
+          old_password: data.old_password,
+          new_password: data.new_password,
         }
       );
       if (res.status === 200) {
@@ -119,7 +122,7 @@ export const adminUpdatePassword = createAsyncThunk(
 
 export const adminLogOut = createAsyncThunk(
   "adminLogout",
-  async (token: String, thunAPI) => {
+  async (_, thunAPI) => {
     const { rejectWithValue } = thunAPI;
 
     try {

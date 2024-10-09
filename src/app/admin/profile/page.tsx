@@ -12,7 +12,6 @@ import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { GlobalState } from "@/types/storeTypes";
 import Loading from "@/components/Pars/Loading";
 import UpdatePasswordModal from "@/components/UpdatePassModal/UpdatePasswordModal";
-import Cookies from "universal-cookie";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 export default function Profile() {

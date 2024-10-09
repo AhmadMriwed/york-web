@@ -34,9 +34,6 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
   useEffect(() => {
     if (!adminProfile) {
       // console.log("request");
-      let cookie = new Cookies();
-      let token = cookie.get("admin_token");
-      console.log("token", cookie.get("admin-token"));
       dispatch(getAdminProfile());
     }
   }, [adminProfile, dispatch]);

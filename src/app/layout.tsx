@@ -1,7 +1,6 @@
 // import { Inter, Montserrat } from "next/font/google";
 import "rsuite/dist/rsuite.min.css";
 import StoreProvider from "@/store/adminstore/StoreProvider";
-import { ChakraProvider } from "@chakra-ui/react";
 
 import "./globals.css";
 
@@ -24,9 +23,7 @@ export default function RootLayout({
         <title>York Brititsh Academy</title>
       </head>
       <body className="">
-        <ChakraProvider>
-          <StoreProvider>{children}</StoreProvider>
-        </ChakraProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

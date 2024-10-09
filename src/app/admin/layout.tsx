@@ -17,7 +17,8 @@ const AdminLayout = ({ children }: PropsWithChildren) => {
         if (!res.error) {
           if (!res.payload.is_verified) {
             router.push("/admin/login/confirm-email");
-          }
+          } else if (pathName.endsWith("/admin"))
+            router.push("/admin/dashboard");
         } else {
           if (!pathName.includes("recover-password")) {
             router.push("/admin/login");

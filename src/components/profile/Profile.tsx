@@ -6,16 +6,12 @@ import { MdEmail } from "react-icons/md";
 import { MdPerson } from "react-icons/md";
 import profilePhoto from "../../../public/avatar.png";
 import Image from "next/image";
-import { Axios } from "@/utils/axios";
 import Loading from "../Pars/Loading";
-import { UsersType } from "@/types/adminTypes/accounts/accountsTypes";
 import { useDispatch, useSelector } from "react-redux";
 import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { GlobalState } from "@/types/storeTypes";
-import Cookies from "universal-cookie";
 // import RecoverPassword from "../RecoverPassword/RecoverPassword";
 import UpdatePasswordModal from "../UpdatePassModal/UpdatePasswordModal";
-import { useDisclosure } from "@chakra-ui/react";
 
 export default function Profile({
   open,
@@ -31,13 +27,10 @@ export default function Profile({
   const { adminProfile, profileLoading, profileError } = useSelector(
     (state: GlobalState) => state.authSlice
   );
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   console.log("admin", adminProfile);
   // useEffect(() => {
-  //    let cookie = new Cookies();
-  //    let token = cookie.get("admin_token");
-  //    dispatch(getAdminProfile(token));
+  //    dispatch(getAdminProfile());
   // }, [open, dispatch]);
 
   return (

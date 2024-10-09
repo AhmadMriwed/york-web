@@ -1,7 +1,4 @@
 import Login from "@/components/auth/Login";
 
-const TrainerLogin = () => {
-  return <Login userType="trainer" />;
-};
-
+const TrainerLogin = () => <Login userType="trainer" />;
 export default TrainerLogin;

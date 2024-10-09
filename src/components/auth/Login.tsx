@@ -231,7 +231,7 @@ const Login = ({ userType }: { userType: string }) => {
                     <GoogleOAuthProvider clientId="507710031458-l9ir69lm854cg4ag6bfsumsneh6mg1s1.apps.googleusercontent.com">
                       <GoogleLogin
                         onSuccess={(credentialResponse) => {
-                          // console.log(credentialResponse);
+                          console.log(credentialResponse);
                           let token = credentialResponse.credential;
                           try {
                             axios
@@ -254,11 +254,12 @@ const Login = ({ userType }: { userType: string }) => {
                 )}
 
                 <button type="submit" className="colored-btn !text-[16px] mt-4">
-                  {adminLoading || trainerLoading || userLoading ? (
-                    <Loader size="sm" />
-                  ) : (
-                    "Sign in"
-                  )}
+                  {userType === "admin" &&
+                    (adminLoading ? <Loader size="sm" /> : <>Sign in</>)}
+                  {userType === "trainer" &&
+                    (trainerLoading ? <Loader size="sm" /> : <>Sign in</>)}
+                  {userType === "user" &&
+                    (userLoading ? <Loader size="sm" /> : <>Sign in</>)}
                 </button>
 
                 {userType !== "admin" && (

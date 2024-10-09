@@ -8,7 +8,6 @@ import { Axios, TrainerAxios, UserAxios } from "@/utils/axios";
 import { GlobalState } from "@/types/storeTypes";
 import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { useRouter } from "next/navigation";
-import { RemindOutline } from "@rsuite/icons";
 import { getTrainerProfile } from "@/store/trainerStore/slices/trainerSlice";
 import { getUserProfile } from "@/store/userStore/slices/userSlice";
 
@@ -80,40 +79,23 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
   }, [dispatch, router, userType]);
 
   return (
-    <div className="p-6 h-full">
+    <div className="p-6">
       <BackBtn textColor="text-black" />
 
-      <div className="text-center flex flex-col items-center justify-center gap-2.5 h-full">
-        {error && (
-          <div
-            className="flex gap-2.5 justify-between items-center py-[10px] px-[15px] mb-4 border-[var(--secondary-color-red)] border-[1px]
-                      rounded-[8px]"
-          >
-            <RemindOutline
-              style={{
-                color: "var(--secondary-color-red)",
-                fontSize: "20px",
-              }}
-            />
-            <p className="text-[16px] text-[var(--secondary-color-red)] font-bold">
-              {error}
-            </p>
-          </div>
-        )}
-
+      <div className="text-center flex flex-col items-center justify-center gap-2.5 mt-2.5">
         <Image
           src="/email.png"
           alt="Email photo"
-          height={400}
-          width={400}
-          className="rounded-full !w-[175px] !h-[175px] object-cover shadow-2xl mb-6"
+          height={270}
+          width={270}
+          className="rounded-sm object-cover mb-4 shadow-md"
         />
 
         <p className="font-bold text-2xl">Verify Your Email Address</p>
-        <q className="text-[var(--secondary-color-red)] font-semibold text-lg">
+        <q className="text-[var(--secondary-color-red)] font-semibold text-md">
           The account will be deleted within 7 days if it is not confirmed
         </q>
-        <p className="text-md mt-2.5">
+        <p className="text-lg mt-4">
           {"A Verification link has been sent to "}
           <span className="font-semibold">
             {userType === "admin" && adminProfile && adminProfile.email}
@@ -123,10 +105,15 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
         </p>
         <div className="flex flex-col md:flex-row items-center gap-1 text-md">
           <p>Didn&apos;t receive any verification link?</p>
-          <button className="underline font-bold" onClick={() => Verify()}>
-            Click here to resend
+          <button className="underline font-[600]" onClick={() => Verify()}>
+            Click here to Resend
           </button>
         </div>
+        {error && (
+          <p className="text-[12px] text-[var(--secondary-color-red)] font-bold mt-2.5">
+            {error}
+          </p>
+        )}
         <Link
           href={
             userType === "admin"
@@ -136,7 +123,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
               : "/user/login"
           }
         >
-          <button className="colored-btn !text-[16px] !px-[2rem] mt-2.5">
+          <button className="outlined-btn !text-[16px] !px-[2rem] mt-2.5">
             Back to Login
           </button>
         </Link>
