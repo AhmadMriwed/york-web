@@ -79,11 +79,11 @@ const ResendCode = ({ userType }: { userType: string }) => {
   };
 
   return (
-    <>
+    <div className="min-h-[100dvh]">
       <h3 className="text-[#FFF] text-xl font-bold ml-10 mt-10">
         Password Recovery: Code Verification
       </h3>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center h-full">
         <Image
           src="/register.png"
           style={{ opacity: 0.1 }}
@@ -147,7 +147,7 @@ const ResendCode = ({ userType }: { userType: string }) => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

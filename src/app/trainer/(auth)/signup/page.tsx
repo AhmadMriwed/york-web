@@ -4,8 +4,8 @@ import Link from "next/link";
 import Reveal from "react-awesome-reveal";
 const TrainerSignup = () => {
   return (
-    <div className="min-h-[100vh] min-w-[100vw] flex items-center justify-center">
-      <div className="max-w-[100vw] max-h-[100vh] overflow-hidden">
+    <div className="min-h-[100dvh] min-w-[100vw] flex items-center justify-center">
+      <div className="w-full h-full overflow-hidden">
         <Image
           src="/register.png"
           alt="background image"

@@ -125,7 +125,7 @@ const Login = ({ userType }: { userType: string }) => {
   }));
 
   return (
-    <div className="max-w-[100vw] max-h-[100vh] overflow-hidden">
+    <div className="min-w-[100vw] min-h-[100dvh] overflow-hidden">
       <Image
         src={userType === "admin" ? "/adminlogin.png" : "/userlogin.png"}
         alt="background image"
@@ -135,7 +135,7 @@ const Login = ({ userType }: { userType: string }) => {
       <div className="w-full h-full absolute top-0 left-0 bg-[rgba(0,212,212,0.58)] mix-blend-color z-[-1]"></div>
 
       <Reveal triggerOnce duration={1000}>
-        <div className="min-h-[100vh] min-w-[100vw] flex items-start justify-between px-8 py-4">
+        <div className="min-h-[100dvh] min-w-[100vw] flex items-start justify-between px-8 py-4">
           <div className="hidden md:block">
             <Image src="/logo.png" alt="logo" width={100} height={100} />
           </div>

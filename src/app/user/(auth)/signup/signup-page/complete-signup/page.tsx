@@ -56,7 +56,7 @@ const UserCompleteSignup = () => {
 
   const inputRef: any = useRef();
 
-  const { error, loading } = useSelector(
+  const { error, loading, user } = useSelector(
     (state: GlobalState) => state.userSlice
   );
   const { categories } = useSelector((state: GlobalState) => state.endUser);
@@ -244,7 +244,7 @@ const UserCompleteSignup = () => {
                   Phone
                 </label>
                 <PhoneInput
-                  containerStyle={{ marginTop: "0.5rem", zIndex: 99 }}
+                  containerStyle={{ marginTop: "0.5rem" }}
                   inputStyle={{ width: "100%", height: 40 }}
                   isValid
                   onChange={(val: string) => (formik.values.phone_number = val)}
@@ -395,7 +395,9 @@ const UserCompleteSignup = () => {
                 {loading ? <Loader size="sm" /> : "Complete Account"}
               </button>
               <Link
-                href="/"
+                href={
+                  user && user.is_verified ? "/" : "/user/login/confirm-email"
+                }
                 className="flex items-center gap-2 text-[#11cdef] hover:text-[#11cdef] text-[14px] font-bold"
               >
                 Skip <FaArrowRight />

@@ -79,16 +79,16 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
   }, [dispatch, router, userType]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-full">
       <BackBtn textColor="text-black" />
 
-      <div className="text-center flex flex-col items-center justify-center gap-2.5 mt-2.5">
+      <div className="text-center flex flex-col items-center justify-center gap-2.5 mt-2.5 h-full">
         <Image
           src="/email.png"
           alt="Email photo"
-          height={270}
-          width={270}
-          className="rounded-sm object-cover mb-4 shadow-md"
+          height={250}
+          width={250}
+          className="rounded-sm object-cover mb-4 shadow-sm"
         />
 
         <p className="font-bold text-2xl">Verify Your Email Address</p>
@@ -123,7 +123,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
               : "/user/login"
           }
         >
-          <button className="outlined-btn !text-[16px] !px-[2rem] mt-2.5">
+          <button className="colored-btn !mt-5 !text-[16px] !px-[4rem]">
             Back to Login
           </button>
         </Link>

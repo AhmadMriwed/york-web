@@ -11,7 +11,7 @@ const PasswordLayout = ({ children }: PropsWithChildren) => {
         </div>
         <Image src="/logo.png" alt="logo" width={75} height={75} />
       </div>
-      <div className="">{children}</div>
+      <div>{children}</div>
     </div>
   );
 };

@@ -371,7 +371,7 @@ const TrainerSignupPage = () => {
                   Phone
                 </label>
                 <PhoneInput
-                  containerStyle={{ marginTop: "0.5rem", zIndex: 99 }}
+                  containerStyle={{ marginTop: "0.5rem" }}
                   inputStyle={{ width: "100%", height: 40 }}
                   isValid
                   onChange={(val: string) => (formik.values.phone_number = val)}
@@ -614,7 +614,7 @@ const TrainerSignupPage = () => {
 
               {loadingResume ? (
                 <div className="text-[#FFF] flex items-center gap-2">
-                  <Loader /> Sending resume...
+                  <Loader /> Sending Resume...
                 </div>
               ) : (
                 <button

@@ -57,11 +57,11 @@ const RecoverPassword = ({ userType }: { userType: string }) => {
   };
 
   return (
-    <>
+    <div className="min-h-[100dvh]">
       <h3 className="text-[#FFF] text-xl font-bold ml-10 mt-10">
         Password Recovery: Email
       </h3>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center h-full">
         <Image
           src="/register.png"
           style={{ opacity: 0.1 }}
@@ -112,7 +112,7 @@ const RecoverPassword = ({ userType }: { userType: string }) => {
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
