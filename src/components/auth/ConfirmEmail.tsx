@@ -10,6 +10,7 @@ import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { useRouter } from "next/navigation";
 import { getTrainerProfile } from "@/store/trainerStore/slices/trainerSlice";
 import { getUserProfile } from "@/store/userStore/slices/userSlice";
+import { RemindOutline } from "@rsuite/icons";
 
 const ConfirmEmail = ({ userType }: { userType: string }) => {
   const [error, setError] = useState("");
@@ -79,16 +80,18 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
   }, [dispatch, router, userType]);
 
   return (
-    <div className="p-6 h-full">
-      <BackBtn textColor="text-black" />
+    <div className="p-6 min-h-[100dvh] relative flex items-center justify-center">
+      <div className="absolute top-4 left-4">
+        <BackBtn textColor="text-black" />
+      </div>
 
-      <div className="text-center flex flex-col items-center justify-center gap-2.5 mt-2.5 h-full">
+      <div className="text-center flex flex-col items-center justify-center gap-2.5">
         <Image
           src="/email.png"
           alt="Email photo"
           height={250}
           width={250}
-          className="rounded-sm object-cover mb-4 shadow-sm"
+          className="object-cover mb-4 shadow-sm"
         />
 
         <p className="font-bold text-2xl">Verify Your Email Address</p>
@@ -110,7 +113,8 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
           </button>
         </div>
         {error && (
-          <p className="text-[12px] text-[var(--secondary-color-red)] font-bold mt-2.5">
+          <p className="text-[12px] text-[var(--secondary-color-red)] font-bold mt-2.5 flex items-center gap-1">
+            <RemindOutline />
             {error}
           </p>
         )}
@@ -123,7 +127,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
               : "/user/login"
           }
         >
-          <button className="colored-btn !mt-5 !text-[16px] !px-[4rem]">
+          <button className="colored-btn !mt-5 !text-[16px] !px-[5rem]">
             Back to Login
           </button>
         </Link>

@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 
 const PasswordLayout = ({ children }: PropsWithChildren) => {
   return (
-    <div className="bg-[#13181E] h-[100dvh] overflow-hidden mix-blend-multiply p-6">
+    <div className="bg-[#13181E] min-h-[100dvh] overflow-hidden mix-blend-multiply p-6">
       <div className="flex justify-between items-center gap-2.5">
         <div>
           <BackBtn textColor="text-white" />
