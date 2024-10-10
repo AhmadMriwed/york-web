@@ -91,7 +91,7 @@ const ConfirmEmail = ({ userType }: { userType: string }) => {
           alt="Email photo"
           height={250}
           width={250}
-          className="object-cover mb-4 shadow-sm"
+          className="object-cover mb-4 shadow-sm rounded-sm"
         />
 
         <p className="font-bold text-2xl">Verify Your Email Address</p>
