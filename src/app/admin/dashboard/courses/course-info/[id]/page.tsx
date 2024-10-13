@@ -41,6 +41,7 @@ import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import { getCoursePermissions } from "@/store/endUser/endUserSlice";
 import FilteringBar from "@/components/Pars/FilteringBar";
+import BackBtn from "@/components/buttons/BackBtn";
 
 const filterData = ["Current", "Rejected", "Accepted"];
 
@@ -147,7 +148,8 @@ const CourseInfo = ({ params }: any) => {
 
       {(operationLoading || requestOperationLoading) && <Loading backdrop />}
 
-      <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7">
+      <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7 relative">
+        <BackBtn textColor="text-[#FFF] absolute top-4 left-4" />
         <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">
           {courseInfo?.image && (
             <Image

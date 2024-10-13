@@ -175,20 +175,17 @@ const TrainingPlan = () => {
                       renderToggle={renderIconButton}
                       placement="bottomEnd"
                     >
-                      <a
-                        href={storageURL + trainingPlan.file.path}
-                        download
-                        target="_blank"
+                      <Dropdown.Item
+                        className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
+                        onClick={() => {
+                          if (trainingPlan.file && trainingPlan.file.path)
+                            dispatch(
+                              downloadTrainingPlan(trainingPlan.file.path)
+                            );
+                        }}
                       >
-                        <Dropdown.Item
-                          className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
-                          // onClick={() =>
-                          //   dispatch(downloadTrainingPlan(trainingPlan.file.path))
-                          // }
-                        >
-                          Download file
-                        </Dropdown.Item>
-                      </a>
+                        Download file
+                      </Dropdown.Item>
                       <Dropdown.Item
                         className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
                         onClick={() => setModalOpen(true)}
@@ -228,6 +225,7 @@ const TrainingPlan = () => {
           <div className="flex justify-between items-center gap-2">
             <p>St: </p>
             <DatePicker
+              oneTap
               placement="auto"
               format="yyyy-MM-dd HH:mm"
               className="!border-none"
@@ -238,6 +236,7 @@ const TrainingPlan = () => {
           <div className="flex justify-between items-center gap-2">
             <p>Ed: </p>
             <DatePicker
+              oneTap
               placement="auto"
               format="yyyy-MM-dd HH:mm"
               className="!border-none"

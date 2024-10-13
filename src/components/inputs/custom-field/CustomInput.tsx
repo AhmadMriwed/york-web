@@ -1,6 +1,6 @@
 import { useField } from "formik";
 import { useEffect } from "react";
-import { InputPicker, DatePicker, Input, InputNumber, Loader } from "rsuite";
+import { DatePicker, Input, InputNumber, Loader, SelectPicker } from "rsuite";
 
 type PropsType = {
   type: string;
@@ -86,6 +86,7 @@ const CustomInput = ({
       )}
       {type === "date" && (
         <DatePicker
+          oneTap
           format="yyyy-MM-dd HH:mm"
           placement="auto"
           className={`!w-full ${
@@ -101,7 +102,7 @@ const CustomInput = ({
         />
       )}
       {type === "select" && (
-        <InputPicker
+        <SelectPicker
           placement="auto"
           data={selectData}
           searchable={selectSearchable}

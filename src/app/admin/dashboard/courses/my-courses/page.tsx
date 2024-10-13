@@ -16,7 +16,7 @@ import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
-import { InputPicker, Loader } from "rsuite";
+import { InputPicker, Loader, SelectPicker } from "rsuite";
 import Header from "@/components/Pars/Header";
 import MyCourse from "@/components/courses/my-courses/MyCourse";
 import Course from "@/components/courses/my-courses/Course";
@@ -253,19 +253,22 @@ export default function MyCourses() {
         <div className="border-l border-l-[2px] border-[var(--primary-color1)] pl-2 shrink-0">
           <p className="text-[20px] font-[400]">My Courses</p>
           <p className="text-[#888] my-1">check out all your current courses</p>
-          <InputPicker
-            data={[
-              { label: "Current", value: "Current" },
-              { label: "Expired", value: "Expired" },
-              { label: "Closed", value: "Closed" },
-            ]}
-            className="hover:!cursor-pointer mt-7"
-            name="course-status"
-            defaultValue="Current"
-            placeholder="Status"
-            value={filterMyCourses}
-            onChange={(value: string) => setFilterMyCourses(value)}
-          />
+          <div className="mt-7 !max-w-sm">
+            <SelectPicker
+              className="w-full"
+              searchable={false}
+              data={[
+                { label: "Current", value: "Current" },
+                { label: "Expired", value: "Expired" },
+                { label: "Closed", value: "Closed" },
+              ]}
+              name="course-status"
+              defaultValue="Current"
+              placeholder="Status"
+              value={filterMyCourses}
+              onChange={(value: any) => setFilterMyCourses(value)}
+            />
+          </div>
         </div>
         {myCoursesLoading ? (
           <div className="m-11">
@@ -304,15 +307,15 @@ export default function MyCourses() {
       <div className="mt-11 mb-7 flex flex-col sm:flex-row justify-between gap-7">
         <div>
           <p className="text-[12px] font-[500] mb-2">Filter Courses :</p>
-          <InputPicker
-            placement="auto"
+          <SelectPicker
+            searchable={false}
             data={[
               { label: "Status & Trainer", value: "trainer" },
               { label: "All courses", value: "all" },
             ]}
             value={showBy}
             cleanable={false}
-            onChange={(value: "all" | "trainer") => setShowBy(value)}
+            onChange={(value: any) => setShowBy(value)}
             placeholder="Filter by"
           />
         </div>

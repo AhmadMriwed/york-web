@@ -11,7 +11,7 @@ import {
   rejectCourseRequest,
 } from "@/store/adminstore/slices/courses/course-requests/courseRequestsSlice";
 import { GlobalState } from "@/types/storeTypes";
-import { Input, InputPicker, Loader, Modal } from "rsuite";
+import { Input, SelectPicker, Loader, Modal } from "rsuite";
 
 const CauseModal = ({
   role,
@@ -120,7 +120,7 @@ const CauseModal = ({
               <label htmlFor="permission" className="text-[12px] font-[500]">
                 Select permission :
               </label>
-              <InputPicker
+              <SelectPicker
                 className="!text-[#000] !w-full"
                 id="permission"
                 data={coursePermissions.map((p) => ({
@@ -129,7 +129,7 @@ const CauseModal = ({
                 }))}
                 placeholder="Permissions"
                 value={permission_id}
-                onChange={(value: number) => setPermission_id(value)}
+                onChange={(value: any) => setPermission_id(value)}
                 renderMenu={(menu) => {
                   if (permissionLoading) {
                     return (
