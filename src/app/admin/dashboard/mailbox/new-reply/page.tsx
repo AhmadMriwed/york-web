@@ -1,7 +1,16 @@
 "use client";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import HeaderMail from "@/components/mailbox/HeaderMail";
-import NewEmailRequest from "@/components/mailbox/NewEmailRequest";
+
+import dynamic from "next/dynamic";
+const NewEmailRequest = dynamic(
+  () => import("@/components/mailbox/NewEmailRequest"),
+  {
+    ssr: false,
+  }
+);
+
+
 import { completedRequest } from "@/store/adminstore/slices/mailbox/mailboxSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { useSearchParams } from "next/navigation";

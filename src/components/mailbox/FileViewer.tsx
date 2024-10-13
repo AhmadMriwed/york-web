@@ -2,13 +2,9 @@ import React, { useContext, useState } from "react";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { storageURL } from "@/utils/api";
 import { DocumentViewer } from "react-documents";
+
 import { downloadFile } from "@/store/adminstore/slices/mailbox/fileSlice";
-
-
-
 import { Modal } from "rsuite";
-
-
 import Image from "next/image";
 import { FaDownload } from "react-icons/fa";
 import { useDispatch } from "react-redux";

@@ -7,7 +7,16 @@ import { FaDownload } from "react-icons/fa6";
 import { FileType } from "@/types/adminTypes/mailbox/mailboxTypes";
 import { useDispatch } from "react-redux";
 import { downloadFile } from "@/store/adminstore/slices/mailbox/fileSlice";
-import FileViewer from "@/components/mailbox/FileViewer";
+
+
+import dynamic from "next/dynamic";
+const FileViewer = dynamic(
+  () => import("@/components/mailbox/FileViewer"),
+  {
+    ssr: false,
+  }
+);
+
 import { MdRemoveRedEye } from "react-icons/md";
 import { TiThListOutline } from "react-icons/ti";
 import { BsGrid3X3Gap } from "react-icons/bs";
