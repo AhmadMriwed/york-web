@@ -146,7 +146,7 @@ const Login = ({ userType }: { userType: string }) => {
             </div>
 
             <div className="flex items-center justify-center w-full min-h-[100dvh] md:mr-[10rem] md:w-[500px] md:min-h-[calc(100vh-2rem)] md:rounded-[9px] bg-[rgba(19,24,30,0.9)]">
-              <div className="flex flex-col items-center justify-between w-[calc(100%-4rem)] h-[calc(100%-4rem)] md:py-8 md:px-4 text-[#FFF]">
+              <div className="flex flex-col items-center justify-between gap-8 px-8 py-4 text-[#FFF] w-full">
                 <div className="flex flex-col items-center">
                   <div className="md:hidden pb-4">
                     <Image
@@ -225,7 +225,7 @@ const Login = ({ userType }: { userType: string }) => {
                         ? "/trainer/login/recover-password"
                         : "/user/login/recover-password"
                     }
-                    className="justify-self-end hover:no-underline"
+                    className="justify-self-end hover:no-underline mb-4"
                   >
                     <span className="text-md text-[#16FACD]">
                       Forgot your password?
@@ -273,7 +273,7 @@ const Login = ({ userType }: { userType: string }) => {
 
                   {userType !== "admin" && (
                     <p className="w-full flex items-center justify-center mt-6">
-                      Not a Member?
+                      Not a member?
                       <Link
                         href={
                           userType === "trainer"
@@ -291,7 +291,7 @@ const Login = ({ userType }: { userType: string }) => {
                   style={{
                     width: 150,
                     alignSelf: "end",
-                    paddingBlock: "2rem",
+                    justifySelf: "end",
                   }}
                 >
                   <SelectPicker
