@@ -1,6 +1,7 @@
 "use client";
 import { MdReplyAll } from "react-icons/md";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+
 import HeaderMail from "@/components/mailbox/HeaderMail";
 import Image from "next/image";
 import { useContext, useEffect, useState } from "react";
@@ -13,6 +14,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSingleReqest } from "@/store/adminstore/slices/mailbox/mailboxSlice";
 import { GlobalState } from "@/types/storeTypes";
 import Loading from "@/components/Pars/Loading";
+import { BsFillGrid3X3GapFill } from "react-icons/bs";
+
+import { MdAttachFile } from "react-icons/md";
 
 export default function Preview() {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -55,7 +59,8 @@ export default function Preview() {
           </Link>
         </HeaderMail>
       </header>
-      {isLoading && <Loading />}
+      <div></div>
+      {isLoading && <Loading backdrop={true} />}
       {!isLoading && !error && (
         <div
           className={`mt-5 rounded-xl px-[25px] pb-[20px]
@@ -80,6 +85,7 @@ export default function Preview() {
                 <p className="font-semibold m-0 text-[15px]">
                   {request.recived_user
                     ? request.recived_user.first_name +
+                      " " +
                       request.recived_user.last_name
                     : ""}
                 </p>
@@ -96,11 +102,11 @@ export default function Preview() {
           </header>
           <div className="flex gap-1 justify-between flex-wrap flex-col md:flex-row">
             <div className=" flex-1 max-w-[600px]">
-              <p className="font-bold text-[20px] m-0 mt-3">{request.title}</p>
+              <p className="font-bold text-[11.68px]  lg:text-[18px] m-0 mt-3">{request.title}</p>
 
               {request.sub_title && (
                 <p
-                  className="mt-[20px]"
+                  className="mt-[2px] text-[7.74px]  lg:text-[17px]"
                   dangerouslySetInnerHTML={{
                     __html: request.sub_title || "",
                   }}
@@ -117,7 +123,7 @@ export default function Preview() {
                     Attatched Fiels{" "}
                   </p>
                   <div onClick={() => setOpen(true)}>
-                    <RiFolderDownloadFill
+                    <MdAttachFile
                       style={{
                         fontSize: "28px",
                         color: "var(--primary-color1)",

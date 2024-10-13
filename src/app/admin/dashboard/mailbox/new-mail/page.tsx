@@ -16,7 +16,7 @@ export default function NewMail() {
         messageOnSuccess="Email has been sending successfully"
         messageOnError={`An error occurred while sending (${error}) , try again `}
         completedAction={completedRequest}
-        navigateTo="/admin-dashboard/mailbox"
+        navigateTo="/admin/dashboard/mailbox"
       />
 
       <HeaderMail title="New Request" />

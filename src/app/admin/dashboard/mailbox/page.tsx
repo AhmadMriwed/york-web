@@ -18,6 +18,11 @@ import {
   getlMailboxInfo,
 } from "@/store/adminstore/slices/mailbox/mailboxSlice";
 
+
+
+
+
+
 const AdminMailbox = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [isOutgoingMail, setIsOutgoingMail] = useState(true);
@@ -64,16 +69,19 @@ const AdminMailbox = () => {
         <HeaderMail title="Mailbox">
           <Link
             href={"/admin/dashboard/mailbox/new-mail"}
-            className="flex justify- items-center gap-7 py-1 px-5 w-[210px] rounded-[4px] text-[16px] text-white hover:!text-white bg-[var(--primary-color1)]"
+            className="flex items-center justify-center h-10 px-5 rounded-[4px]  text-white hover:!text-white bg-[var(--primary-color1)]"
           >
-            <span className="text-[22px]">+</span>Create New
+            <span className="text-[15px] lg:text-[20px] " >+ Create New </span> 
           </Link>
+
+
+
         </HeaderMail>
       </header>
 
       {/* {isLoadingPage && <Loading />} */}
 
-      {initalLoading && <Loading />}
+      {initalLoading && <Loading  backdrop={true} />}
       {!initalLoading &&
         (mailInfo.count_recived_boxes === 0 ||
           mailInfo.count_send_boxes === 0) &&
@@ -99,7 +107,7 @@ const AdminMailbox = () => {
                 className="cursor-pointer"
               >
                 <button
-                  className={`element-center gap-2 p-3 rounded-lg text-[16px] text-white transition-all duration-200 ${
+                  className={`element-center gap-2 p-3 rounded-lg text-[9px] lg:text-[18px] text-white transition-all duration-200 ${
                     isOutgoingMail
                       ? "bg-[var(--primary-color2)]"
                       : "bg-[#03071c]"
@@ -124,7 +132,7 @@ const AdminMailbox = () => {
                 className="cursor-pointer"
               >
                 <button
-                  className={`element-center gap-2 p-3 rounded-lg text-[16px] text-white transition-all duration-200 ${
+                  className={`element-center gap-2 p-3 rounded-lg text-[9px] lg:text-[18px] text-white transition-all duration-200 ${
                     isReceivedgMail
                       ? "bg-[var(--primary-color2)]"
                       : "bg-[#03071c]"
@@ -155,9 +163,10 @@ const AdminMailbox = () => {
             >
               <span className="w-[50%] h-[38px] absolute top-0 left-0 translate-y-[-100%] bg-inherit rounded-[0px_20px_0px_0px] hidden sm:inline" />
 
-              {isLoading && <Loading />}
+              {isLoading && <Loading backdrop={true}  />}
               {!isLoading && mails.length > 0 && (
                 <>
+                
                   {mails.map((mail: MailType) => (
                     <MailMessage key={mail.id} mail={mail} />
                   ))}
