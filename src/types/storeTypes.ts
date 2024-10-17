@@ -38,6 +38,7 @@ import { couresesAdsState } from "./userTypes/courses/coursesTypes";
 import { UserState } from "./userTypes/auth/authTypes";
 import { endUserState } from "./endUserTypes/endUserTypes";
 import { statisticsState } from "./adminTypes/statistics/statisticsTypes";
+import { TrainerState } from "./trainerTypes/auth/authTypes";
 
 export interface ThemeState {
   theme: "light" | "dark";
@@ -55,6 +56,8 @@ export interface GlobalState {
   singleRole: SingleRoleState;
 
   authSlice: AdminState;
+  trainerSlice: TrainerState;
+  userSlice: UserState;
   sessions: sessionsState;
   joinedUsers: joinedUsersState;
   attendanceRequests: attendanceState;

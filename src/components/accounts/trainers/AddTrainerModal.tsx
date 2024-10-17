@@ -8,10 +8,10 @@ import CustomPassword from "@/components/Pars/CustomPassword";
 import { useDispatch, useSelector } from "react-redux";
 import { getCategoriesAsMenue } from "@/store/adminstore/slices/enums/categoriesSlice";
 import { GlobalState } from "@/types/storeTypes";
-import { Signature, SignatureComponent } from "@syncfusion/ej2-react-inputs";
 import { createTrainer } from "@/store/adminstore/slices/accounts/trainersSlice";
 
 import dynamic from "next/dynamic";
+import SignaturePad from "react-signature-pad-wrapper";
 
 const LocationModal = dynamic(() => import("./LocationModal"), {
   ssr: false,
@@ -84,7 +84,7 @@ export default function AddTrainerModal({
   setOpen,
   requestType,
 }: ModalType) {
-  let signObj: Signature | null;
+  let signObj: any;
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [openLocationModal, setOpenLocationModal] = useState(false);
   const [userStatus, setUserStatus] = useState("");
@@ -460,15 +460,15 @@ export default function AddTrainerModal({
                   Digital Signature
                 </label>
                 <div className="relative rounded-[6px]">
-                  <SignatureComponent
-                    style={{
-                      width: "100%",
-                      height: 120,
-                      borderRadius: "6px",
+                  <SignaturePad
+                    options={{
+                      minWidth: 1.5,
+                      dotSize: 1.5,
+                      penColor: "#000",
+                      backgroundColor: "#FFF",
                     }}
                     ref={(sign) => (signObj = sign)}
-                    backgroundColor="white"
-                  ></SignatureComponent>
+                  />
                   {props.errors.digital_signature &&
                     props.touched.digital_signature && (
                       <div className="pl-[5px] ml-[10px] mt-[10px] text-red-600">
@@ -487,12 +487,12 @@ export default function AddTrainerModal({
                 </div>
                 <button
                   onClick={() => {
-                    let dataURI = signObj?.getSignature("Svg") as string;
+                    let dataURI = signObj?.toDataURL("image/svg+xml");
                     let svg = atob(
                       dataURI.replace(/data:image\/svg\+xml;base64,/, "")
                     );
                     console.log(svg);
-                    props.setFieldValue("digital_signature", svg);
+                    props.values.digital_signature = svg;
                   }}
                   className="bg-btnColor hover:bg-btnColorHover mt-4 p-[5px] rounded-[6px]"
                 >

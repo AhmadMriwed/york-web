@@ -57,11 +57,11 @@ const Course = ({ course }: { course: courseType }) => {
   };
 
   const handleShowDetails = () => {
-    router.push(`/admin-dashboard/courses/course-info/${course.id}`);
+    router.push(`/admin/dashboard/courses/course-info/${course.id}`);
   };
 
   const handleEdit = () => {
-    router.push(`/admin-dashboard/courses/update/${course.id}`);
+    router.push(`/admin/dashboard/courses/update/${course.id}`);
   };
 
   const handleDuplicate = () => {

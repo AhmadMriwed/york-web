@@ -17,7 +17,7 @@ import {
   Dropdown,
   IconButton,
   Input,
-  InputPicker,
+  SelectPicker,
   Loader,
   Modal,
 } from "rsuite";
@@ -118,7 +118,7 @@ const UpdateModal = ({
               <p className="text-[12px] font-[500]">
                 Select new permission : *
               </p>
-              <InputPicker
+              <SelectPicker
                 className="!text-[#000] !w-full"
                 data={coursePermissions.map((p) => ({
                   label: p.name,
@@ -126,7 +126,7 @@ const UpdateModal = ({
                 }))}
                 placeholder="Permissions"
                 value={permission_id}
-                onChange={(value: number) => setPermission_id(value)}
+                onChange={(value: any) => setPermission_id(value)}
                 renderMenu={(menu) => {
                   if (permissionLoading) {
                     return (
@@ -151,7 +151,8 @@ const UpdateModal = ({
             <div className="p-7 flex-col gap-4 element-center w-full">
               <div className="flex flex-col gap-1 w-full">
                 <p className="text-[12px] font-[500]">Select new status : *</p>
-                <InputPicker
+                <SelectPicker
+                  searchable={false}
                   className="!text-[#000] !w-full"
                   data={[
                     { label: "Accepted", value: "Accepted" },
@@ -159,7 +160,7 @@ const UpdateModal = ({
                   ]}
                   placeholder="Status"
                   value={newStatus}
-                  onChange={(value: string) => setNewStatus(value)}
+                  onChange={(value: any) => setNewStatus(value)}
                 />
               </div>
 

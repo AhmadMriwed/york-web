@@ -107,7 +107,7 @@ const CourseRequest = ({ details }: { details?: submitCourseType }) => {
             className="text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
             onClick={() => {
               router.push(
-                `/admin-dashboard/courses/submit-courses/${details?.id}`
+                `/admin/dashboard/courses/submit-courses/${details?.id}`
               );
             }}
           >

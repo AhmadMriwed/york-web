@@ -3,8 +3,8 @@ import { useDispatch } from "react-redux";
 import { getCourseAds } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
 import { getAllCourses } from "@/store/adminstore/slices/courses/coursesSlice";
 import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
-import { CiEraser, CiFilter, CiSearch } from "react-icons/ci";
-import { CheckPicker, DatePicker, InputPicker } from "rsuite";
+import { CiFilter, CiSearch } from "react-icons/ci";
+import { CheckPicker, DatePicker, SelectPicker } from "rsuite";
 
 const Filter = ({
   role,
@@ -102,6 +102,7 @@ const Filter = ({
               if (field.type === "date") {
                 return (
                   <DatePicker
+                    oneTap
                     key={index}
                     size="xs"
                     placeholder={field.placeholder}
@@ -111,7 +112,7 @@ const Filter = ({
                 );
               } else if (field.type === "select") {
                 return (
-                  <InputPicker
+                  <SelectPicker
                     searchable={false}
                     data={field.data}
                     key={index}

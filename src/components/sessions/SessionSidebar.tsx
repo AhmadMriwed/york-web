@@ -160,7 +160,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/session-info/${sessionID}`}
+              href={`/admin/dashboard/courses/training-session/session-info/${sessionID}`}
             >
               Session Information
             </Nav.Item>
@@ -178,7 +178,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/session-info/life-session/${sessionID}`}
+              href={`/admin/dashboard/courses/training-session/session-info/life-session/${sessionID}`}
             >
               Life Session
             </Nav.Item>
@@ -196,7 +196,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/session-info/joined-users/${sessionID}`}
+              href={`/admin/dashboard/courses/training-session/session-info/joined-users/${sessionID}`}
             >
               Joined Users
             </Nav.Item>
@@ -214,7 +214,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/training-session/session-info/attendance-requests/${sessionID}`}
+              href={`/admin/dashboard/courses/training-session/session-info/attendance-requests/${sessionID}`}
             >
               Attendance requests
             </Nav.Item>
@@ -232,7 +232,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="#"
             >
               Assignments: Exams + Quizzes
             </Nav.Item>
@@ -250,7 +250,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="#"
             >
               Training Session Report
             </Nav.Item>
@@ -268,7 +268,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard"
+              href="/admin/dashboard"
             >
               Home
             </Nav.Item>
@@ -286,7 +286,7 @@ const SessionSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/course-info/${sessionInfo?.course_id}`}
+              href={`/admin/dashboard/courses/course-info/${sessionInfo?.course_id}`}
             >
               Back to course
             </Nav.Item>

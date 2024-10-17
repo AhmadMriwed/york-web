@@ -25,7 +25,6 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
     error,
     loadingPass,
     loading,
-    admin,
     adminProfile,
     profileLoading,
     profileError,
@@ -34,18 +33,14 @@ const Topbar = ({ setOpenProfile }: { setOpenProfile: any }) => {
 
   useEffect(() => {
     if (!adminProfile) {
-      console.log("request");
-      let cookie = new Cookies();
-      let token = cookie.get("admin_token");
-      console.log("token", cookie.get("admin-token"));
-      dispatch(getAdminProfile(token));
+      // console.log("request");
+      dispatch(getAdminProfile());
     }
   }, [adminProfile, dispatch]);
 
   let cookie = new Cookies();
   let token = cookie.get("admin_token");
   console.log("token", token);
-  console.log("admin", admin, "profile", adminProfile);
 
   return (
     <header

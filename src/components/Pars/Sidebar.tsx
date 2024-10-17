@@ -216,7 +216,7 @@ const Sidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard"
+              href="/admin/dashboard"
             >
               Dashboard
             </Nav.Item>
@@ -234,7 +234,7 @@ const Sidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard/mailbox"
+              href="/admin/dashboard/mailbox"
             >
               Mailbox
             </Nav.Item>
@@ -260,7 +260,7 @@ const Sidebar = () => {
                     eventKey={`3-${item.id}`}
                     className="!py-[5px] transition-all duration-500 !bg-inherit hover:translate-x-2 text-[13px]"
                     as={NavLink}
-                    href={`/admin-dashboard/courses/${item.url}`}
+                    href={`/admin/dashboard/courses/${item.url}`}
                   >
                     {item.title}
                   </Nav.Item>
@@ -366,7 +366,7 @@ const Sidebar = () => {
                       eventKey={`8-${item.id}`}
                       className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                       as={NavLink}
-                      href={`/admin-dashboard/accounts/${item.url}`}
+                      href={`/admin/dashboard/accounts/${item.url}`}
                     >
                       {item.title}
                     </Nav.Item>
@@ -397,7 +397,7 @@ const Sidebar = () => {
                       eventKey={`9-${item.id}`}
                       className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                       as={NavLink}
-                      href={`/admin-dashboard/enums/${item.url}`}
+                      href={`/admin/dashboard/enums/${item.url}`}
                     >
                       {item.title}
                     </Nav.Item>

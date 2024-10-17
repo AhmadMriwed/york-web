@@ -54,13 +54,13 @@ const Session = ({ session }: any) => {
 
   const handleShowDetails = () => {
     router.push(
-      `/admin-dashboard/courses/training-session/session-info/${session.id}`
+      `/admin/dashboard/courses/training-session/session-info/${session.id}`
     );
   };
 
   const handleEdit = () => {
     router.push(
-      `/admin-dashboard/courses/training-session/update/${session.id}`
+      `/admin/dashboard/courses/training-session/update/${session.id}`
     );
   };
 
