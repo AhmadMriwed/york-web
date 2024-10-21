@@ -208,9 +208,9 @@ export default function Home() {
 
          <footer className="home-footer-bg mt-[60px] px-[30px] md:px-[80px] py-[30px] flex items-center gap-x-[40px] gap-y-[20px] flex-wrap">
             <div className="w-[400px] max-w-[calc(100%_-_60px)] flex items-center gap-3 flex-col">
-               <div>
+               {/*<div>
                   <Image src={logo} alt="Logo" width={130} height={130} />
-               </div>
+               </div>*/}
                <p className="text-[#ddd]">
                   The York Academy is currently pursuing an ambitious
                   vision of transforming the integration of metacognitive and
