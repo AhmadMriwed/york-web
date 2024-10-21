@@ -91,7 +91,7 @@ export default function Home() {
           {/* <UserInfo /> */}
          <section className="home-landing-bg">
             <header className="px-[10px] md:px-[50px] lg:px-[70px] py-3 flex items-center justify-between gap-[30px]">
-               <div className="min-w-[65px] md:min-w-[100px]">
+               { /*<div className="min-w-[65px] md:min-w-[100px]">
                   <Image
                      src={logo}
                      alt="Logo"
@@ -99,13 +99,13 @@ export default function Home() {
                      height={100}
                      className="w-[60px] md:w-[100px]"
                   />
-               </div>
+               </div> */ }
                <Navbar />
             </header>
 
             <main className="flex justify-center items-center flex-col h-[calc(100%_-_125px)] px-[20px] md:px-[50px]">
                <h1 className="text-white md:w-full lg:w-[815px] leading-[1.4] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
-                  make your employees on development with <br /> york british
+                  make your employees on development with <br /> york
                   academy
                </h1>
                <p className="text-[#c2c2c2] md:w-full lg:w-[815px] ">
@@ -131,19 +131,17 @@ export default function Home() {
          <section>
             <div className="ms-[50px] sm:ms-[80px]">
                <SectionTitle
-                  title="york british academy"
+                  title="york academy"
                   desc="welcome to"
                   direction="col-reverse"
                />
             </div>
 
             <main className="relative home-welcome-bg min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
-               <div className="min-w-[100px] lg:ms-[100px]">
-                  <Image src={logo} alt="Logo" width={200} height={200} />
-               </div>
+               {/* <div className="min-w-[100px] lg:ms-[100px]"> <Image src={logo} alt="Logo" width={200} height={200} /  </div> */}
                <div className="basis-[50%]">
                   <p className="text-white mb-3">
-                     York British Academy registered office in England and
+                     York Academy registered office in England and
                      Wales. In the United Kingdom, its main objective is to
                      provide training and advisory services and strategic
                      solutions for postgraduate studies in higher education,
@@ -214,7 +212,7 @@ export default function Home() {
                   <Image src={logo} alt="Logo" width={130} height={130} />
                </div>
                <p className="text-[#ddd]">
-                  The York British Academy is currently pursuing an ambitious
+                  The York Academy is currently pursuing an ambitious
                   vision of transforming the integration of metacognitive and
                   self-questioning strategies into developing thinking skills,
                   retaining the impact of learning and training, and raising the
