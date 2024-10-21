@@ -150,7 +150,7 @@ export const addresses: address[] = [
    },
    {
       id: 2,
-      title: "info@yorkbritishacademy.uk",
+      title: "info@yorkacademy.uk",
       url: "#",
    },
    {
@@ -160,7 +160,7 @@ export const addresses: address[] = [
    },
    {
       id: 4,
-      title: "old gloucester street, wc1n 3ax, london, united kingdom",
+      title: "London (WC2) Office, 7 Bell Yard, London, WC2A 2JR",
       url: "#",
    },
 ];
