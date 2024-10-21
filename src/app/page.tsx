@@ -88,7 +88,7 @@ export default function Home() {
 
    return (
       <section className="relative ">
-         <UserInfo />
+          {/* <UserInfo /> */}
          <section className="home-landing-bg">
             <header className="px-[10px] md:px-[50px] lg:px-[70px] py-3 flex items-center justify-between gap-[30px]">
                <div className="min-w-[65px] md:min-w-[100px]">
