@@ -10,7 +10,10 @@ import BackBtn from "@/components/buttons/BackBtn";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import SignaturePad from "react-signature-pad-wrapper";
-import { trainerRegister } from "@/store/trainerStore/slices/trainerSlice";
+import {
+  trainerAuthCompletedOperation,
+  trainerRegister,
+} from "@/store/trainerStore/slices/trainerSlice";
 import { getCategories } from "@/store/endUser/endUserSlice";
 import { GlobalState } from "@/types/storeTypes";
 import { TrainerAxios } from "@/utils/axios";
@@ -20,6 +23,7 @@ import { getUTCDate } from "@/utils/dateFuncs";
 import { formatFileSize } from "@/utils/helpers";
 
 import dynamic from "next/dynamic";
+import OperationAlert from "@/components/Pars/OperationAlert";
 const LocationModal = dynamic(
   () => import("@/components/accounts/trainers/LocationModal"),
   {
@@ -74,7 +78,7 @@ const TrainerSignupPage = () => {
   const inputRef: any = useRef();
   const resumeRef: any = useRef();
 
-  const { error, loading } = useSelector(
+  const { error, loading, status } = useSelector(
     (state: GlobalState) => state.trainerSlice
   );
   const { categories } = useSelector((state: GlobalState) => state.endUser);
@@ -255,6 +259,13 @@ const TrainerSignupPage = () => {
         minHeight: "100vh",
       }}
     >
+      <OperationAlert
+        status={status}
+        error={error}
+        messageOnError={error}
+        messageOnSuccess="Created successfuly"
+        completedAction={trainerAuthCompletedOperation}
+      />
       <div
         className="min-h-[100vh] p-6"
         style={{ backgroundColor: "#13181EDD" }}
@@ -648,9 +659,6 @@ const TrainerSignupPage = () => {
               setPosition={setPosition}
               setLocation={() => {}}
             />
-            {error && (
-              <p className="error-mesage !text-[14px] !min-w-fit">{error}</p>
-            )}
             <button
               className="colored-btn min-w-full sm:min-w-fit !text-[16px]"
               type="submit"

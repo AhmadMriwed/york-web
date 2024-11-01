@@ -18,7 +18,9 @@ export const trainerRegister = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -38,11 +40,12 @@ export const trainerLogin = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      if (error?.response?.status === 403) {
-        return rejectWithValue("Invalid email or password");
-      } else {
-        return rejectWithValue("Internel server error");
-      }
+      console.log(error);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else if (error?.response?.status === 403) {
+        return rejectWithValue(error.response.data.general);
+      } else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -57,7 +60,9 @@ export const getTrainerProfile = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -70,7 +75,9 @@ export const trainerUpdateProfile = createAsyncThunk(
       const res = await TrainerAxios.put("trainer/updateProfile", data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -85,7 +92,9 @@ export const trainerUpdatePassword = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -101,10 +110,10 @@ export const trainerForgotPassword = createAsyncThunk(
         return res.data;
       }
     } catch (error: any) {
-      if (error.response.status === 422) {
-        return rejectWithValue("Invalid email");
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
       } else {
-        return rejectWithValue("Internel server error");
+        return rejectWithValue("There was an Error");
       }
     }
   }
@@ -121,7 +130,11 @@ export const trainerValidateForgotPassword = createAsyncThunk(
       );
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -134,7 +147,11 @@ export const trainerResetPassword = createAsyncThunk(
       const res = await TrainerAxios.post(`trainer/reset-password`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -149,7 +166,9 @@ export const trainerLogOut = createAsyncThunk(
       cookie.remove("trainer_token");
       return res.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -164,8 +183,13 @@ export const trainerSlice = createSlice({
     trainer: {},
     msg: "",
     location: "",
+    status: false,
   } as TrainerState,
-  reducers: {},
+  reducers: {
+    trainerAuthCompletedOperation: (state) => {
+      state.status = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(trainerLogin.pending, (state) => {
@@ -189,10 +213,12 @@ export const trainerSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.trainer = action.payload;
+        state.status = true;
       })
       .addCase(trainerRegister.rejected, (state, action: any) => {
         state.error = action.payload;
         state.loading = false;
+        state.status = true;
       })
       .addCase(getTrainerProfile.pending, (state) => {
         state.loading = true;
@@ -291,4 +317,5 @@ export const trainerSlice = createSlice({
   },
 });
 
+export const { trainerAuthCompletedOperation } = trainerSlice.actions;
 export default trainerSlice.reducer;

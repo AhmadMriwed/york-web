@@ -24,11 +24,11 @@ export const loginAdmin = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      if (error?.response?.status === 403) {
-        return rejectWithValue("Invalid Email or Password");
-      } else {
-        return rejectWithValue("Internal Server Error");
-      }
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else if (error?.response?.status === 403) {
+        return rejectWithValue(error.response.data.general);
+      } else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -44,7 +44,9 @@ export const getAdminProfile = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -61,9 +63,9 @@ export const adminForgotPassword = createAsyncThunk(
       }
     } catch (error: any) {
       if (error?.response?.status === 422) {
-        return rejectWithValue("Invalid Email");
+        return rejectWithValue(error.response.data.message);
       } else {
-        return rejectWithValue("Internel Server Error");
+        return rejectWithValue("There was an Error");
       }
     }
   }
@@ -78,7 +80,11 @@ export const adminValidateForgotPassword = createAsyncThunk(
       const res = await Axios.post(`admin/validate-forgot-password-otp`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -92,7 +98,11 @@ export const adminResetPassword = createAsyncThunk(
       const res = await Axios.post(`admin/reset-password`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -115,7 +125,9 @@ export const adminUpdatePassword = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -133,7 +145,9 @@ export const adminLogOut = createAsyncThunk(
 
       return res.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );

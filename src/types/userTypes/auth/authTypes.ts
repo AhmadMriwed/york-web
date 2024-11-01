@@ -6,6 +6,7 @@ export interface UserState {
   loadingPass: boolean;
   errorPass: null;
   location: string;
+  status: boolean;
 }
 
 export interface UserType {

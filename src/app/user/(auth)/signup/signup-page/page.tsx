@@ -9,8 +9,12 @@ import Image from "next/image";
 import BackBtn from "@/components/buttons/BackBtn";
 import { GlobalState } from "@/types/storeTypes";
 import { FaTrashCan } from "react-icons/fa6";
-import { userRegister } from "@/store/userStore/slices/userSlice";
+import {
+  userAuthOperationCompleted,
+  userRegister,
+} from "@/store/userStore/slices/userSlice";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 export interface FormVal {
   first_name: string;
@@ -29,7 +33,7 @@ const UserSignupPage = () => {
 
   const inputRef: any = useRef();
 
-  const { error, loading } = useSelector(
+  const { error, loading, status } = useSelector(
     (state: GlobalState) => state.userSlice
   );
 
@@ -95,6 +99,13 @@ const UserSignupPage = () => {
         minHeight: "100vh",
       }}
     >
+      <OperationAlert
+        status={status}
+        error={error}
+        messageOnError={error}
+        messageOnSuccess="Created successfuly"
+        completedAction={userAuthOperationCompleted}
+      />
       <div
         className="min-h-[100vh] p-6"
         style={{ backgroundColor: "#13181EDD" }}
@@ -283,10 +294,6 @@ const UserSignupPage = () => {
                 }}
               />
             </GoogleOAuthProvider>
-
-            {error && (
-              <p className="error-mesage !text-[14px] !min-w-fit">{error}</p>
-            )}
 
             <button
               className="colored-btn min-w-full sm:min-w-fit !text-[16px]"

@@ -18,11 +18,11 @@ export const userLogin = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      if (error?.response?.status === 403) {
-        return rejectWithValue("Invalid email or password");
-      } else {
-        return rejectWithValue("Internel server error");
-      }
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else if (error?.response?.status === 403) {
+        return rejectWithValue(error.response.data.general);
+      } else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -42,7 +42,9 @@ export const userRegister = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -57,7 +59,9 @@ export const getUserProfile = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -72,7 +76,9 @@ export const CompleteUserProfile = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -89,9 +95,9 @@ export const userForgotPassword = createAsyncThunk(
       }
     } catch (error: any) {
       if (error?.response?.status === 422) {
-        return rejectWithValue("Invalid email");
+        return rejectWithValue(error.response.data.message);
       } else {
-        return rejectWithValue("Internel server error");
+        return rejectWithValue("There was an Error");
       }
     }
   }
@@ -108,7 +114,11 @@ export const userValidateForgotPassword = createAsyncThunk(
       );
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -121,7 +131,11 @@ export const userResetPassword = createAsyncThunk(
       const res = await UserAxios.post(`user/reset-password`, data);
       return res.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.status === 422) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue("There was an Error");
+      }
     }
   }
 );
@@ -136,7 +150,9 @@ export const userUpdatePassword = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      if (error?.response?.data?.message)
+        return rejectWithValue(error.response.data.message);
+      else return rejectWithValue("There was an Error");
     }
   }
 );
@@ -149,7 +165,9 @@ export const userLogOut = createAsyncThunk("userLogout", async (_, thunAPI) => {
     cookie.remove("user_token");
     return res.data;
   } catch (error: any) {
-    return rejectWithValue(error.message);
+    if (error?.response?.data?.message)
+      return rejectWithValue(error.response.data.message);
+    else return rejectWithValue("There was an Error");
   }
 });
 
@@ -163,11 +181,15 @@ export const userSlice = createSlice({
     user: {},
     msg: "",
     location: "",
+    status: false,
   } as UserState,
 
   reducers: {
     getLocation: (state, action) => {
       state.location = action.payload;
+    },
+    userAuthOperationCompleted: (state) => {
+      state.status = false;
     },
   },
 
@@ -196,10 +218,12 @@ export const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = action.payload;
+        state.status = true;
       })
       .addCase(userRegister.rejected, (state, action: any) => {
         state.error = action.payload;
         state.loading = false;
+        state.status = true;
       })
       //update user profile
       .addCase(CompleteUserProfile.pending, (state) => {
@@ -210,10 +234,12 @@ export const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.user = action.payload;
+        state.status = true;
       })
       .addCase(CompleteUserProfile.rejected, (state, action: any) => {
         state.loading = false;
         state.error = action.payload;
+        state.status = true;
       })
       //get singleUserProfile
       .addCase(getUserProfile.pending, (state) => {
@@ -302,5 +328,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { getLocation } = userSlice.actions;
+export const { getLocation, userAuthOperationCompleted } = userSlice.actions;
 export default userSlice.reducer;

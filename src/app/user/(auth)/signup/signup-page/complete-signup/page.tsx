@@ -14,11 +14,15 @@ import { GlobalState } from "@/types/storeTypes";
 import { FaTrashCan } from "react-icons/fa6";
 import Location from "@rsuite/icons/Location";
 import { getUTCDate } from "@/utils/dateFuncs";
-import { CompleteUserProfile } from "@/store/userStore/slices/userSlice";
+import {
+  CompleteUserProfile,
+  userAuthOperationCompleted,
+} from "@/store/userStore/slices/userSlice";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 import dynamic from "next/dynamic";
+import OperationAlert from "@/components/Pars/OperationAlert";
 const LocationModal = dynamic(
   () => import("@/components/accounts/trainers/LocationModal"),
   {
@@ -56,7 +60,7 @@ const UserCompleteSignup = () => {
 
   const inputRef: any = useRef();
 
-  const { error, loading, user } = useSelector(
+  const { error, loading, status, user } = useSelector(
     (state: GlobalState) => state.userSlice
   );
   const { categories } = useSelector((state: GlobalState) => state.endUser);
@@ -186,6 +190,13 @@ const UserCompleteSignup = () => {
         minHeight: "100vh",
       }}
     >
+      <OperationAlert
+        status={status}
+        error={error}
+        messageOnError={error}
+        messageOnSuccess="Completed successfuly"
+        completedAction={userAuthOperationCompleted}
+      />
       <div
         className="min-h-[100vh] p-6"
         style={{ backgroundColor: "#13181EDD" }}
@@ -384,9 +395,6 @@ const UserCompleteSignup = () => {
               setPosition={setPosition}
               setLocation={() => {}}
             />
-            {error && (
-              <p className="error-mesage !text-[14px] !min-w-fit">{error}</p>
-            )}
             <div className="flex flex-col sm:flex-row items-center justify-end flex-wrap gap-4 w-full">
               <button
                 className="colored-btn min-w-full sm:min-w-fit !text-[16px]"

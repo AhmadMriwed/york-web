@@ -13,6 +13,7 @@ const Filter = ({
   resetFilterValues,
   filterFields,
   coursesCount,
+  styles,
 }: any) => {
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch<any>();
@@ -41,7 +42,11 @@ const Filter = ({
   };
 
   return (
-    <div className="w-full max-w-lg bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-6 rounded-md flex flex-col justify-center items-center">
+    <div
+      className={`w-full max-w-3xl bg-gradient-to-b from-[#01395F] to-[#02B5A0] p-6 rounded-md flex flex-col justify-center items-center ${
+        styles ? styles : ""
+      }`}
+    >
       <div>
         <div className="text-white flex flex-col element-center">
           <p className="text-[16px] font-[400] leading-[1.6rem]">

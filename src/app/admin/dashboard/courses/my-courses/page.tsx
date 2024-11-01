@@ -304,8 +304,8 @@ export default function MyCourses() {
         )}
       </div>
 
-      <div className="mt-11 mb-7 flex flex-col sm:flex-row justify-between gap-7">
-        <div>
+      <div className="mt-11 mb-7 w-full flex flex-col items-center">
+        <div className="self-start">
           <p className="text-[12px] font-[500] mb-2">Filter Courses :</p>
           <SelectPicker
             searchable={false}
@@ -321,6 +321,7 @@ export default function MyCourses() {
         </div>
         {showBy === "all" && (
           <Filter
+            styles="mt-6"
             role="courses"
             filterValues={filterValues}
             setFilterValues={setFilterValues}
