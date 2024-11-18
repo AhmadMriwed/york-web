@@ -239,6 +239,7 @@ export default function Home() {
             <main className="px-[30px] flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
               {venues.map((item, index) => (
                 <VenueCard
+                  key={item.title}
                   title={item.title}
                   img={item.image}
                   link={index + 1}

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { FC } from "react";
 
 type Props = {};
@@ -9,6 +11,7 @@ const SectionTitle: FC<{ title: string }> = ({ title }) => (
 const Paragraph: FC<{ children: React.ReactNode }> = ({ children }) => (
   <p className="my-4 text-gray-500">{children}</p>
 );
+
 const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
   return (
     <div style={{ position: "relative", paddingBottom: "50%", height: 0 }}>
@@ -39,7 +42,7 @@ const AboutPage: FC<Props> = () => {
 
       {/* Content Section */}
       <section className="container mx-auto my-14 px-4">
-        <div className=" border-l-[5px] border-primary-color2 p-6">
+        <div className="border-l-[5px] border-primary-color2 p-6">
           <div className="border-l-[5px] border-primary-color2 p-6 h-[400px] m-2">
             <h1 className="font-bold text-2xl text-primary-color1 mb-6">
               Who we are{" "}
@@ -71,8 +74,8 @@ const AboutPage: FC<Props> = () => {
           <Paragraph>
             Creating great content requires understanding the stages of training
             preparation. Why train your employees with York British Academy? If
-            you haven't applied any training yet, you might wonder how important
-            it is. Here are some benefits of corporate training.
+            you haven&apos;t applied any training yet, you might wonder how
+            important it is. Here are some benefits of corporate training.
           </Paragraph>
         </article>
 
@@ -82,20 +85,21 @@ const AboutPage: FC<Props> = () => {
           <Paragraph>
             One of the main objectives of training is to enable employees to
             perform their jobs effectively. Even with efficient hiring, without
-            proper training, it's challenging to ensure employees reach their
-            full potential and drive results.
+            proper training, it&apos;s challenging to ensure employees reach
+            their full potential and drive results.
           </Paragraph>
           <Paragraph>
             York British Academy specializes in training programs such as:
-            Quality & Insurance, Statistics, IT Management, Banking &
-            Investments, Oil & Gas, Security & Safety, Project Management,
-            Strategic Planning, HR, Media, Marketing & Sales, and Legal Skills.
+            Quality &amp; Insurance, Statistics, IT Management, Banking &amp;
+            Investments, Oil &amp; Gas, Security &amp; Safety, Project
+            Management, Strategic Planning, HR, Media, Marketing &amp; Sales,
+            and Legal Skills.
           </Paragraph>
           <Paragraph>
-            Empower your employees with York British Academy. Training isn't
-            just for new hires; it's also essential for long-term staff to stay
-            updated on best practices and market trends, ensuring continuous
-            performance improvements.
+            Empower your employees with York British Academy. Training
+            isn&apos;t just for new hires; it&apos;s also essential for
+            long-term staff to stay updated on best practices and market trends,
+            ensuring continuous performance improvements.
           </Paragraph>
         </div>
 
@@ -105,7 +109,7 @@ const AboutPage: FC<Props> = () => {
           <Paragraph>
             For a company to achieve its goals, employees need to align with
             organizational strategies. Mastery of tasks is ineffective if
-            actions don't contribute to business objectives.
+            actions don&apos;t contribute to business objectives.
           </Paragraph>
         </div>
 
@@ -138,11 +142,11 @@ const AboutPage: FC<Props> = () => {
               sharing among staff from different teams.
             </li>
             <li className="my-2">
-              <strong>Real-time Q&A:</strong> Allows immediate clarification of
-              doubts, promoting a dynamic learning environment.
+              <strong>Real-time Q&amp;A:</strong> Allows immediate clarification
+              of doubts, promoting a dynamic learning environment.
             </li>
             <li className="my-2">
-              <strong>Flexibility & Dynamism:</strong> Group activities help
+              <strong>Flexibility &amp; Dynamism:</strong> Group activities help
               break barriers, foster teamwork, and ensure knowledge transfer.
             </li>
           </ul>

@@ -14,7 +14,7 @@ const FrequentlyAskedQuestions = () => {
     >
       {questions.map((item, index) => (
         <AccordionItem
-          key={index}
+          key={item.answer}
           value={`item-${index + 1}`}
           className="col-span-1 text-start"
         >

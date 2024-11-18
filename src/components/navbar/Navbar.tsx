@@ -4,17 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-
 import { NavigationMenu } from "@/components/ui/navigation-menu";
-
 import { Button } from "../ui/button";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import { Command, CommandInput } from "@/components/ui/command";
 import TopBar from "./Topbar";
 import { usePathname } from "next/navigation";
@@ -36,6 +32,7 @@ export const navItems2: NavItem[] = [
   { title: "Training Plan", href: "/training-plan" },
   { title: "Contact Us", href: "/contact-us" },
 ];
+
 const navItems = [...navItems1, ...navItems2];
 
 export function Navbar(): JSX.Element {
@@ -44,6 +41,7 @@ export function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const path = usePathname();
   console.log(path);
+
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -74,7 +72,7 @@ export function Navbar(): JSX.Element {
         />
 
         {/* Logo */}
-        <Link href="/" className="  ml-[22%] md:m-0">
+        <Link href="/" className="ml-[22%] md:m-0">
           <Image
             src="/logo.png"
             height={82}
@@ -108,7 +106,7 @@ export const ListItem = React.forwardRef<
         ref={ref}
         href={href}
         className={cn(
-          "block text-sm  hover:text-primary-color1 hover:font-semibold hover:no-underline transition-all duration-200 hover:ml-1   rounded-md p-2 capitalize font-medium",
+          "block text-sm hover:text-primary-color1 hover:font-semibold hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-2 capitalize font-medium",
           {
             "text-primary-color1 font-semibold ml-2": path.startsWith(href),
           }
@@ -120,6 +118,9 @@ export const ListItem = React.forwardRef<
   );
 });
 
+// Adding displayName to prevent react/display-name warning
+ListItem.displayName = "ListItem";
+
 const SearchBar = ({
   open,
   setOpen,
@@ -130,7 +131,7 @@ const SearchBar = ({
   <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild>
       <Button variant="ghost" role="combobox" aria-expanded={open}>
-        <Image src={"/icons/search.svg"} height={24} width={24} alt="search" />
+        <Image src="/icons/search.svg" height={24} width={24} alt="search" />
       </Button>
     </PopoverTrigger>
     <PopoverContent className="w-[300px] mt-4 p-2 rounded-lg bg-transparent">
@@ -140,3 +141,5 @@ const SearchBar = ({
     </PopoverContent>
   </Popover>
 );
+
+export default Navbar;
