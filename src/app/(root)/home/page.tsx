@@ -9,7 +9,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { VenuesProps } from "@/types";
 
 import { venues, categories } from "@/constants";
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
@@ -107,7 +106,15 @@ export default function Home() {
     </div>
   );
 
-  const VenueCard = ({ title, img, link }: VenuesProps) => (
+  const VenueCard = ({
+    title,
+    img,
+    link,
+  }: {
+    title: string;
+    img: string;
+    link: number;
+  }) => (
     <div className="flex flex-col items-center justify-center">
       <Link
         href={`/venues/${link}`}
