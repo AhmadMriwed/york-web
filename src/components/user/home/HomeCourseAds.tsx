@@ -219,7 +219,7 @@ export default function HomeCourseAds() {
                   title={"Language"}
                   className="!bg-[var(--primary-color1)] [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-[var(--primary-color1)] [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-[var(--primary-color1)] [&>.rs-btn:hover]:!text-white [&>*]:!text-left"
                >
-                  {filterCourse.language.map((lang) => {
+                  {filterCourse.language?.map((lang) => {
                      return (
                         <Dropdown.Item
                            className="!text-white"

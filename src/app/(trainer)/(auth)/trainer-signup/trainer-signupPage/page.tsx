@@ -1,10 +1,6 @@
 "use client";
-<<<<<<< HEAD
 import BackBtn from "@/components/buttons/BackBtn";
-=======
-import BackBtn from "@/components/backbtn/BackBtn";
 
->>>>>>> cad077e3213bc200ee05936ade79cee21098023a
 import {
    Container,
    Flex,

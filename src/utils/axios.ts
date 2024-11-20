@@ -8,13 +8,13 @@ let adminToken = cookie.get("admin_token");
 export const Axios = axios.create({
    baseURL: baseURL,
    headers: {
-      Authorization: `Bearer ${adminToken}`,
+      Authorization: `Bearer ${adminToken??`95|yCBQDLEOZguiKQi5AIfFPcJv2GWLJRhsToxInnGa31d14d0d`}`,
    },
 });
 
 export const UserAxios = axios.create({
    baseURL: baseURL,
    headers: {
-      Authorization: `Bearer 78|3PzjMYbKuGOdZ8HNQGHprPwp1lPyQEP6xlLkdAGK4f63e1cc`,
+      Authorization: `Bearer 95|yCBQDLEOZguiKQi5AIfFPcJv2GWLJRhsToxInnGa31d14d0d`,
    },
 });
