@@ -1,7 +1,5 @@
 import React, { FC } from "react";
 
-type Props = {};
-
 const SectionTitle: FC<{ title: string }> = ({ title }) => (
   <h3 className="font-bold text-black mb-4">{title}</h3>
 );
@@ -12,7 +10,7 @@ const Paragraph: FC<{ children: React.ReactNode }> = ({ children }) => (
 
 const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
   return (
-    <div style={{ position: "relative", paddingBottom: "50%", height: 0 }}>
+    <div style={{ position: "relative", paddingBottom: "100%", height: 0 }}>
       <iframe
         src={`https://www.youtube.com/embed/${videoId}`}
         frameBorder="0"
@@ -22,9 +20,8 @@ const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
           position: "absolute",
           top: 0,
           left: 0,
-          width: "55%",
-          height: "55%",
         }}
+        className="w-full h-72"
       />
     </div>
   );
@@ -41,11 +38,13 @@ const AboutPage: FC<Props> = () => {
       {/* Content Section */}
       <section className="container mx-auto my-14 px-4">
         <div className=" border-l-[5px] border-primary-color2 p-6">
-          <div className="border-l-[5px] border-primary-color2 p-6 h-[400px] m-2">
+          <div className="md:border-l-[5px] border-primary-color2 md:p-6  h-[400px] m-2">
             <h1 className="font-bold text-2xl text-primary-color1 mb-6">
               Who we are
             </h1>
-            <YouTubeEmbed videoId="ZGy0rQF0OME" />
+            <div className="h-[300px] w-[300px] md:w-[600px] ">
+              <YouTubeEmbed videoId="ZGy0rQF0OME" />
+            </div>
           </div>
           <div className="uppercase">
             York British Academy registered office in England and Wales. In the

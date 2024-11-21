@@ -37,7 +37,7 @@ const MobileNav = ({
 
       <div
         className={cn(
-          "fixed top-32 bg-gray-200  max-h-[45%] md:hidden overflow-y-scroll overflow-x-hidden ease-linear left-0 w-full  z-50  transition-[height] duration-300 rounded-md",
+          "fixed top-32 bg-gray-200  max-h-[38%] md:hidden overflow-y-scroll overflow-x-hidden ease-linear left-0 w-full  z-50  transition-[height] duration-300 rounded-md",
           {
             "h-0": !isMobileMenuOpen,
             "h-[45%]": isMobileMenuOpen,
