@@ -1,5 +1,7 @@
 import React, { FC } from "react";
 
+type Props = {};
+
 const SectionTitle: FC<{ title: string }> = ({ title }) => (
   <h3 className="font-bold text-black mb-4">{title}</h3>
 );
