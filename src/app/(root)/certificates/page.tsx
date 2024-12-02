@@ -11,7 +11,7 @@ const page = () => {
         <h1 className="text-3xl md:text-5xl w-full  md:max-w-[60%] mx-auto text-white font-bold text-center">
           SEARCH FOR CERTIFICATES ACCREDITED
         </h1>
-        <div className="w-[50%] mx-auto mt-16">
+        <div className="w-full md:w-[60%] mx-auto mt-16">
           <SearchForm placeholder={"Enter Certificate ID"} />
         </div>
       </div>

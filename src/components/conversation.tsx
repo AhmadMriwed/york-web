@@ -41,7 +41,7 @@ export function Conversation() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[22rem] h-[63vh] m-4 p-0 rounded-lg overflow-hidden">
+      <PopoverContent className="w-[21rem] h-[63vh] m-4 p-0 rounded-lg overflow-hidden">
         <div className="relative h-full transition-all duration-500 ease-in-out">
           {/* Help Center Section */}
           <div

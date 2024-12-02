@@ -39,7 +39,7 @@ export function SearchForm({ placeholder }: { placeholder: string }) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex items-center w-full md:w-[80%] mx-auto relative -top-8 justify-between  bg-gray-300 p-2 rounded-lg"
+        className="flex items-center w-[90%] md:w-[80%] mx-auto relative -top-8 justify-between  bg-gray-300 p-2 rounded-lg"
       >
         <FormField
           control={form.control}
