@@ -1,4 +1,3 @@
-"use client";
 import { Loader, Nav, Sidenav } from "rsuite";
 import ExitIcon from "@rsuite/icons/Exit"; // logout icons
 import Link from "next/link";
@@ -11,6 +10,8 @@ import Cookies from "universal-cookie";
 import { useRouter } from "next/navigation";
 import { GlobalState } from "@/types/storeTypes";
 import { storageURL } from "@/utils/api";
+import { ThunkDispatch } from "@reduxjs/toolkit"; // استيراد ThunkDispatch
+import { AnyAction } from "redux"; // استيراد AnyAction لتحديد نوع الأكشن العام
 
 interface NavLinkProps {
   as: string;
@@ -40,7 +41,8 @@ export default function Drawer({
   const { loadingPass, adminProfile, profileLoading } = useSelector(
     (state: GlobalState) => state.authSlice
   );
-  const dispatch = useDispatch();
+  const dispatch =
+    useDispatch<ThunkDispatch<GlobalState, unknown, AnyAction>>(); // تحديد النوع هنا
   const router = useRouter();
 
   const HandleLogOut = () => {
@@ -55,8 +57,13 @@ export default function Drawer({
           router.push("/");
         }
       });
-    } catch (error: any) {
-      console.log(error.message);
+    } catch (error) {
+      // التحقق من نوع الخطأ قبل الوصول إلى الخصائص الخاصة به
+      if (error instanceof Error) {
+        console.log(error.message);
+      } else {
+        console.log("An unknown error occurred");
+      }
     }
   };
 
