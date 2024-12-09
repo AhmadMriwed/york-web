@@ -11,7 +11,6 @@ import { ListItem, navItems1, navItems2 } from "./Navbar";
 import Link from "next/link";
 import { categories, venues } from "@/constants";
 import { cn } from "@/lib/utils";
-type Props = {};
 
 const MobileNav = ({
   isMobileMenuOpen,
@@ -37,7 +36,7 @@ const MobileNav = ({
 
       <div
         className={cn(
-          "fixed top-32 bg-gray-200  max-h-[45%] md:hidden overflow-y-scroll overflow-x-hidden ease-linear left-0 w-full  z-50  transition-[height] duration-[980ms] rounded-md",
+          "fixed top-32 bg-gray-200 max-h-[38%] md:hidden overflow-y-scroll overflow-x-hidden ease-linear left-0 w-full z-50 transition-[height] duration-300 rounded-md",
           {
             "h-0": !isMobileMenuOpen,
             "h-[45%]": isMobileMenuOpen,
@@ -50,16 +49,15 @@ const MobileNav = ({
             key={item.title}
             href={item.href}
             passHref
-            className="hover:no-underline "
+            className="hover:no-underline"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <p className="p-3 font-semibold hover:text-primary-color1 transition-all duration-200  text-xs uppercase border-b border-gray-200 ">
+            <p className="p-3 font-semibold hover:text-primary-color1 text-black transition-all duration-200 text-xs uppercase border-b border-gray-200">
               {item.title}
             </p>
           </Link>
         ))}
 
-        {/* Accordion for Categories and Venues */}
         <Accordion type="single" collapsible>
           <AccordionSection
             title="Categories"
@@ -68,15 +66,16 @@ const MobileNav = ({
           />
           <AccordionSection title="Venues" items={venues} basePath="/venues" />
         </Accordion>
+
         {navItems2.map((item) => (
           <Link
             key={item.title}
             href={item.href}
             passHref
-            className="hover:no-underline "
+            className="hover:no-underline"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <p className="p-3 font-semibold hover:text-primary-color1 transition-all duration-200  text-xs uppercase border-b border-gray-200 ">
+            <p className="p-3 font-semibold hover:text-primary-color1 text-black transition-all duration-200 text-xs uppercase border-b border-gray-200">
               {item.title}
             </p>
           </Link>
@@ -100,7 +99,7 @@ const AccordionSection = ({
 }) => (
   <AccordionItem value={title.toLowerCase()}>
     <AccordionTrigger className="ml-2">
-      <p className="font-semibold hover:text-primary-color1 transition-all duration-200 ">
+      <p className="font-semibold hover:text-primary-color1 transition-all duration-200">
         {title}
       </p>
     </AccordionTrigger>

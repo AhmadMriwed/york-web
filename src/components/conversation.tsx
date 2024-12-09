@@ -8,8 +8,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SearchForm } from "./forms/SearchForm";
-import { Tooltip } from "./ui/tooltip";
-import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import NewConversationForm from "./forms/NewConversationForm";
 
 export function Conversation() {
@@ -41,7 +39,7 @@ export function Conversation() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-[22rem] h-[63vh] m-4 p-0 rounded-lg overflow-hidden">
+      <PopoverContent className="w-[21rem] h-[63vh] m-4 p-0 rounded-lg overflow-hidden">
         <div className="relative h-full transition-all duration-500 ease-in-out">
           {/* Help Center Section */}
           <div
@@ -60,14 +58,9 @@ export function Conversation() {
             <SearchForm placeholder="Find Answer" />
             <Button
               onClick={() => setIsNewConversation(true)}
-              className=" flex items-center justify-center ml-14 w-[70%] text-lg p-4 bg-primary-color1 hover:bg-primary-color2 mt-4"
+              className="flex items-center justify-center ml-14 w-[70%] text-lg p-4 bg-primary-color1 hover:bg-primary-color2 mt-4"
             >
-              <Image
-                src={"/icons/send.svg"}
-                height={24}
-                width={24}
-                alt="send"
-              />
+              <Image src="/icons/send.svg" height={24} width={24} alt="send" />
               <p>New Conversation</p>
             </Button>
           </div>
@@ -78,16 +71,16 @@ export function Conversation() {
               isNewConversation
                 ? "translate-x-0 opacity-100"
                 : "translate-x-full opacity-0"
-            } transition-all duration-500 ease-in-out  flex flex-col items-center `}
+            } transition-all duration-500 ease-in-out flex flex-col items-center`}
           >
-            <div className="px-4 pt-8 w-full top-0 pb-12 bg-primary-color1 rounded-t-lg">
+            <div className="px-4 pt-8 w-full pb-12 bg-primary-color1 rounded-t-lg">
               <Button
                 onClick={() => setIsNewConversation(false)}
                 variant={"ghost"}
                 className="p-4 relative -top-4"
               >
                 <Image
-                  src={"/icons/arrow-back.svg"}
+                  src="/icons/arrow-back.svg"
                   height={24}
                   width={20}
                   alt="go back"

@@ -4,18 +4,16 @@ import DefaultButton from "@/components/buttons/DefaultButton";
 import Link from "next/link";
 import { category, newsItems, newsItme } from "@/utils/user/home/homePageEnums";
 
-// gsap :
+// gsap:
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/all";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { venues, categories } from "@/constants";
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 import FrequentlyAskedQuestions from "@/components/user/home/FrequentlyAskedQuestions";
 import InfiniteMovingCardsDemo from "@/components/user/home/InfiniteMovingCard";
-
-console.log("this is server component");
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -63,44 +61,42 @@ export default function Home() {
   }) => (
     <div
       className={`relative flex ${
-        direction === "col"
-          ? "flex-col justify-center items-center"
-          : "flex-col-reverse justify-center items-center"
-      } capitalize`}
+        direction === "col" ? "flex-col" : "flex-col-reverse"
+      } justify-center items-center text-center capitalize`}
     >
-      <h3 className="text-black text-[35px] font-bold">{title}</h3>
-      {desc && <p className="text-[#7d7d7d] text-[20px] font-normal">{desc}</p>}
+      <h3 className="text-black text-2xl md:text-3xl font-bold">{title}</h3>
+      {desc && <p className="text-[#7d7d7d] text-sm md:text-lg">{desc}</p>}
       <span className="absolute bottom-[-20px] w-full max-w-[200px] h-[2px] bg-[var(--primary-color2)]" />
     </div>
   );
 
   const NewsCard = ({ item }: { item: newsItme }) => (
-    <div className="w-[366px]  min-h-[405px] px-[30px] bg-[var(--home-color)] rounded-[10px] hover:translate-y-[-6px] duration-300 transition-all cursor-default">
+    <div className="w-full md:w-[366px] min-h-[405px] p-[20px] bg-[var(--home-color)] rounded-[10px] hover:translate-y-[-6px] duration-300 transition-all cursor-default">
       <div className="relative h-[215px] rounded-b-[10px]">
         <Image src={item.image} alt="news" fill className="rounded-b-[10px]" />
         <span className="absolute w-full h-full top-0 left-0 bg-gradient-to-b from-[#01989f] to-[var(--home-color)] opacity-80 rounded-b-[10px]" />
-        <h3 className="text-white absolute bottom-0 p-3 text-[26px] font-bold leading-[1.1] capitalize">
+        <h3 className="text-white absolute bottom-0 p-3 text-[18px] font-bold leading-[1.1] capitalize">
           {item.title}
         </h3>
       </div>
-      <p className="text-[14px] py-5 text-[#777]">{item.description}</p>
+      <p className="text-sm py-5 text-[#777]">{item.description}</p>
     </div>
   );
 
   const CategoryCard = ({ item }: { item: category }) => (
-    <div className="flex justify-center items-center gap-3 flex-col p-[20px] w-[230px] h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect cursor-default">
+    <div className="flex justify-center items-center gap-3 flex-col p-5 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect cursor-default">
       <div className="footer-bg"></div>
       <div className="w-[80px] h-[80px] aspect-[1/1]">
         <Image
           src={item.image}
           alt={item.title}
-          className="aspect-[1/1]"
+          className="aspect-[3/2] md:aspect-[1/1]"
           width={80}
           height={80}
           loading="lazy"
         />
       </div>
-      <p className="text-[15px] font-semibold text-[var(--primary-color2)] text-center capitalize">
+      <p className="text-xs md:text-[15px] font-semibold text-[var(--primary-color2)] text-center capitalize -mt-8 md:mt-0">
         {item.title}
       </p>
     </div>
@@ -118,7 +114,7 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center">
       <Link
         href={`/venues/${link}`}
-        className="relative  hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md "
+        className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md "
       >
         <Image src={img} width={200} height={200} alt={title} />
       </Link>
@@ -129,9 +125,9 @@ export default function Home() {
   return (
     <section ref={sectionRef} className="relative duration-400">
       {loading ? (
-        <div className="flex  fixed top-0 left-0 z-50 justify-center h-full w-full items-center bg-black">
+        <div className="flex fixed top-0 left-0 z-50 justify-center h-full w-full items-center bg-black">
           <video
-            src={"/videos/22.mp4"}
+            src="/videos/22.mp4"
             height={900}
             width={900}
             autoPlay
@@ -166,8 +162,8 @@ export default function Home() {
           <section className="relative">
             <div className="ms-[50px] sm:ms-[80px] relative">
               <SectionTitle
-                title="york british academy"
-                desc="welcome to"
+                title="York British Academy"
+                desc="Welcome to"
                 direction="col-reverse"
               />
             </div>
@@ -185,7 +181,7 @@ export default function Home() {
                   education.
                 </p>
                 <Link
-                  href={"#"}
+                  href="#"
                   className="text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
                 >
                   Read More
@@ -199,12 +195,11 @@ export default function Home() {
             <div className="ms-[50px] sm:ms-[80px] flex justify-between gap-7 flex-wrap">
               <SectionTitle
                 title="York News"
-                desc="keep up with our newest feeds"
+                desc="Keep up with our newest feeds"
                 direction="col"
               />
-
               <Link
-                href={"#"}
+                href="#"
                 className="self-end text-[var(--primary-color1)] hover:text-[var(--primary-color2)] me-[80px] font-semibold text-[20px] capitalize mt-[10px]"
               >
                 Read more
@@ -213,7 +208,7 @@ export default function Home() {
 
             <div className="relative mt-[90px]">
               <div className="absolute z-[-1] xl:h-[70%] w-full bg-[#023141] shadow-[0_3.26px_3.26px_rgba(0,0,0,0.25)] top-[50%] translate-y-[-50%]" />
-              <div className="px-[30px] flex items-center gap-[30px] justify-center flex-wrap ">
+              <div className="px-[30px] flex items-center gap-[30px] justify-center flex-wrap">
                 {newsItems.map((item: newsItme) => (
                   <NewsCard key={item.id} item={item} />
                 ))}
@@ -226,17 +221,18 @@ export default function Home() {
               <SectionTitle title="Categories" />
             </div>
 
-            <main className="px-[30px] flex justify-center flex-wrap mt-[90px] gap-[20px] mb-[30px]">
+            <main className="px-[30px] grid grid-cols-2 gap-10 md:flex justify-center flex-wrap mt-[90px] md:gap-5 mx-auto mb-[30px] mr-6">
               {categories.map((item: category) => (
                 <CategoryCard key={item.id} item={item} />
               ))}
             </main>
           </section>
+
           <section className="mt-[100px]">
             <div className="flex justify-center items-center">
               <SectionTitle title="Venues" />
             </div>
-            <main className="px-[30px] flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
+            <main className="px-[30px] grid grid-cols-2 md:flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
               {venues.map((item, index) => (
                 <VenueCard
                   key={item.title}
@@ -247,9 +243,10 @@ export default function Home() {
               ))}
             </main>
           </section>
+
           <section className="mt-[100px]">
             <div className="flex justify-center items-center">
-              <SectionTitle title="Frequently Asked Question" />
+              <SectionTitle title="Frequently Asked Questions" />
             </div>
             <FrequentlyAskedQuestions />
           </section>

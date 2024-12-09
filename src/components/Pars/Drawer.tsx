@@ -37,34 +37,26 @@ export default function Drawer({
 }) {
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
-  const {
-    error,
-    loadingPass,
-    loading,
-    adminProfile,
-    profileLoading,
-    profileError,
-  } = useSelector((state: GlobalState) => state.authSlice);
-  const dispatch: any = useDispatch();
+  const { loadingPass, adminProfile, profileLoading } = useSelector(
+    (state: GlobalState) => state.authSlice
+  );
+  const dispatch = useDispatch();
   const router = useRouter();
-  const HandleLogOut = () => {
-    let cookie = new Cookies();
 
-    let token = cookie.get("admin_token");
-    console.log(token);
+  const HandleLogOut = () => {
+    const cookie = new Cookies();
+    const token = cookie.get("admin_token");
 
     try {
       dispatch(adminLogOut()).then((res: any) => {
-        console.log(res);
         if (res.error) {
-          console.log("some thing went wrong");
-          return;
+          console.log("Something went wrong");
         } else {
           router.push("/");
         }
       });
     } catch (error: any) {
-      console.log(error.mesage);
+      console.log(error.message);
     }
   };
 
@@ -73,7 +65,7 @@ export default function Drawer({
       className={`${expanded ? "block" : "hidden"} ${
         mode === "dark" ? "!bg-dark !text-light" : "!bg-light !text-dark"
       } 
-          absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-[1s]`}
+          absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-1000`}
     >
       <Sidenav
         className="!bg-inherit !text-inherit !mt-[10px] transition-all duration-500"
@@ -85,57 +77,56 @@ export default function Drawer({
           className="[&>.rs-sidenav-toggle-button]:!float-left !bg-inherit [&>*]:!text-inherit !border-none [&>*]:!bg-transparent"
         ></Sidenav.Toggle>
         <Sidenav.Body className="!text-inherit">
-          {profileLoading && (
+          {profileLoading ? (
             <div className="h-[100px] element-center">
               <Loader />
             </div>
-          )}
-          {!profileLoading && adminProfile && (
-            <div>
-              <div className="flex justify-between px-3 gap-2 items-center">
-                <p className="text-[14px] text-[#bbb] m-0">
-                  Accounts : {adminProfile?.account_type}
-                </p>
-                <p className="text-[14px] text-[#777] m-0">
-                  User ID : {adminProfile?.user_id}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-inherit justify-center mt-[25px]">
-                {adminProfile?.image !== null &&
-                adminProfile?.image?.startsWith("http") ? (
-                  <Image
-                    src={adminProfile?.image}
-                    alt="profile image"
-                    width={60}
-                    height={60}
-                    className="rounded-[50%]"
-                  />
-                ) : (
-                  <Image
-                    src={storageURL + adminProfile?.image}
-                    alt="profile image"
-                    width={60}
-                    height={60}
-                    className="rounded-[50%]"
-                  />
-                )}
-
-                <div className="">
-                  <p className="text-[22px] text-[#bbb]">
-                    {adminProfile?.first_name + " " + adminProfile?.last_name}
+          ) : (
+            adminProfile && (
+              <div>
+                <div className="flex justify-between px-3 gap-2 items-center">
+                  <p className="text-[14px] text-[#bbb] m-0">
+                    Accounts : {adminProfile?.account_type}
                   </p>
-                  <p className="text-[14px] text-[#777] mt-[2px]">
-                    {adminProfile?.email}
+                  <p className="text-[14px] text-[#777] m-0">
+                    User ID : {adminProfile?.user_id}
                   </p>
                 </div>
+                <div className="flex items-center gap-2 text-inherit justify-center mt-[25px]">
+                  {adminProfile?.image &&
+                  adminProfile?.image.startsWith("http") ? (
+                    <Image
+                      src={adminProfile?.image}
+                      alt="profile image"
+                      width={60}
+                      height={60}
+                      className="rounded-[50%]"
+                    />
+                  ) : (
+                    <Image
+                      src={storageURL + adminProfile?.image}
+                      alt="profile image"
+                      width={60}
+                      height={60}
+                      className="rounded-[50%]"
+                    />
+                  )}
+                  <div>
+                    <p className="text-[22px] text-[#bbb]">
+                      {adminProfile?.first_name + " " + adminProfile?.last_name}
+                    </p>
+                    <p className="text-[14px] text-[#777] mt-[2px]">
+                      {adminProfile?.email}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            )
           )}
-
           <Nav className="mt-[50px] !text-inherit">
             <Nav.Item
               eventKey="1"
-              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]  "
+              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
               as={NavLink}
               href="/"
             >
@@ -143,7 +134,7 @@ export default function Drawer({
             </Nav.Item>
             <Nav.Item
               eventKey="2"
-              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px] "
+              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
               as={NavLink}
               href="/"
             >
@@ -151,7 +142,7 @@ export default function Drawer({
             </Nav.Item>
             <Nav.Item
               eventKey="3"
-              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px] "
+              className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
               as={NavLink}
               href="/"
             >
@@ -160,7 +151,7 @@ export default function Drawer({
             <Nav.Menu
               eventKey="4"
               title="Settings"
-              className=" !text-inherit [&>*]:!text-center [&>*]:!bg-transparent [&>*]:!text-[14px] [&>*]:!text-inherit"
+              className="!text-inherit [&>*]:!text-center [&>*]:!bg-transparent [&>*]:!text-[14px]"
             >
               <Nav.Item
                 eventKey="4-1"
@@ -175,7 +166,7 @@ export default function Drawer({
               >
                 {mode === "dark" ? "Light" : "Dark"} Mode
               </Nav.Item>
-            </Nav.Menu>{" "}
+            </Nav.Menu>
             <hr className="mt-[70px] mb-[30px] w-[calc(100%_-_40px)] border-[#777] mx-auto" />
             <button
               onClick={HandleLogOut}

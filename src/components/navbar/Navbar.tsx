@@ -40,7 +40,6 @@ export function Navbar(): JSX.Element {
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const path = usePathname();
-  console.log(path);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -118,7 +117,7 @@ export const ListItem = React.forwardRef<
   );
 });
 
-// Adding displayName to prevent react/display-name warning
+// Add displayName to resolve the ESLint warning
 ListItem.displayName = "ListItem";
 
 const SearchBar = ({
@@ -141,5 +140,8 @@ const SearchBar = ({
     </PopoverContent>
   </Popover>
 );
+
+// Add displayName to resolve the ESLint warning
+SearchBar.displayName = "SearchBar";
 
 export default Navbar;
