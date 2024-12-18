@@ -180,7 +180,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/course-info/${courseId}`}
+              href={`/admin/dashboard/courses/course-info/${courseId}`}
             >
               Information Course
             </Nav.Item>
@@ -198,7 +198,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href={`/admin-dashboard/courses/course-info/training-session/${courseId}`}
+              href={`/admin/dashboard/courses/course-info/training-session/${courseId}`}
             >
               Training Sessions
             </Nav.Item>
@@ -224,7 +224,7 @@ const CourseSidebar = () => {
                     eventKey={`3-${item.id}`}
                     className="!py-[5px] transition-all duration-500 !bg-inherit hover:translate-x-2 text-[13px]"
                     as={NavLink}
-                    href={`/admin-dashboard/courses/course-info/joined-users/${item.url}`}
+                    href={`/admin/dashboard/courses/course-info/joined-users/${item.url}`}
                   >
                     {item.title}
                   </Nav.Item>
@@ -273,7 +273,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="#"
             >
               Certificates
             </Nav.Item>
@@ -291,7 +291,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href=""
+              href="#"
             >
               Course Report
             </Nav.Item>
@@ -309,7 +309,7 @@ const CourseSidebar = () => {
               }
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
-              href="/admin-dashboard"
+              href="/admin/dashboard"
             >
               Home
             </Nav.Item>

@@ -1,3 +1,4 @@
+import { PDFType } from "@/types/adminTypes/courses/coursesTypes";
 import dynamic from "next/dynamic";
 
 const PDFViewer = dynamic(
@@ -10,17 +11,13 @@ const PDFViewer = dynamic(
 export default function PDF({
   modalOpen,
   setModalOpen,
-  fileSource,
+  PDF,
 }: {
   modalOpen: boolean;
   setModalOpen: any;
-  fileSource: any;
+  PDF?: PDFType | null;
 }) {
   return (
-    <PDFViewer
-      modalOpen={modalOpen}
-      setModalOpen={setModalOpen}
-      fileSource={fileSource}
-    />
+    <PDFViewer modalOpen={modalOpen} setModalOpen={setModalOpen} PDF={PDF} />
   );
 }

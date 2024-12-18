@@ -5,32 +5,33 @@ import * as yup from "yup";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { createInvoice } from "@/store/adminstore/slices/courses/submit-courses/submitCoursesSlice";
 import { getUTCDate } from "@/utils/dateFuncs";
-import { submitCourseType } from "@/types/adminTypes/courses/coursesTypes";
+import {
+  submitCourseType,
+  Venue,
+} from "@/types/adminTypes/courses/coursesTypes";
 import { GlobalState } from "@/types/storeTypes";
 import { ArrowDownLine, ArrowUpLine } from "@rsuite/icons";
-import { Loader, Modal } from "rsuite";
+import { Checkbox, Loader, Modal } from "rsuite";
 import CustomInput from "@/components/inputs/custom-field/CustomInput";
 import Image from "next/image";
 import ImageUploader from "../inputs/image-uploader/ImageUploader";
+import TextEditor from "../inputs/editor/Editor";
 
 // Validation Schema
 const invoiceSchema = yup.object().shape({
   title: yup.string().required("Title is required"),
   sub_title: yup.string().required("Subtitle is required"),
-  start_date: yup
-    .date()
-    .required("Start date is required")
-    .min(new Date(), "Please enter a valid start date"),
+  start_date: yup.date().required("Start date is required"),
   end_date: yup
     .date()
-    .required("End date is required")
+    .nullable()
     .test(
       "is-valid-end-date",
       "End date must be greater than start date",
       function (value) {
         const { start_date } = this.parent;
-
-        return value > start_date;
+        if (value) return value > start_date;
+        return true;
       }
     ),
   houres: yup.number().required("Hours is required"),
@@ -54,110 +55,8 @@ const invoiceSchema = yup.object().shape({
   description: yup.string(),
   price: yup.number().required("Price is required"),
   currencies_id: yup.number().required("Currency is required"),
-  invoice_name: yup.string().required("Invoice Name is required"),
+  invoice_name: yup.string(),
 });
-
-const fields = [
-  {
-    type: "text",
-    name: "code",
-    label: "Code",
-    placeholder: "Code",
-    optional: true,
-    required: false,
-    disabled: false,
-  },
-  {
-    type: "text",
-    name: "course_ads_id",
-    label: "Course Ad Id",
-    placeholder: "Course Ad Id",
-    optional: false,
-    required: true,
-    disabled: true,
-  },
-  {
-    type: "text",
-    name: "submit_courses_id",
-    label: "Submit Course",
-    placeholder: "Submit Course",
-    optional: false,
-    required: true,
-    disabled: true,
-  },
-  {
-    type: "text",
-    name: "title",
-    label: "Title",
-    placeholder: "Title",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "text",
-    name: "sub_title",
-    label: "Sub Title",
-    placeholder: "Sub Title",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "text",
-    name: "location",
-    label: "Location",
-    placeholder: "Location",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "date",
-    name: "start_date",
-    label: "Start Date",
-    placeholder: "Start Date",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "date",
-    name: "end_date",
-    label: "End Date",
-    placeholder: "End Date",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "number",
-    name: "houres",
-    label: "Hours",
-    placeholder: "Hours",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "number",
-    name: "fee",
-    label: "Fee",
-    placeholder: "Fee",
-    optional: false,
-    required: true,
-    disabled: false,
-  },
-  {
-    type: "textarea",
-    name: "description",
-    label: "Description",
-    placeholder: "Description",
-    optional: true,
-    required: false,
-    disabled: false,
-  },
-];
 
 const InvoiceModal = ({
   modalOpen,
@@ -171,6 +70,7 @@ const InvoiceModal = ({
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
   const [expand, setExpand] = useState(false);
+  const [onlineVenueChecked, setOnlineVenueChecked] = useState(false);
 
   const { isLoading, venues, categories, currencies } = useSelector(
     (state: GlobalState) => state.endUser
@@ -236,6 +136,7 @@ const InvoiceModal = ({
     ),
     value: currency.id,
   }));
+
   const submitHandler = (values: any) => {
     const data: any = {
       ...values,
@@ -266,7 +167,11 @@ const InvoiceModal = ({
     end_date: submitInfo?.end_date ? new Date(submitInfo.end_date) : new Date(),
     houres: submitInfo?.hours ? submitInfo.hours : null,
     fee: submitInfo?.fee ? submitInfo.fee : null,
-    lang: submitInfo?.language ? submitInfo.language : "",
+    lang: submitInfo?.language
+      ? submitInfo.language === "English"
+        ? "en"
+        : "ar"
+      : "",
     image: null,
     venue_id:
       submitInfo?.venue && submitInfo?.venue?.id ? submitInfo.venue.id : null,
@@ -283,8 +188,101 @@ const InvoiceModal = ({
     description: submitInfo?.description ? submitInfo.description : "",
     price: null,
     currencies_id: 1,
-    invoice_name: "",
+    invoice_name: "course invoice",
   };
+
+  const fields = [
+    {
+      type: "text",
+      name: "code",
+      label: "Code",
+      placeholder: "Code",
+      optional: true,
+      required: false,
+      disabled: false,
+    },
+    {
+      type: "text",
+      name: "course_ads_id",
+      label: "Course Ad Id",
+      placeholder: "Course Ad Id",
+      optional: false,
+      required: true,
+      disabled: true,
+    },
+    {
+      type: "text",
+      name: "submit_courses_id",
+      label: "Submit Course",
+      placeholder: "Submit Course",
+      optional: false,
+      required: true,
+      disabled: true,
+    },
+    {
+      type: "text",
+      name: "title",
+      label: "Title",
+      placeholder: "Title",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "text",
+      name: "sub_title",
+      label: "Sub Title",
+      placeholder: "Sub Title",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "text",
+      name: "location",
+      label: "Location",
+      placeholder: "Location",
+      optional: false,
+      required: true,
+      disabled: onlineVenueChecked,
+    },
+    {
+      type: "date",
+      name: "start_date",
+      label: "Start Date",
+      placeholder: "Start Date",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "date",
+      name: "end_date",
+      label: "End Date",
+      placeholder: "End Date",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "number",
+      name: "houres",
+      label: "Hours",
+      placeholder: "Hours",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+    {
+      type: "number",
+      name: "fee",
+      label: "Fee",
+      placeholder: "Fee",
+      optional: false,
+      required: true,
+      disabled: false,
+    },
+  ];
 
   return (
     <Modal
@@ -304,6 +302,7 @@ const InvoiceModal = ({
               ? "text-[var(--light-color)]"
               : "text-[var(--dark-color)]"
           }`}
+          onClick={() => console.log(submitInfo)}
         >
           Create Invoice
         </Modal.Title>
@@ -329,7 +328,7 @@ const InvoiceModal = ({
                       type="text"
                       name="invoice_name"
                       label="Invoice Name"
-                      required
+                      disabled
                       placeholder="Invoice Name"
                     />
                     <CustomInput
@@ -366,13 +365,11 @@ const InvoiceModal = ({
                       required
                       placeholder="Language"
                     />
-                    <CustomInput
-                      type="textarea"
-                      textAreaRows={2}
-                      name="outlines"
-                      label="Outline"
-                      required
-                      placeholder="Outline"
+                    <TextEditor name="outlines" label="Outline" required />
+                    <TextEditor
+                      name="description"
+                      label="Description"
+                      optional
                     />
                     <ImageUploader formikProps={props} />
                   </div>
@@ -412,16 +409,41 @@ const InvoiceModal = ({
                         required
                         placeholder="Status"
                       />
-                      <CustomInput
-                        type="select"
-                        selectData={venuesList}
-                        selectLoading={isLoading}
-                        selectSearchable
-                        name="venue_id"
-                        label="Venue"
-                        optional
-                        placeholder="Venue"
-                      />
+                      <div className="flex justify-start items-center">
+                        <CustomInput
+                          type="select"
+                          selectData={venuesList}
+                          selectLoading={isLoading}
+                          selectSearchable
+                          name="venue_id"
+                          label="Venue"
+                          optional
+                          placeholder="Venue"
+                          disabled={onlineVenueChecked}
+                        />
+                        <Checkbox
+                          className="!text-[#000]"
+                          onChange={(value, checked) => {
+                            if (checked) {
+                              const onlineVenue = venues.find(
+                                (venue: Venue) => venue.title === "online"
+                              );
+                              if (onlineVenue) {
+                                props.values.venue_id = onlineVenue.id;
+                              } else {
+                                props.values.venue_id = -1;
+                              }
+                              setOnlineVenueChecked(true);
+                              console.log();
+                            } else {
+                              props.values.venue_id = null;
+                              setOnlineVenueChecked(false);
+                            }
+                          }}
+                        >
+                          online
+                        </Checkbox>
+                      </div>
                       <CustomInput
                         type="select"
                         selectData={categoriesList}

@@ -7,16 +7,18 @@ import {
   addTrainer,
 } from "@/store/adminstore/slices/courses/joinedUsers/courseJoinedUsersSlice";
 import { GlobalState } from "@/types/storeTypes";
-import { InputPicker, Loader, Modal } from "rsuite";
+import { SelectPicker, Loader, Modal } from "rsuite";
 
 const AddJoinedUserModal = ({
   modalOpen,
   setModalOpen,
+  setSearchTerm,
   userType,
   courseId,
 }: {
   modalOpen: boolean;
   setModalOpen: any;
+  setSearchTerm: any;
   userType: "trainer" | "trainee" | "client";
   courseId: number;
 }) => {
@@ -112,7 +114,7 @@ const AddJoinedUserModal = ({
             <label htmlFor="user" className="text-[12px] font-[500]">
               {`Select ${userType} :`}
             </label>
-            <InputPicker
+            <SelectPicker
               className="!text-[#000] !w-full"
               id="user"
               data={
@@ -130,8 +132,9 @@ const AddJoinedUserModal = ({
                   : "Clients"
               }
               searchable
+              onSearch={(value) => setSearchTerm(value)}
               value={selectedId}
-              onChange={(value: number) => setSelectedId(value)}
+              onChange={(value: any) => setSelectedId(value)}
               renderMenu={(menu) => {
                 if (endUserLoading) {
                   return (
@@ -155,13 +158,13 @@ const AddJoinedUserModal = ({
             <label htmlFor="permission" className="text-[12px] font-[500]">
               Select permission :
             </label>
-            <InputPicker
+            <SelectPicker
               className="!text-[#000] !w-full"
               id="permission"
               data={permissionsList}
               placeholder="Permissions"
               value={permission_id}
-              onChange={(value: number) => setPermission_id(value)}
+              onChange={(value: any) => setPermission_id(value)}
               renderMenu={(menu) => {
                 if (endUserLoading) {
                   return (
