@@ -15,7 +15,7 @@ import {
 } from "@/store/userStore/slices/userSlice";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import OperationAlert from "@/components/Pars/OperationAlert";
-
+import { Suspense } from "react";
 export interface FormVal {
   first_name: string;
   last_name: string;
@@ -26,6 +26,14 @@ export interface FormVal {
 }
 
 const UserSignupPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActualComponent />
+    </Suspense>
+  );
+};
+
+const ActualComponent = () => {
   let user_type = useSearchParams().get("user_type");
   const [image, setImage] = useState("");
 

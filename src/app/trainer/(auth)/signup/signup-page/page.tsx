@@ -24,6 +24,7 @@ import { formatFileSize } from "@/utils/helpers";
 
 import dynamic from "next/dynamic";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import { Suspense } from "react";
 const LocationModal = dynamic(
   () => import("@/components/accounts/trainers/LocationModal"),
   {
@@ -56,6 +57,14 @@ export interface FormVal {
 }
 
 const TrainerSignupPage = () => {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <ActualComponent />
+      </Suspense>
+    );
+  };
+  
+  const ActualComponent = () => {
   let trainer_type = useSearchParams().get("trainer_type");
   let trainer_type_id = useSearchParams().get("id");
   const [loadingResume, setLoadingResume] = useState(false);

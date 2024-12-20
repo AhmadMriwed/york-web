@@ -1,9 +1,17 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
-import ModalOperation from "@/components/accounts/roles/ModalOperation";
-import AddTrainerModal from "@/components/accounts/trainers/AddTrainerModal";
-import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
+
+
+import dynamic from "next/dynamic";
+// استيراد المكونات مع تعطيل SSR (التقديم المبدئي) لهذه المكونات
+const AddTrainerModal = dynamic(() => import("@/components/accounts/trainers/AddTrainerModal"), { ssr: false });
+const ModalOperation = dynamic(() => import("@/components/accounts/roles/ModalOperation"), { ssr: false });
+const ShowUserProfileModal = dynamic(() => import("@/components/accounts/users/ShowUserProfileModal"), { ssr: false });
+
+// import ModalOperation from "@/components/accounts/roles/ModalOperation";
+// import AddTrainerModal from "@/components/accounts/trainers/AddTrainerModal";
+// import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
 import { useStaticEnums } from "@/utils/useStaticEnums";
 import CrudLayout from "@/components/crud/CrudLayout";
@@ -36,8 +44,14 @@ export default function Trainers() {
 
   const dispatch: any = useDispatch();
 
+  // useEffect(() => {
+  //   dispatch(getTrainers({ activePage, term }));
+  // }, [dispatch, activePage, term]);
+    // وضع شرط للتأكد من أن الكود يعمل فقط في بيئة المتصفح
   useEffect(() => {
-    dispatch(getTrainers({ activePage, term }));
+    if (typeof window !== "undefined") {
+      dispatch(getTrainers({ activePage, term }));
+    }
   }, [dispatch, activePage, term]);
 
   const columns = [
