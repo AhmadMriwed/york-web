@@ -124,141 +124,127 @@ export default function Home() {
 
   return (
     <section ref={sectionRef} className="relative duration-400">
-      {loading ? (
-        <div className="flex fixed top-0 left-0 z-50 justify-center h-full w-full items-center bg-black">
-          <video
-            src="/videos/22.mp4"
-            height={900}
-            width={900}
-            autoPlay
-            loop
-            muted
-            aria-label="Loading animation"
-          />
-        </div>
-      ) : (
-        <div>
-          <section className="home-landing-bg">
-            <main
-              id="home"
-              className="flex justify-center items-center flex-col h-[calc(100%_-_125px)] px-[20px] md:px-[50px] relative"
-            >
-              <h1 className="animation text-white md:w-full mt-44 md:mt-0 lg:w-[815px] leading-[1.4] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
-                Make your employees grow with York Academy
-              </h1>
-              <p className="animation text-[#c2c2c2] md:w-full lg:w-[815px]">
-                The opportunity for interaction between employees enhances
-                information sharing and knowledge transfer, especially in larger
-                companies where team interaction is valuable.
-              </p>
-              <div className="animation my-5 md:w-full lg:w-[815px]">
-                <DefaultButton label="view courses" />
-              </div>
-            </main>
-          </section>
-
-          <HomeCourseAds />
-
-          <section className="relative">
-            <div className="ms-[50px] sm:ms-[80px] relative">
-              <SectionTitle
-                title="York British Academy"
-                desc="Welcome to"
-                direction="col-reverse"
-              />
+      <div>
+        <section className="home-landing-bg">
+          <main
+            id="home"
+            className="flex justify-center items-center flex-col h-[calc(100%_-_125px)] px-[20px] md:px-[50px] relative"
+          >
+            <h1 className="animation text-white md:w-full mt-44 md:mt-0 lg:w-[815px] leading-[1.4] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
+              Make your employees grow with York Academy
+            </h1>
+            <p className="animation text-[#c2c2c2] md:w-full lg:w-[815px]">
+              The opportunity for interaction between employees enhances
+              information sharing and knowledge transfer, especially in larger
+              companies where team interaction is valuable.
+            </p>
+            <div className="animation my-5 md:w-full lg:w-[815px]">
+              <DefaultButton label="view courses" />
             </div>
+          </main>
+        </section>
 
-            <main className="relative home-welcome-bg min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
-              <div className="w-full h-full absolute top-0 left-0 bg-[#13181eec] bg-opacity-95" />
-              <div className="min-w-[100px] lg:ms-[100px] relative">
-                <Image src="/logo.png" alt="Logo" width={200} height={200} />
-              </div>
-              <div className="basis-[50%] relative">
-                <p className="text-white mb-3">
-                  York Academy registered office in England and Wales. Its main
-                  objective is to provide training, advisory services, and
-                  strategic solutions for postgraduate studies in higher
-                  education.
-                </p>
-                <Link
-                  href="#"
-                  className="text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
-                >
-                  Read More
-                </Link>
-              </div>
-              <span className="hidden md:inline absolute w-[55%] h-[135%] left-[40%] border-2 border-[var(--primary-color1)]" />
-            </main>
-          </section>
+        <HomeCourseAds />
 
-          <section className="mt-[130px]">
-            <div className="ms-[50px] sm:ms-[80px] flex justify-between gap-7 flex-wrap">
-              <SectionTitle
-                title="York News"
-                desc="Keep up with our newest feeds"
-                direction="col"
-              />
+        <section className="relative">
+          <div className="ms-[50px] sm:ms-[80px] relative">
+            <SectionTitle
+              title="York British Academy"
+              desc="Welcome to"
+              direction="col-reverse"
+            />
+          </div>
+
+          <main className="relative home-welcome-bg min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
+            <div className="w-full h-full absolute top-0 left-0 bg-[#13181eec] bg-opacity-95" />
+            <div className="min-w-[100px] lg:ms-[100px] relative">
+              <Image src="/logo.png" alt="Logo" width={200} height={200} />
+            </div>
+            <div className="basis-[50%] relative">
+              <p className="text-white mb-3">
+                York Academy registered office in England and Wales. Its main
+                objective is to provide training, advisory services, and
+                strategic solutions for postgraduate studies in higher
+                education.
+              </p>
               <Link
                 href="#"
-                className="self-end text-[var(--primary-color1)] hover:text-[var(--primary-color2)] me-[80px] font-semibold text-[20px] capitalize mt-[10px]"
+                className="text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
               >
-                Read more
+                Read More
               </Link>
             </div>
+            <span className="hidden md:inline absolute w-[55%] h-[135%] left-[40%] border-2 border-[var(--primary-color1)]" />
+          </main>
+        </section>
 
-            <div className="relative mt-[90px]">
-              <div className="absolute z-[-1] xl:h-[70%] w-full bg-[#023141] shadow-[0_3.26px_3.26px_rgba(0,0,0,0.25)] top-[50%] translate-y-[-50%]" />
-              <div className="px-[30px] flex items-center gap-[30px] justify-center flex-wrap">
-                {newsItems.map((item: newsItme) => (
-                  <NewsCard key={item.id} item={item} />
-                ))}
-              </div>
-            </div>
-          </section>
+        <section className="mt-[130px]">
+          <div className="ms-[50px] sm:ms-[80px] flex justify-between gap-7 flex-wrap">
+            <SectionTitle
+              title="York News"
+              desc="Keep up with our newest feeds"
+              direction="col"
+            />
+            <Link
+              href="#"
+              className="self-end text-[var(--primary-color1)] hover:text-[var(--primary-color2)] me-[80px] font-semibold text-[20px] capitalize mt-[10px]"
+            >
+              Read more
+            </Link>
+          </div>
 
-          <section className="mt-[130px]" id="categories">
-            <div className="flex justify-center items-center">
-              <SectionTitle title="Categories" />
-            </div>
-
-            <main className="px-[30px] grid grid-cols-2 gap-10 md:flex justify-center flex-wrap mt-[90px] md:gap-5 mx-auto mb-[30px] mr-6">
-              {categories.map((item: category) => (
-                <CategoryCard key={item.id} item={item} />
+          <div className="relative mt-[90px]">
+            <div className="absolute z-[-1] xl:h-[70%] w-full bg-[#023141] shadow-[0_3.26px_3.26px_rgba(0,0,0,0.25)] top-[50%] translate-y-[-50%]" />
+            <div className="px-[30px] flex items-center gap-[30px] justify-center flex-wrap">
+              {newsItems.map((item: newsItme) => (
+                <NewsCard key={item.id} item={item} />
               ))}
-            </main>
-          </section>
-
-          <section className="mt-[100px]">
-            <div className="flex justify-center items-center">
-              <SectionTitle title="Venues" />
             </div>
-            <main className="px-[30px] grid grid-cols-2 md:flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
-              {venues.map((item, index) => (
-                <VenueCard
-                  key={item.title}
-                  title={item.title}
-                  img={item.image}
-                  link={index + 1}
-                />
-              ))}
-            </main>
-          </section>
+          </div>
+        </section>
 
-          <section className="mt-[100px]">
-            <div className="flex justify-center items-center">
-              <SectionTitle title="Frequently Asked Questions" />
-            </div>
-            <FrequentlyAskedQuestions />
-          </section>
+        <section className="mt-[130px]" id="categories">
+          <div className="flex justify-center items-center">
+            <SectionTitle title="Categories" />
+          </div>
 
-          <section className="mt-[100px]">
-            <div className="flex justify-center items-center mb-12">
-              <SectionTitle title="Accredited Agencies" />
-            </div>
-            <InfiniteMovingCardsDemo />
-          </section>
-        </div>
-      )}
+          <main className="px-[30px] grid grid-cols-2 gap-10 md:flex justify-center flex-wrap mt-[90px] md:gap-5 mx-auto mb-[30px] mr-6">
+            {categories.map((item: category) => (
+              <CategoryCard key={item.id} item={item} />
+            ))}
+          </main>
+        </section>
+
+        <section className="mt-[100px]">
+          <div className="flex justify-center items-center">
+            <SectionTitle title="Venues" />
+          </div>
+          <main className="px-[30px] grid grid-cols-2 md:flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
+            {venues.map((item, index) => (
+              <VenueCard
+                key={item.title}
+                title={item.title}
+                img={item.image}
+                link={index + 1}
+              />
+            ))}
+          </main>
+        </section>
+
+        <section className="mt-[100px]">
+          <div className="flex justify-center items-center">
+            <SectionTitle title="Frequently Asked Questions" />
+          </div>
+          <FrequentlyAskedQuestions />
+        </section>
+
+        <section className="mt-[100px]">
+          <div className="flex justify-center items-center mb-12">
+            <SectionTitle title="Accredited Agencies" />
+          </div>
+          <InfiniteMovingCardsDemo />
+        </section>
+      </div>
     </section>
   );
 }
