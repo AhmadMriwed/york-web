@@ -4,9 +4,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { questions } from "@/constants";
-
-const FrequentlyAskedQuestions = () => {
+const FrequentlyAskedQuestions = ({
+  questions = [],
+}: {
+  questions: { question: string; answer: string }[];
+}) => {
   return (
     <Accordion
       type="single"
@@ -15,15 +17,21 @@ const FrequentlyAskedQuestions = () => {
     >
       {questions.map((item, index) => (
         <AccordionItem
-          key={index} // استخدام `index` كمفتاح فريد
-          value={`item-${index + 1}`}
+          key={index}
+          value={`item-${index}`}
           className="col-span-1 text-start"
         >
-          <AccordionTrigger>
-            <span className="text-lg font-bold">Q:</span> {item.question}
+          <AccordionTrigger className="text-base">
+            <span className="text-xl font-bold">
+              {item.question.charAt(0)}:
+            </span>{" "}
+            {item.question.substring(2)}
           </AccordionTrigger>
           <AccordionContent>
-            <span className="text-base font-bold">A:</span> {item.answer}
+            <span
+              dangerouslySetInnerHTML={{ __html: item.answer }}
+              className="text-[10px]"
+            />
           </AccordionContent>
         </AccordionItem>
       ))}

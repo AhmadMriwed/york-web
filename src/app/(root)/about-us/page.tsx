@@ -1,8 +1,14 @@
-"use client";
-
+import { fetchAboutUs } from "@/lib/action/root_action";
 import React, { FC } from "react";
 
 type Props = {};
+
+type AboutData = {
+  id: number;
+  content: string;
+  created_at: string | null;
+  updated_at: string;
+};
 
 const SectionTitle: FC<{ title: string }> = ({ title }) => (
   <h3 className="font-bold text-black mb-4">{title}</h3>
@@ -31,7 +37,9 @@ const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
   );
 };
 
-const AboutPage: FC<Props> = () => {
+const AboutPage: FC<Props> = async () => {
+  const aboutData = await fetchAboutUs();
+  console.log(aboutData[0].content);
   return (
     <main className="h-full relative">
       {/* Hero Section */}
@@ -41,7 +49,7 @@ const AboutPage: FC<Props> = () => {
 
       {/* Content Section */}
       <section className="container mx-auto my-14 px-4">
-        <div className=" border-l-[5px] border-primary-color2 p-6">
+        {/* <div className=" border-l-[5px] border-primary-color2 p-6">
           <div className="md:border-l-[5px] border-primary-color2 md:p-6  h-[400px] m-2">
             <h1 className="font-bold text-2xl text-primary-color1 mb-6">
               Who we are
@@ -57,10 +65,13 @@ const AboutPage: FC<Props> = () => {
             in higher education, cultural education, educational support
             services.
           </div>
-        </div>
-
+        </div> */}
+        <div
+          // Using dangerouslySetInnerHTML to inject raw HTML content
+          dangerouslySetInnerHTML={{ __html: aboutData[0]?.content }}
+        />
         {/* Introduction */}
-        <article>
+        {/* <article>
           <Paragraph>
             It has agents, representatives, and partnerships in the EU and East
             Asia, providing services in regional and international environments.
@@ -78,10 +89,10 @@ const AboutPage: FC<Props> = () => {
             you haven&apos;t applied any training yet, you might wonder how
             important it is. Here are some benefits of corporate training.
           </Paragraph>
-        </article>
+        </article> */}
 
         {/* Training Benefits */}
-        <div className="mt-8">
+        {/* <div className="mt-8">
           <SectionTitle title="1. Empowering Employees" />
           <Paragraph>
             One of the main objectives of training is to enable employees to
@@ -102,20 +113,20 @@ const AboutPage: FC<Props> = () => {
             long-term staff to stay updated on best practices and market trends,
             ensuring continuous performance improvements.
           </Paragraph>
-        </div>
+        </div> */}
 
         {/* Aligning Employees with Company Goals */}
-        <div className="my-10">
+        {/* <div className="my-10">
           <SectionTitle title="2. Aligning Employees with Company Objectives" />
           <Paragraph>
             For a company to achieve its goals, employees need to align with
             organizational strategies. Mastery of tasks is ineffective if
             actions don&apos;t contribute to business objectives.
           </Paragraph>
-        </div>
+        </div> */}
 
         {/* Process Improvement */}
-        <div className="my-10">
+        {/* <div className="my-10">
           <SectionTitle title="3. Improving Processes & Correcting Mistakes" />
           <Paragraph>
             Day-to-day activities can make it challenging to address mistakes or
@@ -128,10 +139,10 @@ const AboutPage: FC<Props> = () => {
             comprehensive methodology covering quality, process reengineering,
             HR development, and ISO standards (ISO 9000-2000 and ISO 14000).
           </Paragraph>
-        </div>
+        </div> */}
 
         {/* Spatial Training Advantages */}
-        <div className="my-10">
+        {/* <div className="my-10">
           <SectionTitle title="Advantages of Spatial Training" />
           <Paragraph>
             Spatial training, although new, offers significant benefits in an
@@ -151,10 +162,10 @@ const AboutPage: FC<Props> = () => {
               break barriers, foster teamwork, and ensure knowledge transfer.
             </li>
           </ul>
-        </div>
+        </div> */}
 
         {/* Conclusion */}
-        <div className="my-10">
+        {/* <div className="my-10">
           <SectionTitle title="Our Vision" />
           <Paragraph>
             York British Academy aims to integrate metacognitive strategies to
@@ -163,7 +174,7 @@ const AboutPage: FC<Props> = () => {
             benefits to increase employee productivity and, consequently,
             company profitability.
           </Paragraph>
-        </div>
+        </div> */}
       </section>
     </main>
   );

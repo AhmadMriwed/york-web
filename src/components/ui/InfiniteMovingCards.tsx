@@ -2,17 +2,20 @@
 
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 export const InfiniteMovingCards = ({
-  images,
+  clients,
   direction = "left",
   speed = "fast",
   pauseOnHover = true,
   className,
 }: {
-  images: {
-    image: string;
+  clients: {
+    id: number;
+    img: string;
+    url: string;
   }[];
   direction?: "left" | "right";
   speed?: "fast" | "normal" | "slow";
@@ -80,20 +83,22 @@ export const InfiniteMovingCards = ({
           pauseOnHover && "hover:[animation-play-state:paused]"
         )}
       >
-        {images.map((item, idx) => (
-          <li
-            className="w-[350px] max-w-full relative flex-shrink-0 flex items-center justify-center px-8 py-24 md:w-[400px]"
-            key={`${item.image}-${idx}`}
-          >
-            <blockquote>
-              <Image
-                src={item.image}
-                height={240}
-                width={240}
-                alt={`Image ${idx}`}
-              />
-            </blockquote>
-          </li>
+        {clients.map((item, idx) => (
+          <Link href={`${item.url}`}>
+            <li
+              className="w-[350px] max-w-full relative flex-shrink-0 flex items-center justify-center px-8 py-24 md:w-[400px]"
+              key={`${item.img}-${idx}`}
+            >
+              <blockquote>
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.img}`}
+                  height={240}
+                  width={240}
+                  alt={`Image ${idx}`}
+                />
+              </blockquote>
+            </li>
+          </Link>
         ))}
       </ul>
     </div>

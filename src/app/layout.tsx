@@ -1,14 +1,16 @@
-// import { Inter, Montserrat } from "next/font/google";
 import "rsuite/dist/rsuite.min.css";
 import StoreProvider from "@/store/adminstore/StoreProvider";
 
 import "./globals.css";
+import { Metadata } from "next";
 
-// const montserrat = Montserrat({
-//    weight: ["400", "500", "600", "700", "800", "900"],
-//    subsets: ["latin"],
-//    variable: "--font-montserrat",
-// });
+export const metadata: Metadata = {
+  title: "York British Academy",
+  description: "Enhance your career with York Academy's educational programs.",
+  icons: {
+    icon: "/dark_logo.png",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -17,11 +19,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>York Brititsh Academy</title>
-      </head>
       <body className="">
         <StoreProvider>{children}</StoreProvider>
       </body>

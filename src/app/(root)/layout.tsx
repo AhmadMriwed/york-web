@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar/Navbar";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import Footer from "@/components/footer/Footer";
 import { Conversation } from "@/components/conversation";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -25,6 +26,7 @@ export default function RootLayout({
             {children}
             <Conversation />
             <Footer />
+            <Toaster richColors />
           </StoreProvider>
         </TooltipProvider>
       </body>

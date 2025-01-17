@@ -1,54 +1,29 @@
-"use client";
 import Image from "next/image";
-import DefaultButton from "@/components/buttons/DefaultButton";
+import DefaultButton from "@/components/buttons/LinkButton";
 import Link from "next/link";
 import { category, newsItems, newsItme } from "@/utils/user/home/homePageEnums";
 
-// gsap:
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/all";
-
-import { useEffect, useRef, useState } from "react";
-
-import { venues, categories } from "@/constants";
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 import FrequentlyAskedQuestions from "@/components/user/home/FrequentlyAskedQuestions";
-import InfiniteMovingCardsDemo from "@/components/user/home/InfiniteMovingCard";
+import {
+  fetchCategories,
+  fetchClients,
+  fetchQuestions,
+  fetchSliders,
+  fetchVenues,
+  getSectionById,
+} from "@/lib/action/root_action";
+import Hero from "@/components/user/home/Hero";
+import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
 
-gsap.registerPlugin(ScrollTrigger);
+export default async function Home() {
+  const questions = await fetchQuestions();
+  const venues = await fetchVenues();
 
-export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const sectionRef = useRef(null);
-
-  useEffect(() => {
-    // Set loading to false after 5 seconds
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!loading) {
-      gsap.fromTo(
-        sectionRef.current,
-        { opacity: 0.5 },
-        { opacity: 1, duration: 1.5, ease: "power1.inOut" }
-      );
-      gsap.to("#home", {
-        y: 0,
-        opacity: 1,
-        ease: "power1.inOut",
-      });
-      gsap.fromTo(
-        ".opacity",
-        { opacity: 1 },
-        { opacity: 0.4, y: 0, delay: 4.9 }
-      );
-    }
-  }, [loading]);
+  const categories = await fetchCategories();
+  const section = await getSectionById(1);
+  const sliders = await fetchSliders();
+  const clients = await fetchClients();
 
   const SectionTitle = ({
     title,
@@ -84,11 +59,11 @@ export default function Home() {
   );
 
   const CategoryCard = ({ item }: { item: category }) => (
-    <div className="flex justify-center items-center gap-3 flex-col p-5 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect cursor-default">
+    <div className="flex justify-center items-center gap-3 flex-col p-5 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
       <div className="footer-bg"></div>
       <div className="w-[80px] h-[80px] aspect-[1/1]">
         <Image
-          src={item.image}
+          src={item.image ? item.image : "/information/Image_defualt.svg"}
           alt={item.title}
           className="aspect-[3/2] md:aspect-[1/1]"
           width={80}
@@ -102,46 +77,26 @@ export default function Home() {
     </div>
   );
 
-  const VenueCard = ({
-    title,
-    img,
-    link,
-  }: {
-    title: string;
-    img: string;
-    link: number;
-  }) => (
+  const VenueCard = ({ title, img }: { title: string; img: string | null }) => (
     <div className="flex flex-col items-center justify-center">
-      <Link
-        href={`/venues/${link}`}
-        className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md "
-      >
-        <Image src={img} width={200} height={200} alt={title} />
-      </Link>
+      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
+        <Image
+          src={img ? img : "/information/image_default2.svg"}
+          width={200}
+          height={200}
+          alt={"placeholder"}
+          className={`bg-cover ${img || "-mt-10"}`}
+        />
+      </div>
       <p className="mt-3 font-semibold text-sm">{title}</p>
     </div>
   );
 
   return (
-    <section ref={sectionRef} className="relative duration-400">
+    <section className="relative duration-400">
       <div>
         <section className="home-landing-bg">
-          <main
-            id="home"
-            className="flex justify-center items-center flex-col h-[calc(100%_-_125px)] px-[20px] md:px-[50px] relative"
-          >
-            <h1 className="animation text-white md:w-full mt-44 md:mt-0 lg:w-[815px] leading-[1.4] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
-              Make your employees grow with York Academy
-            </h1>
-            <p className="animation text-[#c2c2c2] md:w-full lg:w-[815px]">
-              The opportunity for interaction between employees enhances
-              information sharing and knowledge transfer, especially in larger
-              companies where team interaction is valuable.
-            </p>
-            <div className="animation my-5 md:w-full lg:w-[815px]">
-              <DefaultButton label="view courses" />
-            </div>
-          </main>
+          <Hero sliders={sliders} />
         </section>
 
         <HomeCourseAds />
@@ -161,12 +116,7 @@ export default function Home() {
               <Image src="/logo.png" alt="Logo" width={200} height={200} />
             </div>
             <div className="basis-[50%] relative">
-              <p className="text-white mb-3">
-                York Academy registered office in England and Wales. Its main
-                objective is to provide training, advisory services, and
-                strategic solutions for postgraduate studies in higher
-                education.
-              </p>
+              <p className="text-white mb-3">{section.description}</p>
               <Link
                 href="#"
                 className="text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
@@ -210,7 +160,16 @@ export default function Home() {
 
           <main className="px-[30px] grid grid-cols-2 gap-10 md:flex justify-center flex-wrap mt-[90px] md:gap-5 mx-auto mb-[30px] mr-6">
             {categories.map((item: category) => (
-              <CategoryCard key={item.id} item={item} />
+              <Link
+                key={item.id}
+                href={`/categories/${item.id}`}
+                passHref
+                className="block hover:no-underline hover:cursor-pointer"
+              >
+                <div>
+                  <CategoryCard item={item} />
+                </div>
+              </Link>
             ))}
           </main>
         </section>
@@ -220,13 +179,17 @@ export default function Home() {
             <SectionTitle title="Venues" />
           </div>
           <main className="px-[30px] grid grid-cols-2 md:flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
-            {venues.map((item, index) => (
-              <VenueCard
-                key={item.title}
-                title={item.title}
-                img={item.image}
-                link={index + 1}
-              />
+            {venues.map((item) => (
+              <Link
+                key={item.id}
+                href={`/venues/${item.id}`}
+                passHref
+                className="block hover:no-underline"
+              >
+                <div>
+                  <VenueCard title={item.title} img={item.image} />
+                </div>
+              </Link>
             ))}
           </main>
         </section>
@@ -235,14 +198,24 @@ export default function Home() {
           <div className="flex justify-center items-center">
             <SectionTitle title="Frequently Asked Questions" />
           </div>
-          <FrequentlyAskedQuestions />
+          <FrequentlyAskedQuestions questions={questions} />
         </section>
 
         <section className="mt-[100px]">
           <div className="flex justify-center items-center mb-12">
             <SectionTitle title="Accredited Agencies" />
           </div>
-          <InfiniteMovingCardsDemo />
+          <div className="h-[20rem] rounded-md flex flex-col items-center antialiased bg-gray-100 dark:bg-black dark:bg-grid-white/[0.05] justify-center relative overflow-hidden">
+            {clients.length > 0 ? (
+              <InfiniteMovingCards
+                clients={clients}
+                direction="right"
+                speed="slow"
+              />
+            ) : (
+              <div>Loading clients...</div>
+            )}
+          </div>
         </section>
       </div>
     </section>

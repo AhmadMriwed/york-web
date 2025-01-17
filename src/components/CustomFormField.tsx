@@ -80,7 +80,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             <Input
               {...field}
               placeholder={placeholder}
-              className=" border-0 focus:ring-0 focus:outline-none"
+              className=" border-0 focus:ring-0 focus:outline-none text-gray-700"
             />
           </FormControl>
         </div>
@@ -144,7 +144,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           <Textarea
             placeholder={placeholder}
             {...field}
-            className="shad-textArea"
+            className="shad-textArea bg-gray-200 text-black"
             disabled={props.disabled}
           />
         </FormControl>

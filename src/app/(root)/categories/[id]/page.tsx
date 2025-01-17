@@ -1,6 +1,10 @@
 "use client";
-import Card from "@/components/cards/Card";
-import { courseData, categories } from "@/constants";
+
+import { useEffect, useState } from "react";
+import { getCoursesByCategoryId } from "@/lib/action/root_action";
+import Loader from "@/components/loading/Loader";
+import { Course } from "@/types/rootTypes/rootTypes";
+import CourseCard from "@/components/cards/CourseCard";
 
 interface Props {
   params: { id: number };
@@ -8,16 +12,35 @@ interface Props {
 
 const Page = ({ params }: Props) => {
   const { id } = params;
-  const category = categories[id - 1];
-  console.log(category);
+  const [courses, setCourses] = useState<Course[] | null>(null);
 
-  // Check if category exists
-  if (!category) {
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const courses = await getCoursesByCategoryId(id);
+        setCourses(courses);
+
+        console.log(courses);
+      } catch (err: any) {
+        setError("Failed to fetch category");
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (error) {
     return (
       <main className="h-full flex items-center justify-center">
-        <h1 className="text-2xl font-bold">category not found</h1>
+        <h1 className="text-2xl font-bold">{error}</h1>
       </main>
     );
+  }
+
+  if (!courses) {
+    return <Loader />;
   }
 
   return (
@@ -26,26 +49,42 @@ const Page = ({ params }: Props) => {
       <div
         className="h-[80vh] flex flex-col items-center justify-center"
         style={{
-          backgroundImage: `url(${category.backgroundImage})`,
+          backgroundImage: `url(${courses[0].category.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        <h1 className=" text-white text-3xl md:text-7xl font-bold">
-          {category.title}
+        <h1 className="text-white text-3xl md:text-7xl font-bold">
+          {courses[0].category.title}
         </h1>
       </div>
-      {/*  */}
+      {/* Content Section */}
       <div className="container mx-auto my-6">
         <div className="p-4">
           <h1 className="p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold">
-            {category.title}
+            {courses[0].category.title}
           </h1>
-          <p className="text-gray-700 space-y-6 ">{category.description}</p>
+          <p className="text-gray-700 space-y-6">
+            {courses[0].category.description}
+          </p>
         </div>
         <div className="w-full my-8">
-          <Card {...courseData} />
+          {courses?.map((course) => (
+            <CourseCard
+              key={course.id}
+              title={course.title}
+              courseId={course.id}
+              code={course.code}
+              venue={course.venue.title}
+              category={course.category.title}
+              startDate={course.start_date}
+              endDate={course.end_date}
+              language={course.language}
+              fee={course.fee}
+              image={course.image}
+            />
+          ))}
         </div>
       </div>
     </main>

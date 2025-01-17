@@ -3,28 +3,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { Form } from "@/components/ui/form";
 import { useState } from "react";
-
 import { useRouter } from "next/navigation";
-
+import { Form } from "@/components/ui/form";
 import { UserFormValidation } from "@/lib/validation";
-// import { createUser } from "@/lib/actions/patient.actions";
 import SubmitButton from "../buttons/SubmitButton";
-import CustomFormField from "../CustomFormField";
+import CustomFormField, { FormFieldType } from "../CustomFormField";
+import { storePlanRegister } from "@/lib/action/root_action";
+import { toast } from "sonner";
 
-export enum FormFieldType {
-  INPUT = "input",
-  TEXTAREA = "textarea",
-  PHONE_INPUT = "phoneInput",
-  CHECKBOX = "checkbox",
-  DATE_PICKER = "datePicker",
-  SELECT = "select",
-  SKELETON = "skeleton",
-}
-
-const UserRregisterForm = () => {
+const PlanRegisterForm = ({
+  training_plan_id,
+}: {
+  training_plan_id: number | null;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -37,23 +29,31 @@ const UserRregisterForm = () => {
     },
   });
 
-  async function onSubmit({
+  const onSubmit = async ({
     name,
     email,
     phone,
-  }: z.infer<typeof UserFormValidation>) {
+  }: z.infer<typeof UserFormValidation>) => {
     setIsLoading(true);
-    // try {
-    //   const userData = { name, email, phone };
-    // //   const user = await createUser(userData);
-    //   console.log(user);
-    //   if (user) {
-    //     router.push(`/patients/${user.$id}/register`);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  }
+    try {
+      const userData = {
+        training_plan_id: training_plan_id,
+        full_name: name,
+        phone,
+        email,
+      };
+      console.log(userData);
+      await storePlanRegister(userData);
+
+      toast.success("Registeration successfully");
+    } catch (error) {
+      console.error("Registration failed:", error);
+      toast.error("Registration failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Form {...form}>
       <form
@@ -96,4 +96,4 @@ const UserRregisterForm = () => {
   );
 };
 
-export default UserRregisterForm;
+export default PlanRegisterForm;

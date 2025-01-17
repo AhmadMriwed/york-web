@@ -8,7 +8,8 @@ export interface newsItme {
 export interface category {
    id: number;
    title: string;
-   image: string;
+   description:string;
+   image: string|null;
 }
 
 export interface address {
@@ -43,104 +44,7 @@ export const newsItems: newsItme[] = [
    },
 ];
 
-export const categories: category[] = [
-   {
-      id: 1,
-      title: "management And leadership",
-      image: "/assets/user/home/categories/management-and-leadership.png",
-   },
-   {
-      id: 2,
-      title: "strategy",
-      image: "/assets/user/home/categories/strategy.png",
-   },
-   {
-      id: 3,
-      title: "administration support",
-      image: "/assets/user/home/categories/administration-support.png",
-   },
-   {
-      id: 4,
-      title: "contracts management",
-      image: "/assets/user/home/categories/contracts-management.png",
-   },
-   {
-      id: 5,
-      title: "professional development",
-      image: "/assets/user/home/categories/procurement-and-tenders.png",
-   },
-   {
-      id: 6,
-      title: "aeronautics and aviation",
-      image: "/assets/user/home/categories/aeronautics-and-aviation.png",
-   },
-   {
-      id: 7,
-      title: "health safety & security",
-      image: "/assets/user/home/categories/health-safety-&-security.png",
-   },
-   {
-      id: 8,
-      title: "professional development",
-      image: "/assets/user/home/categories/professional-development.png",
-   },
-   {
-      id: 9,
-      title: "project management",
-      image: "/assets/user/home/categories/project-management.png",
-   },
-   {
-      id: 10,
-      title: "audit and quality assurance",
-      image: "/assets/user/home/categories/audit-and-quality-assurance.png",
-   },
-   {
-      id: 11,
-      title: "human resource management",
-      image: "/assets/user/home/categories/human-resource-management.png",
-   },
 
-   {
-      id: 12,
-      title: "banking & investment",
-      image: "/assets/user/home/categories/banking-&-investment.png",
-   },
-
-   {
-      id: 13,
-      title: "oil and gas",
-      image: "/assets/user/home/categories/oil-and-gas.png",
-   },
-
-   {
-      id: 14,
-      title: "information technology",
-      image: "/assets/user/home/categories/information-technology.png",
-   },
-   {
-      id: 15,
-      title: "sales & marketing",
-      image: "/assets/user/home/categories/sales-&-marketing.png",
-   },
-
-   {
-      id: 16,
-      title: "electrical engineer",
-      image: "/assets/user/home/categories/electrical-engineer.png",
-   },
-
-   {
-      id: 17,
-      title: "instrumentation & process controles",
-      image: "/assets/user/home/categories/instrumentation-&-process-controles.png",
-   },
-
-   {
-      id: 18,
-      title: "Quality And Knowledge For Public Relations",
-      image: "/assets/user/home/categories/quality-and-knowledge.png",
-   },
-];
 
 export const addresses: address[] = [
    {
