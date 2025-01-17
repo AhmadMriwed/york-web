@@ -57,7 +57,7 @@ export function Navbar(): JSX.Element {
       <TopBar />
       <NavigationMenu
         className={cn(
-          "px-16 fixed py-2 bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md min-w-full transition-all duration-400",
+          "px-16 fixed  min-w-full py-2 bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
           {
             "bg-[#13181e] bg-opacity-90 top-0": isScrolled,
           }

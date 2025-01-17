@@ -63,7 +63,8 @@ export default async function Home() {
       <div className="footer-bg"></div>
       <div className="w-[80px] h-[80px] aspect-[1/1]">
         <Image
-          src={item.image ? item.image : "/information/Image_defualt.svg"}
+          // src={item.image ? item.image : "/information/Image_defualt.svg"}
+          src={"/information/Image_defualt.svg"}
           alt={item.title}
           className="aspect-[3/2] md:aspect-[1/1]"
           width={80}
@@ -81,7 +82,8 @@ export default async function Home() {
     <div className="flex flex-col items-center justify-center">
       <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
         <Image
-          src={img ? img : "/information/image_default2.svg"}
+          // src={img ? img : "/information/image_default2.svg"}
+          src={"/information/image_default2.svg"}
           width={200}
           height={200}
           alt={"placeholder"}
