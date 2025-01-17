@@ -84,7 +84,7 @@ export const InfiniteMovingCards = ({
         )}
       >
         {clients.map((item, idx) => (
-          <Link href={`${item.url}`}>
+          <Link href={`${item.url}`} key={item.url}>
             <li
               className="w-[350px] max-w-full relative flex-shrink-0 flex items-center justify-center px-8 py-24 md:w-[400px]"
               key={`${item.img}-${idx}`}

@@ -1,4 +1,4 @@
-import { Venue } from "@/types/adminTypes/courses/coursesTypes";
+  import { Venue } from "@/types/adminTypes/courses/coursesTypes";
 import { AboutUs, Category, Client, Course, Question, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
 import axios from "axios";
 
@@ -231,5 +231,39 @@ export const fetchClients = async (): Promise<Client[]> => {
   } catch (error: any) {
     console.error("Error fetching clients:", error.message);
     throw new Error("Failed to fetch clients");
+  }
+};
+
+
+//// plan registering /////
+export const storePlanRegister = async (data: {
+  training_plan_id: number | null;
+  full_name: string;
+  phone: string;
+  email: string;
+}): Promise<void> => {
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`, 
+      data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Plan registration successful:", response.data);
+
+    return response.data; 
+
+  } catch (error: any) {
+    console.error("Error during plan registration:", error.message);
+    console.error("Error Details:", error.response?.data || error);
+
+    // Throw an error for further handling
+    throw new Error(
+      error.response?.data?.message || "Failed to register the plan."
+    );
   }
 };

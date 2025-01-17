@@ -9,8 +9,8 @@ import { Form } from "@/components/ui/form";
 import { UserFormValidation } from "@/lib/validation";
 import SubmitButton from "../buttons/SubmitButton";
 import CustomFormField, { FormFieldType } from "../CustomFormField";
-import { storePlanRegister } from "@/lib/action/root_action";
 import { toast } from "sonner";
+import { storePlanRegister } from "@/lib/action/root_action";
 
 const PlanRegisterForm = ({
   training_plan_id,
