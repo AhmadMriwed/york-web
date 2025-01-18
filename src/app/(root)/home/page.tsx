@@ -207,7 +207,7 @@ export default async function Home() {
           <div className="flex justify-center items-center mb-12">
             <SectionTitle title="Accredited Agencies" />
           </div>
-          <div className="h-[20rem] rounded-md flex flex-col items-center antialiased bg-gray-100 dark:bg-black dark:bg-grid-white/[0.05] justify-center relative overflow-hidden">
+          <div className="h-[15rem] rounded-md flex flex-col items-center antialiased bg-gray-100 dark:bg-black dark:bg-grid-white/[0.05] justify-center relative overflow-hidden">
             {clients.length > 0 ? (
               <InfiniteMovingCards
                 clients={clients}

@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
@@ -57,7 +56,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
   const path = usePathname();
 
   return (
-    <NavigationMenuList className="space-x-6 hidden md:flex">
+    <NavigationMenuList className="space-x-6  hidden md:flex">
       {navItems.map((item) => (
         <NavigationMenuItem key={item.title}>
           <Link href={item.href} legacyBehavior>

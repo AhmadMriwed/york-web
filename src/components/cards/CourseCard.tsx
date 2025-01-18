@@ -64,7 +64,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {/* Headers */}
             <div className=" flex flex-col md:grid grid-cols-7 gap-4 border-t pt-4">
               {header.map((item, index) => (
-                <div key={index} className="font-bold text-xs">
+                <div key={index} className="font-bold text-sm">
                   {item}
                 </div>
               ))}

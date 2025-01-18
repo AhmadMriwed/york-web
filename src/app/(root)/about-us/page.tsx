@@ -66,10 +66,8 @@ const AboutPage: FC<Props> = async () => {
             services.
           </div>
         </div> */}
-        <div
-          // Using dangerouslySetInnerHTML to inject raw HTML content
-          dangerouslySetInnerHTML={{ __html: aboutData[0]?.content }}
-        />
+
+        <div dangerouslySetInnerHTML={{ __html: aboutData[0]?.content }} />
         {/* Introduction */}
         {/* <article>
           <Paragraph>

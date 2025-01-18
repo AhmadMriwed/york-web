@@ -49,13 +49,15 @@ const Page = ({ params }: Props) => {
       <div
         className="h-[80vh] flex flex-col items-center justify-center"
         style={{
-          backgroundImage: `url(${courses[0].category.image})`,
-          backgroundSize: "cover",
+          // backgroundImage: `url(${courses[0].category.image})`,
+          // backgroundSize: "cover",
+          backgroundImage: `url(/information/Image_defualt.svg)`,
+          backgroundSize: "50",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        <h1 className="text-white text-3xl md:text-7xl font-bold">
+        <h1 className="text-primary-color1 text-3xl  md:text-7xl font-bold">
           {courses[0].category.title}
         </h1>
       </div>

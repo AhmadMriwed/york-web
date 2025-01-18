@@ -63,8 +63,14 @@ const MobileNav = ({
             title="Categories"
             items={categories}
             basePath="/categories"
+            setMobileMenuOpen={setMobileMenuOpen}
           />
-          <AccordionSection title="Venues" items={venues} basePath="/venues" />
+          <AccordionSection
+            title="Venues"
+            items={venues}
+            basePath="/venues"
+            setMobileMenuOpen={setMobileMenuOpen}
+          />
         </Accordion>
 
         {navItems2.map((item) => (
@@ -92,10 +98,12 @@ const AccordionSection = ({
   title,
   items,
   basePath,
+  setMobileMenuOpen,
 }: {
   title: string;
   items: { id?: number; title: string; image: string; description?: string }[];
   basePath: string;
+  setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
 }) => (
   <AccordionItem value={title.toLowerCase()}>
     <AccordionTrigger className="ml-2">
@@ -110,6 +118,7 @@ const AccordionSection = ({
             key={index}
             title={item.title}
             href={`${basePath}/${index + 1}`}
+            onClick={() => setMobileMenuOpen(false)}
           />
         ))}
       </ul>
