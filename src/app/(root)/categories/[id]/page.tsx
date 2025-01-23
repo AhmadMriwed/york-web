@@ -49,10 +49,12 @@ const Page = ({ params }: Props) => {
       <div
         className="h-[80vh] flex flex-col items-center justify-center"
         style={{
-          // backgroundImage: `url(${courses[0].category.image})`,
-          // backgroundSize: "cover",
-          backgroundImage: `url(/information/Image_defualt.svg)`,
-          backgroundSize: "50",
+          backgroundImage: `url(${
+            courses[0].category.image
+              ? courses[0].category.image
+              : "/information/Image_defualt.svg"
+          })`,
+          backgroundSize: `${courses[0].category.image ? "cover" : "50"}`,
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}

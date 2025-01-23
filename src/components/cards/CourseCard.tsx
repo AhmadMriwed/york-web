@@ -39,7 +39,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
   image,
 }) => {
   const values = [code, venue, category, startDate, endDate, language, fee];
-  console.log(title);
   return (
     <Link
       href={`/courses/${courseId}`}
@@ -47,11 +46,11 @@ const CourseCard: React.FC<CourseCardProps> = ({
     >
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-5 p-6 max-w-full mx-auto transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-md  text-center flex flex-col md:flex-row gap-6 items-center">
         <Image
-          // src={image ? image : "/information/courses-default.png"}
-          src={"/information/courses-default.png"}
+          src={image ? image : "/information/courses-default.png"}
+          // src={"/information/courses-default.png"}
           width={80}
           height={80}
-          className=""
+          className="bg-cover"
           alt="course-image"
         />
 

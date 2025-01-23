@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { categories, venues } from "@/constants";
 import { ListItem } from "./Navbar";
+import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
+import { Category, Venue } from "@/types/rootTypes/rootTypes";
 
 /* Dropdown Section for Desktop Menu */
 const DropdownSection = ({
@@ -22,7 +23,7 @@ const DropdownSection = ({
   basePath,
 }: {
   title: string;
-  items: { id?: number; title: string; image: string; description?: string }[];
+  items: Venue[] | Category[];
   basePath: string;
 }) => (
   <NavigationMenuItem>
@@ -35,7 +36,7 @@ const DropdownSection = ({
           <ListItem
             key={index}
             title={item.title}
-            href={`${basePath}/${index + 1}`}
+            href={`${basePath}/${item.id}`} // Ensure correct path with item.id
           />
         ))}
       </ul>
@@ -54,16 +55,34 @@ interface DesktopNavProps {
 
 export default function DesktopNav({ navItems }: DesktopNavProps) {
   const path = usePathname();
+  const [venues, setVenues] = React.useState<Venue[]>([]);
+  const [categories, setCategories] = React.useState<Category[]>([]);
+
+  // Fetch categories and venues data on component mount
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedVenues = await fetchVenues();
+        const fetchedCategories = await fetchCategories();
+        setVenues(fetchedVenues);
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error("Failed to fetch categories or venues:", error);
+      }
+    };
+
+    fetchData();
+  }, []); // Empty dependency array ensures this runs once on component mount
 
   return (
-    <NavigationMenuList className="space-x-6  hidden md:flex">
+    <NavigationMenuList className="space-x-6 hidden md:flex">
       {navItems.map((item) => (
         <NavigationMenuItem key={item.title}>
           <Link href={item.href} legacyBehavior>
             <NavigationMenuLink
               className={cn(
                 `text-white hover:no-underline cursor-pointer ${
-                  path.startsWith(`${item.href}`) ? "text-primary-color1" : ""
+                  path.startsWith(item.href) ? "text-primary-color1" : ""
                 }`,
                 navigationMenuTriggerStyle()
               )}
@@ -75,12 +94,16 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
       ))}
 
       {/* Dropdowns for Categories and Venues */}
-      <DropdownSection
-        title="Category"
-        items={categories}
-        basePath="/categories"
-      />
-      <DropdownSection title="Venues" items={venues} basePath="/venues" />
+      {categories.length > 0 && (
+        <DropdownSection
+          title="Category"
+          items={categories}
+          basePath="/categories"
+        />
+      )}
+      {venues.length > 0 && (
+        <DropdownSection title="Venues" items={venues} basePath="/venues" />
+      )}
     </NavigationMenuList>
   );
 }

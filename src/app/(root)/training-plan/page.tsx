@@ -13,6 +13,7 @@ import Image from "next/image";
 import { getLatestTrainingPlan } from "@/lib/action/root_action";
 import { Training_Plan } from "@/types/rootTypes/rootTypes";
 import PlanRegisterForm from "@/components/forms/PlanRegisterForm";
+import Loader from "@/components/loading/Loader";
 
 const Page = () => {
   const [trainingPlan, setTrainingPlan] = useState<Training_Plan | null>(null);
@@ -21,18 +22,21 @@ const Page = () => {
   useEffect(() => {
     const fetchTrainingPlan = async () => {
       try {
-        setLoading(true); // Set loading to true before fetching
+        setLoading(true);
         const data = await getLatestTrainingPlan();
         setTrainingPlan(data);
       } catch (error: any) {
         console.error("Error fetching training plan:", error.message);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
-    fetchTrainingPlan(); // Fetch the data when the component mounts
+    fetchTrainingPlan();
   }, []);
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <main className="h-full relative">
@@ -40,41 +44,37 @@ const Page = () => {
       <div className="training-plan-bg h-[80vh] bg-black " />
       <div className="container py-16 px-8 md:px-2 mx-auto">
         <div className="border-b border-gray-300 py-8">
-          {loading ? (
-            <div className="text-gray-500">Loading training plan...</div>
-          ) : (
-            <>
-              <div>
-                <h1 className="text-primary-color1 text-xl md:text-2xl font-semibold mb-6">
-                  {trainingPlan?.title} {trainingPlan?.year}
-                </h1>
-                <h2 className="text-primary-color1 text-base font-semibold mb-3">
-                  {trainingPlan?.sub_title || "No title available"}
-                </h2>
+          <>
+            <div>
+              <h1 className="text-primary-color1 text-xl md:text-2xl font-semibold mb-6">
+                {trainingPlan?.title} {trainingPlan?.year}
+              </h1>
+              <h2 className="text-gray-300 text-base font-semibold mb-3">
+                {trainingPlan?.sub_title || "No title available"}
+              </h2>
+            </div>
+            <Dialog>
+              <div className="w-full flex justify-end mt-3">
+                <DialogTrigger className="w-fit bg-primary-color1 text-white font-semibold hover:bg-primary-color2 p-3 rounded-sm ml-auto">
+                  Register
+                </DialogTrigger>
               </div>
-              <Dialog>
-                <div className="w-full flex justify-end mt-3">
-                  <DialogTrigger className="w-fit bg-primary-color1 text-white font-semibold hover:bg-primary-color2 p-3 rounded-sm ml-auto">
-                    Register
-                  </DialogTrigger>
-                </div>
-                <DialogContent className="bg-slate-800 border-none">
-                  <DialogHeader>
-                    <Image
-                      src={"/logo.png"}
-                      height={100}
-                      width={100}
-                      alt="logo"
-                      className="mx-auto"
-                    />
-                  </DialogHeader>
-                  {trainingPlan && (
-                    <PlanRegisterForm training_plan_id={trainingPlan.id} />
-                  )}
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
+              <DialogContent className="bg-slate-800 border-none">
+                <DialogHeader>
+                  <Image
+                    src={"/logo.png"}
+                    height={100}
+                    width={100}
+                    alt="logo"
+                    className="mx-auto"
+                  />
+                </DialogHeader>
+                {trainingPlan && (
+                  <PlanRegisterForm training_plan_id={trainingPlan.id} />
+                )}
+              </DialogContent>
+            </Dialog>
+          </>
         </div>
       </div>
     </main>

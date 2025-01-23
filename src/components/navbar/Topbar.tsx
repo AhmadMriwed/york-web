@@ -20,7 +20,7 @@ export default function TopBar() {
               height={16}
               alt="email"
             />
-            <span className="text-xs md:text-base">
+            <span className="text-xs  md:text-base w-28 md:w-fit truncate">
               +442087209292 / +447520619292
             </span>
           </div>

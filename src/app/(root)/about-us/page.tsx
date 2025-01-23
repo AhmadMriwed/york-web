@@ -39,7 +39,6 @@ const YouTubeEmbed = ({ videoId }: { videoId: string }) => {
 
 const AboutPage: FC<Props> = async () => {
   const aboutData = await fetchAboutUs();
-  console.log(aboutData[0].content);
   return (
     <main className="h-full relative">
       {/* Hero Section */}

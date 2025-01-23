@@ -1,6 +1,7 @@
   import { Venue } from "@/types/adminTypes/courses/coursesTypes";
-import { AboutUs, Category, Client, Course, Question, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
-import axios from "axios";
+import { AboutUs, Category, Client, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
+import axios, { AxiosError } from "axios";
+import { useParams, usePathname } from "next/navigation";
 
 export const fetchQuestions = async (): Promise<
   Question[]
@@ -236,16 +237,74 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 
 //// plan registering /////
-export const storePlanRegister = async (data: {
-  training_plan_id: number | null;
-  full_name: string;
-  phone: string;
-  email: string;
-}): Promise<void> => {
+export const storePlanRegister = async (data: PlanRegisterData): Promise<PlanRegisterData> => {
+  console.log('Sending registration data:', data);
+
   try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`, 
-      data,
+      const response = await axios.post<PlanRegisterData>(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`,
+          data,
+          {
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+          }
+      );
+
+      console.log('Plan registration successful:', response.data);
+      return response.data;
+  } catch (error: any) {
+      let errorMessage = 'Failed to register the plan.';
+
+      if (error.response) {
+          errorMessage = error.response.data?.message || 'Server returned an error.';
+          console.error('Error response:', error.response.data);
+      } else if (error.request) {
+          errorMessage = 'No response received from the server.';
+          console.error('No response received:', error.request);
+      } else {
+          errorMessage = 'An error occurred while setting up the request.';
+          console.error('Request setup error:', error.message);
+      }
+
+      console.error('Error during plan registration:', errorMessage);
+      throw new Error(errorMessage);
+  }
+};
+
+
+
+//// search courses /////
+
+export const SearchCourse = async (filters:SearchFilters): Promise<Course[]> => {
+  try {
+
+    const query = new URLSearchParams();
+    console.log(query);
+
+const languageMap: Record<string, string> = {
+  en: "English",
+  ar: "Arabic",
+
+};
+
+Object.entries(filters).forEach(([key, value]) => {
+  if (Array.isArray(value) && value.length > 0) {
+    if (key === "languages") {
+      value.forEach((v) => {
+        const fullLanguage = languageMap[v] || v; 
+        query.append("languages[]", fullLanguage.toString());
+      });
+    } else {
+      value.forEach((v) => query.append(`${key}[]`, v.toString()));
+    }
+  } else if (value !== undefined && value !== null && value !== "") {
+    query.append(key, value.toString());
+  }
+});
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/search?${query.toString()}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -253,17 +312,37 @@ export const storePlanRegister = async (data: {
       }
     );
 
-    console.log("Plan registration successful:", response.data);
-
-    return response.data; 
-
+    if (response.data?.data) {
+      console.log("Courses fetched:", response.data.data);
+      return response.data.data as Course[];
+    } else {
+      console.warn("Unexpected response structure:", response.data);
+      return [];
+    }
   } catch (error: any) {
-    console.error("Error during plan registration:", error.message);
-    console.error("Error Details:", error.response?.data || error);
+    console.error("Error searching courses:", error.message);
+    throw new Error("Failed to search courses. Please try again later.");
+  }
+};
+  
 
-    // Throw an error for further handling
-    throw new Error(
-      error.response?.data?.message || "Failed to register the plan."
-    );
+
+
+export const FilterCourses = async (): Promise<FilterCoursesResponse> => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/getMap/filterCourse`);
+    const { languages, venues, categories, season_models,year_models} = response.data.data;
+
+
+    return {
+      languages,
+      venues,
+      categories,
+      season_models,
+      year_models
+    };
+  } catch (error: any) {
+    console.error("Error fetching course data:", error.message);
+    throw new Error("Failed to fetch course data");
   }
 };

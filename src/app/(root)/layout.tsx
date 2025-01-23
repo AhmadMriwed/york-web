@@ -26,7 +26,7 @@ export default function RootLayout({
             {children}
             <Conversation />
             <Footer />
-            <Toaster richColors />
+            <Toaster richColors position="top-right" />
           </StoreProvider>
         </TooltipProvider>
       </body>

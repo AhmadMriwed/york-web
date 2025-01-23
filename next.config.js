@@ -15,7 +15,8 @@ const nextConfig = {
       "via.placeholder.com",
       "cms.yorkacademy.uk",
       "lh3.googleusercontent.com",
-        "yorkbritishacademy.uk",
+      "yorkbritishacademy.uk",
+      "picsum.photos"
     ],
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

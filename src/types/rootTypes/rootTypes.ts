@@ -78,3 +78,41 @@ export interface Question {
     img:string;
     url:string;
   }
+  export interface Language {
+    name: string;
+    code: string;
+  }
+  
+  export interface SeasonModel {
+    name: string;
+    origin: string;
+  }
+  export interface Year{
+    name: string;
+    origin: string;
+  }
+
+  export interface FilterCoursesResponse {
+    languages: Language[];
+    venues: Venue[];
+    categories: Category[];
+    season_models: SeasonModel[];
+    year_models:Year[];
+  } 
+  export interface PlanRegisterData {
+    training_plan_id: number|null;
+    full_name: string;
+    phone: string;
+    email: string;
+  }
+
+  
+export interface SearchFilters {
+  title: string;
+  languages: string[];
+  category_ids: number[];
+  venue_ids: number[];
+  season_models: string[];
+  year_models: string[];
+}
+

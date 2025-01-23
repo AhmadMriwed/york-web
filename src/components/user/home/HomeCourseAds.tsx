@@ -1,15 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { FaFilter } from "react-icons/fa";
-
-import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,101 +11,167 @@ import {
   DropdownMenuItem,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu";
-
 import {
-  getAllCoursesAdsByFilteration,
-  getCourseFilters,
-} from "@/store/userStore/slices/courses/courseAdsSlice";
-import { GlobalUserState } from "@/types/storeTypes";
-import Image from "next/image";
-
-// Define Zod schema
-const courseAdsSchema = z.object({
-  lang: z.string().optional(),
-  validate: z.boolean().optional(),
-  active: z.boolean().optional(),
-  status: z.string().optional(),
-  title: z.string().optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  category_ids: z.array(z.number()).optional(),
-  venue_ids: z.array(z.number()).optional(),
-});
+  Venue,
+  Category,
+  Language,
+  SeasonModel,
+  Year,
+  SearchFilters,
+} from "@/types/rootTypes/rootTypes";
+import { FilterCourses } from "@/lib/action/root_action";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 
 const HomeCourseAds = () => {
-  const dispatch = useDispatch();
   const router = useRouter();
+
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [languages, setLanguages] = useState<Language[]>([]);
+  const [seasons, setSeasons] = useState<SeasonModel[]>([]);
+  const [years, setYears] = useState<Year[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm({
-    resolver: zodResolver(courseAdsSchema),
-    defaultValues: {
-      lang: "",
-      validate: false,
-      active: false,
-      status: "",
-      title: "",
-      start_date: "",
-      end_date: "",
-      category_ids: [],
-      venue_ids: [],
-    },
+  const [formData, setFormData] = useState({
+    languages: [],
+    title: "",
+    category_ids: [],
+    venue_ids: [],
+    season_models: [],
+    year_models: [],
   });
 
-  const { setValue } = form;
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const { languages, venues, categories, season_models, year_models } =
+          await FilterCourses();
 
-  //   useEffect(() => {
-  //     dispatch(getAllCoursesAdsByFilteration());
-  //     dispatch(getCourseFilters());
-  //   }, [dispatch]);
+        setVenues(venues);
+        setCategories(categories);
+        setLanguages(languages);
+        setSeasons(season_models);
+        setYears(year_models);
+      } catch (error) {
+        console.error("Error fetching filter data:", error);
+        toast.error("Failed to fetch filter data.");
+      }
+    };
 
-  const onSubmit = () => {
-    setIsLoading(true);
-    console.log("Form data submitted:");
-    toast.success("Filters applied successfully!");
-    setIsLoading(false);
+    fetchFilterData();
+  }, []);
+
+  const handleCheckboxChange = (
+    field: keyof SearchFilters,
+    value: any,
+    checked: boolean
+  ) => {
+    setFormData((prevData) => {
+      if (Array.isArray(prevData[field])) {
+        const updatedValues = checked
+          ? [...prevData[field], value]
+          : prevData[field].filter((item) => item !== value);
+
+        return { ...prevData, [field]: updatedValues };
+      }
+
+      return prevData;
+    });
   };
 
-  const dropdowns = [
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const filters: any = {};
+    if (formData.category_ids.length > 0) {
+      filters.category_ids = formData.category_ids.map((id) => Number(id));
+    }
+    if (formData.venue_ids.length > 0) {
+      filters.venue_ids = formData.venue_ids.map((id) => Number(id));
+    }
+    if (formData.languages.length > 0) {
+      filters.language = formData.languages;
+    }
+    if (formData.title.trim()) {
+      filters.code = formData.title.trim();
+    }
+
+    console.log("Filters applied:", filters);
+
+    const searchParams = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        (value as (string | number)[]).forEach((v) => {
+          searchParams.append(`${key}[]`, v.toString());
+        });
+      } else {
+        searchParams.append(key, (value as string).toString());
+      }
+    });
+
+    if (searchParams.size > 0) {
+      router.push(`/courses/SearchResult?${searchParams.toString()}`);
+    }
+  };
+
+  type Dropdown = {
+    id: number;
+    title: string;
+    fieldName: keyof SearchFilters;
+    items: { key: any; title: string; value: string | number }[];
+  };
+
+  const dropdowns: Dropdown[] = [
     {
       id: 1,
-      title: "validate",
-      items: [
-        { key: 1, title: "Valid", value: true },
-        { key: 2, title: "Invalid", value: false },
-      ],
+      title: "Language",
+      fieldName: "languages",
+      items: languages.map((language) => ({
+        key: language.code,
+        title: language.name,
+        value: language.code,
+      })),
     },
     {
       id: 2,
-      title: "lang",
-      items: [
-        { key: 1, title: "English", value: "en" },
-        { key: 2, title: "Arabic", value: "ar" },
-      ],
+      title: "Category",
+      fieldName: "category_ids",
+      items: categories.map((category) => ({
+        key: category.id,
+        title: category.title,
+        value: category.id,
+      })),
     },
     {
       id: 3,
-      title: "status",
-      items: [
-        { key: 1, title: "Active", value: true },
-        { key: 2, title: "Inactive", value: false },
-      ],
+      title: "Venues",
+      fieldName: "venue_ids",
+      items: venues.map((venue) => ({
+        key: venue.id,
+        title: venue.title,
+        value: venue.id,
+      })),
     },
     {
       id: 4,
-      title: "category",
-      items: [
-        { key: 1, title: "Category 1", value: 1 },
-        { key: 2, title: "Category 2", value: 2 },
-      ],
+      title: "Season",
+      fieldName: "season_models",
+      items: seasons.map((season) => ({
+        key: season.origin,
+        title: season.name,
+        value: season.origin,
+      })),
     },
     {
       id: 5,
-      title: "venues",
-      items: [
-        { key: 1, title: "Venue 1", value: 1 },
-        { key: 2, title: "Venue 2", value: 2 },
-      ],
+      title: "Year",
+      fieldName: "year_models",
+      items: years.map((year) => ({
+        key: year.origin,
+        title: year.name,
+        value: year.origin,
+      })),
     },
   ];
 
@@ -124,68 +183,74 @@ const HomeCourseAds = () => {
         </h2>
         <p className="mb-4">Search Over 57,000 Online Courses</p>
       </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex items-center justify-between gap-[20px] flex-wrap">
-            <div className="md:grow-0 md:basis-[40%] grow flex items-center relative">
+      <form onSubmit={onSubmit} className="space-y-6">
+        <div className="flex items-center justify-between gap-[20px] flex-wrap w-full">
+          <div className="flex gap-2 flex-1">
+            <div className=" md:basis-[40%] grow flex items-center rounded-lg   bg-white relative">
               <Input
-                placeholder="Search by Course Name, Code, or Details"
-                className=" bg-white"
-                {...form.register("title")}
+                placeholder="Search by Course Title or Code"
+                className="bg-white placeholder:text-[11px] md:placeholder:text-sm outline-none ml-4"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
               />
-              <Image
-                src={"/icons/search.svg"}
-                height={24}
-                width={24}
-                alt="search"
-                className="absolute right-0"
-              />
-            </div>
-            <div className="grow md:grow-0 md:basis-[50%] flex items-center gap-3 flex-wrap sm:flex-nowrap">
-              {dropdowns.map((dropdown) => (
-                <DropdownMenu key={dropdown.id}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="!bg-[var(--primary-color1)] !text-white"
-                    >
-                      {dropdown.title}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {dropdown.items.map((item) => (
-                      <DropdownMenuItem key={item.key} onClick={() => {}}>
-                        {item.title}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ))}
 
-              <DropdownMenu>
+              <Search className="text-primary-color2 absolute left-1 size-5 md:size-6" />
+            </div>
+            <Button
+              variant="outline"
+              className="!bg-[var(--primary-color1)] !text-white"
+              type="submit"
+              disabled={isLoading}
+            >
+              <FaFilter className="mr-2" />
+            </Button>
+          </div>
+
+          <div className="grow md:grow-0 md:basis-[50%] flex items-center gap-3 flex-wrap sm:flex-nowrap">
+            {dropdowns.map((dropdown) => (
+              <DropdownMenu key={dropdown.id}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     className="!bg-[var(--primary-color1)] !text-white"
                   >
-                    Language
+                    {dropdown.title}
                   </Button>
                 </DropdownMenuTrigger>
-                {/* <DropdownMenuContent>
-                  {(filterCourse.language ?? []).map((lang) => (
-                    <DropdownMenuItem
-                      key={lang.code}
-                      onClick={() => setValue("lang", lang.code)}
-                    >
-                      {lang.name}
+                <DropdownMenuContent
+                  align="end"
+                  className="w-[200px] h-[250px] overflow-y-auto"
+                >
+                  {dropdown.items.map((item) => (
+                    <DropdownMenuItem key={item.key} className="cursor-pointer">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData[dropdown.fieldName].includes(
+                            //@ts-ignore
+                            item.value
+                          )}
+                          onChange={(e) =>
+                            handleCheckboxChange(
+                              dropdown.fieldName,
+                              item.value,
+                              e.target.checked
+                            )
+                          }
+                          className="mr-2"
+                        />
+                        {item.title}
+                      </label>
                     </DropdownMenuItem>
                   ))}
-                </DropdownMenuContent> */}
+                </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            ))}
           </div>
-        </form>
-      </Form>
+        </div>
+      </form>
     </div>
   );
 };

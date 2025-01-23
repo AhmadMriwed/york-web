@@ -110,7 +110,7 @@ export const ListItem = React.forwardRef<
             "text-primary-color1 font-semibold ml-2": path.startsWith(href),
           }
         )}
-        onClick={onClick} // Pass the correct onClick function
+        onClick={onClick}
       >
         {title}
       </Link>

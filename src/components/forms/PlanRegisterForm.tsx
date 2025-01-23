@@ -18,7 +18,6 @@ const PlanRegisterForm = ({
   training_plan_id: number | null;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),

@@ -35,9 +35,9 @@ export default async function Home() {
     direction?: "col" | "col-reverse";
   }) => (
     <div
-      className={`relative flex ${
+      className={`relative flex mx-auto text-center ${
         direction === "col" ? "flex-col" : "flex-col-reverse"
-      } justify-center items-center text-center capitalize`}
+      } justify-center items-center  capitalize`}
     >
       <h3 className="text-black text-2xl md:text-3xl font-bold">{title}</h3>
       {desc && <p className="text-[#7d7d7d] text-sm md:text-lg">{desc}</p>}
@@ -46,15 +46,15 @@ export default async function Home() {
   );
 
   const NewsCard = ({ item }: { item: newsItme }) => (
-    <div className="w-full md:w-[366px] min-h-[405px] p-[20px] bg-[var(--home-color)] rounded-[10px] hover:translate-y-[-6px] duration-300 transition-all cursor-default">
-      <div className="relative h-[215px] rounded-b-[10px]">
-        <Image src={item.image} alt="news" fill className="rounded-b-[10px]" />
-        <span className="absolute w-full h-full top-0 left-0 bg-gradient-to-b from-[#01989f] to-[var(--home-color)] opacity-80 rounded-b-[10px]" />
-        <h3 className="text-white absolute bottom-0 p-3 text-[18px] font-bold leading-[1.1] capitalize">
+    <div className="w-full md:w-[366px] min-h-[405px] p-[20px] bg-[var(--home-color)] text-center rounded-xl hover:translate-y-[-6px] duration-300 transition-all cursor-default">
+      <div className="relative h-[215px] rounded-lg  w-full text-center">
+        <Image src={item.image} alt="news" fill className="rounded-lg" />
+        <span className="absolute w-full h-full top-0 left-0 bg-gradient-to-b rounded-lg from-[#01989f] to-[var(--home-color)] opacity-80 rounded-b-[10px]" />
+        <h3 className="text-white absolute bottom-0 p-3 text-[18px] mx-auto text-center font-bold leading-[1.1] capitalize">
           {item.title}
         </h3>
       </div>
-      <p className="text-sm py-5 text-[#777]">{item.description}</p>
+      <p className="text-sm py-5 text-[#777] text-center">{item.description}</p>
     </div>
   );
 
@@ -63,8 +63,7 @@ export default async function Home() {
       <div className="footer-bg"></div>
       <div className="w-[80px] h-[80px] aspect-[1/1]">
         <Image
-          // src={item.image ? item.image : "/information/Image_defualt.svg"}
-          src={"/information/Image_defualt.svg"}
+          src={item.image ? item.image : "/information/Image_defualt.svg"}
           alt={item.title}
           className="aspect-[3/2] md:aspect-[1/1]"
           width={80}
@@ -82,8 +81,7 @@ export default async function Home() {
     <div className="flex flex-col items-center justify-center">
       <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
         <Image
-          // src={img ? img : "/information/image_default2.svg"}
-          src={"/information/image_default2.svg"}
+          src={img ? img : "/information/image_default2.svg"}
           width={200}
           height={200}
           alt={"placeholder"}
@@ -104,7 +102,7 @@ export default async function Home() {
         <HomeCourseAds />
 
         <section className="relative">
-          <div className="ms-[50px] sm:ms-[80px] relative">
+          <div className=" w-fit  mx-auto relative">
             <SectionTitle
               title="York British Academy"
               desc="Welcome to"
@@ -130,8 +128,8 @@ export default async function Home() {
           </main>
         </section>
 
-        <section className="mt-[130px]">
-          <div className="ms-[50px] sm:ms-[80px] flex justify-between gap-7 flex-wrap">
+        <section className="mt-[130px] text-center w-full">
+          <div className="mx-auto flex justify-between flex-col gap-7 flex-wrap">
             <SectionTitle
               title="York News"
               desc="Keep up with our newest feeds"
@@ -139,7 +137,7 @@ export default async function Home() {
             />
             <Link
               href="#"
-              className="self-end text-[var(--primary-color1)] hover:text-[var(--primary-color2)] me-[80px] font-semibold text-[20px] capitalize mt-[10px]"
+              className="self-end text-[var(--primary-color1)] mx-auto hover:text-[var(--primary-color2)] font-semibold text-[20px] capitalize mt-[10px]"
             >
               Read more
             </Link>
