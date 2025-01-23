@@ -1,5 +1,5 @@
   import { Venue } from "@/types/adminTypes/courses/coursesTypes";
-import { AboutUs, Category, Client, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
+import { AboutUs, Category, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
 import axios, { AxiosError } from "axios";
 import { useParams, usePathname } from "next/navigation";
 
@@ -55,7 +55,6 @@ export const fetchCategories = async (): Promise<
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_URL}/category`
     );
-    console.log(response.data.data)
     return response.data.data;
   } catch (error: any) {
     console.error("Error fetching category:", error.message);
@@ -238,7 +237,6 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 //// plan registering /////
 export const storePlanRegister = async (data: PlanRegisterData): Promise<PlanRegisterData> => {
-  console.log('Sending registration data:', data);
 
   try {
       const response = await axios.post<PlanRegisterData>(
@@ -280,7 +278,6 @@ export const SearchCourse = async (filters:SearchFilters): Promise<Course[]> => 
   try {
 
     const query = new URLSearchParams();
-    console.log(query);
 
 const languageMap: Record<string, string> = {
   en: "English",
@@ -313,7 +310,6 @@ Object.entries(filters).forEach(([key, value]) => {
     );
 
     if (response.data?.data) {
-      console.log("Courses fetched:", response.data.data);
       return response.data.data as Course[];
     } else {
       console.warn("Unexpected response structure:", response.data);
@@ -346,3 +342,37 @@ export const FilterCourses = async (): Promise<FilterCoursesResponse> => {
     throw new Error("Failed to fetch course data");
   }
 };
+
+////// contact us //////
+
+export const fetchContactUsData = async (): Promise<ContactUs[]> => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/contact_us`);
+    return response.data.data;  
+  } catch (error: any) {
+    console.error("Error fetching contact us:", error.message);
+    throw new Error("Failed to fetch contact us");
+  }
+};
+
+export const fetchContactUsDataWithId = async (id:number): Promise<ContactUs> => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/contact_us/${id}`);
+    return response.data.data;  
+  } catch (error: any) {
+    console.error("Error fetching contact us:", error.message);
+    throw new Error("Failed to fetch contact us");
+  }
+};
+
+export const fetchContactUsIcons = async (): Promise<ContactUs[]> => {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/contact_us_icons`);
+    return response.data.data;  
+  } catch (error: any) {
+    console.error("Error fetching contact us icons:", error.message);
+    throw new Error("Failed to fetch contact us icons");
+  }
+};
+
+

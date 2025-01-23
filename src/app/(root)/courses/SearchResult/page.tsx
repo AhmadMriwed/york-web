@@ -57,12 +57,12 @@ const Page = () => {
   return (
     <div>
       {courses.length === 0 ? (
-        <div className="h-[60vh] flex items-center flex-col justify-center w-full">
+        <div className="h-[70vh] flex items-center flex-col justify-center w-full">
           <Image
             src={"/information/not_found.svg"}
             height={340}
             width={340}
-            className="cover"
+            className="cover mt-16"
             alt="not found"
           />
           <p className="text-primary-color2 mt-8 font-bold text-lg">

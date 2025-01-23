@@ -92,14 +92,16 @@ export interface Question {
     origin: string;
   }
 
-  export interface FilterCoursesResponse {
+export interface FilterCoursesResponse {
     languages: Language[];
     venues: Venue[];
     categories: Category[];
     season_models: SeasonModel[];
     year_models:Year[];
   } 
-  export interface PlanRegisterData {
+
+
+export interface PlanRegisterData {
     training_plan_id: number|null;
     full_name: string;
     phone: string;
@@ -116,3 +118,13 @@ export interface SearchFilters {
   year_models: string[];
 }
 
+interface ContactUsType {
+  id: number;
+  type: string;
+}
+
+export interface ContactUs {
+  id: number;
+  type: ContactUsType;
+  content: string;
+}
