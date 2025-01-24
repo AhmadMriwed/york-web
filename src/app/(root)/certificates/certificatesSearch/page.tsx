@@ -115,7 +115,7 @@ const Page = () => {
         </div>
       </div>
       {!certificate ? (
-        <NotFoundSection />
+        <NotFoundSection title={"Certificate"} />
       ) : (
         <CertificateDetails certificate={certificate} />
       )}

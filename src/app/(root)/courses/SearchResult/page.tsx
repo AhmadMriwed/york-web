@@ -8,6 +8,7 @@ import CourseCard from "@/components/cards/CourseCard";
 import Image from "next/image";
 import { Course } from "@/types/rootTypes/rootTypes";
 import Link from "next/link";
+import { NotFoundSection } from "@/components/NotFoundSection";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -58,19 +59,10 @@ const Page = () => {
   return (
     <div>
       {courses.length === 0 ? (
-        <div className="h-[70vh] flex items-center flex-col justify-center w-full">
-          <Image
-            src={"/information/not_found.svg"}
-            height={340}
-            width={340}
-            className="cover mt-16"
-            alt="not found"
-          />
-          <p className="text-primary-color2 mt-8 font-bold text-lg">
-            No Courses found
-          </p>
+        <div className=" flex items-center flex-col justify-center w-full">
+          <NotFoundSection title="Courses" />
           <Link
-            className="text-white p-2 rounded-lg bg-primary-color2  mt-4 hover:no-underline hover:text-white hover:bg-primary-color1 transition-all duration-200"
+            className="text-white p-2 rounded-lg bg-primary-color2 -mt-12 mb-8 hover:no-underline hover:text-white hover:bg-primary-color1 transition-all duration-200"
             href={"/home"}
           >
             Back home

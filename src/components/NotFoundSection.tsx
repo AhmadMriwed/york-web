@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-export const NotFoundSection = () => {
+export const NotFoundSection = ({ title }: { title: string }) => {
   return (
     <div className="h-[70vh] flex items-center flex-col justify-center w-full">
       <Image
@@ -12,7 +12,7 @@ export const NotFoundSection = () => {
         alt="not found"
       />
       <p className="text-primary-color2 mt-8 font-bold text-lg">
-        No Certificate found
+        {`No ${title} found`}
       </p>
     </div>
   );
