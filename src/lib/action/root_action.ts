@@ -235,37 +235,49 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 
 //// plan registering /////
-export const storePlanRegister = async (data: PlanRegisterData): Promise<PlanRegisterData> => {
+// export const storePlanRegister = async (data: PlanRegisterData): Promise<void> => {
+//   console.log(data);
+//   try {
+//        await axios.post<PlanRegisterData>(`${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`, data)
+  
+//   } catch (error: any) {
+//       let errorMessage = 'Failed to register the plan.';
 
+//       if (error.response) {
+//           errorMessage = error.response.data?.message || 'Server returned an error.';
+//           console.error('Error response:', error.response.data);
+//       } else if (error.request) {
+//           errorMessage = 'No response received from the server.';
+//           console.error('No response received:', error.request);
+//       } else {
+//           errorMessage = 'An error occurred while setting up the request.';
+//           console.error('Request setup error:', error.message);
+//       }
+
+//       console.error('Error during plan registration:', errorMessage);
+//       throw new Error(errorMessage);
+//   }
+// };
+
+export const storePlanRegister = async (data: PlanRegisterData): Promise<void> => {
   try {
-      const response = await axios.post<PlanRegisterData>(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`,
-          data,
-          {
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-          }
-      );
-
-      console.log('Plan registration successful:', response.data);
-      return response.data;
+    await axios.post('/api/plan_register', data); // Use the local proxy endpoint
   } catch (error: any) {
-      let errorMessage = 'Failed to register the plan.';
+    let errorMessage = 'Failed to register the plan.';
 
-      if (error.response) {
-          errorMessage = error.response.data?.message || 'Server returned an error.';
-          console.error('Error response:', error.response.data);
-      } else if (error.request) {
-          errorMessage = 'No response received from the server.';
-          console.error('No response received:', error.request);
-      } else {
-          errorMessage = 'An error occurred while setting up the request.';
-          console.error('Request setup error:', error.message);
-      }
+    if (error.response) {
+      errorMessage = error.response.data?.message || 'Server returned an error.';
+      console.error('Error response:', error.response.data);
+    } else if (error.request) {
+      errorMessage = 'No response received from the server.';
+      console.error('No response received:', error.request);
+    } else {
+      errorMessage = 'An error occurred while setting up the request.';
+      console.error('Request setup error:', error.message);
+    }
 
-      console.error('Error during plan registration:', errorMessage);
-      throw new Error(errorMessage);
+    console.error('Error during plan registration:', errorMessage);
+    throw new Error(errorMessage);
   }
 };
 

@@ -9,6 +9,17 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/plan_register', 
+        destination: 'https://sleepy-tereshkova.212-227-199-24.plesk.page/api/plan_register',
+      },
+    ];
+  },
+
+
+
   reactStrictMode: false,
   images: {
     domains: [

@@ -18,6 +18,7 @@ const PlanRegisterForm = ({
   training_plan_id: number | null;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
@@ -41,13 +42,13 @@ const PlanRegisterForm = ({
         phone,
         email,
       };
-      console.log(userData);
       await storePlanRegister(userData);
 
-      toast.success("Registeration successfully");
+      toast.success("Registration successful");
+      form.reset(); // Reset the form after successful submission
     } catch (error) {
       console.error("Registration failed:", error);
-      toast.error("Registration failed");
+      toast.error("Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
