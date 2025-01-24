@@ -1,7 +1,6 @@
   import { Venue } from "@/types/adminTypes/courses/coursesTypes";
 import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
 import axios, { AxiosError } from "axios";
-import { useParams, usePathname } from "next/navigation";
 
 export const fetchQuestions = async (): Promise<
   Question[]
@@ -274,31 +273,30 @@ export const storePlanRegister = async (data: PlanRegisterData): Promise<PlanReg
 
 //// search courses /////
 
-export const SearchCourse = async (filters:SearchFilters): Promise<Course[]> => {
+export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> => {
   try {
-
     const query = new URLSearchParams();
 
-const languageMap: Record<string, string> = {
-  en: "English",
-  ar: "Arabic",
+    const languageMap: Record<string, string> = {
+      en: "English",
+      ar: "Arabic",
+    };
 
-};
-
-Object.entries(filters).forEach(([key, value]) => {
-  if (Array.isArray(value) && value.length > 0) {
-    if (key === "languages") {
-      value.forEach((v) => {
-        const fullLanguage = languageMap[v] || v; 
-        query.append("languages[]", fullLanguage.toString());
-      });
-    } else {
-      value.forEach((v) => query.append(`${key}[]`, v.toString()));
-    }
-  } else if (value !== undefined && value !== null && value !== "") {
-    query.append(key, value.toString());
-  }
-});
+    console.log(filters);
+    Object.entries(filters).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        if (key === "languages") {
+          value.forEach((v) => {
+            const fullLanguage = languageMap[v] || v;
+            query.append("languages[]", fullLanguage.toString());
+          });
+        } else {
+          value.forEach((v) => query.append(`${key}[]`, v.toString()));
+        }
+      } else if (value !== undefined && value !== null && value !== "") {
+        query.append(key, value.toString());
+      }
+    });
 
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/search?${query.toString()}`,
@@ -320,7 +318,6 @@ Object.entries(filters).forEach(([key, value]) => {
     throw new Error("Failed to search courses. Please try again later.");
   }
 };
-  
 
 
 

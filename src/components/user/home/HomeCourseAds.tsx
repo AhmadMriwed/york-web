@@ -97,6 +97,12 @@ const HomeCourseAds = () => {
     if (formData.title.trim()) {
       filters.code = formData.title.trim();
     }
+    if (formData.year_models.length > 0) {
+      filters.year_models = formData.year_models;
+    }
+    if (formData.season_models.length > 0) {
+      filters.season_models = formData.season_models;
+    }
 
     console.log("Filters applied:", filters);
 
@@ -115,7 +121,6 @@ const HomeCourseAds = () => {
       router.push(`/courses/SearchResult?${searchParams.toString()}`);
     }
   };
-
   type Dropdown = {
     id: number;
     title: string;

@@ -21,6 +21,7 @@ const Page = () => {
 
       try {
         const filters: any = {};
+        console.log(filters);
         const title = searchParams.get("title");
         const code = searchParams.get("code");
         const languages = searchParams.getAll("languages[]");
