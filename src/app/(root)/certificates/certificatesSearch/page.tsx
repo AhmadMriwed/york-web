@@ -4,23 +4,10 @@ import { SearchCertificate } from "@/lib/action/root_action";
 import { Certificate } from "@/types/rootTypes/rootTypes";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import CertificateSearch from "@/components/forms/CertificateSearch";
 import Image from "next/image";
 import { NotFoundSection } from "@/components/NotFoundSection";
 import { Calendar } from "@rsuite/icons";
-
-const CertificateHeroSection = () => {
-  return (
-    <div className="certificates-bg h-[80vh] flex items-center justify-center flex-col">
-      <h1 className="text-3xl md:text-5xl w-full md:max-w-[60%] mx-auto text-white font-bold text-center">
-        SEARCH FOR CERTIFICATES ACCREDITED
-      </h1>
-      <div className="w-full md:w-[60%] mx-auto mt-16">
-        <CertificateSearch />
-      </div>
-    </div>
-  );
-};
+import CertificateSearch from "@/components/forms/CertificateSearch";
 
 interface CertificateDetailsProps {
   certificate: Certificate;
@@ -119,7 +106,14 @@ const Page = () => {
 
   return (
     <main className="h-full relative">
-      <CertificateHeroSection />
+      <div className="certificates-bg h-[80vh] flex items-center justify-center flex-col">
+        <h1 className="text-3xl md:text-5xl w-full md:max-w-[60%] mx-auto text-white font-bold text-center">
+          SEARCH FOR CERTIFICATES ACCREDITED
+        </h1>
+        <div className="w-full md:w-[60%] mx-auto mt-16">
+          <CertificateSearch />
+        </div>
+      </div>
       {!certificate ? (
         <NotFoundSection />
       ) : (

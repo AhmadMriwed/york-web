@@ -1,7 +1,6 @@
 import CertificateSearch from "@/components/forms/CertificateSearch";
-import React from "react";
 
-const Page = () => {
+const page = () => {
   return (
     <main className="h-full relative">
       {/* Hero Section */}
@@ -17,4 +16,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default page;

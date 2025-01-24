@@ -115,18 +115,6 @@
     min-height: 100%;
   }
 }
-/* :root {
-  --primary-color1: #01989f;
-  --primary-color2: #00d4d4;
-  --light-bg-color: #eff4ff;
-  --light-text-color: #405053;
-  --dark-bg-color: #212a34;
-  --dark-text-color: #fff;
-  --secondary-color-blue: #16facd;
-  --secondary-color-red: #cc4c4c;
-  --home-color: #13181e;
-
-} */
 
 /* sidebar background color */
 .dark_gradient_background {
@@ -330,7 +318,7 @@
 .training-plan-bg,
 .contact-us-bg,
 .certificates-bg {
-  @apply bg-cover bg-center relative shadow-lg;
+  @apply bg-cover bg-center relative shadow-lg ;
 }
 
 .home-welcome-bg {
@@ -349,7 +337,8 @@
   background-image: url("/assets/user/about-us.jpeg");
 }
 .certificates-bg {
-  background-image: url("/assets/user/magnifier.jpg");
+  background-image: url("/information/cretificate.jpg");
+  
 }
 .training-plan-bg {
   background-image: url("/assets/user/home/welcome-bg.jpg");
