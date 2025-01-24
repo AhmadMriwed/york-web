@@ -50,15 +50,15 @@ const Footer = async () => {
         </ul>
       </div>
       <div className="w-[100vw] h-18 text-center mt-4  ">
-        <ul className="flex gap-4 items-center w-fit mx-auto ">
+        {/* <ul className="flex gap-4 items-center w-fit mx-auto ">
           {icons.map((icon) => (
-            <Link href={icon.url}>
+            <Link href={icon.url} key={icon.url}>
               <li className="h-12 w-12 rounded-full border transition-all hover:border-primary-color2 duration-100 flex items-center justify-center text-white">
                 h
               </li>
             </Link>
           ))}
-        </ul>
+        </ul> */}
       </div>
       <div className="border-t-gray-50  p-8 w-full ">
         <p className="text-white font-semibold">

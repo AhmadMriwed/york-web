@@ -118,6 +118,7 @@ export interface SearchFilters {
   year_models: string[];
 }
 
+
 interface ContactUsType {
   id: number;
   type: string;
@@ -126,5 +127,16 @@ interface ContactUsType {
 export interface ContactUs {
   id: number;
   type: ContactUsType;
-  content: string;
+  content?: string;
+  url?: string;
+}
+
+export interface Certificate{
+  id:number; 
+  certificate_id:string|null;
+  certificate_img:string;
+  trainer_full_name:string;
+  trainer_img:string;
+  valid_from:string;
+  valid_to:string;
 }

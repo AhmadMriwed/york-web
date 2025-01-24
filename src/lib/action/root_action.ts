@@ -1,5 +1,5 @@
   import { Venue } from "@/types/adminTypes/courses/coursesTypes";
-import { AboutUs, Category, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
+import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
 import axios, { AxiosError } from "axios";
 import { useParams, usePathname } from "next/navigation";
 
@@ -375,4 +375,34 @@ export const fetchContactUsIcons = async (): Promise<ContactUs[]> => {
   }
 };
 
+///// search certificate //////// 
+export const SearchCertificate = async (
+  certificate_id: string | null
+): Promise<Certificate> => {
 
+  if (!certificate_id) {
+    throw new Error("Certificate ID is required.");
+  }
+
+  try {
+   
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/certificates/search?code=${certificate_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(response.data)
+
+    if (response.data?.data) {
+      return response.data.data as Certificate;
+    } else {
+      throw new Error("No certificate data found.");
+    }
+  } catch (error: any) {
+    console.error("Error searching certificate:", error);
+    throw new Error("Failed to search certificate. Please try again later.");
+  }
+};
