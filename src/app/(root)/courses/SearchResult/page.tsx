@@ -7,6 +7,7 @@ import Loader from "@/components/loading/Loader";
 import CourseCard from "@/components/cards/CourseCard";
 import Image from "next/image";
 import { Course } from "@/types/rootTypes/rootTypes";
+import Link from "next/link";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -68,6 +69,12 @@ const Page = () => {
           <p className="text-primary-color2 mt-8 font-bold text-lg">
             No Courses found
           </p>
+          <Link
+            className="text-white p-2 rounded-lg bg-primary-color2  mt-4 hover:no-underline hover:text-white hover:bg-primary-color1 transition-all duration-200"
+            href={"/home"}
+          >
+            Back home
+          </Link>
         </div>
       ) : (
         <div>
