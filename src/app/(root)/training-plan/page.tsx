@@ -49,7 +49,7 @@ const Page = () => {
               <h1 className="text-primary-color1 text-xl md:text-2xl font-semibold mb-6">
                 {trainingPlan?.title} {trainingPlan?.year}
               </h1>
-              <h2 className="text-gray-300 text-base font-semibold mb-3">
+              <h2 className="text-gray-500 text-base  mb-3">
                 {trainingPlan?.sub_title || "No title available"}
               </h2>
             </div>
