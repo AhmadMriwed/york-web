@@ -14,7 +14,7 @@ const Footer = async () => {
   const icons = await fetchContactUsIcons();
   return (
     <footer className="home-footer-bg   px-[30px] md:px-[80px] py-[30px] flex items-center justify-around gap-x-[30px] gap-y-[20px] flex-wrap">
-      <div className="w-full h-full absolute top-0 left-0  bg-[#13181ec7] text-center bg-blue-400" />
+      <div className="w-full h-full absolute top-0 left-0  bg-[#13181ec7]  bg-blue-400" />
       <div className=" w-full text-center md:w-[400px]   flex items-center gap-3 flex-col relative ">
         <Image src={"/logo.png"} alt="Logo" width={130} height={130} />
         <div
@@ -40,9 +40,9 @@ const Footer = async () => {
         </ul>
       </div>
       {/* links */}
-      <div className="text-white h-[170px] relative ">
+      <div className="text-white h-[170px] relative mr-0  -ml-36 ">
         <h3 className="font-bold text-[24px] capitalize">Quick links</h3>
-        <ul className="list-disc ms-[18px] mt-[10px]">
+        <ul className="list-disc  mt-[10px]">
           {links.map((link: address) => {
             return (
               <li
