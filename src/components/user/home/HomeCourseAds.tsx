@@ -187,7 +187,7 @@ const HomeCourseAds = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px]">
+    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px] -mt-20 md:-mt-0">
       <div className="text-center text-white">
         <h2 className="text-[28px] font-semibold leading-[1.2] mb-[20px]">
           Learn new skills on your time
@@ -200,7 +200,7 @@ const HomeCourseAds = () => {
             <div className="  flex items-center rounded-lg w-full   bg-white relative">
               <Input
                 placeholder="Search by Course Title or Code"
-                className="bg-white placeholder:text-[12px] md:placeholder:text-sm placeholder:max-w-14 md:placeholder:max-w-full truncate outline-none ml-4"
+                className="bg-white placeholder:text-[12px] md:placeholder:text-sm placeholder:max-w-[52px] md:placeholder:max-w-full truncate outline-none ml-4"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })

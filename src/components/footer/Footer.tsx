@@ -40,7 +40,7 @@ const Footer = async () => {
         </ul>
       </div>
       {/* links */}
-      <div className="text-white h-[170px] relative mr-0  -ml-36 ">
+      <div className="text-white h-[170px] relative mr-0  -ml-40 ">
         <h3 className="font-bold text-[24px] capitalize">Quick links</h3>
         <ul className="list-disc  mt-[10px]">
           {links.map((link: address) => {
