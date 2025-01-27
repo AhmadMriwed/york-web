@@ -18,8 +18,9 @@ import {
   SeasonModel,
   Year,
   SearchFilters,
+  Course,
 } from "@/types/rootTypes/rootTypes";
-import { FilterCourses } from "@/lib/action/root_action";
+import { fetchAllCourses, FilterCourses } from "@/lib/action/root_action";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
@@ -32,6 +33,7 @@ const HomeCourseAds = () => {
   const [seasons, setSeasons] = useState<SeasonModel[]>([]);
   const [years, setYears] = useState<Year[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
 
   // Explicitly type the arrays in the state
   const [formData, setFormData] = useState<SearchFilters>({
@@ -49,6 +51,9 @@ const HomeCourseAds = () => {
         const { languages, venues, categories, season_models, year_models } =
           await FilterCourses();
 
+        const courses = await fetchAllCourses();
+
+        setCourses(courses);
         setVenues(venues);
         setCategories(categories);
         setLanguages(languages);
@@ -130,26 +135,6 @@ const HomeCourseAds = () => {
 
   const dropdowns: Dropdown[] = [
     {
-      id: 1,
-      title: "Language",
-      fieldName: "languages",
-      items: languages.map((language) => ({
-        key: language.code,
-        title: language.name,
-        value: language.code,
-      })),
-    },
-    {
-      id: 2,
-      title: "Category",
-      fieldName: "category_ids",
-      items: categories.map((category) => ({
-        key: category.id,
-        title: category.title,
-        value: category.id,
-      })),
-    },
-    {
       id: 3,
       title: "Venues",
       fieldName: "venue_ids",
@@ -179,23 +164,43 @@ const HomeCourseAds = () => {
         value: year.origin,
       })),
     },
+    {
+      id: 1,
+      title: "Language",
+      fieldName: "languages",
+      items: languages.map((language) => ({
+        key: language.code,
+        title: language.name,
+        value: language.code,
+      })),
+    },
+    {
+      id: 2,
+      title: "Category",
+      fieldName: "category_ids",
+      items: categories.map((category) => ({
+        key: category.id,
+        title: category.title,
+        value: category.id,
+      })),
+    },
   ];
 
   return (
-    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-40px] lg:translate-y-[-50%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px]">
+    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px]">
       <div className="text-center text-white">
         <h2 className="text-[28px] font-semibold leading-[1.2] mb-[20px]">
           Learn new skills on your time
         </h2>
-        <p className="mb-4">Search Over 57,000 Online Courses</p>
+        <p className="mb-4">{`Search Over  ${courses.length}   Online Courses`}</p>
       </div>
       <form onSubmit={onSubmit} className="space-y-6">
-        <div className="flex items-center justify-between gap-[20px] flex-wrap w-full">
-          <div className="flex gap-2 flex-1">
-            <div className=" md:basis-[40%] grow flex items-center rounded-lg   bg-white relative">
+        <div className="flex items-center flex-col flex-wrap  justify-between gap-[20px]  w-full">
+          <div className="flex gap-2 w-full  md:w-2/4">
+            <div className="  flex items-center rounded-lg w-full   bg-white relative">
               <Input
                 placeholder="Search by Course Title or Code"
-                className="bg-white placeholder:text-[11px] md:placeholder:text-sm outline-none ml-4"
+                className="bg-white placeholder:text-[12px] md:placeholder:text-sm placeholder:max-w-14 md:placeholder:max-w-full truncate outline-none ml-4"
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -210,11 +215,11 @@ const HomeCourseAds = () => {
               type="submit"
               disabled={isLoading}
             >
-              <FaFilter className="mr-2" />
+              <FaFilter className="size-2" /> apply
             </Button>
           </div>
 
-          <div className="grow md:grow-0 md:basis-[50%] flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div className="grow md:grow-0  flex items-center gap-3 flex-wrap sm:flex-nowrap">
             {dropdowns.map((dropdown) => (
               <DropdownMenu key={dropdown.id}>
                 <DropdownMenuTrigger asChild>

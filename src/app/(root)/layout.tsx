@@ -6,6 +6,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip";
 import Footer from "@/components/footer/Footer";
 import { Conversation } from "@/components/conversation";
 import { Toaster } from "sonner";
+import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
 
 export default function RootLayout({
   children,

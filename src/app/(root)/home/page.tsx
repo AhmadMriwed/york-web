@@ -1,7 +1,7 @@
 import Image from "next/image";
 import DefaultButton from "@/components/buttons/LinkButton";
 import Link from "next/link";
-import { category, newsItems, newsItme } from "@/utils/user/home/homePageEnums";
+import { category } from "@/utils/user/home/homePageEnums";
 
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 import FrequentlyAskedQuestions from "@/components/user/home/FrequentlyAskedQuestions";
@@ -10,12 +10,20 @@ import {
   fetchClients,
   fetchQuestions,
   fetchSliders,
+  fetchUpcomingCourses,
   fetchVenues,
   getSectionById,
 } from "@/lib/action/root_action";
 import Hero from "@/components/user/home/Hero";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
-
+import { Upcoming_Course } from "@/types/rootTypes/rootTypes";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNavigation,
+} from "@/components/ui/carousel";
+import UpcomingCourses from "@/components/user/home/UpcomingCourses";
 export default async function Home() {
   const questions = await fetchQuestions();
   const venues = await fetchVenues();
@@ -24,6 +32,7 @@ export default async function Home() {
   const section = await getSectionById(1);
   const sliders = await fetchSliders();
   const clients = await fetchClients();
+  const upComingCourses = await fetchUpcomingCourses();
 
   const SectionTitle = ({
     title,
@@ -45,19 +54,6 @@ export default async function Home() {
     </div>
   );
 
-  const NewsCard = ({ item }: { item: newsItme }) => (
-    <div className="w-full md:w-[366px] min-h-[405px] p-[20px] bg-[var(--home-color)] text-center rounded-xl hover:translate-y-[-6px] duration-300 transition-all cursor-default">
-      <div className="relative h-[215px] rounded-lg  w-full text-center">
-        <Image src={item.image} alt="news" fill className="rounded-lg" />
-        <span className="absolute w-full h-full top-0 left-0 bg-gradient-to-b rounded-lg from-[#01989f] to-[var(--home-color)] opacity-80 rounded-b-[10px]" />
-        <h3 className="text-white absolute bottom-0 p-3 text-[18px] mx-auto text-center font-bold leading-[1.1] capitalize">
-          {item.title}
-        </h3>
-      </div>
-      <p className="text-sm py-5 text-[#777] text-center">{item.description}</p>
-    </div>
-  );
-
   const CategoryCard = ({ item }: { item: category }) => (
     <div className="flex justify-center items-center gap-3 flex-col p-5 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
       <div className="footer-bg"></div>
@@ -68,7 +64,6 @@ export default async function Home() {
           className="aspect-[3/2] md:aspect-[1/1]"
           width={80}
           height={80}
-          loading="lazy"
         />
       </div>
       <p className="text-xs md:text-[15px] font-semibold text-[var(--primary-color2)] text-center capitalize -mt-8 md:mt-0">
@@ -98,7 +93,6 @@ export default async function Home() {
         <section className="home-landing-bg">
           <Hero sliders={sliders} />
         </section>
-
         <HomeCourseAds />
 
         <section className="relative">
@@ -110,21 +104,30 @@ export default async function Home() {
             />
           </div>
 
-          <main className="relative home-welcome-bg min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
+          <main className="relative  min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
+            <Image
+              src="/assets/user/home/welcome-bg.jpg"
+              alt="Example image"
+              fill
+              className="cover"
+              loading="eager"
+            />
             <div className="w-full h-full absolute top-0 left-0 bg-[#13181eec] bg-opacity-95" />
             <div className="min-w-[100px] lg:ms-[100px] relative">
               <Image src="/logo.png" alt="Logo" width={200} height={200} />
             </div>
             <div className="basis-[50%] relative">
-              <p className="text-white mb-3">{section.description}</p>
+              <div
+                dangerouslySetInnerHTML={{ __html: section.description || "" }}
+                className="text-white text-center mb-4 "
+              />
               <Link
                 href="#"
-                className="text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
+                className="text-primary-color1 hover:text-primary-color2 "
               >
                 Read More
               </Link>
             </div>
-            <span className="hidden md:inline absolute w-[55%] h-[135%] left-[40%] border-2 border-[var(--primary-color1)]" />
           </main>
         </section>
 
@@ -143,17 +146,10 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="relative mt-[90px]">
-            <div className="absolute z-[-1] xl:h-[70%] w-full bg-[#023141] shadow-[0_3.26px_3.26px_rgba(0,0,0,0.25)] top-[50%] translate-y-[-50%]" />
-            <div className="px-[30px] flex items-center gap-[30px] justify-center flex-wrap">
-              {newsItems.map((item: newsItme) => (
-                <NewsCard key={item.id} item={item} />
-              ))}
-            </div>
-          </div>
+          <UpcomingCourses upComingCourses={upComingCourses} />
         </section>
 
-        <section className="mt-[130px]" id="categories">
+        <section className="mt-[160px]" id="categories">
           <div className="flex justify-center items-center">
             <SectionTitle title="Categories" />
           </div>

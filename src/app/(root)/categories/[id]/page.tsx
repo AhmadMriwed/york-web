@@ -21,8 +21,6 @@ const Page = ({ params }: Props) => {
       try {
         const courses = await getCoursesByCategoryId(id);
         setCourses(courses);
-
-        console.log(courses);
       } catch (err: any) {
         setError("Failed to fetch category");
       }
@@ -50,27 +48,27 @@ const Page = ({ params }: Props) => {
         className="h-[80vh] flex flex-col items-center justify-center"
         style={{
           backgroundImage: `url(${
-            courses[0].category.image
-              ? courses[0].category.image
+            courses[0]?.category.image
+              ? courses[0]?.category.image
               : "/information/Image_defualt.svg"
           })`,
-          backgroundSize: `${courses[0].category.image ? "cover" : "50"}`,
+          backgroundSize: `${courses[0]?.category.image ? "cover" : "50"}`,
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
         <h1 className="text-primary-color1 text-3xl  md:text-7xl font-bold">
-          {courses[0].category.title}
+          {courses[0]?.category.title}
         </h1>
       </div>
       {/* Content Section */}
       <div className="container mx-auto my-6">
         <div className="p-4">
           <h1 className="p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold">
-            {courses[0].category.title}
+            {courses[0]?.category.title}
           </h1>
           <p className="text-gray-700 space-y-6">
-            {courses[0].category.description}
+            {courses[0]?.category.description}
           </p>
         </div>
         <div className="w-full my-8">

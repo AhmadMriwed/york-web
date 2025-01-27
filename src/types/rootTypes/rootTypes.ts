@@ -64,6 +64,14 @@ export interface Question {
     count_views: number;
   }
 
+  export interface Upcoming_Course{
+    id:number;
+    title:string;
+    description:string;
+    img:string;
+    course_date:string;
+  }
+
   export interface Training_Plan{
     id:number;
     title:string;

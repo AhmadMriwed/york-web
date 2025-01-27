@@ -16,6 +16,8 @@ import TopBar from "./Topbar";
 import { usePathname } from "next/navigation";
 import MobileNav from "./MobileNav";
 import DesktopNav from "./DesktopNav";
+import { Category, Venue } from "@/types/rootTypes/rootTypes";
+import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
 
 interface NavItem {
   title: string;
@@ -39,7 +41,8 @@ export function Navbar(): JSX.Element {
   const [isMobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const path = usePathname();
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [venues, setVenues] = React.useState<Venue[]>([]);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -50,6 +53,16 @@ export function Navbar(): JSX.Element {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
+  }, []);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const categories = await fetchCategories();
+      setCategories(categories);
+      const venues = await fetchVenues();
+      setVenues(venues);
+    };
+    fetchData();
   }, []);
 
   return (
@@ -68,6 +81,8 @@ export function Navbar(): JSX.Element {
           isMobileMenuOpen={isMobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
           isScrolled={isScrolled}
+          venues={venues}
+          categories={categories}
         />
 
         {/* Logo */}
@@ -82,7 +97,11 @@ export function Navbar(): JSX.Element {
         </Link>
 
         {/* Desktop Menu */}
-        <DesktopNav navItems={navItems} />
+        <DesktopNav
+          navItems={navItems}
+          venues={venues}
+          categories={categories}
+        />
 
         {/* Search Bar */}
         <SearchBar open={searchOpen} setOpen={setSearchOpen} />

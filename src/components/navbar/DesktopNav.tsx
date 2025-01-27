@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { ListItem } from "./Navbar";
 import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
-import { Category, Venue } from "@/types/rootTypes/rootTypes";
+import { Category, Course, Venue } from "@/types/rootTypes/rootTypes";
 
 /* Dropdown Section for Desktop Menu */
 const DropdownSection = ({
@@ -51,28 +51,16 @@ interface NavItem {
 
 interface DesktopNavProps {
   navItems: NavItem[];
+  categories: Category[];
+  venues: Venue[];
 }
 
-export default function DesktopNav({ navItems }: DesktopNavProps) {
+export default function DesktopNav({
+  navItems,
+  categories,
+  venues,
+}: DesktopNavProps) {
   const path = usePathname();
-  const [venues, setVenues] = React.useState<Venue[]>([]);
-  const [categories, setCategories] = React.useState<Category[]>([]);
-
-  // Fetch categories and venues data on component mount
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedVenues = await fetchVenues();
-        const fetchedCategories = await fetchCategories();
-        setVenues(fetchedVenues);
-        setCategories(fetchedCategories);
-      } catch (error) {
-        console.error("Failed to fetch categories or venues:", error);
-      }
-    };
-
-    fetchData();
-  }, []); // Empty dependency array ensures this runs once on component mount
 
   return (
     <NavigationMenuList className="space-x-6 hidden md:flex">

@@ -1,3 +1,4 @@
+"use client";
 import React, { Dispatch, SetStateAction } from "react";
 import {
   Accordion,
@@ -9,17 +10,22 @@ import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Image from "next/image";
 import { ListItem, navItems1, navItems2 } from "./Navbar";
 import Link from "next/link";
-import { categories, venues } from "@/constants";
 import { cn } from "@/lib/utils";
+import { Category, Venue } from "@/types/rootTypes/rootTypes";
+import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
 
 const MobileNav = ({
   isMobileMenuOpen,
   setMobileMenuOpen,
   isScrolled,
+  venues,
+  categories,
 }: {
   isMobileMenuOpen: boolean;
   setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
   isScrolled: boolean;
+  venues: Venue[];
+  categories: Category[];
 }) => {
   return (
     <Collapsible open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -39,7 +45,7 @@ const MobileNav = ({
           "fixed top-32 bg-gray-200 max-h-[38%] md:hidden overflow-y-scroll overflow-x-hidden ease-linear left-0 w-full z-50 transition-[height] duration-300 rounded-md",
           {
             "h-0": !isMobileMenuOpen,
-            "h-[45%]": isMobileMenuOpen,
+            "h-[48%]": isMobileMenuOpen,
             "top-20": isScrolled,
           }
         )}
@@ -101,7 +107,7 @@ const AccordionSection = ({
   setMobileMenuOpen,
 }: {
   title: string;
-  items: { id?: number; title: string; image: string; description?: string }[];
+  items: Category[] | Venue[];
   basePath: string;
   setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
 }) => (

@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Course } from "@/types/rootTypes/rootTypes";
 import Link from "next/link";
 import { NotFoundSection } from "@/components/NotFoundSection";
+import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 
 const Page = () => {
   const searchParams = useSearchParams();
@@ -72,14 +73,16 @@ const Page = () => {
       ) : (
         <div>
           <div
-            className="h-[60vh] flex flex-col items-center justify-center"
+            className="h-[70vh] flex flex-col items-center justify-center"
             style={{
               backgroundImage: `url("/information/search.jpg")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
             }}
-          />
+          ></div>
+
+          <HomeCourseAds />
           <div className="container mx-auto my-6">
             {courses.map((course) => (
               <CourseCard

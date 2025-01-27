@@ -51,7 +51,7 @@ const Hero = ({ sliders }: Props) => {
           ))}
         </CarouselContent>
         <CarouselNavigation className=" hidden md:absolute" />
-        <CarouselIndicator className="md:mb-96" />
+        <CarouselIndicator className="md:mb-[28rem]" />
       </Carousel>
     </main>
   );

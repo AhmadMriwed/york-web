@@ -1,5 +1,5 @@
   import { Venue } from "@/types/adminTypes/courses/coursesTypes";
-import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan } from "@/types/rootTypes/rootTypes";
+import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, SearchFilters, Section, Slider, Training_Plan, Upcoming_Course } from "@/types/rootTypes/rootTypes";
 import axios, { AxiosError } from "axios";
 
 export const fetchQuestions = async (): Promise<
@@ -120,6 +120,33 @@ export const fetchSliders = async (): Promise<
 };
 
 ////////////// courses /////////////
+
+export const fetchAllCourses = async (): Promise<
+  Course[]
+> => {  
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/course_ads`);
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching  courses:", error.message);
+    throw new Error("Failed to fetch  courses");
+  }
+};
+
+
+export const fetchUpcomingCourses = async (): Promise<
+  Upcoming_Course[]
+> => {  
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/upcoming-courses`);
+    return response.data.data;
+  } catch (error: any) {
+    console.error("Error fetching upcoming courses:", error.message);
+    throw new Error("Failed to fetch upcoming courses");
+  }
+};
+
+
 export const getCoursesByVenueId = async (venueId: number): Promise<Course[]> => {
   try {
     const response = await axios.get(
@@ -138,6 +165,8 @@ export const getCoursesByVenueId = async (venueId: number): Promise<Course[]> =>
     throw new Error("Failed to fetch courses for the specified venue.");
   }
 };
+
+
 
 export const getCoursesByCategoryId = async (categoryId: number): Promise<Course[]> => {
   try {
@@ -261,7 +290,7 @@ export const fetchClients = async (): Promise<Client[]> => {
 
 export const storePlanRegister = async (data: PlanRegisterData): Promise<void> => {
   try {
-    await axios.post('/api/plan_register', data); // Use the local proxy endpoint
+    await axios.post('/api/plan_register', data); 
   } catch (error: any) {
     let errorMessage = 'Failed to register the plan.';
 
@@ -330,8 +359,6 @@ export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> =>
     throw new Error("Failed to search courses. Please try again later.");
   }
 };
-
-
 
 export const FilterCourses = async (): Promise<FilterCoursesResponse> => {
   try {
@@ -415,3 +442,5 @@ export const SearchCertificate = async (
     throw new Error("Failed to search certificate. Please try again later.");
   }
 };
+
+

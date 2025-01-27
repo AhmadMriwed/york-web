@@ -13,7 +13,14 @@ interface CertificateDetailsProps {
   certificate: Certificate;
 }
 
+const isCertificateValid = (validTo: string): boolean => {
+  const currentDate = new Date();
+  const validToDate = new Date(validTo);
+  return validToDate >= currentDate;
+};
+
 const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
+  const isValid = isCertificateValid(certificate.valid_to);
   return (
     <div className="container mx-auto my-12 p-6 bg-white rounded-lg shadow-sm">
       <div className="grid grid-cols-1 gap-4   md:grid-cols-3">
@@ -31,7 +38,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
         {/* Certificate Details */}
         <div className="space-y-6 border border-primary-color1 shadow-lg rounded-lg p-6 ml-4">
           {/* Trainer Image */}
-          <div className="flex flex-col items-center space-x-4">
+          <div className="flex flex-col items-center space-x-4 relative">
             <Image
               src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${certificate.trainer_img}`}
               alt="Trainer Image"
@@ -39,9 +46,26 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
               height={150}
               className="rounded-full border"
             />
-            <p className=" text-gray-500 font-semibold">
+            <p className=" text-gray-500 font-semibold mt-8">
               {certificate.trainer_full_name}
             </p>
+            {!isValid ? (
+              <Image
+                src={"/information/validation.png"}
+                width={100}
+                height={100}
+                alt="validation"
+                className=" absolute top-20 right-8"
+              />
+            ) : (
+              <Image
+                src={"/information/expired.png"}
+                width={180}
+                height={180}
+                alt="validation"
+                className=" absolute top-4 -right-4  "
+              />
+            )}
           </div>
           <h2 className="text-xl font-bold text-primary-color2">
             Certificate Details
@@ -100,6 +124,7 @@ const Page = () => {
     fetchCertificate();
   }, [searchParams]);
 
+  console.log(certificate);
   if (isLoading) {
     return <Loader />;
   }

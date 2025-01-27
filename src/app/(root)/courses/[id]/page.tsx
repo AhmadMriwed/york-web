@@ -9,12 +9,11 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import RegisterationForm from "@/components/forms/RegisterationForm";
+import { useRouter } from "next/navigation";
 
 interface Props {
   params: { id: number };
@@ -23,8 +22,10 @@ interface Props {
 const Page = ({ params }: Props) => {
   const { id } = params;
   const [course, setCourse] = useState<Course | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
+  const [error, setError] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const router = useRouter();
   useEffect(() => {
     const fetchCourse = async () => {
       try {
@@ -94,21 +95,13 @@ const Page = ({ params }: Props) => {
             <h1 className="p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold">
               {course.title}
             </h1>
-            {/* Registration Form */}
-            <Dialog>
-              <DialogTrigger className="bg-primary-color1 hover:bg-primary-color2 px-3 py-2 rounded-sm text-white">
-                Register
-              </DialogTrigger>
-              <DialogContent className="bg-primary-color4 border-none shadow-2xl">
-                <DialogHeader>
-                  <DialogTitle className=" text-primary-color1 text-2xl dark:text-white">
-                    Registeration Form
-                  </DialogTitle>
-                </DialogHeader>
-                <RegisterationForm />
-                <DialogClose />
-              </DialogContent>
-            </Dialog>
+
+            <button
+              onClick={() => router.push(`/courses/${id}/registeration`)}
+              className="bg-primary-color1 hover:bg-primary-color2 px-3 py-2 rounded-sm text-white"
+            >
+              Register
+            </button>
           </div>
 
           <div className="mt-6 text-gray-600">
@@ -142,7 +135,7 @@ const Page = ({ params }: Props) => {
           </div>
         </div>
         <div className="text-gray-700 space-y-6 mt-16">
-          {course.description || "No description available."}
+          {course.description}
         </div>
       </div>
     </main>

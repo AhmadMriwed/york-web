@@ -47,7 +47,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg mb-5 p-6 max-w-full mx-auto transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-md  text-center flex flex-col md:flex-row gap-6 items-center">
         <Image
           src={image ? image : "/information/courses-default.png"}
-          // src={"/information/courses-default.png"}
           width={80}
           height={80}
           className="bg-cover"
@@ -63,7 +62,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
             {/* Headers */}
             <div className=" flex flex-col md:grid grid-cols-7 gap-4 border-t pt-4">
               {header.map((item, index) => (
-                <div key={index} className="font-bold text-sm">
+                <div
+                  key={index}
+                  className="font-bold text-sm text-primary-color2"
+                >
                   {item}
                 </div>
               ))}
