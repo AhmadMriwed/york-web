@@ -36,7 +36,7 @@ const DropdownSection = ({
           <ListItem
             key={index}
             title={item.title}
-            href={`${basePath}/${item.id}`} // Ensure correct path with item.id
+            href={`${basePath}/${item.id}`}
           />
         ))}
       </ul>

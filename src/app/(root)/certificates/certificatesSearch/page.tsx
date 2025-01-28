@@ -49,7 +49,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
             <p className=" text-gray-500 font-semibold mt-8">
               {certificate.trainer_full_name}
             </p>
-            {!isValid ? (
+            {isValid ? (
               <Image
                 src={"/information/validation.png"}
                 width={100}
@@ -124,7 +124,6 @@ const Page = () => {
     fetchCertificate();
   }, [searchParams]);
 
-  console.log(certificate);
   if (isLoading) {
     return <Loader />;
   }

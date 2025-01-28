@@ -126,6 +126,14 @@ export interface SearchFilters {
   year_models: string[];
 }
 
+export interface RegistrationData {
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  notes?: string;
+}
+
 
 interface ContactUsType {
   id: number;

@@ -124,7 +124,7 @@ export const ListItem = React.forwardRef<
         ref={ref}
         href={href}
         className={cn(
-          "block text-sm hover:text-primary-color1 hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-2 capitalize font-medium",
+          "block text-sm text-black hover:text-primary-color1  hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-2 capitalize font-medium",
           {
             "text-primary-color1 font-semibold ml-2": path.startsWith(href),
           }

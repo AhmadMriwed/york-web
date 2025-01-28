@@ -13,7 +13,6 @@ interface Props {
 const Page = ({ params }: Props) => {
   const { id } = params;
   const [courses, setCourses] = useState<Course[] | null>(null);
-  const [venue, setVenue] = useState<Venue[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

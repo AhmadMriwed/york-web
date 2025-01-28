@@ -118,7 +118,7 @@ const Page = ({ params }: Props) => {
             {/* Headers */}
             <div className="flex flex-col md:grid grid-cols-8 gap-4 border-t pt-4">
               {head.map((item, index) => (
-                <div key={index} className="font-bold text-xs">
+                <div key={index} className="">
                   {item}
                 </div>
               ))}

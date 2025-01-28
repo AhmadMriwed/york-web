@@ -26,6 +26,7 @@ import {
 import UpcomingCourses from "@/components/user/home/UpcomingCourses";
 export default async function Home() {
   const questions = await fetchQuestions();
+  console.log(questions);
   const venues = await fetchVenues();
 
   const categories = await fetchCategories();
