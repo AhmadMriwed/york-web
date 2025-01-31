@@ -41,7 +41,7 @@ const Page = () => {
   return (
     <main className="h-full relative">
       {/* Hero Section */}
-      <div className="training-plan-bg h-[80vh] bg-black " />
+      <div className="training-plan-bg h-[80vh]  " />
       <div className="container py-16 px-8 md:px-2 mx-auto">
         <div className="border-b border-gray-300 py-8">
           <>

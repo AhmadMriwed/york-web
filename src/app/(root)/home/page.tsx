@@ -56,20 +56,19 @@ export default async function Home() {
   );
 
   const CategoryCard = ({ item }: { item: category }) => (
-    <div className="flex justify-center items-center gap-3 flex-col p-5 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
+    <div className="flex flex-col items-center justify-center">
+      {/* <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect"> */}
       <div className="footer-bg"></div>
-      <div className="w-[80px] h-[80px] aspect-[1/1]">
+      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
         <Image
           src={item.image ? item.image : "/information/Image_defualt.svg"}
-          alt={item.title}
-          className="aspect-[3/2] md:aspect-[1/1]"
-          width={80}
-          height={80}
+          width={200}
+          height={200}
+          alt={"placeholder"}
+          className={`bg-cover ${item.image || "-mt-10"}`}
         />
       </div>
-      <p className="text-xs md:text-[15px] font-semibold text-[var(--primary-color2)] text-center capitalize -mt-8 md:mt-0">
-        {item.title}
-      </p>
+      <p className="mt-3 font-semibold text-sm">{item.title}</p>
     </div>
   );
 

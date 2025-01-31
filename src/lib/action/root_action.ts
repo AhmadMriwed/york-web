@@ -81,10 +81,8 @@ export const fetchAboutUs = async (): Promise<
   AboutUs[]
 > => {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/aboutUs`
-    );
-    return response.data;
+    return await get<AboutUs[]>('/aboutUs');
+
   } catch (error: any) {
     console.error("Error fetching aboutus:", error.message);
     throw new Error("Failed to fetch aboutus");
@@ -193,16 +191,31 @@ export const getCourseById = async (id: number): Promise<Course> => {
 
 export const registration = async (data: RegistrationData): Promise<void> => {
   try {
-    const response = await post<void>("/register", data);
-    return response;
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "cv_trainer" && value instanceof File) {
+        formData.append(key, value);
+      } else if (typeof value !== "object" || value === null) {
+        formData.append(key, String(value));
+      }
+    });
+
+    if (data.selection_training) {
+      formData.append("selection_training", JSON.stringify(data.selection_training));
+    }
+
+    await axios.post('/api/registeration', formData); 
+    
+
   } catch (error: any) {
     console.error("Error during registration:", error.message);
     console.error("Error Details:", error.response?.data || error);
-    throw new Error(
-      error.response?.data?.message || "Failed to complete registration."
-    );
+
+    throw new Error(error.response?.data?.message || "Failed to complete registration.");
   }
 };
+
 
 ///////// training plan /////
 
@@ -227,7 +240,7 @@ export const fetchClients = async (): Promise<Client[]> => {
   }
 };
 
-  export const storePlanRegister = async (data: PlanRegisterData): Promise<void> => {
+export const storePlanRegister = async (data: PlanRegisterData): Promise<void> => {
     try {
       await axios.post('/api/plan_register', data); 
     } catch (error: any) {

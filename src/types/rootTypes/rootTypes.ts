@@ -1,3 +1,5 @@
+import * as $ from 'jquery';
+
 export interface Question { 
     question: string; 
     answer: string; 
@@ -27,9 +29,9 @@ export interface Question {
   
   export interface AboutUs { 
     id: number; 
-    content: string; 
-    created_at: string; 
-    updated_at: string; 
+    title: string; 
+    description: string; 
+    url: string; 
   }
   
   export interface Slider { 
@@ -127,11 +129,32 @@ export interface SearchFilters {
 }
 
 export interface RegistrationData {
+  title: string;
+  description?: string|undefined;
+  fee: string;
+  start_date: string;
+  end_date: string;
+  houres: number;
+  language: string;
+  code?: string;
+  category_id: number;
+  venue_id: number;
   name: string;
   email: string;
-  phone: string;
-  address?: string;
-  notes?: string;
+  url?: string;
+  job_title?: string;
+  cv_trainer: File | null;
+  selection_training?: {
+    name?: string;
+    email?: string;
+    functional_specialization?: string;
+    phone_number?: string;
+    trainer_id?: number;
+  };
+  num_people: number;
+  entity_type: string;
+  user_id?: number;
+  course_ad_id?: number;
 }
 
 
@@ -155,4 +178,10 @@ export interface Certificate{
   trainer_img:string;
   valid_from:string;
   valid_to:string;
+}
+
+declare global {
+  interface JQuery {
+    vectorMap(options: any): JQuery;
+  }
 }

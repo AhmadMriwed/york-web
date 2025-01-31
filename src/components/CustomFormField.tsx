@@ -14,9 +14,9 @@ import Image from "next/image";
 import "react-phone-number-input/style.css";
 
 import PhoneInput from "react-phone-number-input";
-// import DatePicker from "react-datepicker";
+import DatePicker from "react-datepicker";
 
-// import "react-datepicker/dist/react-datepicker.css";
+import "react-datepicker/dist/react-datepicker.css";
 import { Select, SelectContent, SelectValue } from "./ui/select";
 import { SelectTrigger } from "@radix-ui/react-select";
 import { Textarea } from "./ui/textarea";
@@ -31,6 +31,7 @@ export enum FormFieldType {
   DATE_PICKER = "datePicker",
   SELECT = "select",
   SKELETON = "skeleton",
+  NUMBER = "number", // Added NUMBER type
 }
 
 interface CustomProps {
@@ -85,6 +86,31 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           </FormControl>
         </div>
       );
+    case FormFieldType.NUMBER: // Added NUMBER case
+      return (
+        <div
+          className="flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1"
+          tabIndex={0}
+        >
+          {iconSrc && (
+            <Image
+              src={iconSrc}
+              alt={iconAlt || "icon"}
+              width={24}
+              height={24}
+              className="ml-2 w-auto h-auto"
+            />
+          )}
+          <FormControl>
+            <Input
+              {...field}
+              type="number" // Set type to "number"
+              placeholder={placeholder}
+              className=" border-0 focus:ring-0 focus:outline-none text-gray-700"
+            />
+          </FormControl>
+        </div>
+      );
     case FormFieldType.PHONE_INPUT:
       return (
         <FormControl className="p-1.5 rounded-sm">
@@ -110,14 +136,14 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             alt="calendar"
           />
           <FormControl>
-            {/* <DatePicker
+            <DatePicker
               selected={field.value}
               onChange={(date) => field.onChange(date)}
               dateFormat={dateFormat ?? "MM/dd/yyyy"}
               showTimeSelect={showTimeSelect ?? false}
               timeInputLabel="Time:"
               wrapperClassName="date-picker"
-            /> */}
+            />
           </FormControl>
         </div>
       );
