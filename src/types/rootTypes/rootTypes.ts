@@ -73,14 +73,21 @@ export interface Question {
     img:string;
     course_date:string;
   }
-
+  type File = {
+    id: number;
+    name: string;
+    path: string;
+    size: number;
+    type: string;
+    sub_type: string;
+  };
   export interface Training_Plan{
     id:number;
     title:string;
     sub_title:string;
     image:string;
-    file:null,
     year:number;
+    file: File;
 
   }
   export interface Client {

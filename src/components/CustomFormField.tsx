@@ -31,7 +31,7 @@ export enum FormFieldType {
   DATE_PICKER = "datePicker",
   SELECT = "select",
   SKELETON = "skeleton",
-  NUMBER = "number", // Added NUMBER type
+  NUMBER = "number",
 }
 
 interface CustomProps {
@@ -49,6 +49,14 @@ interface CustomProps {
   renderSkeleton?: (field: any) => React.ReactNode;
   required?: boolean;
 }
+
+const CustomSyriaFlag = () => (
+  <img
+    src="/information/syrian_flag.svg"
+    alt="Syria"
+    style={{ width: "28px", height: "18px" }}
+  />
+);
 
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
   const {
@@ -117,6 +125,9 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           <PhoneInput
             defaultCountry="SY"
             placeholder={placeholder}
+            flags={{
+              SY: CustomSyriaFlag,
+            }}
             international
             withCountryCallingCode
             value={field.value}

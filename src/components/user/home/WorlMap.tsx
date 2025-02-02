@@ -1,131 +1,203 @@
-// import { useEffect } from "react";
-// import $ from "jquery";
-// import "jqvmap/dist/jqvmap.min.css";
-// import "jqvmap/dist/jquery.vmap.min.js"; // Ensure vectorMap is imported correctly
-// import Head from "next/head";
+"use client";
+import React, { useEffect, useState, useMemo } from "react";
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  Marker,
+} from "react-simple-maps";
+import { feature } from "topojson-client";
 
-// const WorldMap = () => {
-//   useEffect(() => {
-//     const MyRegions = ["CH", "NL", "CA", "DE", "SA", "MA"];
-//     const MyRegionsColors = {
-//       CH: "#49BC00",
-//       NL: "#FA4444",
-//       CA: "#4CAAE6",
-//       DE: "#0CCCBA",
-//       SA: "#A9FF00",
-//       MA: "#C351FD",
-//     };
-//     const MyRegionsInfo: {
-//       [key in "CH" | "NL" | "CA" | "DE" | "SA" | "MA"]: string;
-//     } = {
-//       CH: "<br>",
-//       NL: "<br> Address: Amsterdam <br> Phone: +3197005033557",
-//       CA: "<br> Address: Ontario <br> Phone: +13438000033",
-//       DE: "<br>",
-//       SA: "<br> Name: Al-Nawras Al-Fourati EST <br> Address: Jeddah - AL Faisaliyah Dist - Ar Rawdah <br> Phone: +966 55 535 5264",
-//       MA: "<br>",
-//     };
+const WorldMap = () => {
+  // Define the regions and their colors
+  const regions = [
+    { name: "Switzerland", color: "#49BC00" },
+    { name: "Netherlands", color: "#FA4444" },
+    { name: "Canada", color: "#4CAAE6" },
+    { name: "Germany", color: "#0CCCBA" },
+    { name: "Saudi Arabia", color: "#A9FF00" },
+    { name: "Morocco", color: "#C351FD" },
+  ];
 
-//     // Initialize vectorMap once jQuery is available
-//     if ($ && $.fn.vectorMap) {
-//       $("#world-map-markers").vectorMap({
-//         map: "world_mill_en",
-//         normalizeFunction: "polynomial",
-//         hoverOpacity: 0.7,
-//         zoomOnScroll: false,
-//         zoomAnimate: true,
-//         zoomStep: 1.4,
-//         hoverColor: false,
-//         markerStyle: {
-//           initial: {
-//             fill: "#0037B3",
-//             stroke: "#383f47",
-//           },
-//         },
-//         regionStyle: {
-//           initial: {
-//             fill: "#DDDDDD",
-//           },
-//         },
-//         backgroundColor: "#ffffff",
-//         series: {
-//           regions: [
-//             {
-//               values: MyRegionsColors,
-//               attribute: "fill",
-//             },
-//           ],
-//         },
-//         onRegionTipShow: function (
-//           e: any,
-//           el: JQuery<HTMLElement>,
-//           code: string
-//         ) {
-//           el.css("background", "white")
-//             .css("color", "#525252")
-//             .css("border-radius", "0.6rem")
-//             .css("border-color", "#BEBEBE")
-//             .css("position", "absolute")
-//             .css("z-index", "1");
-//           if (MyRegions.includes(code)) {
-//             // @ts-ignore
-//             el.html("<ins>" + el.html() + "</ins>" + MyRegionsInfo[code]);
-//           }
-//         },
-//       });
-//     } else {
-//       console.error("jQuery or vectorMap is not loaded correctly.");
-//     }
+  // Define marker data
+  const markers = [
+    {
+      name: "Netherlands",
+      coordinates: [4.895168, 52.370216], // Amsterdam
+      info: "📍 Address: Amsterdam\n📞 Phone: +3197005033557",
+    },
+    {
+      name: "Canada",
+      coordinates: [-79.3832, 43.6532], // Ontario
+      info: "📍 Address: Ontario\n📞 Phone: +13438000033",
+    },
+    {
+      name: "Saudi Arabia",
+      coordinates: [46.7386, 24.7743], // Jeddah
+      info: "🏢 Name: Al-Nawras Al-Fourati EST\n📍 Address: Jeddah - AL Faisaliyah Dist - Ar Rawdah\n📞 Phone: +966 55 535 5264",
+    },
+  ];
 
-//     return () => {
-//       // Cleanup when the component is unmounted
-//       if ($ && $.fn.vectorMap) {
-//         $("#world-map-markers").vectorMap("destroy");
-//       }
-//     };
-//   }, []);
+  // Use a CDN link for the world map data
+  const geoUrl =
+    "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+  const [geoData, setGeoData] = useState(null);
+  const [hoveredMarker, setHoveredMarker] = useState(null);
+  const [tooltip, setTooltip] = useState({
+    visible: false,
+    text: "",
+    x: 0,
+    y: 0,
+  });
+  const [scale, setScale] = useState(110);
 
-//   return (
-//     <>
-//       <Head>
-//         {/* Make sure to include jQuery in the head tag */}
-//         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-//       </Head>
+  useEffect(() => {
+    fetch(geoUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        //@ts-ignore
+        setGeoData(feature(data, data.objects.countries));
+      });
+  }, []);
 
-//       <div className="reg-area World-Map Gride default-padding">
-//         <div className="container">
-//           <div className="row">
-//             <div className="site-heading text-center">
-//               <div className="col-md-8 col-md-offset-2">
-//                 <h2>Regional Offices</h2>
-//               </div>
-//             </div>
-//             <div id="world-map-markers"></div>
-//           </div>
-//         </div>
-//       </div>
+  const memoizedGeoData = useMemo(() => geoData, [geoData]);
 
-//       <style jsx>{`
-//         .dropdown-active {
-//           animation-name: example;
-//           animation-duration: 2s;
-//         }
+  const handleZoomIn = () => {
+    setScale(scale * 1.2);
+  };
 
-//         @keyframes example {
-//           0% {
-//             background-color: rgb(29 29 29);
-//             left: 200px;
-//             top: 0px;
-//           }
-//           100% {
-//             background-color: #ffb606;
-//             left: 0px;
-//             top: 0px;
-//           }
-//         }
-//       `}</style>
-//     </>
-//   );
-// };
+  const handleZoomOut = () => {
+    setScale(scale / 1.2);
+  };
 
-// export default WorldMap;
+  return (
+    <div style={{ width: "100%", height: "600px", position: "relative" }}>
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{
+          scale: scale,
+          center: [10, -30],
+        }}
+        style={{ position: "relative" }}
+      >
+        {memoizedGeoData && (
+          <Geographies geography={memoizedGeoData}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const region = regions.find(
+                  (r) => r.name === geo.properties.name
+                );
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill={region ? region.color : "#DDDDDD"}
+                    stroke="#FFFFFF"
+                    strokeWidth={0.5}
+                    onMouseEnter={(e) => {
+                      const { x, y } = e.currentTarget.getBoundingClientRect();
+                      setTooltip({
+                        visible: true,
+                        text: geo.properties.name,
+                        x: x + e.nativeEvent.offsetX,
+                        y: y + e.nativeEvent.offsetY,
+                      });
+                    }}
+                    onMouseLeave={() =>
+                      setTooltip({ ...tooltip, visible: false })
+                    }
+                  />
+                );
+              })
+            }
+          </Geographies>
+        )}
+
+        {markers.map((marker, index) => (
+          <Marker
+            key={marker.name}
+            //@ts-ignore
+            coordinates={marker.coordinates}
+            onMouseEnter={(e) =>
+              setTooltip({
+                visible: true,
+                text: marker.info,
+                x: e.clientX,
+                y: e.clientY,
+              })
+            }
+            onMouseLeave={() => setTooltip({ ...tooltip, visible: false })}
+          >
+            <circle
+              r={6}
+              fill={hoveredMarker === index ? "#FF0000" : "#FF5722"}
+              stroke="#FFF"
+              strokeWidth={2}
+              style={{ transition: "0.2s" }}
+            />
+          </Marker>
+        ))}
+      </ComposableMap>
+
+      {/* {tooltip.visible && (
+        <div
+          style={{
+            position: "absolute",
+            top: tooltip.y,
+            left: -tooltip.x,
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "#FFF",
+            padding: "8px",
+            borderRadius: "6px",
+            fontSize: "12px",
+            pointerEvents: "none",
+            whiteSpace: "pre-line",
+            transform: "translate(0%, 0%)", // Center tooltip above the country
+          }}
+        >
+          {tooltip.text}
+        </div>
+      )} */}
+
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "5px",
+        }}
+      >
+        <button
+          onClick={handleZoomIn}
+          style={{
+            backgroundColor: "#037f85",
+            color: "white",
+            border: "none",
+            padding: "10px",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          +
+        </button>
+        <button
+          onClick={handleZoomOut}
+          style={{
+            backgroundColor: "#f44336",
+            color: "white",
+            border: "none",
+            padding: "10px",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          -
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default WorldMap;

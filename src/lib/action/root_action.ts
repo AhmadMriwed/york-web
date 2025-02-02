@@ -201,11 +201,13 @@ export const registration = async (data: RegistrationData): Promise<void> => {
       }
     });
 
-    if (data.selection_training) {
+    if (data.selection_training && typeof data.selection_training === "object") {
       formData.append("selection_training", JSON.stringify(data.selection_training));
     }
 
-    await axios.post('/api/registeration', formData); 
+
+
+    await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/registration`, formData); 
     
 
   } catch (error: any) {

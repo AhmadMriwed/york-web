@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Form } from "@/components/ui/form";
 import { UserFormValidation } from "@/lib/validation";
 import SubmitButton from "../buttons/SubmitButton";
@@ -14,11 +13,12 @@ import { storePlanRegister } from "@/lib/action/root_action";
 
 const PlanRegisterForm = ({
   training_plan_id,
+  onRegistrationSuccess,
 }: {
   training_plan_id: number | null;
+  onRegistrationSuccess: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
@@ -45,7 +45,8 @@ const PlanRegisterForm = ({
       await storePlanRegister(userData);
 
       toast.success("Registration successful");
-      form.reset(); // Reset the form after successful submission
+      form.reset();
+      onRegistrationSuccess();
     } catch (error) {
       console.error("Registration failed:", error);
       toast.error("Registration failed. Please try again.");
@@ -80,7 +81,6 @@ const PlanRegisterForm = ({
           iconAlt="email"
           required={true}
         />
-
         <CustomFormField
           fieldType={FormFieldType.PHONE_INPUT}
           control={form.control}
@@ -89,7 +89,6 @@ const PlanRegisterForm = ({
           placeholder="+963 999 999 999"
           required={true}
         />
-
         <SubmitButton isLoading={isLoading}>Register</SubmitButton>
       </form>
     </Form>

@@ -24,6 +24,7 @@ import {
   CarouselNavigation,
 } from "@/components/ui/carousel";
 import UpcomingCourses from "@/components/user/home/UpcomingCourses";
+import WorldMap from "@/components/user/home/WorlMap";
 export default async function Home() {
   const questions = await fetchQuestions();
   console.log(questions);
@@ -212,6 +213,12 @@ export default async function Home() {
               <div>Loading clients...</div>
             )}
           </div>
+        </section>
+        <section className="mt-[100px]">
+          <div className="flex justify-center items-center mb-12">
+            <SectionTitle title="Regional Offices" />
+          </div>
+          <WorldMap />
         </section>
       </div>
     </section>

@@ -29,9 +29,10 @@ import {
 } from "react-icons/fa";
 import { MdCategory, MdDescription } from "react-icons/md";
 import { BsPeople } from "react-icons/bs";
-import { TypeIcon } from "lucide-react";
-import { CiDollar, CiMoneyBill } from "react-icons/ci";
+import { Code2, TypeIcon } from "lucide-react";
+import { CiMoneyBill } from "react-icons/ci";
 import { toast } from "sonner";
+import { TiThLarge } from "react-icons/ti";
 
 // Define the schema for the form
 const schema = z.object({
@@ -74,6 +75,7 @@ const RegistrationForm = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
     setValue,
   } = useForm<FormValues>({
@@ -108,7 +110,6 @@ const RegistrationForm = () => {
         const course = await getCoursesById(Number(id));
         setCourse(course);
 
-        // Pre-fill form fields with course data
         if (course) {
           setValue("title", course.title);
           setValue("description", course.description || "");
@@ -132,13 +133,26 @@ const RegistrationForm = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
+      console.log(data);
       //@ts-ignore
       await registration(data);
       toast.success("Registeration completed successfully");
+      reset();
     } catch (error) {
       console.log(error);
     }
   };
+
+  const languages = [
+    {
+      code: "en",
+      title: "English",
+    },
+    {
+      code: "ar",
+      title: "Arabic",
+    },
+  ];
 
   return (
     <>
@@ -256,12 +270,19 @@ const RegistrationForm = () => {
                     <FaLanguage className="inline-block mr-2 text-primary-color2" />
                     Language
                   </label>
-                  <input
+                  <select
                     {...register("language")}
                     className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
-                      errors.language ? "border-red-500" : "border-gray-300"
+                      errors.venue_id ? "border-red-500" : "border-gray-300"
                     } rounded-md`}
-                  />
+                  >
+                    <option value="">Select a language</option>
+                    {languages?.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.title}
+                      </option>
+                    ))}
+                  </select>
                   {errors.language && (
                     <p className="text-red-500 flex items-center">
                       <FaExclamationCircle className="inline-block mr-2" />
@@ -429,7 +450,7 @@ const RegistrationForm = () => {
                 type="checkbox"
                 checked={isTrainer}
                 onChange={() => setIsTrainer(!isTrainer)}
-                className="mr-2"
+                className="mr-2 "
               />
               Do you have a specific trainer ?
             </label>
@@ -449,7 +470,7 @@ const RegistrationForm = () => {
                   </label>
                   <input
                     {...register("selection_training.name")}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-primary-color2"
                   />
                 </div>
 
@@ -461,7 +482,7 @@ const RegistrationForm = () => {
                   <input
                     type="email"
                     {...register("selection_training.email")}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-primary-color2"
                   />
                 </div>
 
@@ -474,7 +495,7 @@ const RegistrationForm = () => {
                     {...register(
                       "selection_training.functional_specialization"
                     )}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-primary-color2"
                   />
                 </div>
 
@@ -485,7 +506,7 @@ const RegistrationForm = () => {
                   </label>
                   <input
                     {...register("selection_training.phone_number")}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-primary-color2"
                   />
                 </div>
               </div>
@@ -507,7 +528,7 @@ const RegistrationForm = () => {
                 <input
                   type="number"
                   {...register("num_people", { valueAsNumber: true })}
-                  className={`mt-1 block w-full p-2 border ${
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
                     errors.num_people ? "border-red-500" : "border-gray-300"
                   } rounded-md`}
                 />
@@ -557,37 +578,69 @@ const RegistrationForm = () => {
         {/* Course Details Section */}
         <div>
           {!customize && (
-            <div className="border-2 relative border-dashed bg-gray-100 p-6 border-primary-color1  rounded-lg mb-6 mx-2">
-              <p className="absolute px-4 py-1 rounded-full -top-4 left-5 bg-primary-color1 text-white">
-                Course Information
-              </p>
-              <ul className="space-y-4">
-                <li className="font-semibold">
-                  Course Title:{" "}
-                  <span className="text-gray-600">{course?.title}</span>
-                </li>
-                <li className="font-semibold">
-                  Start Date:{" "}
-                  <span className="text-gray-600">{course?.start_date}</span>
-                </li>
-                <li className="font-semibold">
-                  End Date:{" "}
-                  <span className="text-gray-600">{course?.end_date}</span>
-                </li>
-                <li className="font-semibold">
-                  Language:{" "}
-                  <span className="text-gray-600">{course?.language}</span>
-                </li>
-                <li className="font-semibold">
-                  Course Code:{" "}
-                  <span className="text-gray-600">{course?.code}</span>
-                </li>
-                <li className="font-semibold">
-                  Course Fee:{" "}
-                  <span className="text-gray-600">{course?.fee}</span>
-                </li>
-              </ul>
-            </div>
+            <>
+              <div className="border-2 relative border-dashed bg-gray-100 p-6 border-primary-color1  rounded-lg mb-6 mx-2">
+                <p className="absolute px-4 py-1 rounded-full -top-4 left-5 bg-primary-color1 text-white">
+                  Course Information
+                </p>
+                <ul className="space-y-4">
+                  <li className="font-semibold flex">
+                    <TiThLarge className="inline-block mr-2 text-primary-color2 mt-1" />
+
+                    <p>
+                      Course Title:{" "}
+                      <span className="text-gray-600">{course?.title}</span>
+                    </p>
+                  </li>
+                  <li className="font-semibold">
+                    <FaCalendarAlt className="inline-block mr-2 text-primary-color2" />
+                    Start Date:{" "}
+                    <span className="text-gray-600">{course?.start_date}</span>
+                  </li>
+                  <li className="font-semibold">
+                    <FaCalendarAlt className="inline-block mr-2 text-primary-color2" />
+                    End Date:{" "}
+                    <span className="text-gray-600">{course?.end_date}</span>
+                  </li>
+                  <li className="font-semibold">
+                    <FaLanguage className="inline-block mr-2 text-primary-color2" />
+                    Language:{" "}
+                    <span className="text-gray-600">{course?.language}</span>
+                  </li>
+                  <li className="font-semibold">
+                    <Code2 className="inline-block mr-2 text-primary-color2" />
+                    Course Code:{" "}
+                    <span className="text-gray-600">{course?.code}</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="border-2 relative border-dashed bg-gray-100 mt-4 p-6 border-[#025c63]  rounded-lg mb-6 mx-2">
+                <p className="absolute px-4 py-1 rounded-full -top-4 left-5 bg-[#025c63] text-white">
+                  Course Fee
+                </p>
+                <ul className="space-y-4">
+                  <li className="font-semibold flex">
+                    <CiMoneyBill className="inline-block mr-2 text-primary-color2 mt-1" />
+
+                    <p>
+                      Course Fee:{" "}
+                      <span className="text-gray-600">{course?.fee} $</span>
+                    </p>
+                  </li>
+                  <li className="font-semibold flex">
+                    <CiMoneyBill className="inline-block mr-2 text-primary-color2 mt-1" />
+                    <p>
+                      Discount: <span className="text-gray-600">0 $</span>
+                    </p>
+                  </li>
+                  <li className="font-semibold">
+                    <CiMoneyBill className="inline-block mr-2 text-primary-color2" />
+                    Total:{" "}
+                    <span className="text-gray-600">{course?.fee} $</span>
+                  </li>
+                </ul>
+              </div>
+            </>
           )}
 
           <Image

@@ -46,6 +46,7 @@ const Page = ({ params }: Props) => {
       </main>
     );
   }
+  console.log(course);
 
   if (!course) {
     return <Loader />;

@@ -1,0 +1,28 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 900 600"
+  width="24"
+  height="18"
+>
+  <!-- Green Stripe -->
+  <rect width="900" height="200" fill="#007A3D" />
+  <!-- White Stripe -->
+  <rect y="200" width="900" height="200" fill="#FFFFFF" />
+  <!-- Black Stripe -->
+  <rect y="400" width="900" height="200" fill="#000000" />
+  <!-- Red Stars -->
+  <g transform="translate(450, 300)">
+    <path
+      d="M -100 -50 L -85 -20 L -50 -20 L -80 10 L -65 50 L -100 25 L -135 50 L -120 10 L -150 -20 L -115 -20 Z"
+      fill="#CE1126"
+    />
+    <path
+      d="M 0 -50 L 15 -20 L 50 -20 L 20 10 L 35 50 L 0 25 L -35 50 L -20 10 L -50 -20 L -15 -20 Z"
+      fill="#CE1126"
+    />
+    <path
+      d="M 100 -50 L 115 -20 L 150 -20 L 120 10 L 135 50 L 100 25 L 65 50 L 80 10 L 50 -20 L 85 -20 Z"
+      fill="#CE1126"
+    />
+  </g>
+</svg>
