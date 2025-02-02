@@ -197,6 +197,12 @@ export default async function Home() {
           </div>
           <FrequentlyAskedQuestions questions={questions} />
         </section>
+        <section className="my-[100px]">
+          <div className="flex justify-center items-center mb-12">
+            <SectionTitle title="Regional Offices" />
+          </div>
+          <WorldMap />
+        </section>
 
         <section className="mt-[100px]">
           <div className="flex justify-center items-center mb-12">
@@ -213,12 +219,6 @@ export default async function Home() {
               <div>Loading clients...</div>
             )}
           </div>
-        </section>
-        <section className="mt-[100px]">
-          <div className="flex justify-center items-center mb-12">
-            <SectionTitle title="Regional Offices" />
-          </div>
-          <WorldMap />
         </section>
       </div>
     </section>
