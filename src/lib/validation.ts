@@ -70,3 +70,22 @@ export const RegisterationSchema = z.object({
 
 
 
+export const ContactUsFormValidation = z.object({
+  first_name: z
+    .string()
+    .min(2, "first name must be at least 2 characters.")
+    .max(50, "first name must be at most 50 characters."),
+  last_name: z
+    .string()
+    .min(2, "last name must be at least 2 characters.")
+    .max(50, "last name must be at most 50 characters."),
+  email: z.string().email("Invalid email address."),
+  phone: z
+    .string()
+    .refine((phone) => /^\+\d{10,15}$/.test(phone), {
+      message: "Invalid phone number. Format: +1234567890",
+    }),
+    message:z.string().min(2,'message must be at least 2 characters.')
+});
+
+

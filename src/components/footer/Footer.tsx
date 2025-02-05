@@ -10,23 +10,24 @@ import { BsLinkedin, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
 
 const Footer = async () => {
-  const data = await fetchContactUsDataWithId(1);
-  const icons = await fetchContactUsIcons();
+    const icons = await fetchContactUsIcons();
   return (
     <footer className="home-footer-bg   px-[30px] md:px-[80px] py-[30px] flex items-center justify-around gap-x-[30px] gap-y-[20px] flex-wrap">
       <div className="w-full h-full absolute top-0 left-0  bg-[#13181ec7]  bg-blue-400" />
       <div className=" w-full text-center md:w-[400px]   flex items-center gap-3 flex-col relative ">
-        <Image src={"/logo.png"} alt="Logo" width={130} height={130} />
+        <Image src={"/logo.png"} alt="Logo" width={180} height={180} />
         <div
-          dangerouslySetInnerHTML={{ __html: data.content || "" }}
+         
           className="text-white "
-        />
+        >
+          The York British Academy is currently pursuing an ambitious vision of transforming the integration of metacognitive and self-questioning strategies into developing thinking skills, retaining the impact of learning and training, and raising the quality level of confidence.
+        </div>
       </div>
 
       {/* address */}
       <div className="text-white h-[170px] relative">
         <h3 className="font-bold text-[24px] uppercase">Address</h3>
-        <ul className="list-disc ms-[18px] mt-[10px]">
+        <ul className="list-disc md:mr-14 mt-[10px]">
           {addresses.map((address: address) => {
             return (
               <li
@@ -64,7 +65,7 @@ const Footer = async () => {
       {/* icons */}
       <div className="w-[100vw] h-18 text-center mt-4  ">
         <ul className="flex gap-4 items-center w-fit mx-auto ">
-          {icons.map((icon) => (
+          {icons?.map((icon) => (
             <Link href={icon.url || ""} key={icon.url}>
               <li className="h-12 w-12 group rounded-full border transition-all hover:border-primary-color2 duration-100 flex items-center justify-center text-white">
                 {icon.type.type.includes("facebook") ? (

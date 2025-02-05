@@ -48,7 +48,8 @@ const Page = ({ params }: Props) => {
         style={{
           backgroundImage: `url(${
             courses[0]?.venue.image
-              ? courses[0]?.venue.image
+            ?
+            `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${courses[0]?.venue.image}`
               : "/information/image_default2.svg"
           })`,
           backgroundSize: "cover",
@@ -66,9 +67,11 @@ const Page = ({ params }: Props) => {
           <h1 className="p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold">
             {courses[0]?.venue.title}
           </h1>
-          <p className="text-gray-700 space-y-6">
-            {courses[0]?.venue.description}
-          </p>
+      
+          <div
+          dangerouslySetInnerHTML={{ __html: courses[0]?.venue.description || "" }}
+          className="text-gray-700 "
+        />
         </div>
         <div className="w-full my-8">
           {courses?.map((course) => (

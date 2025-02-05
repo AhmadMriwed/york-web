@@ -154,6 +154,15 @@ const RegistrationForm = () => {
     },
   ];
 
+  const entities = [
+    {
+      title: "Public",
+    },
+    {
+      title: "Private",
+    },
+  ];
+
   return (
     <>
       <p className="mt-28 -mb-24 w-fit mx-auto text-3xl text-primary-color1 font-serif ">
@@ -440,6 +449,31 @@ const RegistrationForm = () => {
                   } rounded-md`}
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <TypeIcon className="inline-block size-4 mr-2 text-primary-color2" />
+                  Entity type :
+                </label>
+                <select
+                    {...register("entity_type")}
+                    className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
+                      errors.venue_id ? "border-red-500" : "border-gray-300"
+                    } rounded-md`}
+                  >
+                    <option value="">Select an entity</option>
+                    {entities?.map((entity) => (
+                      <option key={entity.title} value={entity.title}>
+                        {entity.title}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.language && (
+                    <p className="text-red-500 flex items-center">
+                      <FaExclamationCircle className="inline-block mr-2" />
+                      {errors.language.message}
+                    </p>
+                  )}
+                </div>
             </div>
           </div>
 
@@ -539,24 +573,7 @@ const RegistrationForm = () => {
                   </p>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  <TypeIcon className="inline-block size-4 mr-2 text-primary-color2" />
-                  Entity type :
-                </label>
-                <input
-                  {...register("entity_type")}
-                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
-                    errors.entity_type ? "border-red-500" : "border-gray-300"
-                  } rounded-md`}
-                />
-                {errors.entity_type && (
-                  <p className="text-red-500 flex items-center">
-                    <FaExclamationCircle className="inline-block mr-2" />
-                    {errors.entity_type.message}
-                  </p>
-                )}
-              </div>
+       
             </div>
           </div>
 

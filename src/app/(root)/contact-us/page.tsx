@@ -1,6 +1,8 @@
-// File: src/app/(root)/contact-us/page.tsx
 "use client";
+
+import { useEffect, useState } from "react";
 import Map from "@/components/Map";
+import ContactUsForm from "@/components/forms/ContactUsForm";
 import { fetchContactUsData } from "@/lib/action/root_action";
 import {
   contactUsImage,
@@ -25,8 +27,21 @@ const Card = ({ image, type, content }: CardProps) => (
   </div>
 );
 
-const Page = async () => {
-  const contactUsData = await fetchContactUsData();
+const Page = () => {
+  const [contactUsData, setContactUsData] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchContactUsData();
+        setContactUsData(data);
+      } catch (error) {
+        console.error("Failed to fetch contact us data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <main className="h-full relative">
@@ -37,13 +52,16 @@ const Page = async () => {
 
       {/* Contact Cards Section */}
       <div className="container px-8 py-12 my-4 items-center space-y-2 md:mx-auto md:grid grid-cols-1 md:grid-cols-3 gap-6">
-        {contactUsData.map((item) => {
+        {contactUsData?.map((item) => {
           // Validate that item.type.type is a valid key for contactUsImage
           if (isContactUsImageKey(item.type.type)) {
             return (
               <Card
                 key={item.id}
-                image={contactUsImage[item.type.type]}
+                //@ts-ignore
+                image={
+                String(contactUsImage[item.type.type])
+                }
                 type={item.type.type}
                 content={item.content}
               />
@@ -62,6 +80,20 @@ const Page = async () => {
         </h1>
         <div className="w-[80%] mx-auto">
           <Map />
+        </div>
+      </div>
+
+      {/* Contact Form Section */}
+      <div className="bg-primary-color4 md:px-16 px-4 md:py-24 gap-16 py-16 rounded-lg">
+        <div className="md:w-[80%] mx-auto flex items-center">
+          <Image
+            src={"/logo.png"}
+            height={380}
+            width={380}
+            className="md:block hidden mr-10"
+            alt="logo"
+          />
+          <ContactUsForm />
         </div>
       </div>
     </main>

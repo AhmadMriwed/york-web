@@ -70,7 +70,7 @@ export function Navbar(): JSX.Element {
       <TopBar />
       <NavigationMenu
         className={cn(
-          "px-16 fixed  min-w-full z-[1000] py-2 bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
+          "px-16 fixed max-h-24  min-w-full z-[1000] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
           {
             "bg-[#13181e] bg-opacity-90 top-0": isScrolled,
           }
@@ -89,9 +89,9 @@ export function Navbar(): JSX.Element {
         <Link href="/" className="ml-[22%] md:m-0">
           <Image
             src="/logo.png"
-            height={82}
-            width={82}
-            className="size-16 md:size-20"
+            height={130}
+            width={130}
+            className="size-20 md:size-44 inline-block"
             alt="logo"
           />
         </Link>

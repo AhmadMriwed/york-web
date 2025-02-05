@@ -5,14 +5,7 @@ import { getCourseById } from "@/lib/action/root_action";
 import Loader from "@/components/loading/Loader";
 import { Course } from "@/types/rootTypes/rootTypes";
 import { header } from "@/components/cards/CourseCard";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -71,7 +64,7 @@ const Page = ({ params }: Props) => {
         className="h-[60vh] md:h-[80vh] flex flex-col items-center justify-center"
         style={{
           backgroundImage: `url(${
-            course.image || "/information/courses-default.png"
+            `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${course.image}` || "/information/courses-default.png"
           })`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -104,10 +97,11 @@ const Page = ({ params }: Props) => {
               Register
             </button>
           </div>
-
-          <div className="mt-6 text-gray-600">
-            {course.outlines || "No outlines provided."}
-          </div>
+          
+          <div
+          dangerouslySetInnerHTML={{ __html: course.outlines  || "" }}
+          className="text-gray-700 space-y-6 mt-16 "
+        />
         </div>
 
         {/* Details Table */}
@@ -135,9 +129,11 @@ const Page = ({ params }: Props) => {
             </div>
           </div>
         </div>
-        <div className="text-gray-700 space-y-6 mt-16">
-          {course.description}
-        </div>
+      
+        <div
+          dangerouslySetInnerHTML={{ __html: course.description || "" }}
+          className="text-gray-700 space-y-6 mt-16 "
+        />
       </div>
     </main>
   );

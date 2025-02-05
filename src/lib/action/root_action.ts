@@ -394,5 +394,35 @@ export const SearchCertificate = async (
     throw new Error("Failed to search certificate. Please try again later.");
   }
 };
+///// download function //// /
 
+export const downloadTrainingPlan = async (path: string): Promise<void> => {
+  try {
+    if (!path) {
+      alert("Invalid file path.");
+      return;
+    }
+
+    const fileUrl =   `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${path}`;
+    const response = await axios.get(fileUrl, {
+      responseType: "blob",
+    });
+
+    const blob = new Blob([response.data], { type: response.headers["content-type"] || "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = path.split("/").pop() || "training-plan.pdf";
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    console.error("Error downloading training plan:", error.message);
+    alert("Failed to download the training plan. Please try again.");
+  }
+};
 

@@ -121,7 +121,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
       );
     case FormFieldType.PHONE_INPUT:
       return (
-        <FormControl className="p-1.5 rounded-sm">
+        <FormControl className="p-2 rounded-sm">
           <PhoneInput
             defaultCountry="SY"
             placeholder={placeholder}
@@ -132,7 +132,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             withCountryCallingCode
             value={field.value}
             onChange={field.onChange}
-            className="input-phone  text-black focus:border-2 focus:border-primary-color2 focus:ring-0 bg-gray-100"
+            className="input-phone  text-black focus:outline-none focus:border-2 focus:border-primary-color2 focus:ring-0 bg-gray-100"
           />
         </FormControl>
       );

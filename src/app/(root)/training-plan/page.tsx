@@ -10,15 +10,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
-import { getLatestTrainingPlan } from "@/lib/action/root_action";
+import { downloadTrainingPlan, getLatestTrainingPlan } from "@/lib/action/root_action";
 import { Training_Plan } from "@/types/rootTypes/rootTypes";
 import PlanRegisterForm from "@/components/forms/PlanRegisterForm";
 import Loader from "@/components/loading/Loader";
+import { Button } from "@/components/ui/button";
+import PDF from "@/components/PDF/PDF/PDF";
 
 const Page = () => {
   const [trainingPlan, setTrainingPlan] = useState<Training_Plan | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
-  const [isRegistered, setIsRegistered] = useState(false); // Track registration state
+  const [loading, setLoading] = useState<boolean>(true); 
+  const [isRegistered, setIsRegistered] = useState(false); 
+  const [modalOpen, setModalOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchTrainingPlan = async () => {
@@ -40,7 +44,12 @@ const Page = () => {
   if (loading) {
     return <Loader />;
   }
-  console.log(trainingPlan);
+  <PDF
+  modalOpen={modalOpen}
+  setModalOpen={setModalOpen}
+  PDF={trainingPlan?.file}
+/>
+
 
   return (
     <main className="h-full relative">
@@ -68,8 +77,8 @@ const Page = () => {
                   <DialogHeader>
                     <Image
                       src={"/logo.png"}
-                      height={100}
-                      width={100}
+                      height={180}
+                      width={180}
                       alt="logo"
                       className="mx-auto"
                     />
@@ -95,21 +104,21 @@ const Page = () => {
             </p>
             {trainingPlan?.file && (
               <div className="flex gap-4">
-                <a
-                  href={`https://cms.yorkacademy.uk/storage/${trainingPlan.file?.path}`}
-                  download={trainingPlan.file?.name}
+             
+                <Button
                   className="bg-primary-color1 text-white px-4 py-2 rounded-md hover:bg-primary-color2 hover:text-white hover:no-underline"
+                  onClick={()=>downloadTrainingPlan(trainingPlan.file?.path)}
                 >
-                  Download File
-                </a>
-                <a
-                  href={`https://cms.yorkacademy.uk/storage/${trainingPlan.file.path}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-primary-color2 text-white px-4 py-2 rounded-md hover:bg-primary-color1  hover:text-white hover:no-underline"
+Download File
+                </Button>
+             
+                <Button
+                  className="bg-primary-color1 text-white px-4 py-2 rounded-md hover:bg-primary-color2 hover:text-white hover:no-underline"
+                  onClick={() => setModalOpen(true)}
                 >
-                  View File
-                </a>
+View File
+                </Button>
+              
               </div>
             )}
           </div>
