@@ -52,15 +52,15 @@ export default async function Home() {
 
   const CategoryCard = ({ item }: { item: category }) => (
     <div className="flex flex-col items-center justify-center">
-    <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
-      <Image
-        src={item.image ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image}` : "/information/image_default2.svg"}
-        width={200}
-        height={200}
-        alt={"placeholder"}
-        className={`bg-cover ${item.image || "-mt-10"}`}
-      />
-    </div>
+      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 w-full overflow-hidden rounded-md">
+        <Image
+          src={item.image ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image}` : "/information/image_default2.svg"}
+          width={200}
+          height={200}
+          alt={"placeholder"}
+          className="object-cover w-full h-full"
+        />
+      </div>
       <p className="mt-3 font-semibold text-sm">{item.title}</p>
     </div>
   );
@@ -73,7 +73,7 @@ export default async function Home() {
           width={200}
           height={200}
           alt={"placeholder"}
-          className={`bg-cover ${img || "-mt-10"}`}
+          className={`bg-cover ${img || "-mt-10"} h-full w-full`}
         />
       </div>
       <p className="mt-3 font-semibold text-sm">{title}</p>
@@ -153,9 +153,9 @@ export default async function Home() {
                 key={item.id}
                 href={`/categories/${item.id}`}
                 passHref
-                className="block hover:no-underline hover:cursor-pointer"
+                className="block hover:no-underline hover:cursor-pointer min-h-full"
               >
-                <div>
+                <div className="min-h-full">
                   <CategoryCard item={item} />
                 </div>
               </Link>

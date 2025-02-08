@@ -319,7 +319,7 @@ export const FilterCourses = async (): Promise<FilterCoursesResponse> => {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/getMap/filterCourse`);
     const { languages, venues, categories, season_models,year_models} = response.data.data;
 
-
+    console.log(response.data.data);
     return {
       languages,
       venues,

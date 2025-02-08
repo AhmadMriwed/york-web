@@ -50,6 +50,7 @@ const HomeCourseAds = () => {
       try {
         const { languages, venues, categories, season_models, year_models } =
           await FilterCourses();
+          
 
         const courses = await fetchAllCourses();
 
