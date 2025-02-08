@@ -17,17 +17,11 @@ import {
 import Hero from "@/components/user/home/Hero";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
 import { Upcoming_Course } from "@/types/rootTypes/rootTypes";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNavigation,
-} from "@/components/ui/carousel";
+
 import UpcomingCourses from "@/components/user/home/UpcomingCourses";
 import WorldMap from "@/components/user/home/WorlMap";
 export default async function Home() {
   const questions = await fetchQuestions();
-  console.log(questions);
   const venues = await fetchVenues();
 
   const categories = await fetchCategories();
@@ -58,17 +52,15 @@ export default async function Home() {
 
   const CategoryCard = ({ item }: { item: category }) => (
     <div className="flex flex-col items-center justify-center">
-      {/* <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect"> */}
-      <div className="footer-bg"></div>
-      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
-        <Image
-          src={item.image ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image}`: "/information/Image_defualt.svg"}
-          width={200}
-          height={200}
-          alt={"placeholder"}
-          className={`bg-cover ${item.image || "-mt-10"}`}
-        />
-      </div>
+    <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
+      <Image
+        src={item.image ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image}` : "/information/image_default2.svg"}
+        width={200}
+        height={200}
+        alt={"placeholder"}
+        className={`bg-cover ${item.image || "-mt-10"}`}
+      />
+    </div>
       <p className="mt-3 font-semibold text-sm">{item.title}</p>
     </div>
   );
@@ -197,14 +189,14 @@ export default async function Home() {
           </div>
           <FrequentlyAskedQuestions questions={questions} />
         </section>
-        <section className="my-[100px]">
+        <section className="mt-[100px] -mb-36 md:mb-8">
           <div className="flex justify-center items-center mb-12">
             <SectionTitle title="Regional Offices" />
           </div>
           <WorldMap />
         </section>
 
-        <section className="mt-[100px]">
+        <section className="mt-[30px]">
           <div className="flex justify-center items-center mb-12">
             <SectionTitle title="Accredited Agencies" />
           </div>

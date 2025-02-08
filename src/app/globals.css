@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@font-face {
+  font-family: 'Chaparral Pro';
+  src: url('/path-to-your-font/chaparral-pro.woff2') format('woff2'),
+       url('/path-to-your-font/chaparral-pro.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+}
+
+h1,h2,h3 {
+  font-family: 'Chaparral Pro', "Times New Roman", Times, serif;
+  font-weight: 600;
+}
+
+
 @layer {
   .container {
     @apply px-[30px] mx-auto;

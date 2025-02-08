@@ -1,3 +1,4 @@
+'use client'
 import {
   fetchContactUsDataWithId,
   fetchContactUsIcons,
@@ -5,12 +6,25 @@ import {
 import { address, addresses, links } from "@/utils/user/home/homePageEnums";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BsLinkedin, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
 
-const Footer = async () => {
-    const icons = await fetchContactUsIcons();
+const Footer =  () => {
+
+    const [icons,setIcons] = useState<any[]|[]>()    
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const data = await fetchContactUsIcons();
+            setIcons(data);
+          } catch (error) {
+            console.error("Failed to fetch contact us data:", error);
+          }
+        };
+    
+        fetchData();
+      }, []);
   return (
     <footer className="home-footer-bg   px-[30px] md:px-[80px] py-[30px] flex items-center justify-around gap-x-[30px] gap-y-[20px] flex-wrap">
       <div className="w-full h-full absolute top-0 left-0  bg-[#13181ec7]  bg-blue-400" />

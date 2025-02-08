@@ -54,20 +54,18 @@ const Page = () => {
       <div className="container px-8 py-12 my-4 items-center space-y-2 md:mx-auto md:grid grid-cols-1 md:grid-cols-3 gap-6">
         {contactUsData?.map((item) => {
           // Validate that item.type.type is a valid key for contactUsImage
-          if (isContactUsImageKey(item.type.type)) {
+          const type = item.type.type as ContactUsImageKey;
+          if (isContactUsImageKey(type)) {
             return (
               <Card
                 key={item.id}
-                //@ts-ignore
-                image={
-                String(contactUsImage[item.type.type])
-                }
-                type={item.type.type}
+                image={contactUsImage[type] || ''}
+                type={type}
                 content={item.content}
               />
             );
           } else {
-            console.warn(`Invalid type: ${item.type.type}`);
+            console.warn(`Invalid type: ${type}`);
             return null;
           }
         })}

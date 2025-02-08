@@ -8,6 +8,8 @@ import Image from "next/image";
 import { NotFoundSection } from "@/components/NotFoundSection";
 import { Calendar } from "@rsuite/icons";
 import CertificateSearch from "@/components/forms/CertificateSearch";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import CretificateForm from "@/components/forms/cretificateForm";
 
 interface CertificateDetailsProps {
   certificate: Certificate;
@@ -23,7 +25,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
   const isValid = isCertificateValid(certificate.valid_to);
   return (
     <div className="container mx-auto my-12 p-6 bg-white rounded-lg shadow-sm">
-      <div className="grid grid-cols-1 gap-4   md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex justify-center items-center col-span-2">
           <Image
             src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${certificate.certificate_img}`}
@@ -46,16 +48,14 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
               height={150}
               className="rounded-full border"
             />
-            <p className=" text-gray-500 font-semibold mt-8">
-              {certificate.trainer_full_name}
-            </p>
+            <p className="text-gray-500 font-semibold mt-8">{certificate.trainer_full_name}</p>
             {isValid ? (
               <Image
                 src={"/information/validation.png"}
                 width={100}
                 height={100}
                 alt="validation"
-                className=" absolute top-20 right-8"
+                className="absolute top-20 right-8"
               />
             ) : (
               <Image
@@ -63,13 +63,11 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
                 width={180}
                 height={180}
                 alt="validation"
-                className=" absolute top-4 -right-4  "
+                className="absolute top-4 -right-4"
               />
             )}
           </div>
-          <h2 className="text-xl font-bold text-primary-color2">
-            Certificate Details
-          </h2>
+          <h2 className="text-xl font-bold text-primary-color2">Certificate Details</h2>
           <div className="space-y-4">
             <p className="flex items-center space-x-2 text-gray-700">
               <span className="font-semibold flex items-center">
@@ -99,6 +97,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -124,12 +123,23 @@ const Page = () => {
     fetchCertificate();
   }, [searchParams]);
 
+  useEffect(() => {
+    // Open the dialog if no certificate is found
+    if (!isLoading && !certificate) {
+      setIsDialogOpen(true);
+    }
+  }, [isLoading, certificate]);
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+
   if (isLoading) {
     return <Loader />;
   }
 
   return (
-    <main className="h-full relative">
+    <main className="h-full relative w-full">
       <div className="certificates-bg h-[80vh] flex items-center justify-center flex-col">
         <h1 className="text-3xl md:text-5xl w-full md:max-w-[60%] mx-auto text-white font-bold text-center">
           SEARCH FOR CERTIFICATES ACCREDITED
@@ -138,10 +148,21 @@ const Page = () => {
           <CertificateSearch />
         </div>
       </div>
-      {!certificate ? (
-        <NotFoundSection title={"Certificate"} />
-      ) : (
+
+      {/* Check if certificate is found or not */}
+      {certificate ? (
         <CertificateDetails certificate={certificate} />
+      ) : (
+        <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+          <DialogContent className="bg-slate-800 border-none w-full md:w-[80vw] max-w-full max-h-[75vh] flex items-center justify-center">
+            <div className="flex justify-center items-center p-8 gap-8">
+              <div className="hidden md:block mb-8">
+                <NotFoundSection title="Certificate" />
+              </div>
+              <CretificateForm />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </main>
   );

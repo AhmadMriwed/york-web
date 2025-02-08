@@ -104,13 +104,12 @@ const Page = () => {
             </p>
             {trainingPlan?.file && (
               <div className="flex gap-4">
-             
-                <Button
-                  className="bg-primary-color1 text-white px-4 py-2 rounded-md hover:bg-primary-color2 hover:text-white hover:no-underline"
-                  onClick={()=>downloadTrainingPlan(trainingPlan.file?.path)}
-                >
-Download File
-                </Button>
+             <Button
+  className="bg-primary-color1 text-white px-4 py-2 rounded-md hover:bg-primary-color2 hover:text-white hover:no-underline"
+  onClick={() => downloadTrainingPlan(`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${trainingPlan?.file?.path}`)}
+>
+  Download File
+</Button>
              
                 <Button
                   className="bg-primary-color1 text-white px-4 py-2 rounded-md hover:bg-primary-color2 hover:text-white hover:no-underline"

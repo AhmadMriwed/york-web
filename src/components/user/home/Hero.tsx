@@ -28,7 +28,7 @@ const Hero = ({ sliders }: Props) => {
               key={slider.id}
             >
               <div className="flex aspect-square w-full flex-col items-center justify-center dark:border-zinc-800">
-                <h1 className="animation text-white  mx-auto md:w-full mt-44 md:mt-0 lg:w-[815px] leading-[1.4] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
+                <h1 className="animation text-white  mx-auto md:w-full mt-44 md:mt-0 lg:w-[815px] leading-[1.2] text-[23px] sm:text-[32px] md:text-[40px] font-semibold capitalize mb-[30px]">
                   {slider.title}
                 </h1>
                 <p className="animation text-[#c2c2c2]  mx-auto md:w-full lg:w-[815px]">

@@ -396,33 +396,45 @@ export const SearchCertificate = async (
 };
 ///// download function //// /
 
-export const downloadTrainingPlan = async (path: string): Promise<void> => {
-  try {
-    if (!path) {
-      alert("Invalid file path.");
-      return;
-    }
 
-    const fileUrl =   `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${path}`;
-    const response = await axios.get(fileUrl, {
-      responseType: "blob",
+export const downloadTrainingPlan = async (filePath: string) => {
+  if (!filePath) {
+    console.error('No file path provided!');
+    return;
+  }
+
+  try {
+    const response = await axios({
+      url: filePath,
+      method: 'GET',
+      responseType: 'blob',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+      },
+      timeout: 5000,  // optional, just for testing
     });
 
-    const blob = new Blob([response.data], { type: response.headers["content-type"] || "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
+    // Create a link element for the download
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    
+    // Get the file name from the URL or use a default name
+    const fileName = filePath.split('/').pop() || 'downloaded-file';
 
-    const link = document.createElement("a");
+    // Set attributes for the link element
     link.href = url;
-    link.download = path.split("/").pop() || "training-plan.pdf";
+    link.setAttribute('download', fileName);
+
+    // Append the link, simulate a click to download, then clean up
     document.body.appendChild(link);
     link.click();
 
-    // Cleanup
+    // Clean up and remove the link element from the DOM
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-  } catch (error: any) {
-    console.error("Error downloading training plan:", error.message);
-    alert("Failed to download the training plan. Please try again.");
+
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    alert('There was an issue downloading the file. Please try again later.');
   }
 };
-

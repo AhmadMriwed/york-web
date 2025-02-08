@@ -49,7 +49,27 @@ const WorldMap = () => {
     x: 0,
     y: 0,
   });
-  const [scale, setScale] = useState(110);
+  const [scale, setScale] = useState(310); // Default scale for larger devices
+  const [zoomCount, setZoomCount] = useState(0); // Counter for zoom actions
+
+  useEffect(() => {
+    // Set initial scale based on screen width
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setScale(150); // Smaller scale for small devices
+      } else {
+        setScale(180); // Larger scale for larger devices
+      }
+    };
+
+    handleResize();
+
+    // Update scale on window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     fetch(geoUrl)
@@ -63,22 +83,29 @@ const WorldMap = () => {
   const memoizedGeoData = useMemo(() => geoData, [geoData]);
 
   const handleZoomIn = () => {
-    setScale(scale * 1.2);
+    if (zoomCount < 4) {
+      setScale(scale * 1.2);
+      setZoomCount(zoomCount + 1);
+    }
   };
 
   const handleZoomOut = () => {
-    setScale(scale / 1.2);
+    if (zoomCount > -4) {
+      setScale(scale / 1.2);
+      setZoomCount(zoomCount - 1);
+    }
   };
 
   return (
-    <div style={{ width: "100%", height: "600px", position: "relative" }}>
+    <div style={{ width: "100%", height: "480px", position: "relative" }} className="-mb-240">
       <ComposableMap
         projection="geoMercator"
         projectionConfig={{
           scale: scale,
-          center: [10, -30],
+          center: [10, 30],
         }}
         style={{ position: "relative" }}
+        className="max-h-full w-full"
       >
         {memoizedGeoData && (
           <Geographies geography={memoizedGeoData}>
@@ -95,12 +122,11 @@ const WorldMap = () => {
                     stroke="#FFFFFF"
                     strokeWidth={0.5}
                     onMouseEnter={(e) => {
-                      const { x, y } = e.currentTarget.getBoundingClientRect();
                       setTooltip({
                         visible: true,
                         text: geo.properties.name,
-                        x: x + e.nativeEvent.offsetX,
-                        y: y + e.nativeEvent.offsetY,
+                        x: e.clientX, // Use mouse X coordinate relative to viewport
+                        y: e.clientY, // Use mouse Y coordinate relative to viewport
                       });
                     }}
                     onMouseLeave={() =>
@@ -139,25 +165,25 @@ const WorldMap = () => {
         ))}
       </ComposableMap>
 
-      {/* {tooltip.visible && (
-        <div
+      {/* Tooltip for country name */}
+      {tooltip.visible && (
+          <div
           style={{
-            position: "absolute",
-            top: tooltip.y,
-            left: -tooltip.x,
+            position: "fixed", // Changed from 'absolute' to 'fixed'
+            top: tooltip.y + 10,
+            left: tooltip.x + 10,
             backgroundColor: "rgba(0, 0, 0, 0.8)",
             color: "#FFF",
             padding: "8px",
             borderRadius: "6px",
             fontSize: "12px",
             pointerEvents: "none",
-            whiteSpace: "pre-line",
-            transform: "translate(0%, 0%)", // Center tooltip above the country
+            zIndex: 1000,
           }}
         >
           {tooltip.text}
         </div>
-      )} */}
+      )}
 
       <div
         style={{
@@ -171,26 +197,28 @@ const WorldMap = () => {
       >
         <button
           onClick={handleZoomIn}
+          disabled={zoomCount >= 4} // Disable zoom in after 4 times
           style={{
-            backgroundColor: "#037f85",
+            backgroundColor: zoomCount >= 4 ? "#ccc" : "#037f85",
             color: "white",
             border: "none",
             padding: "10px",
             borderRadius: "5px",
-            cursor: "pointer",
+            cursor: zoomCount >= 4 ? "not-allowed" : "pointer",
           }}
         >
           +
         </button>
         <button
           onClick={handleZoomOut}
+          disabled={zoomCount <= -4} // Disable zoom out after 4 times
           style={{
-            backgroundColor: "#f44336",
+            backgroundColor: zoomCount <= -4 ? "#ccc" : "#f44336",
             color: "white",
             border: "none",
             padding: "10px",
             borderRadius: "5px",
-            cursor: "pointer",
+            cursor: zoomCount <= -4 ? "not-allowed" : "pointer",
           }}
         >
           -
