@@ -26,7 +26,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
   return (
     <div className="container mx-auto my-12 p-6 bg-white rounded-lg shadow-sm">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="flex justify-center items-center col-span-2">
+        <div className="col-span-2 border-8 border-double shadow-lg ">
           <Image
             src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${certificate.certificate_img}`}
             alt="Certificate Image"
@@ -38,43 +38,51 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
         </div>
 
         {/* Certificate Details */}
-        <div className="space-y-6 border border-primary-color1 shadow-lg rounded-lg p-6 ml-4">
+        <div className="space-y-6 border border-primary-color1 shadow-lg rounded-lg p-6 pb-16 ml-4 h-fit bg-gradient-to-br from-white to-gray-50 hover:shadow-xl transition-shadow duration-300">
           {/* Trainer Image */}
           <div className="flex flex-col items-center space-x-4 relative">
-            <Image
-              src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${certificate.trainer_img}`}
-              alt="Trainer Image"
-              width={150}
-              height={150}
-              className="rounded-full border"
-            />
-            <p className="text-gray-500 font-semibold mt-8">{certificate.trainer_full_name}</p>
-            {isValid ? (
+            <div className="relative">
               <Image
-                src={"/information/validation.png"}
-                width={100}
-                height={100}
-                alt="validation"
-                className="absolute top-20 right-8"
+                src={`${process.env.NEXT_PUBLIC_WEBSITE_URL}/${certificate.trainer_img}`}
+                alt="Trainer Image"
+                width={150}
+                height={150}
+                className="rounded-full border-4 border-primary-color2 shadow-md hover:border-primary-color1 transition-all duration-300"
               />
-            ) : (
-              <Image
-                src={"/information/expired.png"}
-                width={180}
-                height={180}
-                alt="validation"
-                className="absolute top-4 -right-4"
-              />
-            )}
+              {isValid ? (
+                <Image
+                  src={"/information/validation.png"}
+                  width={100}
+                  height={100}
+                  alt="validation"
+                  className="absolute top-16 left-36 hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <Image
+                  src={"/information/expired.png"}
+                  width={180}
+                  height={180}
+                  alt="validation"
+                  className="absolute top-4 -right-4 hover:scale-105 transition-transform duration-300"
+                />
+              )}
+            </div>
+            <p className="text-gray-700 font-semibold mt-4 text-xl">
+              {certificate.trainer_full_name}
+            </p>
           </div>
-          <h2 className="text-xl font-bold text-primary-color2">Certificate Details</h2>
+
+          {/* Certificate Details */}
+          <h2 className="text-2xl font-bold text-primary-color2 text-center mb-6">
+            Certificate Details
+          </h2>
           <div className="space-y-4">
             <p className="flex items-center space-x-2 text-gray-700">
               <span className="font-semibold flex items-center">
                 <Calendar className="size-6 mr-2 text-primary-color2" />
                 Valid From:
               </span>
-              <span className="bg-gray-100 px-3 py-1 rounded-lg text-sm font-medium">
+              <span className="bg-gray-100 px-3 py-1 rounded-lg text-sm font-medium shadow-inner">
                 {certificate.valid_from}
               </span>
             </p>
@@ -83,10 +91,17 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
                 <Calendar className="size-6 mr-2 text-primary-color2" />
                 Valid To:
               </span>
-              <span className="bg-gray-100 px-3 py-1 rounded-lg text-sm font-medium">
+              <span className="bg-gray-100 px-3 py-1 rounded-lg text-sm font-medium shadow-inner">
                 {certificate.valid_to}
               </span>
             </p>
+          </div>
+
+          {/* Additional Information */}
+          <div className="mt-6 text-gray-700   text-sm italic text-center bg-gray-100 p-4 leading-6 rounded-lg border border-gray-100">
+            Compatible with the international standards issued by York British
+            Academy for accreditation. Your certificate is authenticated under
+            the international certificate number.
           </div>
         </div>
       </div>
@@ -155,7 +170,7 @@ const Page = () => {
       ) : (
         <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
           <DialogContent className="bg-slate-800 border-none w-full md:w-[80vw] max-w-full max-h-[75vh] flex items-center justify-center">
-            <div className="flex justify-center items-center p-8 gap-8">
+            <div className="flex justify-center items-center p-2 mt-4 md:p-8 gap-8 ">
               <div className="hidden md:block mb-8">
                 <NotFoundSection title="Certificate" />
               </div>

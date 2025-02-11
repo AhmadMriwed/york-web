@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -48,6 +49,7 @@ interface CustomProps {
   children?: React.ReactNode;
   renderSkeleton?: (field: any) => React.ReactNode;
   required?: boolean;
+  defaultCountry?: string | undefined;
 }
 
 const CustomSyriaFlag = () => (
@@ -94,7 +96,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           </FormControl>
         </div>
       );
-    case FormFieldType.NUMBER: // Added NUMBER case
+    case FormFieldType.NUMBER:
       return (
         <div
           className="flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1"
@@ -123,7 +125,8 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
       return (
         <FormControl className="p-2 rounded-sm">
           <PhoneInput
-            defaultCountry="SY"
+            //@ts-ignore
+            defaultCountry={props.defaultCountry}
             placeholder={placeholder}
             flags={{
               SY: CustomSyriaFlag,
@@ -208,6 +211,26 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 
 const CustomFormField = (props: CustomProps) => {
   const { control, fieldType, name, label, required } = props;
+  const [defaultCountry, setDefaultCountry] = useState<string | undefined>(
+    "US"
+  );
+
+  useEffect(() => {
+    const fetchCountryCode = async () => {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        if (data.country_code) {
+          setDefaultCountry(data.country_code);
+        }
+      } catch (error) {
+        console.error("Failed to fetch country code", error);
+      }
+    };
+
+    fetchCountryCode();
+  }, []);
+
   return (
     <FormField
       control={control}
@@ -224,7 +247,8 @@ const CustomFormField = (props: CustomProps) => {
             ) : (
               <FormLabel className="mb-2">{label}</FormLabel>
             ))}
-          <RenderField field={field} props={props} />
+          <RenderField field={field} props={{ ...props, defaultCountry }} />{" "}
+          {/* Pass defaultCountry as a prop */}
           <FormMessage className="shad-error" />
         </FormItem>
       )}

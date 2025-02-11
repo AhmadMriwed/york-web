@@ -50,7 +50,6 @@ const HomeCourseAds = () => {
       try {
         const { languages, venues, categories, season_models, year_models } =
           await FilterCourses();
-          
 
         const courses = await fetchAllCourses();
 
@@ -77,7 +76,7 @@ const HomeCourseAds = () => {
     setFormData((prevData) => {
       if (Array.isArray(prevData[field])) {
         const updatedValues = checked
-          ? [...(prevData[field] as any[]), value] // Explicitly cast to any[]
+          ? [...(prevData[field] as any[]), value]
           : (prevData[field] as any[]).filter((item) => item !== value);
 
         return { ...prevData, [field]: updatedValues };
@@ -91,22 +90,22 @@ const HomeCourseAds = () => {
     e.preventDefault();
 
     const filters: any = {};
-    if (formData.category_ids.length > 0) {
+    if (formData.category_ids && formData.category_ids.length > 0) {
       filters.category_ids = formData.category_ids.map((id) => Number(id));
     }
-    if (formData.venue_ids.length > 0) {
+    if (formData.venue_ids && formData.venue_ids.length > 0) {
       filters.venue_ids = formData.venue_ids.map((id) => Number(id));
     }
-    if (formData.languages.length > 0) {
+    if (formData.languages && formData.languages.length > 0) {
       filters.language = formData.languages;
     }
-    if (formData.title.trim()) {
+    if (formData.title && formData.title.trim()) {
       filters.code = formData.title.trim();
     }
-    if (formData.year_models.length > 0) {
+    if (formData.year_models && formData.year_models.length > 0) {
       filters.year_models = formData.year_models;
     }
-    if (formData.season_models.length > 0) {
+    if (formData.season_models && formData.season_models.length > 0) {
       filters.season_models = formData.season_models;
     }
 
@@ -139,7 +138,7 @@ const HomeCourseAds = () => {
       id: 3,
       title: "Venues",
       fieldName: "venue_ids",
-      items: venues.map((venue) => ({
+      items: venues?.map((venue) => ({
         key: venue.id,
         title: venue.title,
         value: venue.id,
@@ -149,7 +148,7 @@ const HomeCourseAds = () => {
       id: 4,
       title: "Season",
       fieldName: "season_models",
-      items: seasons.map((season) => ({
+      items: seasons?.map((season) => ({
         key: season.origin,
         title: season.name,
         value: season.origin,
@@ -159,7 +158,7 @@ const HomeCourseAds = () => {
       id: 5,
       title: "Year",
       fieldName: "year_models",
-      items: years.map((year) => ({
+      items: years?.map((year) => ({
         key: year.origin,
         title: year.name,
         value: year.origin,
@@ -169,7 +168,7 @@ const HomeCourseAds = () => {
       id: 1,
       title: "Language",
       fieldName: "languages",
-      items: languages.map((language) => ({
+      items: languages?.map((language) => ({
         key: language.code,
         title: language.name,
         value: language.code,
@@ -179,7 +178,7 @@ const HomeCourseAds = () => {
       id: 2,
       title: "Category",
       fieldName: "category_ids",
-      items: categories.map((category) => ({
+      items: categories?.map((category) => ({
         key: category.id,
         title: category.title,
         value: category.id,
@@ -188,7 +187,7 @@ const HomeCourseAds = () => {
   ];
 
   return (
-    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px] -mt-20 md:-mt-0">
+    <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px] -mt-36 md:-mt-0">
       <div className="text-center text-white">
         <h2 className="text-[28px] font-semibold leading-[1.2] mb-[20px]">
           Learn new skills on your time
@@ -244,10 +243,15 @@ const HomeCourseAds = () => {
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={formData[dropdown.fieldName].includes(
-                            //@ts-ignore
-                            item.value
-                          )}
+                          checked={
+                            Array.isArray(formData[dropdown.fieldName])
+                              ? //@ts-ignore
+                                formData[dropdown.fieldName].includes(
+                                  //@ts-ignore
+                                  item.value
+                                )
+                              : false
+                          }
                           onChange={(e) => {
                             e.stopPropagation();
                             handleCheckboxChange(

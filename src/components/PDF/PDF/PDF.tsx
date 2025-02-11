@@ -18,6 +18,11 @@ export default function PDF({
   PDF?: PDFType | null;
 }) {
   return (
-    <PDFViewer modalOpen={modalOpen} setModalOpen={setModalOpen} PDF={PDF} />
+    <PDFViewer
+      modalOpen={modalOpen}
+      setModalOpen={setModalOpen}
+      PDF={PDF}
+      pdfUrl={PDF?.path}
+    />
   );
 }

@@ -17,26 +17,25 @@ const CretificateForm = () => {
     resolver: zodResolver(CretificateFormValidation),
     defaultValues: {
       first_name: "",
-      last_name : "",
+      last_name: "",
       email: "",
       code: "",
       message: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof CretificateFormValidation>) => {
+  const onSubmit = async (
+    values: z.infer<typeof CretificateFormValidation>
+  ) => {
     setIsLoading(true);
     try {
       const userData = {
         first_name: values.first_name,
-        last_name:values.last_name,
+        last_name: values.last_name,
         code: values.code,
         email: values.email,
         message: values.message,
       };
-      
-      // Assuming storePlanRegister is an async function that handles the registration
-    //   await storePlanRegister(userData);
 
       form.reset();
     } catch (error) {
@@ -53,52 +52,51 @@ const CretificateForm = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-6 flex-1 text-white"
       >
-         <p className=" text-gray-300 text-center">The cretificate is not found , it may have been issued by a non-official entity.please consult the academy to verify the certificate .  </p>
+        <h2 className=" text-gray-300 textba text-center text-base">
+          The cretificate is not found , it may have been issued by a
+          non-official entity.please consult the academy to verify the
+          certificate .{" "}
+        </h2>
         <div className="grid md:grid-cols-2 gap-3 ">
-
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="first_name"
-          placeholder="First Name"
-          iconSrc="/icons/user.svg"
-          iconAlt="user"
-          required={true}
-        />
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="last_name"
-          placeholder="Last Name"
-          iconSrc="/icons/user.svg"
-          iconAlt="user"
-          required={true}
-        />
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="first_name"
+            placeholder="First Name"
+            iconSrc="/icons/user.svg"
+            iconAlt="user"
+            required={true}
+          />
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="last_name"
+            placeholder="Last Name"
+            iconSrc="/icons/user.svg"
+            iconAlt="user"
+            required={true}
+          />
         </div>
         <div className="grid md:grid-cols-2 gap-3 ">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="email"
+            placeholder="Email"
+            iconSrc="/icons/mail.svg"
+            iconAlt="email"
+            required={true}
+          />
 
-
-
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="email"
-          placeholder="Email"
-          iconSrc="/icons/mail.svg"
-          iconAlt="email"
-          required={true}
-        />
-        
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="code"
-          placeholder="Cretificate Code "
-          iconSrc="/icons/code.svg"
-          iconAlt="code"
-        />
-        
-          </div>
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="code"
+            placeholder="Cretificate Code "
+            iconSrc="/icons/code.svg"
+            iconAlt="code"
+          />
+        </div>
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}

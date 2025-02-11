@@ -5,6 +5,7 @@ export interface category {
    title: string;
    description:string;
    image: string|null;
+   image_icon:string;
 }
 
 export interface address {

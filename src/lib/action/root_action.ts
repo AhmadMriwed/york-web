@@ -394,47 +394,58 @@ export const SearchCertificate = async (
     throw new Error("Failed to search certificate. Please try again later.");
   }
 };
-///// download function //// /
 
-
-export const downloadTrainingPlan = async (filePath: string) => {
-  if (!filePath) {
-    console.error('No file path provided!');
-    return;
-  }
-
+// dwonload file /// 
+export const downloadFile = async (filePath: string) => {
   try {
-    const response = await axios({
-      url: filePath,
-      method: 'GET',
-      responseType: 'blob',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-      },
-      timeout: 5000,  // optional, just for testing
-    });
+    if (!filePath) {
+      throw new Error("File path is missing");
+    }
 
-    // Create a link element for the download
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    
-    // Get the file name from the URL or use a default name
-    const fileName = filePath.split('/').pop() || 'downloaded-file';
+    // Call the proxy API configured in next.config.js
+    const response = await fetch(`/api/proxy?path=${encodeURIComponent(filePath)}`);
 
-    // Set attributes for the link element
-    link.href = url;
-    link.setAttribute('download', fileName);
+    if (!response.ok) {
+      throw new Error("Failed to download file");
+    }
 
-    // Append the link, simulate a click to download, then clean up
-    document.body.appendChild(link);
-    link.click();
+    // Convert the response to Blob
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
 
-    // Clean up and remove the link element from the DOM
-    document.body.removeChild(link);
+    // Create a temporary link to trigger the download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filePath.split("/").pop() || "downloaded_file.pdf"; // Extract the file name
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // Clean up the temporary URL
     window.URL.revokeObjectURL(url);
-
   } catch (error) {
-    console.error('Error downloading file:', error);
-    alert('There was an issue downloading the file. Please try again later.');
+    console.error("Download failed:", error);
+  }
+};
+
+
+// read file / //
+export const readFile = async (filePath: string): Promise<string | null> => {
+  try {
+    if (!filePath) {
+      throw new Error("File path is missing");
+    }
+
+    const response = await fetch(`/api/proxy/read?path=${encodeURIComponent(filePath)}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to download file");
+    }
+
+    const blob = await response.blob();
+    return URL.createObjectURL(blob); // Create a Blob URL for the file
+  } catch (error) {
+    console.error("Download failed:", error);
+    return null;
   }
 };

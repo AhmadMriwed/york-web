@@ -241,7 +241,7 @@ function CarouselContent({
   const [visibleItemsCount, setVisibleItemsCount] = useState(1);
   const dragX = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemsLength = Children.count(children);
+  const itemsLength = Children.count(children) - 2;
 
   useEffect(() => {
     if (!containerRef.current) {

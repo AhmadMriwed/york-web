@@ -6,17 +6,19 @@ import { category } from "@/utils/user/home/homePageEnums";
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 import FrequentlyAskedQuestions from "@/components/user/home/FrequentlyAskedQuestions";
 import {
+  fetchAllCourses,
   fetchCategories,
   fetchClients,
   fetchQuestions,
   fetchSliders,
   fetchUpcomingCourses,
   fetchVenues,
+  FilterCourses,
   getSectionById,
 } from "@/lib/action/root_action";
 import Hero from "@/components/user/home/Hero";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
-import { Upcoming_Course } from "@/types/rootTypes/rootTypes";
+import { Category, Upcoming_Course } from "@/types/rootTypes/rootTypes";
 
 import UpcomingCourses from "@/components/user/home/UpcomingCourses";
 import WorldMap from "@/components/user/home/WorlMap";
@@ -29,6 +31,7 @@ export default async function Home() {
   const sliders = await fetchSliders();
   const clients = await fetchClients();
   const upComingCourses = await fetchUpcomingCourses();
+  const filterCourses = await fetchAllCourses();
 
   const SectionTitle = ({
     title,
@@ -51,17 +54,24 @@ export default async function Home() {
   );
 
   const CategoryCard = ({ item }: { item: category }) => (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 w-full overflow-hidden rounded-md">
+    <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
+      <div className="footer-bg"></div>
+      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
         <Image
-          src={item.image ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image}` : "/information/image_default2.svg"}
-          width={200}
-          height={200}
+          src={
+            item.image_icon
+              ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image_icon}`
+              : "/information/Image_defualt.svg"
+          }
+          width={60}
+          height={60}
           alt={"placeholder"}
-          className="object-cover w-full h-full"
+          className={`bg-cover ${item.image || "-mt-10"}`}
         />
       </div>
-      <p className="mt-3 font-semibold text-sm">{item.title}</p>
+      <p className="mt-3 font-semibold text-sm text-white group-hover:text-primary-color2">
+        {item.title}
+      </p>
     </div>
   );
 
@@ -69,7 +79,11 @@ export default async function Home() {
     <div className="flex flex-col items-center justify-center">
       <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
         <Image
-          src={img ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${img}` : "/information/image_default2.svg"}
+          src={
+            img
+              ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${img}`
+              : "/information/image_default2.svg"
+          }
           width={200}
           height={200}
           alt={"placeholder"}
@@ -88,13 +102,9 @@ export default async function Home() {
         </section>
         <HomeCourseAds />
 
-        <section className="relative">
+        <section className="relative -mt-16">
           <div className=" w-fit  mx-auto relative">
-            <SectionTitle
-              title="York British Academy"
-              desc="Welcome to"
-              direction="col-reverse"
-            />
+            <Image src={"/logo york.gif"} width={300} height={300} alt="logo" />
           </div>
 
           <main className="relative  min-h-[270px] mt-[80px] flex justify-between items-center flex-col sm:flex-row py-[30px] px-[50px] lg:px-[100px] gap-[20px] flex-wrap">
@@ -107,12 +117,12 @@ export default async function Home() {
             />
             <div className="w-full h-full absolute top-0 left-0 bg-[#13181eec] bg-opacity-95" />
             <div className="min-w-[100px] lg:ms-[100px] relative">
-              <Image src="/logo.png" alt="Logo" width={200} height={200} />
+              <Image src="/logo.png" alt="Logo" width={340} height={340} />
             </div>
             <div className="basis-[50%] relative">
-              <div
+              <h1
                 dangerouslySetInnerHTML={{ __html: section.description || "" }}
-                className="text-white text-center mb-4 "
+                className="text-white text-center mb-4 leading-6"
               />
               <Link
                 href="#"
@@ -143,24 +153,25 @@ export default async function Home() {
         </section>
 
         <section className="mt-[160px]" id="categories">
-          <div className="flex justify-center items-center">
+          <div className="flex justify-center items-center mb-4">
             <SectionTitle title="Categories" />
           </div>
-
-          <main className="px-[30px] grid grid-cols-2 gap-10 md:flex justify-center flex-wrap mt-[90px] md:gap-5 mx-auto mb-[30px] mr-6">
-            {categories.map((item: category) => (
-              <Link
-                key={item.id}
-                href={`/categories/${item.id}`}
-                passHref
-                className="block hover:no-underline hover:cursor-pointer min-h-full"
-              >
-                <div className="min-h-full">
-                  <CategoryCard item={item} />
-                </div>
-              </Link>
-            ))}
-          </main>
+          <div className="w-[100vw] home-welcome-bg  py-4">
+            <main className="px-[30px] grid grid-cols-2 relative gap-10 md:grid-cols-5 mt-[90px] md:gap-8 mx-auto mb-[30px] md:w-[85%] justify-items-center text-center">
+              {categories?.map((item: category) => (
+                <Link
+                  key={item.id}
+                  href={`/categories/${item.id}`}
+                  passHref
+                  className="block hover:no-underline hover:cursor-pointer min-h-full hover:text-primary-color2"
+                >
+                  <div className="min-h-full">
+                    <CategoryCard item={item} />
+                  </div>
+                </Link>
+              ))}
+            </main>
+          </div>
         </section>
 
         <section className="mt-[100px]">
@@ -168,7 +179,7 @@ export default async function Home() {
             <SectionTitle title="Venues" />
           </div>
           <main className="px-[30px] grid grid-cols-2 md:flex justify-center flex-wrap mt-[90px] gap-[25px] mb-[30px]">
-            {venues.map((item) => (
+            {venues?.map((item) => (
               <Link
                 key={item.id}
                 href={`/venues/${item.id}`}
@@ -189,7 +200,7 @@ export default async function Home() {
           </div>
           <FrequentlyAskedQuestions questions={questions} />
         </section>
-        <section className="mt-[100px] -mb-36 md:mb-8">
+        <section className="mt-[100px] -my-36 my md:mb-8">
           <div className="flex justify-center items-center mb-12">
             <SectionTitle title="Regional Offices" />
           </div>

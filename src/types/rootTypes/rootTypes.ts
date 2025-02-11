@@ -17,6 +17,7 @@ export interface Question {
     title: string; 
     description: string; 
     image: string | null; 
+    image_icon:string;
   }
   
   export interface Section { 
@@ -127,12 +128,12 @@ export interface PlanRegisterData {
 
   
 export interface SearchFilters {
-  title: string;
-  languages: string[];
-  category_ids: number[];
-  venue_ids: number[];
-  season_models: string[];
-  year_models: string[];
+  title?: string;
+  languages?: string[];
+  category_ids?: number[];
+  venue_ids?: number[];
+  season_models?: string[];
+  year_models?: string[];
 }
 
 export interface RegistrationData {

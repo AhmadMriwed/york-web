@@ -34,11 +34,14 @@ export default function PDFViewer({
   modalOpen,
   setModalOpen,
   PDF,
+  pdfUrl,
 }: {
   modalOpen: boolean;
   setModalOpen: any;
   PDF?: PDFType | null;
+  pdfUrl?: string;
 }) {
+  console.log(pdfUrl);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
   const [numPages, setNumPages] = useState(null);
@@ -144,7 +147,7 @@ export default function PDFViewer({
         {renderType === "normal" ? (
           <div className="justify-center items-center flex">
             <Document
-              file={storageURL + PDF?.path}
+              file={`/api/pdf/${pdfUrl}` || storageURL + PDF?.path}
               onLoadSuccess={onDocumentLoadSuccess}
               className="flex flex-col gap-2"
             >
@@ -166,7 +169,7 @@ export default function PDFViewer({
               {Array.from({ length: numPages ?? 0 }, (_, index) => (
                 <Pages key={index} number={index + 1}>
                   <Document
-                    file={storageURL + (PDF ? PDF.path : "")}
+                    file={`/api/pdf/${pdfUrl}` || storageURL + PDF?.path}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     <Page
