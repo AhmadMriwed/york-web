@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Command, CommandInput } from "@/components/ui/command";
 import TopBar from "./Topbar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import MobileNav from "./MobileNav";
 import DesktopNav from "./DesktopNav";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
@@ -139,26 +139,52 @@ export const ListItem = React.forwardRef<
 
 ListItem.displayName = "ListItem";
 
-const SearchBar = ({
+export const SearchBar = ({
   open,
   setOpen,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}) => (
-  <Popover open={open} onOpenChange={setOpen}>
-    <PopoverTrigger asChild>
-      <Button variant="ghost" role="combobox" aria-expanded={open}>
-        <Image src="/icons/search.svg" height={24} width={24} alt="search" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-[300px] mt-4 p-2 rounded-lg bg-transparent">
-      <Command>
-        <CommandInput placeholder="Search ..." />
-      </Command>
-    </PopoverContent>
-  </Popover>
-);
+}) => {
+  const [title, setTitle] = React.useState("");
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (!title.trim()) return;
+    router.push(`/courses/SearchResult?code=${encodeURIComponent(title)}`);
+    setOpen(false);
+  };
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" role="combobox" aria-expanded={open}>
+          <Image src="/icons/search.svg" height={24} width={24} alt="search" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[350px] mt-8 p-4  mr-2 rounded-xl bg-gray-600  shadow-lg">
+        <Command>
+          <div className="flex items-center bg-gray-600">
+            <Image
+              src="/icons/search.svg"
+              height={24}
+              width={24}
+              alt="search"
+              className="mr-2 p-2 size-8 cursor-pointer"
+              onClick={() => handleSearch()}
+            />
+            <input
+              placeholder="Search by course code  ..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="bg-gray-600 outline-none placeholder:text-gray-100 text-white"
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // Add displayName to resolve the ESLint warning
 SearchBar.displayName = "SearchBar";

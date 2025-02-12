@@ -48,17 +48,16 @@ const HomeCourseAds = () => {
   useEffect(() => {
     const fetchFilterData = async () => {
       try {
-        const { languages, venues, categories, season_models, year_models } =
-          await FilterCourses();
+        const filterData = await FilterCourses();
+
+        setVenues(filterData.venues || []);
+        setCategories(filterData.categories || []);
+        setLanguages(filterData.languages || []);
+        setSeasons(filterData.season_models || []);
+        setYears(filterData.year_models || []);
 
         const courses = await fetchAllCourses();
-
         setCourses(courses);
-        setVenues(venues);
-        setCategories(categories);
-        setLanguages(languages);
-        setSeasons(season_models);
-        setYears(year_models);
       } catch (error) {
         console.error("Error fetching filter data:", error);
         toast.error("Failed to fetch filter data.");

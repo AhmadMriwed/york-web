@@ -89,7 +89,7 @@ export const ContactUsFormValidation = z.object({
 });
 
 
-export const CretificateFormValidation = z.object({
+export const CertificateFormValidation = z.object({
   first_name: z
     .string()
     .min(2, "first name must be at least 2 characters.")
@@ -101,7 +101,7 @@ export const CretificateFormValidation = z.object({
   email: z.string().email("Invalid email address."),
  
     message:z.string().min(2,'message must be at least 2 characters.'),
-    code:z.string().min(2,'message must be at least 2 characters.')
+    certificate_code:z.string().min(1,'cretificate code is required.')
 });
 
 

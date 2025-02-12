@@ -8,6 +8,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useRef,
 } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Modal } from "rsuite";
@@ -48,6 +49,7 @@ export default function PDFViewer({
   const [pageWidth, setPageWidth] = useState(900);
   const [bookPageWidth, setBookPageWidth] = useState(400);
   const [renderType, setRenderType] = useState<"normal" | "book">("normal");
+  const pdfFileRef = useRef<string | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -76,6 +78,12 @@ export default function PDFViewer({
   }) {
     setNumPages(nextNumPages);
   }
+
+  useEffect(() => {
+    if (modalOpen && !pdfFileRef.current) {
+      pdfFileRef.current = `/api/pdf/${pdfUrl}` || storageURL + PDF?.path;
+    }
+  }, [modalOpen, pdfUrl, PDF]);
 
   return (
     <Modal
@@ -147,7 +155,7 @@ export default function PDFViewer({
         {renderType === "normal" ? (
           <div className="justify-center items-center flex">
             <Document
-              file={`/api/pdf/${pdfUrl}` || storageURL + PDF?.path}
+              file={pdfFileRef.current}
               onLoadSuccess={onDocumentLoadSuccess}
               className="flex flex-col gap-2"
             >
@@ -169,7 +177,7 @@ export default function PDFViewer({
               {Array.from({ length: numPages ?? 0 }, (_, index) => (
                 <Pages key={index} number={index + 1}>
                   <Document
-                    file={`/api/pdf/${pdfUrl}` || storageURL + PDF?.path}
+                    file={pdfFileRef.current}
                     onLoadSuccess={onDocumentLoadSuccess}
                   >
                     <Page

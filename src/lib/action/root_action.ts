@@ -363,6 +363,29 @@ export const fetchContactUsIcons = async (): Promise<ContactUs[]> => {
   }
 };
 
+export const contact_us = async (values: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  message: string;
+}) => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/contact_us/send-message`, values);
+
+    
+    return response.data; 
+  } catch (error: any) {
+    console.error("Submission failed:", error);
+
+    const errorMessage =
+      error.response?.data?.message || "Failed . Please try again.";
+
+    throw new Error(errorMessage); 
+  }
+};
+
+
 ///// search certificate //////// 
 export const SearchCertificate = async (
   certificate_id: string | null
@@ -392,6 +415,29 @@ export const SearchCertificate = async (
   } catch (error: any) {
     console.error("Error searching certificate:", error);
     throw new Error("Failed to search certificate. Please try again later.");
+  }
+};
+
+
+export const CertificateReview = async (values: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  certificate_code: string;
+  message: string;
+}) => {
+  try {
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/certificates-review`, values);
+
+    
+    return response.data; 
+  } catch (error: any) {
+    console.error("Submission failed:", error);
+
+    const errorMessage =
+      error.response?.data?.message || "Failed to submit certificate review. Please try again.";
+
+    throw new Error(errorMessage); 
   }
 };
 
@@ -443,7 +489,7 @@ export const readFile = async (filePath: string): Promise<string | null> => {
     }
 
     const blob = await response.blob();
-    return URL.createObjectURL(blob); // Create a Blob URL for the file
+    return URL.createObjectURL(blob);
   } catch (error) {
     console.error("Download failed:", error);
     return null;

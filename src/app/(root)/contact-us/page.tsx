@@ -10,6 +10,7 @@ import {
   isContactUsImageKey,
 } from "@/lib/utils";
 import Image from "next/image";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 interface CardProps {
   image: string;
@@ -59,7 +60,7 @@ const Page = () => {
             return (
               <Card
                 key={item.id}
-                image={contactUsImage[type] || ''}
+                image={contactUsImage[type] || ""}
                 type={type}
                 content={item.content}
               />
@@ -82,15 +83,42 @@ const Page = () => {
       </div>
 
       {/* Contact Form Section */}
-      <div className="bg-primary-color4 md:px-16 px-4 md:py-24 gap-16 py-16 rounded-lg">
-        <div className="md:w-[80%] mx-auto flex items-center">
-          <Image
-            src={"/logo.png"}
-            height={380}
-            width={380}
-            className="md:block hidden mr-10"
-            alt="logo"
-          />
+      <div className="bg-primary-color4 md:px-16 px-4 md:py-24 gap-16 py-16 ">
+        <div className="md:w-[80%] md:mx-auto w-full flex items-center md:items-start gap-12 flex-col md:flex-row">
+          <div className="flex flex-col items-start space-y-4 text-white -mt-12 p-4">
+            {/* Logo */}
+            <Image
+              src="/logo.png"
+              height={200}
+              width={200}
+              className=" mx-auto md:ml-24 "
+              alt="logo"
+            />
+
+            {/* العنوان */}
+            <div className="flex -mt-24 items-center transition-all  duration-200 hover:text-primary-color2 space-x-3">
+              <Phone className="text-gray-300  w-6 h-6" />
+              <p className="cursor-pointer md:text-xl font-semibold">
+                +442087209292 / +447520619292
+              </p>
+            </div>
+            <div className="flex items-center transition-all duration-200 hover:text-primary-color2">
+              <MapPin className="text-gray-300 w-8  h-8 mr-2" />
+              <p className="cursor-pointer md:text-xl font-semibold  md:max-w-[400px]">
+                27 Old Gloucester Street, WC1N 3AX, London, United Kingdom
+              </p>
+            </div>
+
+            {/* البريد الإلكتروني */}
+            <div className="flex items-center space-x-3 transition-all duration-200 hover:text-primary-color2">
+              <Mail className="text-gray-300 w-6 h-6" />
+              <p className="cursor-pointer md:text-xl font-semibold ">
+                info@yorkbritishacademy.uk
+              </p>
+            </div>
+
+            {/* الهاتف */}
+          </div>
           <ContactUsForm />
         </div>
       </div>

@@ -5,10 +5,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Form } from "@/components/ui/form";
-import { ContactUsFormValidation, UserFormValidation } from "@/lib/validation";
+import { ContactUsFormValidation } from "@/lib/validation";
 import SubmitButton from "../buttons/SubmitButton";
 import CustomFormField, { FormFieldType } from "../CustomFormField";
 import { toast } from "sonner";
+import { contact_us } from "@/lib/action/root_action";
 
 const ContactUsForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +18,7 @@ const ContactUsForm = () => {
     resolver: zodResolver(ContactUsFormValidation),
     defaultValues: {
       first_name: "",
-      last_name : "",
+      last_name: "",
       email: "",
       phone: "",
       message: "",
@@ -27,21 +28,13 @@ const ContactUsForm = () => {
   const onSubmit = async (values: z.infer<typeof ContactUsFormValidation>) => {
     setIsLoading(true);
     try {
-      const userData = {
-        full_name: values.first_name,
-        last_name:values.last_name,
-        phone: values.phone,
-        email: values.email,
-        message: values.message,
-      };
-      
-      // Assuming storePlanRegister is an async function that handles the registration
-    //   await storePlanRegister(userData);
+      await contact_us(values);
 
+      toast.success("Message sent successfully!");
       form.reset();
-    } catch (error) {
-      console.error("Registration failed:", error);
-      toast.error("Registration failed. Please try again.");
+    } catch (error: any) {
+      console.error("Submission failed:", error);
+      toast.error(error.message || "Failed to send message. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -51,58 +44,57 @@ const ContactUsForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 flex-1 text-white"
+        className="space-y-6 flex-1 w-full p-2 text-white"
       >
-        <div className="grid md:grid-cols-2 gap-3 ">
-
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="first_name"
-          placeholder="First Name"
-          iconSrc="/icons/user.svg"
-          iconAlt="user"
-          required={true}
-        />
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="last_name"
-          placeholder="Last Name"
-          iconSrc="/icons/user.svg"
-          iconAlt="user"
-          required={true}
-        />
-        </div>
-        <div className="grid md:grid-cols-2 gap-3 ">
-
-
-
-        <CustomFormField
-          fieldType={FormFieldType.INPUT}
-          control={form.control}
-          name="email"
-          placeholder="Email"
-          iconSrc="/icons/mail.svg"
-          iconAlt="email"
-          required={true}
-        />
-        <CustomFormField
-          fieldType={FormFieldType.PHONE_INPUT}
-          control={form.control}
-          name="phone"
-          placeholder="Phone Number"
-          required={true}
+        <div className="grid md:grid-cols-2 gap-3">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="first_name"
+            placeholder="First Name"
+            iconSrc="/icons/user.svg"
+            iconAlt="user"
+            required
           />
-          </div>
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="last_name"
+            placeholder="Last Name"
+            iconSrc="/icons/user.svg"
+            iconAlt="user"
+            required
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-3">
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="email"
+            placeholder="Email"
+            iconSrc="/icons/mail.svg"
+            iconAlt="email"
+            required
+          />
+          <CustomFormField
+            fieldType={FormFieldType.PHONE_INPUT}
+            control={form.control}
+            name="phone"
+            placeholder="Phone Number"
+            required
+          />
+        </div>
+
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}
           name="message"
           placeholder="Your message here..."
-          required={true}
+          required
         />
-        <SubmitButton isLoading={isLoading}>send</SubmitButton>
+
+        <SubmitButton isLoading={isLoading}>Send</SubmitButton>
       </form>
     </Form>
   );

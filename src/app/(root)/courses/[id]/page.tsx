@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { getCourseById, SearchCourse } from "@/lib/action/root_action";
 import Loader from "@/components/loading/Loader";
 import { Course } from "@/types/rootTypes/rootTypes";
-import { header } from "@/components/cards/CourseCard";
 import { useRouter } from "next/navigation";
 import {
   FaCalendarAlt,
@@ -13,11 +12,21 @@ import {
   FaLanguage,
   FaCode,
   FaTag,
-} from "react-icons/fa"; // Import icons
+} from "react-icons/fa";
 
 interface Props {
   params: { id: number };
 }
+
+const decodeHtmlEntities = (html: string) => {
+  return html
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+};
 
 const Page = ({ params }: Props) => {
   const { id } = params;
@@ -124,10 +133,15 @@ const Page = ({ params }: Props) => {
           {/* Course Outlines */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-primary-color2 mb-4">
-              Why Choose {`${course.title}`} ?
+              Why Choose {`${course.title}`}?
             </h2>
             <div
-              dangerouslySetInnerHTML={{ __html: course.outlines || "" }}
+              dangerouslySetInnerHTML={{
+                __html: decodeHtmlEntities(course.outlines || "").replace(
+                  /\n/g,
+                  "<br/>"
+                ),
+              }}
               className="text-gray-700 space-y-4"
             />
           </div>

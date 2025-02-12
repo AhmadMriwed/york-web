@@ -29,10 +29,13 @@ import {
 } from "react-icons/fa";
 import { MdCategory, MdDescription } from "react-icons/md";
 import { BsPeople } from "react-icons/bs";
-import { Code2, TypeIcon } from "lucide-react";
+import { Building, Code2, Map, TypeIcon } from "lucide-react";
 import { CiMoneyBill } from "react-icons/ci";
 import { toast } from "sonner";
 import { TiThLarge } from "react-icons/ti";
+import { PiMapPin } from "react-icons/pi";
+import { Button } from "@/components/ui/button";
+import TermAndPrivacy from "@/components/TermAndPrivacy";
 
 // Define the schema for the form
 const schema = z.object({
@@ -89,6 +92,8 @@ const RegistrationForm = () => {
   const [course, setCourse] = useState<Course>();
   const [categories, setCategories] = useState<Category[]>();
   const [venues, setVenues] = useState<Venue[]>();
+  const [accept, setAccept] = useState(false);
+  const [termDailogOpen, setTermDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -133,7 +138,6 @@ const RegistrationForm = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      console.log(data);
       //@ts-ignore
       await registration(data);
       toast.success("Registeration completed successfully");
@@ -395,13 +399,65 @@ const RegistrationForm = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   <FaUser className="inline-block mr-2 text-primary-color2" />
-                  Name :
+                  first Name :
                 </label>
                 <input
                   {...register("name")}
                   className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   } rounded-md`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <FaUser className="inline-block mr-2 text-primary-color2" />
+                  Last Name :
+                </label>
+                <input
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <FaPhone className="inline-block mr-2 text-primary-color2" />
+                  Phone Number :
+                </label>
+                <input
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <Map className="inline-block mr-2 text-primary-color2" />
+                  Country :
+                </label>
+                <input
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 border-gray-300
+                    rounded-md`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <PiMapPin className="inline-block mr-2 text-primary-color2" />
+                  City :
+                </label>
+                <input
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 border-gray-300
+               rounded-md`}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  <Building className="inline-block size-5 mr-2 text-primary-color2" />
+                  Comapny Name :
+                </label>
+                <input
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 border-gray-300
+                    rounded-md`}
                 />
               </div>
 
@@ -455,27 +511,50 @@ const RegistrationForm = () => {
                   Entity type :
                 </label>
                 <select
-                    {...register("entity_type")}
-                    className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
-                      errors.venue_id ? "border-red-500" : "border-gray-300"
-                    } rounded-md`}
+                  {...register("entity_type")}
+                  className={`mt-1 block w-full p-2 border focus:outline-primary-color2 ${
+                    errors.venue_id ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
+                >
+                  <option value="">Select an entity</option>
+                  {entities?.map((entity) => (
+                    <option key={entity.title} value={entity.title}>
+                      {entity.title}
+                    </option>
+                  ))}
+                </select>
+                {errors.language && (
+                  <p className="text-red-500 flex items-center">
+                    <FaExclamationCircle className="inline-block mr-2" />
+                    {errors.language.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="mt-8 flex gap-4 mb-6 ">
+                <input
+                  type="checkbox"
+                  onChange={() => setAccept(true)}
+                  className="mr-2"
+                />
+                <label className="flex items-center">
+                  I accept{" "}
+                  <p
+                    className="mx-1 text-primary-color1 font-semibold cursor-pointer"
+                    onClick={() => setTermDialogOpen(true)}
                   >
-                    <option value="">Select an entity</option>
-                    {entities?.map((entity) => (
-                      <option key={entity.title} value={entity.title}>
-                        {entity.title}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.language && (
-                    <p className="text-red-500 flex items-center">
-                      <FaExclamationCircle className="inline-block mr-2" />
-                      {errors.language.message}
-                    </p>
-                  )}
-                </div>
+                    terms and policy
+                  </p>
+                  and condations ?
+                </label>
+              </div>
             </div>
           </div>
+          <TermAndPrivacy
+            setTermDialogOpen={setTermDialogOpen}
+            termDialogOpen={termDailogOpen}
+          />
 
           {/* Trainer Selection */}
           <div>
@@ -573,14 +652,13 @@ const RegistrationForm = () => {
                   </p>
                 )}
               </div>
-       
             </div>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            onClick={() => console.log(errors)}
+            disabled={accept}
             className="w-full bg-primary-color2 text-white p-2 rounded-md hover:bg-primary-color1 flex items-center justify-center"
           >
             {isSubmitting ? (

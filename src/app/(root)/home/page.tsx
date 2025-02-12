@@ -1,5 +1,4 @@
 import Image from "next/image";
-import DefaultButton from "@/components/buttons/LinkButton";
 import Link from "next/link";
 import { category } from "@/utils/user/home/homePageEnums";
 
@@ -13,12 +12,11 @@ import {
   fetchSliders,
   fetchUpcomingCourses,
   fetchVenues,
-  FilterCourses,
   getSectionById,
 } from "@/lib/action/root_action";
 import Hero from "@/components/user/home/Hero";
 import { InfiniteMovingCards } from "@/components/ui/InfiniteMovingCards";
-import { Category, Upcoming_Course } from "@/types/rootTypes/rootTypes";
+import { Category } from "@/types/rootTypes/rootTypes";
 
 import UpcomingCourses from "@/components/user/home/UpcomingCourses";
 import WorldMap from "@/components/user/home/WorlMap";
@@ -31,7 +29,6 @@ export default async function Home() {
   const sliders = await fetchSliders();
   const clients = await fetchClients();
   const upComingCourses = await fetchUpcomingCourses();
-  const filterCourses = await fetchAllCourses();
 
   const SectionTitle = ({
     title,
@@ -53,31 +50,30 @@ export default async function Home() {
     </div>
   );
 
-  const CategoryCard = ({ item }: { item: category }) => (
+  const CategoryCard = ({ item }: { item: Category }) => (
     <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
       <div className="footer-bg"></div>
-      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
-        <Image
-          src={
-            item.image_icon
-              ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image_icon}`
-              : "/information/Image_defualt.svg"
-          }
-          width={60}
-          height={60}
-          alt={"placeholder"}
-          className={`bg-cover ${item.image || "-mt-10"}`}
-        />
-      </div>
-      <p className="mt-3 font-semibold text-sm text-white group-hover:text-primary-color2">
+      <Image
+        // src={
+        //   item.image_icon
+        //     ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image_icon}`
+        //     : "/information/Image_defualt.svg"
+        // }
+        src={"/information/contract management.png"}
+        width={160}
+        height={160}
+        alt={"placeholder"}
+        className={`bg-cover ${item.image || "-mt-24 block"}`}
+      />
+      <p className=" -mt-2 font-semibold text-sm text-white group-hover:text-primary-color2">
         {item.title}
       </p>
     </div>
   );
 
   const VenueCard = ({ title, img }: { title: string; img: string | null }) => (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md ">
+    <div className="relative flex flex-col items-center justify-center group">
+      <div className="relative hover:scale-105 hover:shadow-[#0000007f] shadow-2xl duration-700 transition-all h-28 overflow-hidden rounded-md">
         <Image
           src={
             img
@@ -86,11 +82,18 @@ export default async function Home() {
           }
           width={200}
           height={200}
-          alt={"placeholder"}
-          className={`bg-cover ${img || "-mt-10"} h-full w-full`}
+          alt="placeholder"
+          className="bg-cover h-full w-full"
         />
+
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <p className="text-white font-semibold text-sm">{title}</p>
+        </div>
       </div>
-      <p className="mt-3 font-semibold text-sm">{title}</p>
+
+      <p className="mt-3 font-semibold text-sm group-hover:opacity-0 transition-opacity duration-500">
+        {title}
+      </p>
     </div>
   );
 
@@ -103,6 +106,7 @@ export default async function Home() {
         <HomeCourseAds />
 
         <section className="relative -mt-16">
+          <SectionTitle title="Welcome To" direction="col" />
           <div className=" w-fit  mx-auto relative">
             <Image src={"/logo york.gif"} width={300} height={300} alt="logo" />
           </div>
@@ -153,7 +157,7 @@ export default async function Home() {
         </section>
 
         <section className="mt-[160px]" id="categories">
-          <div className="flex justify-center items-center mb-4">
+          <div className="flex justify-center items-center mb-16">
             <SectionTitle title="Categories" />
           </div>
           <div className="w-[100vw] home-welcome-bg  py-4">
