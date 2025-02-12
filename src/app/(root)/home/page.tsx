@@ -60,8 +60,8 @@ export default async function Home() {
         //     : "/information/Image_defualt.svg"
         // }
         src={"/information/contract management.png"}
-        width={160}
-        height={160}
+        width={140}
+        height={140}
         alt={"placeholder"}
         className={`bg-cover ${item.image || "-mt-24 block"}`}
       />
@@ -105,7 +105,7 @@ export default async function Home() {
         </section>
         <HomeCourseAds />
 
-        <section className="relative -mt-16">
+        <section className="relative md:-mt-16">
           <SectionTitle title="Welcome To" direction="col" />
           <div className=" w-fit  mx-auto relative">
             <Image src={"/logo york.gif"} width={300} height={300} alt="logo" />
