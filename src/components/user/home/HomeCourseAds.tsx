@@ -191,7 +191,9 @@ const HomeCourseAds = () => {
         <h2 className="text-[28px] font-semibold leading-[1.2] mb-[20px]">
           Learn new skills on your time
         </h2>
-        <p className="mb-4">{`Search Over  ${courses.length}   Online Courses`}</p>
+        <p className="mb-4">{`Search Over  ${
+          courses.length || "2420"
+        }   Online Courses`}</p>
       </div>
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="flex items-center flex-col flex-wrap  justify-between gap-[20px]  w-full">
