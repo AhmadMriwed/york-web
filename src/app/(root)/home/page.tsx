@@ -50,7 +50,7 @@ export default async function Home() {
   );
 
   const CategoryCard = ({ item }: { item: Category }) => (
-    <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
+    <div className="flex justify-center items-center  flex-col p-4  md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
       <div className="footer-bg"></div>
       <Image
         src={
@@ -63,7 +63,7 @@ export default async function Home() {
         alt={"placeholder"}
         className={`bg-cover ${item.image || "-mt-24 block"}`}
       />
-      <p className=" -mt-2 font-semibold text-sm text-white group-hover:text-primary-color2">
+      <p className=" -mt-6 font-semibold text-sm text-white group-hover:text-primary-color2">
         {item.title}
       </p>
     </div>
