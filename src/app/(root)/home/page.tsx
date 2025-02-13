@@ -5,7 +5,6 @@ import { category } from "@/utils/user/home/homePageEnums";
 import HomeCourseAds from "@/components/user/home/HomeCourseAds";
 import FrequentlyAskedQuestions from "@/components/user/home/FrequentlyAskedQuestions";
 import {
-  fetchAllCourses,
   fetchCategories,
   fetchClients,
   fetchQuestions,
@@ -54,12 +53,11 @@ export default async function Home() {
     <div className="flex justify-center items-center  flex-col p-2 md:p-[20px] w-40 h-32 md:w-[230px] md:h-[160px] bg-[var(--home-color)] rounded-[10px] hoverEffect">
       <div className="footer-bg"></div>
       <Image
-        // src={
-        //   item.image_icon
-        //     ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image_icon}`
-        //     : "/information/Image_defualt.svg"
-        // }
-        src={"/information/contract management.png"}
+        src={
+          item.image_icon
+            ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${item.image_icon}`
+            : "/information/Image_defualt.svg"
+        }
         width={140}
         height={140}
         alt={"placeholder"}
@@ -161,7 +159,7 @@ export default async function Home() {
             <SectionTitle title="Categories" />
           </div>
           <div className="w-[100vw] home-welcome-bg  py-4">
-            <main className="px-[30px] grid grid-cols-2 relative gap-10 md:grid-cols-5 mt-[90px] md:gap-8 mx-auto mb-[30px] md:w-[85%] justify-items-center text-center">
+            <main className="px-[30px] grid grid-cols-2 relative gap-14 md:grid-cols-5 mt-[90px] md:gap-8 mx-auto mb-[30px] md:w-[85%] justify-items-center text-center">
               {categories?.map((item: category) => (
                 <Link
                   key={item.id}

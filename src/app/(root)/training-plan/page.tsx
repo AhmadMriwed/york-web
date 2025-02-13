@@ -49,7 +49,7 @@ const Page = () => {
       );
     } else if (type === "flipbook") {
       setModalOpen(true);
-      setDialogOpen(false); // Close the dialog when Flipbook is selected
+      setDialogOpen(false);
     }
   };
 
