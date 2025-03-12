@@ -62,7 +62,7 @@ h1,h2,h3 {
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Border and Inputs */
+    /* Border and InputPhs */
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
 
@@ -474,10 +474,10 @@ h1,h2,h3 {
   z-index: 2;
 }
 
-.hoverEffect {
+.hoverEffect,.navEffect {
   position: relative;
 }
-.hoverEffect::before {
+.hoverEffect::before,.navEffect::before {
   content: "";
   position: absolute;
   width: 100%;
@@ -493,6 +493,10 @@ h1,h2,h3 {
 
 .hoverEffect:hover::before {
   height: 100%;
+}
+
+.navEffect:hover::before {
+  width: 100%;
 }
 
 .hoverEffect p {
@@ -833,5 +837,49 @@ h1,h2,h3 {
   }
   100% {
     transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  .loader {
+    @apply w-16 h-16 relative; /* Add width, height, and relative positioning */
+  }
+
+  .loader:before {
+    @apply content-[''] w-12 h-1 bg-gray-200 absolute top-[80px] left-0 rounded-full;
+    animation: shadow 0.5s linear infinite;
+  }
+
+  .loader:after {
+    @apply content-[''] w-full h-full bg-gradient-to-b from-[#246c84] to-[#02B5A0] absolute top-0 left-0 rounded;
+    animation: jump 0.5s linear infinite;
+  }
+
+  @keyframes jump {
+    15% {
+      border-bottom-right-radius: 3px;
+    }
+    25% {
+      transform: translateY(9px) rotate(22.5deg);
+    }
+    50% {
+      transform: translateY(18px) scale(1, 0.9) rotate(45deg);
+      border-bottom-right-radius: 40px;
+    }
+    75% {
+      transform: translateY(9px) rotate(67.5deg);
+    }
+    100% {
+      transform: translateY(0) rotate(90deg);
+    }
+  }
+
+  @keyframes shadow {
+    0%, 100% {
+      transform: scale(1, 1);
+    }
+    50% {
+      transform: scale(1.2, 1);
+    }
   }
 }

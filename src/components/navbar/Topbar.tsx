@@ -1,8 +1,8 @@
-import { fetchContactUsIcons } from "@/lib/action/root_action";
 import Image from "next/image";
 import Link from "next/link";
 import { BsLinkedin, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
+import Switcher from "../review/Switcher";
 
 export default function TopBar() {
   const icons = [
@@ -26,15 +26,16 @@ export default function TopBar() {
 
   return (
     <div className=" bg-[#0b2426] opacity-100 z-50 text-white py-4  md:block relative">
-      <div className="container mx-auto px-4 w-full flex items-center justify-start">
+      <div className="container mx-auto px-4 w-full flex items-center justify-between ">
         {/* Contact Info */}
         <div className="flex  space-x-6 text-sm  w-fit">
           <div className="flex items-center space-x-2 text-primary-color2">
             <Image src={"/icons/mail.svg"} width={16} height={16} alt="email" />
-            <span className="text-xs md:text-base">
+            <span className="text-xs max-w-24 truncate md:text-base">
               info@yorkbritishacademy.uk
             </span>
           </div>
+
           <div className="flex items-center space-x-2 text-primary-color2 ">
             <Image
               src={"/icons/phone.svg"}
@@ -42,7 +43,7 @@ export default function TopBar() {
               height={16}
               alt="email"
             />
-            <span className="text-xs  md:text-base w-28 md:w-fit truncate">
+            <span className="text-xs max-w-24  md:text-base w-28 md:w-fit truncate">
               +442087209292 / +447520619292
             </span>
           </div>
@@ -66,6 +67,7 @@ export default function TopBar() {
             </ul>
           </div>
         </div>
+        <Switcher />
       </div>
     </div>
   );

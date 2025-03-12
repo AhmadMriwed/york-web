@@ -7,9 +7,11 @@ import {
   CarouselItem,
   CarouselNavigation,
 } from "@/components/ui/carousel";
+import { useLocale } from "next-intl";
+import { cn } from "@/lib/utils";
 type Props = {};
 
-const NewsCard = ({ item }: { item: Upcoming_Course }) => (
+const NewsCard = ({ item, lang }: { item: Upcoming_Course; lang: string }) => (
   <div className="w-full md:w-[366px] min-h-[405px] p-[20px] bg-[var(--home-color)] text-center rounded-xl hover:shadow-2xl duration-300 transition-all cursor-default">
     <div className="relative h-[215px] rounded-lg  w-full text-center">
       <Image
@@ -19,13 +21,22 @@ const NewsCard = ({ item }: { item: Upcoming_Course }) => (
         className="rounded-lg"
       />
       <span className="absolute w-full h-full top-0 left-0 bg-gradient-to-b rounded-lg from-[#01989f] to-[var(--home-color)] opacity-80 rounded-b-[10px]" />
-      <h3 className="text-white absolute bottom-0 p-3 text-[18px] mx-auto text-center font-bold leading-[1.1] capitalize">
+      <h3
+        className={cn(
+          `text-white absolute bottom-0  w-full p-3 text-[18px] mx-auto text-center font-bold leading-[1.1] capitalize `
+          // lang === "ar" ? "text-right" : "text-left"
+        )}
+      >
         {item.title}
       </h3>
     </div>
-    <p className="text-sm py-5 text-[#777] text-center line-clamp-5  md:line-clamp-9 ">
-      {item.description}
-    </p>
+    <div
+      dangerouslySetInnerHTML={{ __html: item.description || "" }}
+      className={`mb-4 text-white w-full ${
+        lang === "ar" ? "text-right" : "text-left"
+      }`}
+      dir={lang === "ar" ? "rtl" : "ltr"}
+    />
   </div>
 );
 
@@ -34,6 +45,7 @@ const UpcomingCourses = ({
 }: {
   upComingCourses: Upcoming_Course[];
 }) => {
+  const lang = useLocale();
   return (
     <div className="relative mt-[150px] mb-48 p-4    ">
       <div className="absolute z-[-1] xl:h-[72%] w-full bg-[#023141] shadow-[0_3.26px_3.26px_rgba(0,0,0,0.25)] top-[50%] translate-y-[-50%]" />
@@ -44,7 +56,7 @@ const UpcomingCourses = ({
             {upComingCourses.map((item: Upcoming_Course) => (
               <CarouselItem className=" md:basis-1/3 pl-4   " key={item.title}>
                 <div className="flex aspect-square relative z-50   justify-center">
-                  <NewsCard key={item.id} item={item} />
+                  <NewsCard key={item.id} item={item} lang={lang} />
                 </div>
               </CarouselItem>
             ))}

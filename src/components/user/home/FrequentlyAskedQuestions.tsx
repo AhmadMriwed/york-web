@@ -21,7 +21,7 @@ const FrequentlyAskedQuestions = ({
           value={`item-${index}`}
           className="col-span-1 text-start"
         >
-          <AccordionTrigger className="text-base">
+          <AccordionTrigger className="text-base  ">
             <span className="text-xl font-bold">
               {item.question.charAt(0)}:
             </span>{" "}

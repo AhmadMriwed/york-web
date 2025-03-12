@@ -7,9 +7,10 @@ import { useState } from "react";
 import { Form } from "@/components/ui/form";
 import { UserFormValidation } from "@/lib/validation";
 import SubmitButton from "../buttons/SubmitButton";
-import CustomFormField, { FormFieldType } from "../CustomFormField";
+import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import { toast } from "sonner";
 import { storePlanRegister } from "@/lib/action/root_action";
+import { useLocale, useTranslations } from "next-intl";
 
 const PlanRegisterForm = ({
   training_plan_id,
@@ -19,7 +20,8 @@ const PlanRegisterForm = ({
   onRegistrationSuccess: () => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-
+  const t = useTranslations("TrainingPlan");
+  const locale = useLocale();
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
@@ -65,31 +67,34 @@ const PlanRegisterForm = ({
           fieldType={FormFieldType.INPUT}
           control={form.control}
           name="name"
-          label="Full name"
-          placeholder="John Doe"
+          label={t("Form.full_name_label")}
+          placeholder={t("Form.full_name_placeholder")}
           iconSrc="/icons/user.svg"
           iconAlt="user"
           required={true}
+          lang={locale}
         />
         <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
           name="email"
-          label="Email"
-          placeholder="John@gmail.com"
+          label={t("Form.email_label")}
+          placeholder={t("Form.email_placeholder")}
           iconSrc="/icons/mail.svg"
           iconAlt="email"
           required={true}
+          lang={locale}
         />
         <CustomFormField
           fieldType={FormFieldType.PHONE_INPUT}
           control={form.control}
           name="phone"
-          label="Phone Number"
+          label={t("Form.phone_lable")}
           placeholder="+963 999 999 999"
           required={true}
+          lang={locale}
         />
-        <SubmitButton isLoading={isLoading}>Register</SubmitButton>
+        <SubmitButton isLoading={isLoading}>{t("register")}</SubmitButton>
       </form>
     </Form>
   );

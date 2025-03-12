@@ -11,6 +11,8 @@ export interface Question {
     description: string; 
     image: string | null; 
   }
+
+  export type DataProps =  Venue[]|Category[]|Question[];
   
   export interface Category { 
     id: number; 
@@ -192,4 +194,22 @@ declare global {
   interface JQuery {
     vectorMap(options: any): JQuery;
   }
+}
+
+export interface FooterDetails{
+  id:number
+  section:string,
+  title: string|null,
+  content: string,
+  type: string,
+}
+
+export interface FooterIcons{
+  id:number
+  type:{
+    id:number;
+    type:string;
+  },
+  url: string,
+
 }

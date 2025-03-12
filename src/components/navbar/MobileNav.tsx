@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
 import Image from "next/image";
-import { ListItem, navItems1, navItems2 } from "./Navbar";
+import { ListItem, NavItem } from "./Navbar";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
-import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
+import { useLocale } from "next-intl";
 
 const MobileNav = ({
   isMobileMenuOpen,
@@ -27,6 +27,33 @@ const MobileNav = ({
   venues: Venue[];
   categories: Category[];
 }) => {
+  const locale = useLocale();
+
+  const navItems1: NavItem[] = [
+    {
+      title: locale === "en" ? "Home" : "الرئيسية",
+      href: "/home",
+    },
+    {
+      title: locale === "en" ? "About Us" : "معلومات عنا",
+      href: "/about-us",
+    },
+  ];
+
+  const navItems2: NavItem[] = [
+    {
+      title: locale === "en" ? "Certificates" : "الشهادات",
+      href: "/certificates",
+    },
+    {
+      title: locale === "en" ? "Training Plan " : "الخطط التدريبية",
+      href: "/training-plan",
+    },
+    {
+      title: locale === "en" ? "Contact Us" : "تواصل معنا",
+      href: "/contact-us",
+    },
+  ];
   return (
     <Collapsible open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
       <CollapsibleTrigger asChild>
@@ -53,9 +80,9 @@ const MobileNav = ({
         {navItems1.map((item) => (
           <Link
             key={item.title}
-            href={item.href}
+            href={`/${locale}/${item.href}`}
             passHref
-            className="hover:no-underline"
+            className={cn("hover:no-underline ", locale === "ar" && "text-end")}
             onClick={() => setMobileMenuOpen(false)}
           >
             <p className="p-3 font-semibold hover:text-primary-color1 text-black transition-all duration-200 text-xs uppercase border-b border-gray-200">
@@ -66,25 +93,27 @@ const MobileNav = ({
 
         <Accordion type="single" collapsible>
           <AccordionSection
-            title="Categories"
+            title={locale == "ar" ? "الفئات" : "Categories"}
             items={categories}
-            basePath="/categories"
+            basePath={`/${locale}/categories`}
             setMobileMenuOpen={setMobileMenuOpen}
+            locale={locale}
           />
           <AccordionSection
-            title="Venues"
+            title={locale == "ar" ? "المدن" : "Venues"}
             items={venues}
-            basePath="/venues"
+            basePath={`/${locale}/venues`}
             setMobileMenuOpen={setMobileMenuOpen}
+            locale={locale}
           />
         </Accordion>
 
         {navItems2.map((item) => (
           <Link
             key={item.title}
-            href={item.href}
+            href={`/${locale}/${item.href}`}
             passHref
-            className="hover:no-underline"
+            className={cn("hover:no-underline ", locale === "ar" && "text-end")}
             onClick={() => setMobileMenuOpen(false)}
           >
             <p className="p-3 font-semibold hover:text-primary-color1 text-black transition-all duration-200 text-xs uppercase border-b border-gray-200">
@@ -105,21 +134,28 @@ const AccordionSection = ({
   items,
   basePath,
   setMobileMenuOpen,
+  locale,
 }: {
   title: string;
   items: Category[] | Venue[];
   basePath: string;
   setMobileMenuOpen: Dispatch<SetStateAction<boolean>>;
+  locale?: string;
 }) => (
   <AccordionItem value={title.toLowerCase()}>
-    <AccordionTrigger className="ml-2">
-      <p className="font-semibold hover:text-primary-color1 transition-all duration-200">
+    <AccordionTrigger
+      className={cn(
+        "hover:no-underline flex  w-full justify-between",
+        locale === "ar" && "flex-row-reverse"
+      )}
+    >
+      <p className="font-semibold hover:text-primary-color1  mx-2 transition-all duration-200">
         {title}
       </p>
     </AccordionTrigger>
     <AccordionContent>
       <ul className="pl-4">
-        {items.map((item, index) => (
+        {items?.map((item, index) => (
           <ListItem
             key={index}
             title={item.title}

@@ -1,17 +1,30 @@
 "use client";
 
 import Search from "@rsuite/icons/Search";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
+import { useLocale, useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 const CertificateSearch = () => {
   const router = useRouter();
+  const pathname = usePathname(); // المسار الحالي
+  const locale = useLocale(); // اللغة الحالية
+  const t = useTranslations("Certificates");
+  const language = useLocale();
 
-  // Initialize formData with the correct structure
+  // حالة لتخزين معلمات البحث
   const [formData, setFormData] = useState<{ certificate_id: string }>({
     certificate_id: "",
   });
+
+  // عند تحميل المكون، قم بقراءة معلمات البحث من الـ URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const certificateId = searchParams.get("certificate_id") || "";
+    setFormData({ certificate_id: certificateId });
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +34,8 @@ const CertificateSearch = () => {
     searchParams.append("certificate_id", formData.certificate_id);
 
     if (searchParams.size > 0) {
-      router.push(
-        `/certificates/certificatesSearch?${searchParams.toString()}`
-      );
+      const newPath = `/${locale}/certificates/certificatesSearch?${searchParams.toString()}`;
+      router.push(newPath);
     }
   };
 
@@ -32,11 +44,14 @@ const CertificateSearch = () => {
       <div className="flex items-center justify-between gap-[20px] flex-wrap w-full">
         <div className="flex gap-2 flex-1">
           <div className="md:basis-[40%] p-1 mx-4 grow flex items-center rounded-lg bg-gray-300 relative">
-            {/* Use a standard input element or import the Input component */}
+            {/* حقل إدخال معلمات البحث */}
             <input
               type="text"
-              placeholder="Enter Certificate ID"
-              className="bg-gray-300 placeholder:text-[11px] md:placeholder:text-sm outline-none ml-4 w-full p-2"
+              placeholder={t("placeholder")}
+              className={cn(
+                "bg-gray-300 placeholder:text-[11px]  md:placeholder:text-sm outline-none ml-4 w-full p-2",
+                language === "ar" ? "text-end" : ""
+              )}
               value={formData.certificate_id}
               onChange={(e) =>
                 setFormData({

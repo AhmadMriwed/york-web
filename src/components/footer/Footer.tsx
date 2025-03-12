@@ -1,26 +1,69 @@
-"use client";
-import { fetchContactUsIcons } from "@/lib/action/root_action";
-import { links } from "@/utils/user/home/homePageEnums";
+import {
+  fetchContactUsIcons,
+  fetchFooterDetails,
+  fetchFooterIcons,
+} from "@/lib/action/root_action";
+import {
+  ContactUs,
+  FooterDetails,
+  FooterIcons,
+} from "@/types/rootTypes/rootTypes";
+
+import { LinkIcon, Map, MapPinHouseIcon, PhoneCall } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
 import { BsLinkedin, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { FaFacebook } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
+import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
+import { cn } from "@/lib/utils";
+import { address } from "@/utils/user/home/homePageEnums";
 
-const Footer = () => {
-  const [icons, setIcons] = useState<any[] | []>();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchContactUsIcons();
-        setIcons(data);
-      } catch (error) {
-        console.error("Failed to fetch contact us data:", error);
-      }
-    };
+const Footer = async () => {
+  let icons: FooterIcons[] = [];
+  let footerData: any[] = [];
 
-    fetchData();
-  }, []);
+  const cookieStore = cookies();
+  const language = cookieStore.get("language")?.value || "en";
+  const t = await getTranslations("Footer");
+
+  try {
+    const data = await fetchFooterDetails(language);
+    footerData = data;
+    const data2 = await fetchFooterIcons(language);
+    icons = data2;
+  } catch (error) {
+    console.error("Error fetching footer data:", error);
+  }
+
+  const email = footerData.find((item) => item.type === "email")?.content;
+  const address = footerData.find((item) => item.type === "address")?.content;
+  const phones = footerData.filter((item) => item.type === "phone");
+  const description = footerData.find(
+    (item) => item.section === "about"
+  )?.content;
+  const copyright = footerData.find(
+    (item) => item.type === "copy_right"
+  )?.content;
+
+  const links: address[] = [
+    {
+      id: 1,
+      title: language == "ar" ? "الرئيسية" : "Home",
+      url: `/${language}/home`,
+    },
+    {
+      id: 2,
+      title: language == "ar" ? "معلومات عنا" : "About Us",
+      url: `/${language}/about-us`,
+    },
+    {
+      id: 3,
+      title: language == "ar" ? "تواصل معنا " : "Contact Us",
+      url: `/${language}/contact-us`,
+    },
+  ];
 
   return (
     <footer className="home-footer-bg px-[30px] md:px-[80px] py-[30px] flex items-center justify-around gap-x-[30px] gap-y-[20px] flex-wrap">
@@ -30,62 +73,120 @@ const Footer = () => {
         {/* Logo and Description */}
         <div className="text-center flex items-center gap-8 flex-col relative md:w-[30%]">
           <Image src={"/logo.png"} alt="Logo" width={240} height={240} />
-          <h1 className="text-white leading-8">
-            The York British Academy is currently pursuing an ambitious vision
-            of transforming the integration of metacognitive and
-            self-questioning strategies into developing thinking skills,
-            retaining the impact of learning and training, and raising the
-            quality level of confidence.
-          </h1>
+          <h1 className="text-white leading-8">{description}</h1>
         </div>
 
         {/* Address */}
         <div className="text-white relative w-full  md:w-[30%]">
-          <h3 className="font-bold text-[24px] uppercase">Address</h3>
+          <h3 className="font-bold text-[24px] text-center uppercase">
+            {t("title")}
+          </h3>
           <div className="mt-[10px]">
-            <p className="text-white">
-              YORK BRITISH ACADEMY is a limited liability company based in the
-              UK.
-            </p>
-            <p className="text-white mt-2">
-              Our mailing address is: 27 Old Gloucester Street, WC1N 3AX,
-              London, United Kingdom
-            </p>
-            <p className="text-white mt-2">
-              Email:{" "}
-              <a
-                href="mailto:info@yorkbritishacademy.uk"
-                className="text-primary-color1 hover:underline"
-              >
-                info@yorkbritishacademy.uk
-              </a>
-            </p>
-            <p className="text-white mt-2">
-              Tel: +442087209292 / +447520619292
-            </p>
-            <p className="text-white mt-2">
-              Website:{" "}
-              <a
-                href="https://www.yorkbritishacademy.uk"
-                className="text-primary-color1 hover:underline"
-              >
-                www.yorkbritishacademy.uk
-              </a>
-            </p>
-            <p className="text-white mt-2">
-              Canada - Ontario | Tel & WhatsApp: +13438000033
-            </p>
-            <p className="text-white mt-2">
-              Netherlands - Amsterdam | Tel: +3197005033557
-            </p>
+            <h1 className="text-white text-center leading-6 mb-6">
+              {t("paragraph")}
+            </h1>
+            <div
+              className={cn(
+                "flex items-center gap-4",
+                language === "ar" && " flex-row-reverse "
+              )}
+            >
+              <MapPinHouseIcon className="text-gray-300" />
+              <div>
+                <p
+                  className={cn(
+                    "-mb-1 text-lg",
+                    language == "ar" && "text-end"
+                  )}
+                >
+                  {t("icons.office")}
+                </p>
+                <p className="text-white mt-2">{address}</p>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                "flex items-center gap-4",
+                language === "ar" && " flex-row-reverse "
+              )}
+            >
+              <MdEmail className="text-gray-300 size-6" />
+              <div>
+                <p
+                  className={cn(
+                    "-mb-1 mt-2 text-lg",
+                    language == "ar" && "text-end"
+                  )}
+                >
+                  {t("icons.email")}{" "}
+                </p>
+                <p className="text-white mt-2">{email}</p>
+              </div>
+            </div>
+
+            <div
+              className={cn(
+                "flex items-center gap-4",
+                language === "ar" && " flex-row-reverse "
+              )}
+            >
+              <PhoneCall className="text-gray-300 size-6" />
+              <div>
+                <p
+                  className={cn(
+                    "-mb-1 mt-2 text-lg",
+                    language == "ar" && "text-end"
+                  )}
+                >
+                  {t("icons.phone")}
+                </p>
+                {phones?.map((phone, index) => (
+                  <p key={index} className="text-white mt-2">
+                    {phone.title}: {phone.content}
+                  </p>
+                ))}
+              </div>
+            </div>
+            <div
+              className={cn(
+                "flex items-center gap-4",
+                language === "ar" && " flex-row-reverse "
+              )}
+            >
+              <LinkIcon className="text-gray-300 size-6" />
+              <div>
+                <p
+                  className={cn(
+                    "-mb-1 mt-4 text-lg",
+                    language == "ar" && "text-end"
+                  )}
+                >
+                  {t("icons.website")}
+                </p>
+                <a
+                  href="https://www.yorkbritishacademy.uk"
+                  className="text-primary-color1 mt-4 text-base hover:underline"
+                >
+                  www.yorkbritishacademy.uk
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Quick Links */}
-        <div className="text-white relative w-full  md:w-[25%] md:mb-40 ">
-          <h3 className="font-bold text-[24px] capitalize">Quick links</h3>
-          <ul className="list-disc mt-[10px] ml-4">
-            {links.map((link) => (
+        <div className="text-white relative w-full md:w-[25%] md:mb-40">
+          <h3 className="font-bold text-[24px] capitalize text-center">
+            {language == "ar" ? ": روابط مباشرة" : "Quick Links : "}
+          </h3>
+          <ul
+            className={`list-disc mt-[10px] ${
+              language === "ar" ? "mr-4" : "ml-4"
+            }`}
+            style={{ direction: language === "ar" ? "rtl" : "ltr" }}
+          >
+            {links?.map((link) => (
               <li
                 key={link.id}
                 className="mt-[3px] cursor-pointer hover:translate-x-1 hover:text-primary-color2 transition-all duration-300"
@@ -124,15 +225,7 @@ const Footer = () => {
 
       {/* copyright */}
       <div className="border-t-gray-50 p-8 w-full">
-        <p className="text-white font-semibold">
-          © Copyright 2025. All Rights Reserved by{" "}
-          <Link
-            href={"#"}
-            className="text-primary-color1 hover:no-underline hover:text-primary-color2"
-          >
-            York British Academy
-          </Link>
-        </p>
+        <p className="text-white font-semibold">{copyright}</p>
       </div>
     </footer>
   );

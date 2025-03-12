@@ -2,9 +2,10 @@ import React from "react";
 
 const Loader = () => {
   return (
-    <main className="h-[60vh] flex items-center justify-center ">
-      <div className="w-10 h-10 border-4 border-t-primary-color1 border-gray-300 rounded-full animate-spin"></div>
+    <main className="h-[80vh] flex items-center justify-center">
+      <div className="loader w-14 h-14 mx-auto relative"></div>
     </main>
   );
 };
+
 export default Loader;

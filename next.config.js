@@ -1,20 +1,32 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
   async redirects() {
     return [
       {
         source: "/",
-        destination: "/home",
+        destination:`/en/home`,
         permanent: true,
       },
     ];
   },
-
   async rewrites() {
     return [
       {
         source: "/api/plan_register",
         destination: `${process.env.NEXT_PUBLIC_BASE_URL}/plan_register`,
+      },
+      {
+        source: "/api/certificates_review",
+        destination: `${process.env.NEXT_PUBLIC_BASE_URL}/certificates-review`,
+      },
+      {
+        source: "/api/contact_us/send-message",
+        destination: `${process.env.NEXT_PUBLIC_BASE_URL}/contact_us/send-message`,
       },
       {
         source: "/api/proxy",
@@ -26,9 +38,7 @@ const nextConfig = {
       },
     ];
   },
-
   reactStrictMode: false,
-
   images: {
     domains: [
       "via.placeholder.com",
@@ -39,7 +49,6 @@ const nextConfig = {
       "picsum.photos",
     ],
   },
-
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
@@ -47,4 +56,7 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+const withNextIntl = createNextIntlPlugin();
+
+// تصدير الإعدادات النهائية
+export default withNextIntl(nextConfig);

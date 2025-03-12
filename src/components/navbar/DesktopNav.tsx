@@ -13,8 +13,9 @@ import {
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { ListItem } from "./Navbar";
-import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
-import { Category, Course, Venue } from "@/types/rootTypes/rootTypes";
+import { Category, Venue } from "@/types/rootTypes/rootTypes";
+import { useLocale } from "next-intl";
+import Cookies from "js-cookie";
 
 /* Dropdown Section for Desktop Menu */
 const DropdownSection = ({
@@ -61,12 +62,12 @@ export default function DesktopNav({
   venues,
 }: DesktopNavProps) {
   const path = usePathname();
-
+  const locale = useLocale();
   return (
     <NavigationMenuList className="space-x-6 hidden md:flex">
       {navItems.map((item) => (
         <NavigationMenuItem key={item.title}>
-          <Link href={item.href} legacyBehavior>
+          <Link href={`/${locale}/${item.href}`} legacyBehavior>
             <NavigationMenuLink
               className={cn(
                 `text-white hover:no-underline cursor-pointer ${
@@ -84,13 +85,17 @@ export default function DesktopNav({
       {/* Dropdowns for Categories and Venues */}
       {categories.length > 0 && (
         <DropdownSection
-          title="Category"
+          title={locale === "en" ? "Categories" : "الفئات"}
           items={categories}
-          basePath="/categories"
+          basePath={`/${locale}/categories`}
         />
       )}
       {venues.length > 0 && (
-        <DropdownSection title="Venues" items={venues} basePath="/venues" />
+        <DropdownSection
+          title={locale === "en" ? "Venues" : "المدن"}
+          items={venues}
+          basePath={`/${locale}/venues`}
+        />
       )}
     </NavigationMenuList>
   );

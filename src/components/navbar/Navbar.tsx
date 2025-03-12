@@ -11,31 +11,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Command, CommandInput } from "@/components/ui/command";
+import { Command } from "@/components/ui/command";
 import TopBar from "./Topbar";
 import { usePathname, useRouter } from "next/navigation";
 import MobileNav from "./MobileNav";
 import DesktopNav from "./DesktopNav";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
+
 import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
 
-interface NavItem {
+import { useLocale } from "next-intl";
+export interface NavItem {
   title: string;
   href: string;
 }
-
-export const navItems1: NavItem[] = [
-  { title: "Home", href: "/home" },
-  { title: "About Us", href: "/about-us" },
-];
-
-export const navItems2: NavItem[] = [
-  { title: "Certificates", href: "/certificates" },
-  { title: "Training Plan", href: "/training-plan" },
-  { title: "Contact Us", href: "/contact-us" },
-];
-
-const navItems = [...navItems1, ...navItems2];
 
 export function Navbar(): JSX.Element {
   const [isMobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -43,6 +32,34 @@ export function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [venues, setVenues] = React.useState<Venue[]>([]);
+  const locale = useLocale();
+
+  const navItems1: NavItem[] = [
+    {
+      title: locale === "en" ? "Home" : "الرئيسية",
+      href: "/home",
+    },
+    {
+      title: locale === "en" ? "About Us" : "معلومات عنا",
+      href: "/about-us",
+    },
+  ];
+
+  const navItems2: NavItem[] = [
+    {
+      title: locale === "en" ? "Certificates" : "الشهادات",
+      href: "/certificates",
+    },
+    {
+      title: locale === "en" ? "Training Plan " : "الخطط التدريبية",
+      href: "/training-plan",
+    },
+    {
+      title: locale === "en" ? "Contact Us" : "تواصل معنا",
+      href: "/contact-us",
+    },
+  ];
+  const navItems = [...navItems1, ...navItems2];
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -56,13 +73,14 @@ export function Navbar(): JSX.Element {
   }, []);
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      const categories = await fetchCategories();
+    const fetch = async () => {
+      const categories = await fetchCategories(locale);
+      console.log(categories);
       setCategories(categories);
-      const venues = await fetchVenues();
+      const venues = await fetchVenues(locale);
       setVenues(venues);
     };
-    fetchData();
+    fetch();
   }, []);
 
   return (
@@ -70,7 +88,7 @@ export function Navbar(): JSX.Element {
       <TopBar />
       <NavigationMenu
         className={cn(
-          "px-16 fixed max-h-24  min-w-full z-[1000] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
+          "px-16 fixed max-h-24  min-w-full z-[500] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
           {
             "bg-[#13181e] bg-opacity-90 top-0": isScrolled,
           }
@@ -109,6 +127,7 @@ export function Navbar(): JSX.Element {
     </div>
   );
 }
+
 export const ListItem = React.forwardRef<
   HTMLAnchorElement,
   {
@@ -118,15 +137,17 @@ export const ListItem = React.forwardRef<
   }
 >(({ href, title, onClick }, ref) => {
   const path = usePathname();
+  const locale = useLocale();
   return (
     <li>
       <Link
         ref={ref}
         href={href}
         className={cn(
-          "block text-sm text-black hover:text-primary-color1  hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-2 capitalize font-medium",
+          "block text-sm text-black  relative hover:bg-gradient-to-b from-[#246c84] to-[#02B5A0] hover:text-white navEffect hover:bg-blue-200 hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-3 capitalize font-medium navEffect ",
           {
-            "text-primary-color1 font-semibold ml-2": path.startsWith(href),
+            " font-semibold ml-2 bg-gradient-to-b text-white ": path === href,
+            "text-end": locale === "ar",
           }
         )}
         onClick={onClick}

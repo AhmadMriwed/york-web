@@ -22,10 +22,13 @@ import {
 } from "@/types/rootTypes/rootTypes";
 import { fetchAllCourses, FilterCourses } from "@/lib/action/root_action";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@heroui/react";
 import { Search } from "lucide-react";
-
+import { useLocale, useTranslations } from "next-intl";
 const HomeCourseAds = () => {
   const router = useRouter();
+  const t = useTranslations("Home");
+  const locale = useLocale();
 
   const [venues, setVenues] = useState<Venue[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -55,12 +58,10 @@ const HomeCourseAds = () => {
         setLanguages(filterData.languages || []);
         setSeasons(filterData.season_models || []);
         setYears(filterData.year_models || []);
-
         const courses = await fetchAllCourses();
         setCourses(courses);
       } catch (error) {
         console.error("Error fetching filter data:", error);
-        toast.error("Failed to fetch filter data.");
       }
     };
 
@@ -108,8 +109,6 @@ const HomeCourseAds = () => {
       filters.season_models = formData.season_models;
     }
 
-    console.log("Filters applied:", filters);
-
     const searchParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (Array.isArray(value)) {
@@ -122,7 +121,7 @@ const HomeCourseAds = () => {
     });
 
     if (searchParams.size > 0) {
-      router.push(`/courses/SearchResult?${searchParams.toString()}`);
+      router.push(`/${locale}/courses/SearchResult?${searchParams.toString()}`);
     }
   };
   type Dropdown = {
@@ -135,7 +134,7 @@ const HomeCourseAds = () => {
   const dropdowns: Dropdown[] = [
     {
       id: 3,
-      title: "Venues",
+      title: locale === "en" ? "Venues" : "المدن",
       fieldName: "venue_ids",
       items: venues?.map((venue) => ({
         key: venue.id,
@@ -145,7 +144,8 @@ const HomeCourseAds = () => {
     },
     {
       id: 4,
-      title: "Season",
+      title: locale === "en" ? "Season" : "الفصول",
+
       fieldName: "season_models",
       items: seasons?.map((season) => ({
         key: season.origin,
@@ -155,7 +155,7 @@ const HomeCourseAds = () => {
     },
     {
       id: 5,
-      title: "Year",
+      title: locale === "en" ? "Year" : "السنة",
       fieldName: "year_models",
       items: years?.map((year) => ({
         key: year.origin,
@@ -165,7 +165,7 @@ const HomeCourseAds = () => {
     },
     {
       id: 1,
-      title: "Language",
+      title: locale === "en" ? "Language" : "اللغة",
       fieldName: "languages",
       items: languages?.map((language) => ({
         key: language.code,
@@ -175,7 +175,7 @@ const HomeCourseAds = () => {
     },
     {
       id: 2,
-      title: "Category",
+      title: locale === "en" ? "Category" : "الفئة",
       fieldName: "category_ids",
       items: categories?.map((category) => ({
         key: category.id,
@@ -184,23 +184,20 @@ const HomeCourseAds = () => {
       })),
     },
   ];
-
   return (
     <div className="bg-gradient-to-b from-[#01475F] to-[#02B5A0] min-w-fit w-[75%] mx-[10%] translate-y-[-30px] lg:translate-y-[-65%] pt-[10px] pb-[20px] md:pb-[50px] px-[20px] lg:px-[35px] rounded-[10px] -mt-36 md:-mt-0">
       <div className="text-center text-white">
         <h2 className="text-[28px] font-semibold leading-[1.2] mb-[20px]">
-          Learn new skills on your time
+          {t("upComingCoursesAds.title")}
         </h2>
-        <p className="mb-4">{`Search Over  ${
-          courses.length || "2420"
-        }   Online Courses`}</p>
+        <p className="mb-4">{t("upComingCoursesAds.paragraph")}</p>
       </div>
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="flex items-center flex-col flex-wrap  justify-between gap-[20px]  w-full">
-          <div className="flex gap-2 w-full  md:w-2/4">
+          <div className="flex gap-2 w-full  md:w-3/4">
             <div className="  flex items-center rounded-lg w-full   bg-white relative">
               <Input
-                placeholder="Search by Course Title or Code"
+                placeholder={t("upComingCoursesAds.placeholder")}
                 className="bg-white placeholder:text-[12px] md:placeholder:text-sm placeholder:max-w-[52px] md:placeholder:max-w-full truncate outline-none ml-4"
                 value={formData.title}
                 onChange={(e) =>
@@ -216,11 +213,12 @@ const HomeCourseAds = () => {
               type="submit"
               disabled={isLoading}
             >
-              <FaFilter className="size-2" /> apply
+              <FaFilter className="size-2" />{" "}
+              {t("upComingCoursesAds.buttonSearch")}
             </Button>
           </div>
 
-          <div className="grow md:grow-0  flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div className="grow md:grow-0  flex items-center gap-3 md:gap-6 flex-wrap sm:flex-nowrap">
             {dropdowns.map((dropdown) => (
               <DropdownMenu key={dropdown.id}>
                 <DropdownMenuTrigger asChild>
@@ -235,38 +233,45 @@ const HomeCourseAds = () => {
                   align="end"
                   className="w-[200px] max-h-[250px] overflow-y-auto"
                 >
-                  {dropdown.items.map((item) => (
-                    <DropdownMenuItem
-                      key={item.key}
-                      className="cursor-pointer"
-                      onSelect={(e) => e.preventDefault()}
-                    >
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={
-                            Array.isArray(formData[dropdown.fieldName])
-                              ? //@ts-ignore
-                                formData[dropdown.fieldName].includes(
-                                  //@ts-ignore
-                                  item.value
-                                )
-                              : false
-                          }
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleCheckboxChange(
-                              dropdown.fieldName,
-                              item.value,
-                              e.target.checked
-                            );
-                          }}
-                          className="mr-2"
-                        />
-                        {item.title}
-                      </label>
-                    </DropdownMenuItem>
-                  ))}
+                  {!dropdowns ? (
+                    <div className="text-center">
+                      <Spinner className="text-blue-600" />
+                      <p className="animate-pulse mt-3">loading...</p>
+                    </div>
+                  ) : (
+                    dropdown.items.map((item) => (
+                      <DropdownMenuItem
+                        key={item.key}
+                        className="cursor-pointer"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={
+                              Array.isArray(formData[dropdown.fieldName])
+                                ? //@ts-ignore
+                                  formData[dropdown.fieldName].includes(
+                                    //@ts-ignore
+                                    item.value
+                                  )
+                                : false
+                            }
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleCheckboxChange(
+                                dropdown.fieldName,
+                                item.value,
+                                e.target.checked
+                              );
+                            }}
+                            className="mr-2"
+                          />
+                          {item.title}
+                        </label>
+                      </DropdownMenuItem>
+                    ))
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             ))}

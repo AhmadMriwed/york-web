@@ -1,0 +1,150 @@
+{
+  "Home": {
+    "hell":"lvpfh",
+    "upComingCoursesAds":{
+      "title":"تعلم مهارات جديدة في وقت فراغك",
+      "paragraph":"ابحث عن أكثر من 2420 دورة تدريبية عبر الإنترنت",
+      "placeholder":"ابحث حسب عنوان الدورة أو الرمز",
+      "buttonSearch":"بحث"
+    },
+    "section":{
+      "title":"اخبار يورك",
+      "desc":"تابع أحدث منشوراتنا"
+    },
+    "titles": {
+      "categories": "الفئات",
+      "venues": "المدن",
+      "frequently qestions": "الأسئلة الشائعة",
+      "regional offices": "المكاتب الإقليمية",
+      "accredited agencies": "الوكالات المعتمدة"
+}
+  } ,
+  
+  "AboutUs":{
+    "title":"معلومات عنا",
+    "subTitle":"من نحن"
+  },
+  
+  "Certificates":{
+    "title":"البحث عن شهادات معتمدة",
+    "placeholder":"ادخل معرف الشهادة",
+    "card": {
+       "title": "تفاصيل الشهادة",
+        "valid from": "صالح من",
+        "valid to": "صالح حتى",
+        "desc": "متوافق مع المعايير الدولية الصادرة من أكاديمية يورك البريطانية للاعتماد. شهادتك معتمدة تحت الرقم الدولي للشهادة."
+},
+"notFound":{
+  "title":"الشهادة غير موجودة. قد تكون صادرة عن جهة غير رسمية. يرجى استشارة الأكاديمية للتحقق من صحة الشهادة",
+  "subTitle":"الشهادة غير موجودة"
+
+},
+"Form":{
+  "firstname":"الاسم الاول ",
+  "lastname":"الاسم الاخير ",
+  "email":"الايميل",
+  "code":"رمز الشهادة",
+  "message":"اكتب رسالة هنا ",
+  "send":"ارسال"
+
+}
+  },
+
+  "TrainingPlan":{
+    "register":"تسجيل",
+    "Form":{
+      "full_name_label":"الاسم الكامل",
+      "full_name_placeholder":"John Doe",
+      "email_label":"الايميل",
+      "email_placeholder":"John@gmail.com",
+      "phone_lable":"رقم الهاتف"
+    },
+      "Dialog":{
+      "question":"كيف تود مشاهدة الملف؟",
+      "book_button":"كتاب",
+      "browser_button":"متصفح"
+    },
+    "file":{
+      "title":"التسجيل تم بنجاح يمكنك الان مشاهدة او تحميل الملف",
+      "download_file":"تحميل الملف",
+      "view_file":"مشاهدة الملف"
+    }
+
+},
+"ContactUs": {
+  "title": "تواصل معنا",
+  "location": "موقعنا"
+} ,
+"Courses":{
+  "courseCard":{
+    "code":"الكود",
+    "venue":"المدينة",
+    "category":"الفئة",
+    "startDate":"تاريخ البدأ",
+    "endDate":"ناريخ الانتهاء",
+    "language":"اللغة",
+    "fee":"السعر",
+    "view":"المشاهدات"
+  },
+
+  "registeration": {
+    "title":"التسجيل على الكورس ",
+
+    "personalInfo": {
+      "title": ": المعلومات الشخصية",
+      "first_name": ": الاسم الأول",
+      "last_name": ": الاسم الأخير",
+      "phone_number": ": رقم الهاتف",
+      "country": ": الدولة",
+      "city": ": المدينة",
+      "company_name": ": اسم الشركة",
+      "email": ": البريد الإلكتروني",
+      "job_title": ": المسمى الوظيفي",
+      "entity_type": ": نوع الكيان"
+    },
+    "CourseInfo": {
+      "question": "هل ترغب في تخصيص الدورة؟",
+      "main_title": ": معلومات الدورة ",
+      "title": " : العنوان",
+      "start_date": ": تاريخ البدء",
+      "end_date": ": تاريخ الانتهاء",
+      "hours": ": الساعات",
+      "language": ": اللغة",
+      "venue": ": المكان",
+      "category": ": الفئة",
+      "fee_range": ": نطاق الرسوم",
+      "description": ": الوصف",
+      "code":"  :الكود"
+
+    },
+    "TrainerInfo": {
+      "question": "هل لديك مدرب محدد؟",
+      "title": " : معلومات المدرب ",
+      "trainer_name": ": اسم المدرب",
+      "trainer_email": ": بريد المدرب الإلكتروني",
+      "functional": ": التخصص الوظيفي",
+      "phone_number": ": رقم الهاتف"
+    },
+    "additionalInfo": {
+      "title": ": معلومات إضافية ",
+      "number_of_people": ": عدد الأشخاص"
+    },
+    "discount_code": {
+      "code": ": رمز الخصم"
+    }
+  }
+},
+  "Footer": {
+    "title": "العنوان",
+    "paragraph": "أكاديمية يورك البريطانية هي شركة ذات مسؤولية محدودة مقرها في المملكة المتحدة.",
+    "icons": {
+      "office": ": المكتب",
+      "email": ": البريد الإلكتروني",
+      "phone": ": الهاتف",
+      "website": ": الموقع الإلكتروني"
+    }
+  }
+
+
+
+}

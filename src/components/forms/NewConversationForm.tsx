@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import CustomFormField, { FormFieldType } from "../CustomFormField";
+import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import SubmitButton from "../buttons/SubmitButton";
 import Image from "next/image";
 

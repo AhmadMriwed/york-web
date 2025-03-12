@@ -81,10 +81,10 @@ export const ContactUsFormValidation = z.object({
     .max(50, "last name must be at most 50 characters."),
   email: z.string().email("Invalid email address."),
   phone: z
-    .string()
-    .refine((phone) => /^\+\d{10,15}$/.test(phone), {
-      message: "Invalid phone number. Format: +1234567890",
-    }),
+  .string()
+  .regex(/^\d{10,15}$/, {
+    message: "Invalid phone number format. Must be 10-15 digits.",
+  }),
     message:z.string().min(2,'message must be at least 2 characters.')
 });
 
@@ -102,6 +102,43 @@ export const CertificateFormValidation = z.object({
  
     message:z.string().min(2,'message must be at least 2 characters.'),
     certificate_code:z.string().min(1,'cretificate code is required.')
+});
+
+// Define the RegisterationFormValidation for the form
+export const RegisterationFormValidation = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(255, "Title must be less than 255 characters"),
+  description: z.string().nullable().optional(),
+  fee: z.string().min(1, "Fee is required"),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  houres: z.number().min(1, "Hours are required"),
+  language: z.string().min(1, "Language is required"),
+  code: z.string().optional(),
+  category_id: z.number().min(1, "Category ID is required").int(),
+  venue_id: z.number().min(1, "Venue ID is required").int(),
+  name: z.string().nullable().optional(),
+  email: z.string().email("Invalid email").nullable().optional(),
+  url: z.string().nullable().optional(),
+  job_title: z.string().nullable().optional(),
+  cv_trainer: z.instanceof(File).optional(),
+  selection_training: z
+    .object({
+      name: z.string().optional(),
+      email: z.string().email("Invalid email").nullable().optional(),
+      functional_specialization: z.string().optional(),
+      phone_number: z.string().optional(),
+      trainer_id: z.number().nullable().optional(),
+    })
+    .nullable()
+    .optional(),
+  num_people: z.number().min(1, "Number of people is required").int(),
+  entity_type: z.string().min(1, "Entity type is required"),
+  user_id: z.number().nullable().optional(),
+  course_ad_id: z.number().nullable().optional(),
+  discount_code: z.string().optional(),
 });
 
 

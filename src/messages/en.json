@@ -1,0 +1,146 @@
+{
+    "Home": {
+      "hell":"hello",
+      "upComingCoursesAds":{
+        "title":"Learn new skills on your time",
+        "paragraph":"Search Over 2420 Online Courses",
+        "placeholder":"Search by Course Title or Code",
+      "buttonSearch":"apply"
+      },
+      "section":{
+      "title":"York News",
+      "desc":"Keep up with our newest feeds"
+    },
+    "titles":{
+      "categories":"categories",
+      "venues":"Venues",
+      "frequently qestions":"Frequently Asked Questions",
+      "regional offices":"Regional Offices",
+      "accredited agencies":"Accredited Agencies"
+    }
+    },
+
+
+    "AboutUs":{
+      "title":"About Us",
+      "subTitle":"Who we are"
+    },
+
+    "Certificates":{
+      "title":"SEARCH FOR CERTIFICATES ACCREDITED",
+      "placeholder":"Enter Certificate ID",
+      "card":{
+        "title":"Certificate Details",
+        "valid from":"Valid From",
+        "valid to":"Valid To",
+        "desc":"Compatible with the international standards issued by York British Academy for accreditation. Your certificate is authenticated under the international certificate number."
+      },
+      "notFound":{
+        "title":"The certificate is not found. It may have been issued by a non-official entity. Please consult the academy to verify the certificate.",
+        "subTitle":"No cretificate found"
+      },
+ 
+    "Form":{
+      "firstname":"First Name",
+      "lastname":"Last Name",
+      "email":"Email",
+      "code":"Cretificate code",
+      "message":"Your message here ",
+      "send":"Send"
+      
+      }
+    },
+
+    "TrainingPlan":{
+      "register":"register",
+      "Form":{
+        "full_name_label":"Full name",
+        "full_name_placeholder":"John Doe",
+        "email_label":"Email",
+        "email_placeholder":"John@gmail.com",
+      "phone_lable":"Phone Number"
+      },
+      "Dialog":{
+        "question":"How would you like to view the PDF?",
+        "book_button":"Flibbook",
+        "browser_button":"Browser"
+      },
+      "file":{
+        "title":"Registration successful! Now,you can download or view the training plan.",
+        "download_file":" Download File",
+        "view_file":" View File"
+      }
+    },
+
+    
+    "ContactUs":{
+      "title":"Contact Us",
+      "location":"Our Location"
+    },
+    "Courses":{
+      "courseCard":{
+        "code":"Code",
+        "venue":"Venue",
+        "category":"Category",
+        "startDate":"Start Date",
+        "endDate":"End Date",
+        "language":"Language",
+        "fee":"Fee",
+    "view":"Views"
+      },
+      "registeration":{
+        "title":"Course Registeration",
+        "personalInfo":{
+          "title":"Personal Information :",
+          "first_name":"First Name :",
+          "last_name":"Last Name :",
+          "phone_number":"Phone Number :",
+          "country":"Country :",
+          "city":"City :",
+          "company_name":"Company Name : ",
+          "email":"email :",
+          "job_title":"job_title :",
+          "entity_type":"Entity Type :"
+        },
+        "CourseInfo":{
+          "question":"Customize your course ?",
+          "main_title":"Course Information :",
+          "title":"Title : ",
+          "start_date":"Start Date : ",
+          "end_date":"End Date :",
+          "hours":"Hours :",
+          "language":"Language :",
+          "venue":"Venue :",
+          "category":"Category : ",
+          "fee_range":"Fee Range : ",
+          "description":"Description : ",
+          "code":"code"
+        },
+        "TrainerInfo":{
+          "question":"Do you have a specific trainer ?",
+          "title":"Trainer Information : ",
+          "trainer_name":"Trainer Name : ",
+          "trainer_email":"Trainer Email :",
+          "functional":"Functional Specialization :",
+          "phone_number":"Phone Number"
+        },
+        "additionalInfo":{
+          "title":"Additional Information : ",
+          "number_of_people":"Number Of People : "
+        },
+        "discount_code":{
+          "code":"Diescount Code : "
+        }
+      }
+    },
+    "Footer":{
+      "title":"ADDRESS",
+      "paragraph":"YORK BRITISH ACADEMY is a limited liability company based in the UK.",
+      "icons":{
+        "office":"Office : ",
+        "email":"Email : ",
+        "phone":"Phone : ",
+        "website":"Webiste : "
+      }
+    }
+  }

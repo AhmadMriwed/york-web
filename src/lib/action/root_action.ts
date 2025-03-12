@@ -1,12 +1,8 @@
-  import { Venue } from "@/types/adminTypes/courses/coursesTypes";
-import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, PlanRegisterData, Question, RegistrationData, SearchFilters, Section, Slider, Training_Plan, Upcoming_Course } from "@/types/rootTypes/rootTypes";
+import { Venue } from "@/types/adminTypes/courses/coursesTypes";
+import { AboutUs, Category, Certificate, Client, ContactUs, Course, FilterCoursesResponse, FooterDetails, FooterIcons, PlanRegisterData, Question, RegistrationData, SearchFilters, Section, Slider, Training_Plan, Upcoming_Course } from "@/types/rootTypes/rootTypes";
 import axios from "axios";
 import { get, post } from "./axios";
-
-
-
-
-
+import Cookies from "js-cookie"; 
 export const fetchQuestions = async (): Promise<Question[]> => {
   try {
     return await get<Question[]>("/frequently_questions");
@@ -17,17 +13,26 @@ export const fetchQuestions = async (): Promise<Question[]> => {
 };
 ////////////////////////////////////
 
-export const fetchVenues = async (): Promise<
-  Venue[]
-> => {
+export const fetchVenues = async (language:string): Promise<Venue[]> => {
   try {
-    return await get<Venue[]>('/venue');
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/venue`,
+      {
+        headers: {
+          'Accept-Language': language, 
+        },
+      }
+    );
+    return response.data.data; 
+
   } catch (error: any) {
     console.error("Error fetching veunes:", error.message);
-    throw new Error("Failed to fetch venues");
+
+
+    throw new Error(error.response?.data?.message );
   }
 };
-
 
 export const getVenuesById = async (id:number): Promise<
   Venue
@@ -39,16 +44,28 @@ export const getVenuesById = async (id:number): Promise<
     throw new Error("Failed to fetch venue");
   }
 };
+
 ///////////////////////////////////
 
-export const fetchCategories = async (): Promise<
-  Category[]
-> => {
+
+export const fetchCategories = async (language:string): Promise<Category[]> => {
+  
   try {
-    return await get<Category[]>('/category');
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/category`,
+      {
+        headers: {
+          'Accept-Language':language, 
+        },
+      }
+    );
+
+    return response.data.data; 
   } catch (error: any) {
-    console.error("Error fetching category:", error.message);
-    throw new Error("Failed to fetch cateogry");
+    console.error("Error fetching categories:", error.message);
+
+    throw new Error(error.response?.data?.message );
   }
 };
 
@@ -130,12 +147,13 @@ export const fetchUpcomingCourses = async (): Promise<
 
 export const getCoursesByVenueId = async (venueId: number): Promise<Course[]> => {
   try {
+
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/search`, 
       {
         params: { venue_ids: [venueId] },
         headers: {
-          "Content-Type": "application/json", 
+          'Accept-Language': Cookies.get('language'),  
         },
       }
     );
@@ -147,14 +165,22 @@ export const getCoursesByVenueId = async (venueId: number): Promise<Course[]> =>
   }
 };
 
-export const getCoursesById = async (id: number): Promise<Course> => {
+
+export const getCourseById = async (id: number): Promise<Course> => {
   try {
-    return await get<Course>(`/course_ads/${id}`);
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/${id}`, 
+      {
+        headers: {
+          'Accept-Language': Cookies.get('language'), 
+        },
+      }
+    );
+    return response.data.data;
   } catch (error: any) {
-    throw new Error("Failed to fetch courses .");
+    throw new Error("Failed to fetch courses");
   }
 };
-
 
 
 export const getCoursesByCategoryId = async (categoryId: number): Promise<Course[]> => {
@@ -164,7 +190,7 @@ export const getCoursesByCategoryId = async (categoryId: number): Promise<Course
       {
         params: { category_ids: [categoryId] },
         headers: {
-          "Content-Type": "application/json", 
+          'Accept-Language': Cookies.get('language'), 
         },
       }
     );
@@ -178,14 +204,6 @@ export const getCoursesByCategoryId = async (categoryId: number): Promise<Course
 };
 
 
-export const getCourseById = async (id: number): Promise<Course> => {
-  try {
-    return await get<Course>(`/course_ads/${id}`);
-  } catch (error: any) {
-    console.error("Error fetching course:", error.message);
-    throw new Error("Failed to fetch course");
-  }
-};
 
 /////////////// registeration ///////////
 
@@ -221,14 +239,24 @@ export const registration = async (data: RegistrationData): Promise<void> => {
 
 ///////// training plan /////
 
-export const getLatestTrainingPlan = async (): Promise<
-  Training_Plan
-> => {
+export const getLatestTrainingPlan = async (): Promise<Training_Plan> => {
   try {
-    return await get<Training_Plan>('/training_plan/latestPlan');
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/training_plan/latestPlan`,
+      {
+        headers: {
+          'Accept-Language': Cookies.get('language'), 
+        },
+      }
+    );
+
+    return response.data; 
   } catch (error: any) {
     console.error("Error fetching training plan:", error.message);
-    throw new Error("Failed to fetch training plan");
+
+    // رمي خطأ مع رسالة واضحة
+    throw new Error(error.response?.data?.message || "Failed to fetch training plan");
   }
 };
 
@@ -264,8 +292,6 @@ export const storePlanRegister = async (data: PlanRegisterData): Promise<void> =
     }
   };
 
-
-
 //// search courses /////
 
 export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> => {
@@ -277,7 +303,6 @@ export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> =>
       ar: "Arabic",
     };
 
-    console.log(filters);
     Object.entries(filters).forEach(([key, value]) => {
       if (Array.isArray(value) && value.length > 0) {
         if (key === "languages") {
@@ -297,12 +322,14 @@ export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> =>
       `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/search?${query.toString()}`,
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json", 
+          'Accept-Language': Cookies.get('language'), 
         },
       }
     );
 
     if (response.data?.data) {
+      console.log(response.data.data);
       return response.data.data as Course[];
     } else {
       console.warn("Unexpected response structure:", response.data);
@@ -316,10 +343,17 @@ export const SearchCourse = async (filters: SearchFilters): Promise<Course[]> =>
 
 export const FilterCourses = async (): Promise<FilterCoursesResponse> => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/getMap/filterCourse`);
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/course_ads/getMap/filterCourse`,
+      {
+        headers: {
+          'Accept-Language': Cookies.get('language'), 
+        },
+      }
+    );
     const { languages, venues, categories, season_models,year_models} = response.data.data;
 
-    console.log(response.data.data);
+  console.log(languages);
     return {
       languages,
       venues,
@@ -371,8 +405,11 @@ export const contact_us = async (values: {
   message: string;
 }) => {
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/contact_us/send-message`, values);
-
+    const response = await axios.post(`/api/contact_us/send-message`, values, {
+      headers: {
+        'Accept-Language': 'en'
+      },
+    });
     
     return response.data; 
   } catch (error: any) {
@@ -402,10 +439,10 @@ export const SearchCertificate = async (
       {
         headers: {
           "Content-Type": "application/json",
+          'Accept-Language': Cookies.get('language'), 
         },
       }
     );
-    console.log(response.data)
 
     if (response.data?.data) {
       return response.data.data as Certificate;
@@ -419,6 +456,7 @@ export const SearchCertificate = async (
 };
 
 
+
 export const CertificateReview = async (values: {
   first_name: string;
   last_name: string;
@@ -426,18 +464,65 @@ export const CertificateReview = async (values: {
   certificate_code: string;
   message: string;
 }) => {
+  
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/certificates-review`, values);
+    const response = await axios.post(`/api /certificates_review`, values, {
+      headers: {
+        'Accept-Language': Cookies.get("language")
+      },
+    });
 
-    
-    return response.data; 
+    return response.data;
   } catch (error: any) {
     console.error("Submission failed:", error);
 
     const errorMessage =
       error.response?.data?.message || "Failed to submit certificate review. Please try again.";
 
-    throw new Error(errorMessage); 
+    throw new Error(errorMessage);
+  }
+};
+
+//////footer //// 
+
+export const fetchFooterDetails = async (language:string): Promise<FooterDetails[]> => {
+  try {
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/footer-details`,
+      {
+        headers: {
+          'Accept-Language': language, 
+        },
+      }
+    );
+    return response.data.data; 
+
+  } catch (error: any) {
+    console.error("Error fetching veunes:", error.message);
+
+
+    throw new Error(error.response?.data?.message );
+  }
+};
+export const fetchFooterIcons = async (language:string): Promise<FooterIcons[]> => {
+  try {
+
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/contact_us_icons`,
+      {
+        headers: {
+          'Accept-Language': language, 
+        },
+      }
+    );
+    return response.data.data; 
+
+  } catch (error: any) {
+    console.error("Error fetching veunes:", error.message);
+
+
+    throw new Error(error.response?.data?.message );
   }
 };
 

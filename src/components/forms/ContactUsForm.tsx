@@ -7,12 +7,15 @@ import { useState } from "react";
 import { Form } from "@/components/ui/form";
 import { ContactUsFormValidation } from "@/lib/validation";
 import SubmitButton from "../buttons/SubmitButton";
-import CustomFormField, { FormFieldType } from "../CustomFormField";
+import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import { toast } from "sonner";
 import { contact_us } from "@/lib/action/root_action";
+import { useLocale, useTranslations } from "next-intl";
 
 const ContactUsForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const locale = useLocale();
+  const t = useTranslations("Certificates");
 
   const form = useForm<z.infer<typeof ContactUsFormValidation>>({
     resolver: zodResolver(ContactUsFormValidation),
@@ -51,19 +54,21 @@ const ContactUsForm = () => {
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="first_name"
-            placeholder="First Name"
+            placeholder={t("Form.firstname")}
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
+            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="last_name"
-            placeholder="Last Name"
+            placeholder={t("Form.lastname")}
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
+            lang={locale}
           />
         </div>
 
@@ -72,10 +77,11 @@ const ContactUsForm = () => {
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="email"
-            placeholder="Email"
+            placeholder={t("Form.email")}
             iconSrc="/icons/mail.svg"
             iconAlt="email"
             required
+            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
@@ -83,6 +89,7 @@ const ContactUsForm = () => {
             name="phone"
             placeholder="Phone Number"
             required
+            lang={locale}
           />
         </div>
 
@@ -90,11 +97,12 @@ const ContactUsForm = () => {
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}
           name="message"
-          placeholder="Your message here..."
+          placeholder={t("Form.message")}
           required
+          lang={locale}
         />
 
-        <SubmitButton isLoading={isLoading}>Send</SubmitButton>
+        <SubmitButton isLoading={isLoading}>{t("Form.send")}</SubmitButton>
       </form>
     </Form>
   );

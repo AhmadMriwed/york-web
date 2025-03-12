@@ -6,13 +6,16 @@ import { z } from "zod";
 import { useState } from "react";
 import { Form } from "@/components/ui/form";
 import SubmitButton from "../buttons/SubmitButton";
-import CustomFormField, { FormFieldType } from "../CustomFormField";
+import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import { toast } from "sonner";
 import { CertificateFormValidation } from "@/lib/validation";
 import { CertificateReview } from "@/lib/action/root_action";
+import { useLocale, useTranslations } from "next-intl";
 
 const CertificateForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const t = useTranslations("Certificates");
+  const locale = useLocale();
 
   const form = useForm<z.infer<typeof CertificateFormValidation>>({
     resolver: zodResolver(CertificateFormValidation),
@@ -47,28 +50,28 @@ const CertificateForm = () => {
         className="space-y-6 flex-1 text-white"
       >
         <h2 className="text-gray-300 text-center text-base">
-          The certificate is not found. It may have been issued by a
-          non-official entity. Please consult the academy to verify the
-          certificate.
+          {t("notFound.title")}
         </h2>
         <div className="grid md:grid-cols-2 gap-3">
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="first_name"
-            placeholder="First Name"
+            placeholder={t("Form.firstname")}
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
+            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="last_name"
-            placeholder="Last Name"
+            placeholder={t("Form.lastname")}
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
+            lang={locale}
           />
         </div>
         <div className="grid md:grid-cols-2 gap-3">
@@ -76,29 +79,32 @@ const CertificateForm = () => {
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="email"
-            placeholder="Email"
+            placeholder={t("Form.email")}
             iconSrc="/icons/mail.svg"
             iconAlt="email"
             required
+            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
             control={form.control}
             name="certificate_code"
-            placeholder="Certificate Code"
+            placeholder={t("Form.code")}
             iconSrc="/icons/code.svg"
             iconAlt="code"
             required
+            lang={locale}
           />
         </div>
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={form.control}
           name="message"
-          placeholder="Your message here..."
+          placeholder={t("Form.message")}
           required
+          lang={locale}
         />
-        <SubmitButton isLoading={isLoading}>Send</SubmitButton>
+        <SubmitButton isLoading={isLoading}>{t("Form.send")}</SubmitButton>
       </form>
     </Form>
   );
