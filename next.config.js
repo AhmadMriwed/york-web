@@ -1,4 +1,4 @@
-import createNextIntlPlugin from 'next-intl/plugin';
+const createNextIntlPlugin = require('next-intl/plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -59,4 +59,4 @@ const nextConfig = {
 const withNextIntl = createNextIntlPlugin();
 
 // تصدير الإعدادات النهائية
-export default withNextIntl(nextConfig);
+module.exports = withNextIntl(nextConfig);
