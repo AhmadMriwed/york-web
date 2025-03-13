@@ -1,22 +1,9 @@
 import Loader from "@/components/loading/Loader";
+import { SafeDescription } from "@/components/review/SafeDescription";
 import { fetchAboutUs } from "@/lib/action/root_action";
 import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
-import React, { FC, Suspense } from "react";
-
-const Paragraph: FC<{ children: React.ReactNode; lang: string }> = ({
-  children,
-  lang,
-}) => (
-  <p
-    className={`my-4 text-gray-500 ${
-      lang === "ar" ? "text-right" : "text-left"
-    }`}
-    dir={lang === "ar" ? "rtl" : "ltr"}
-  >
-    {children}
-  </p>
-);
+import React, { Suspense } from "react";
 
 const YouTubeEmbed = ({ src }: { src: string }) => {
   return (
@@ -46,7 +33,7 @@ const AboutPage = async () => {
   const lang = cookieStore.get("language")?.value || "en";
 
   return (
-    <main className="h-full relative" dir={lang === "ar" ? "rtl" : "ltr"}>
+    <main className="h-full relative">
       <div className="about-us-bg h-[80vh] flex items-center justify-center">
         <h1 className="custom-title">{t("title")}</h1>
       </div>
@@ -71,25 +58,19 @@ const AboutPage = async () => {
             <h1 className="font-bold text-2xl text-primary-color1 mb-6">
               {t("subTitle")}
             </h1>
-            <div className="h-[300px] w-[300px] md:w-[600px] mx-auto">
+            <div className="h-[300px] w-[300px] md:w-[600px] ">
               <YouTubeEmbed src={aboutUs.url} />
             </div>
           </div>
 
-          <div
-            className={`uppercase md:text-lg mb-4 ${
-              lang === "ar" ? "text-right" : "text-left"
-            }`}
-          >
-            {aboutUs.title}
-          </div>
+          <div className={`uppercase md:text-lg mb-4 `}>{aboutUs.title}</div>
         </div>
 
-        <div className="mt-16">
-          <div
-            dangerouslySetInnerHTML={{ __html: aboutUs.description || "" }}
-            className={`mb-4 ${lang === "ar" ? "text-right" : "text-left"}`}
-            dir={lang === "ar" ? "rtl" : "ltr"}
+        <div className="mt-32">
+          <SafeDescription
+            description={aboutUs.description}
+            lang={lang}
+            color="black"
           />
         </div>
       </section>

@@ -198,12 +198,7 @@ const RegistrationForm = () => {
         >
           {/* Registration Type Selection */}
           <div>
-            <div
-              className={cn(
-                "mt-1  gap-4  mb-6 ml-4",
-                locale === "ar" ? "justify-end" : ""
-              )}
-            >
+            <div className={cn("mt-1  gap-4  mb-6 ml-4")}>
               <ul>
                 <LiComponent>
                   <input
@@ -225,8 +220,7 @@ const RegistrationForm = () => {
             <div className=" p-4 md:p-8 relative w-full rounded-md shadow-lg">
               <p
                 className={cn(
-                  "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full",
-                  locale === "ar" ? "justify-end" : ""
+                  "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
                 )}
               >
                 {t("registeration.CourseInfo.main_title")}
@@ -435,8 +429,7 @@ const RegistrationForm = () => {
           <div className="p-4 md:p-8 relative w-full rounded-md shadow-lg">
             <p
               className={cn(
-                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full",
-                locale === "ar" ? "justify-end" : ""
+                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
               )}
             >
               {t("registeration.personalInfo.title")}
@@ -568,23 +561,13 @@ const RegistrationForm = () => {
               </div>
             </div>
             <div>
-              <div
-                className={cn(
-                  "flex mt-3 gap-2 items-center w-full ",
-                  locale === "ar" && "justify-start flex-row-reverse"
-                )}
-              >
+              <div className={cn("flex mt-3 gap-2 items-center w-full ")}>
                 <input
                   type="checkbox"
                   onChange={() => setAccept(true)}
                   className="mr-2"
                 />
-                <label
-                  className={cn(
-                    "flex items-center",
-                    locale === "ar" && "justify-end flex-row-reverse"
-                  )}
-                >
+                <label className={cn("flex items-center")}>
                   {locale === "ar" ? "انا اقبل " : "I accept "}{" "}
                   <p
                     className="mx-1 text-primary-color1 font-semibold cursor-pointer"
@@ -623,8 +606,7 @@ const RegistrationForm = () => {
             <div className="p-4 md:p-8 relative w-full rounded-md shadow-lg">
               <p
                 className={cn(
-                  "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full",
-                  locale === "ar" ? "justify-end" : ""
+                  "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
                 )}
               >
                 {t("registeration.TrainerInfo.title")}
@@ -686,8 +668,7 @@ const RegistrationForm = () => {
           <div className="p-4 md:p-8 shadow-xl">
             <p
               className={cn(
-                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full",
-                locale === "ar" ? "justify-end" : ""
+                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
               )}
             >
               {t("registeration.additionalInfo.title")}
@@ -719,8 +700,7 @@ const RegistrationForm = () => {
           <div className="p-4 md:p-8 shadow-xl">
             <p
               className={cn(
-                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full",
-                locale === "ar" ? "justify-end" : ""
+                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
               )}
             >
               {t("registeration.discount_code.code")}
@@ -791,8 +771,7 @@ const RegistrationForm = () => {
               <div className="border-2 relative border-dashed bg-gray-100 p-6 border-primary-color1  rounded-lg mb-6 mx-2">
                 <p
                   className={cn(
-                    "absolute px-4 py-1 rounded-full -top-4 bg-primary-color1 text-white",
-                    locale == "ar" ? "right-5" : "left-5"
+                    "absolute px-4 py-1 rounded-full -top-4 bg-primary-color1 text-white"
                   )}
                 >
                   {t("registeration.CourseInfo.main_title")}
@@ -867,7 +846,7 @@ const RegistrationForm = () => {
                   </LiComponent>
                   <LiComponent>
                     <CiMoneyBill className="inline-block mr-2 text-primary-color2" />
-                    {locale === "ar" ? ": السعر الكلي" : "Total: "}
+                    {locale === "ar" ? " السعر الكلي: " : "Total: "}
                     {"  "} <span className="text-gray-600">{totalFee} </span>
                   </LiComponent>
                 </ul>
@@ -891,27 +870,11 @@ const RegistrationForm = () => {
 export default RegistrationForm;
 
 const LiComponent = ({ children }: { children: React.ReactNode }) => {
-  const locale = useLocale();
-  return (
-    <li
-      className={cn(
-        "font-semibold flex gap-2",
-        locale === "ar" ? "flex-row-reverse" : ""
-      )}
-    >
-      {children}
-    </li>
-  );
+  return <li className={cn("font-semibold flex gap-2")}>{children}</li>;
 };
 const LabelComponent = ({ children }: { children: React.ReactNode }) => {
-  const locale = useLocale();
   return (
-    <label
-      className={cn(
-        " flex  gap-1 text-sm font-medium text-gray-700",
-        locale === "ar" ? "justify-start flex-row-reverse" : " justify-start"
-      )}
-    >
+    <label className={cn(" flex  gap-1 text-sm font-medium text-gray-700")}>
       {children}
     </label>
   );

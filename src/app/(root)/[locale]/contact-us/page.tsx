@@ -85,13 +85,13 @@ const Page = async () => {
 
               {/* العنوان */}
               <div className="flex -mt-24 items-center transition-all  duration-200 hover:text-primary-color2 space-x-3">
-                <Phone className="text-gray-300  w-6 h-6" />
+                <Phone className="text-gray-300  w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold">
                   +442087209292 / +447520619292
                 </p>
               </div>
               <div className="flex items-center transition-all duration-200 hover:text-primary-color2">
-                <MapPin className="text-gray-300 w-8  h-8 mr-2" />
+                <MapPin className="text-gray-300 w-8  h-8 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold  md:max-w-[400px]">
                   27 Old Gloucester Street, WC1N 3AX, London, United Kingdom
                 </p>
@@ -99,7 +99,7 @@ const Page = async () => {
 
               {/* البريد الإلكتروني */}
               <div className="flex items-center space-x-3 transition-all duration-200 hover:text-primary-color2">
-                <Mail className="text-gray-300 w-6 h-6" />
+                <Mail className="text-gray-300 w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold ">
                   info@yorkbritishacademy.uk
                 </p>

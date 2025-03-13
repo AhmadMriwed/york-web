@@ -90,47 +90,46 @@
   "registeration": {
     "title":"التسجيل على الكورس ",
 
-    "personalInfo": {
-      "title": ": المعلومات الشخصية",
-      "first_name": ": الاسم الأول",
-      "last_name": ": الاسم الأخير",
-      "phone_number": ": رقم الهاتف",
-      "country": ": الدولة",
-      "city": ": المدينة",
-      "company_name": ": اسم الشركة",
-      "email": ": البريد الإلكتروني",
-      "job_title": ": المسمى الوظيفي",
-      "entity_type": ": نوع الكيان"
-    },
-    "CourseInfo": {
-      "question": "هل ترغب في تخصيص الدورة؟",
-      "main_title": ": معلومات الدورة ",
-      "title": " : العنوان",
-      "start_date": ": تاريخ البدء",
-      "end_date": ": تاريخ الانتهاء",
-      "hours": ": الساعات",
-      "language": ": اللغة",
-      "venue": ": المكان",
-      "category": ": الفئة",
-      "fee_range": ": نطاق الرسوم",
-      "description": ": الوصف",
-      "code":"  :الكود"
-
-    },
-    "TrainerInfo": {
-      "question": "هل لديك مدرب محدد؟",
-      "title": " : معلومات المدرب ",
-      "trainer_name": ": اسم المدرب",
-      "trainer_email": ": بريد المدرب الإلكتروني",
-      "functional": ": التخصص الوظيفي",
-      "phone_number": ": رقم الهاتف"
-    },
+"personalInfo": {
+    "title": "المعلومات الشخصية :",
+    "first_name": "الاسم الأول :",
+    "last_name": "الاسم الأخير :",
+    "phone_number": "رقم الهاتف :",
+    "country": "الدولة :",
+    "city": "المدينة :",
+    "company_name": "اسم الشركة :",
+    "email": "البريد الإلكتروني :",
+    "job_title": "المسمى الوظيفي :",
+    "entity_type": "نوع الكيان :"
+  },
+  "CourseInfo": {
+    "question": "هل ترغب في تخصيص الدورة؟",
+    "main_title": "معلومات الدورة :",
+    "title": "العنوان :",
+    "start_date": "تاريخ البدء :",
+    "end_date": "تاريخ الانتهاء :",
+    "hours": "الساعات :",
+    "language": "اللغة :",
+    "venue": "المكان :",
+    "category": "الفئة :",
+    "fee_range": "نطاق الرسوم :",
+    "description": "الوصف :",
+    "code": "الكود :"
+  },
+  "TrainerInfo": {
+    "question": "هل لديك مدرب محدد؟",
+    "title": "معلومات المدرب :",
+    "trainer_name": "اسم المدرب :",
+    "trainer_email": "بريد المدرب الإلكتروني :",
+    "functional": "التخصص الوظيفي :",
+    "phone_number": "رقم الهاتف :"
+  },
     "additionalInfo": {
-      "title": ": معلومات إضافية ",
-      "number_of_people": ": عدد الأشخاص"
+      "title": " معلومات إضافية :",
+      "number_of_people": " عدد الأشخاص :"
     },
     "discount_code": {
-      "code": ": رمز الخصم"
+      "code": "  رمز الخصم :"
     }
   }
 },
@@ -138,10 +137,10 @@
     "title": "العنوان",
     "paragraph": "أكاديمية يورك البريطانية هي شركة ذات مسؤولية محدودة مقرها في المملكة المتحدة.",
     "icons": {
-      "office": ": المكتب",
-      "email": ": البريد الإلكتروني",
-      "phone": ": الهاتف",
-      "website": ": الموقع الإلكتروني"
+      "office": "  المكتب:",
+      "email": " البريد الإلكتروني:",
+      "phone": " الهاتف :",
+      "website": "الموقع الإلكتروني :"
     }
   }
 

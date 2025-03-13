@@ -4,6 +4,7 @@ import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useLocale } from "next-intl";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -82,18 +83,26 @@ const NavigationMenuLink = NavigationMenuPrimitive.Link;
 const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <div className={cn("absolute right-32 -mt-2   top-full flex justify-center")}>
-    <NavigationMenuPrimitive.Viewport
+>(({ className, ...props }, ref) => {
+  const locale = useLocale();
+  return (
+    <div
       className={cn(
-        "origin-top-center p-12 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
-        className
+        "absolute  -mt-2   top-full flex justify-center",
+        locale == "ar" ? "left-64" : "right-32"
       )}
-      ref={ref}
-      {...props}
-    />
-  </div>
-));
+    >
+      <NavigationMenuPrimitive.Viewport
+        className={cn(
+          "origin-top-center p-12 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    </div>
+  );
+});
 NavigationMenuViewport.displayName =
   NavigationMenuPrimitive.Viewport.displayName;
 

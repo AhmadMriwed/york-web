@@ -194,7 +194,6 @@ export const getCoursesByCategoryId = async (categoryId: number): Promise<Course
         },
       }
     );
-    console.log("API Response Data:", response.data.data);
     return response.data.data;
   } catch (error: any) {
     console.error("Error fetching courses by category ID:", error.message);

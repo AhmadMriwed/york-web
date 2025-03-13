@@ -7,6 +7,7 @@ import { Course } from "@/types/rootTypes/rootTypes";
 import CourseCard from "@/components/cards/CourseCard";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
+import { SafeDescription } from "@/components/review/SafeDescription";
 
 interface Props {
   params: { id: number };
@@ -73,8 +74,7 @@ const Page = ({ params }: Props) => {
               borderLeft: locale === "ar" ? "none" : "5px solid #037f85 ",
             }}
             className={cn(
-              "p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold",
-              locale == "ar" ? "text-end" : ""
+              "p-2 my-8 pl-6 border-l-4 border-primary-color2 text-primary-color1 text-xl md:text-2xl font-semibold"
             )}
           >
             {courses[0]?.category.title}
@@ -83,7 +83,7 @@ const Page = ({ params }: Props) => {
             dangerouslySetInnerHTML={{
               __html: courses[0]?.category.description || "",
             }}
-            className={cn("text-gray-600", locale == "ar" ? "text-end" : "")}
+            className={cn("text-gray-600")}
           />
         </div>
         <div className="w-full my-8">

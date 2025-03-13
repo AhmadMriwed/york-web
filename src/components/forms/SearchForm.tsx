@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   answer: z.string().min(2, {
@@ -37,7 +38,7 @@ export function SearchForm({ placeholder }: { placeholder: string }) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex items-center w-[90%] md:w-[80%] mx-auto relative -top-8 justify-between bg-gray-300 p-2 rounded-lg"
+        className="flex items-center w-[90%]  md:w-[80%] mx-auto relative -top-8 justify-between bg-gray-300 p-2 rounded-lg"
       >
         <FormField
           control={form.control}
@@ -48,7 +49,8 @@ export function SearchForm({ placeholder }: { placeholder: string }) {
                 <Input
                   placeholder={placeholder}
                   {...field}
-                  className="placeholder:text-gray-700 focus:outline-none"
+                  className={cn("placeholder:text-gray-700 focus:outline-none")}
+                  dir="ltr"
                 />
               </FormControl>
               <FormMessage />

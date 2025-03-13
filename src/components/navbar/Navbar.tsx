@@ -17,10 +17,9 @@ import { usePathname, useRouter } from "next/navigation";
 import MobileNav from "./MobileNav";
 import DesktopNav from "./DesktopNav";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
-
 import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
-
 import { useLocale } from "next-intl";
+
 export interface NavItem {
   title: string;
   href: string;
@@ -75,7 +74,6 @@ export function Navbar(): JSX.Element {
   React.useEffect(() => {
     const fetch = async () => {
       const categories = await fetchCategories(locale);
-      console.log(categories);
       setCategories(categories);
       const venues = await fetchVenues(locale);
       setVenues(venues);
@@ -88,9 +86,10 @@ export function Navbar(): JSX.Element {
       <TopBar />
       <NavigationMenu
         className={cn(
-          "px-16 fixed max-h-24  min-w-full z-[500] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
+          "px-16 fixed max-h-24 min-w-full max-w-full z-[500] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
           {
             "bg-[#13181e] bg-opacity-90 top-0": isScrolled,
+            "flex-row-reverse": locale === "ar",
           }
         )}
       >
@@ -104,7 +103,12 @@ export function Navbar(): JSX.Element {
         />
 
         {/* Logo */}
-        <Link href="/" className="ml-[22%] md:m-0">
+        <Link
+          href="/"
+          className={cn("ml-[22%] md:m-0", {
+            "ml-0 mr-[22%]": locale === "ar",
+          })}
+        >
           <Image
             src="/logo.png"
             height={130}
@@ -144,9 +148,9 @@ export const ListItem = React.forwardRef<
         ref={ref}
         href={href}
         className={cn(
-          "block text-sm text-black  relative hover:bg-gradient-to-b from-[#246c84] to-[#02B5A0] hover:text-white navEffect hover:bg-blue-200 hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-3 capitalize font-medium navEffect ",
+          "block text-sm text-black relative hover:bg-gradient-to-b from-[#246c84] to-[#02B5A0] hover:text-white navEffect hover:bg-blue-200 hover:font-semibold no-underline hover:no-underline transition-all duration-200 hover:ml-1 rounded-md p-3 capitalize font-medium navEffect",
           {
-            " font-semibold ml-2 bg-gradient-to-b text-white ": path === href,
+            "font-semibold ml-2 bg-gradient-to-b text-white": path === href,
             "text-end": locale === "ar",
           }
         )}
@@ -169,7 +173,7 @@ export const SearchBar = ({
 }) => {
   const [title, setTitle] = React.useState("");
   const router = useRouter();
-
+  const locale = useLocale();
   const handleSearch = () => {
     if (!title.trim()) return;
     router.push(`/courses/SearchResult?code=${encodeURIComponent(title)}`);
@@ -182,7 +186,7 @@ export const SearchBar = ({
           <Image src="/icons/search.svg" height={24} width={24} alt="search" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[350px] mt-8 p-4  mr-2 rounded-xl bg-gray-600  shadow-lg">
+      <PopoverContent className="w-[320px] ml-8 mt-8 p-4 rounded-xl bg-gray-600 shadow-lg">
         <Command>
           <div className="flex items-center bg-gray-600">
             <Image
@@ -194,7 +198,11 @@ export const SearchBar = ({
               onClick={() => handleSearch()}
             />
             <input
-              placeholder="Search by course code  ..."
+              placeholder={
+                locale == "en"
+                  ? "Search by course code  ..."
+                  : "ابحث باستخدام الكود الخاص بالكورس"
+              }
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="bg-gray-600 outline-none placeholder:text-gray-100 text-white"

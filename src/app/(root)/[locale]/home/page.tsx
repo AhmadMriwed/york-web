@@ -30,7 +30,6 @@ const Home = async () => {
   const locale = getServerLanguage();
   const cookieStore = cookies();
   const language = cookieStore.get("language")?.value || "en";
-  console.log(language);
 
   const t = await getTranslations("Home");
 

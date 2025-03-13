@@ -23,7 +23,6 @@ import { SelectTrigger } from "@radix-ui/react-select";
 import { Textarea } from "../ui/textarea";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
-import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export enum FormFieldType {
@@ -52,7 +51,6 @@ interface CustomProps {
   renderSkeleton?: (field: any) => React.ReactNode;
   required?: boolean;
   defaultCountry?: string | undefined;
-  lang?: string;
 }
 
 const CustomSyriaFlag = () => (
@@ -73,16 +71,14 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
     dateFormat,
     renderSkeleton,
     required,
-    lang,
   } = props;
-  const language = useLocale();
+
   switch (fieldType) {
     case FormFieldType.INPUT:
       return (
         <div
           className={cn(
-            "flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1",
-            lang === "ar" ? " flex-row-reverse" : ""
+            "flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1"
           )}
           tabIndex={0}
         >
@@ -100,8 +96,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               {...field}
               placeholder={placeholder}
               className={cn(
-                " border-0 focus:ring-0 focus:outline-none text-gray-700 ",
-                lang === "ar" ? "text-end" : ""
+                " border-0 focus:ring-0 focus:outline-none text-gray-700 "
               )}
             />
           </FormControl>
@@ -110,10 +105,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
     case FormFieldType.NUMBER:
       return (
         <div
-          className={`flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1 ${
-            language === "ar" ? "rtl" : "ltr"
-          }`}
-          dir={language === "ar" ? "rtl" : "ltr"}
+          className={`flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1 `}
           tabIndex={0}
         >
           {iconSrc && (
@@ -122,7 +114,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               alt={iconAlt || "icon"}
               width={24}
               height={24}
-              className={`w-auto h-auto ${language === "ar" ? "mr-2" : "ml-2"}`}
+              className={`w-auto h-auto `}
             />
           )}
           <FormControl>
@@ -130,9 +122,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               {...field}
               type="number"
               placeholder={placeholder}
-              className={`border-0 focus:ring-0 focus:outline-none text-gray-700 ${
-                language === "ar" ? "text-end" : "text-start"
-              }`}
+              className={`border-0 focus:ring-0 focus:outline-none text-gray-700 `}
             />
           </FormControl>
         </div>
@@ -200,10 +190,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           <Textarea
             placeholder={placeholder}
             {...field}
-            className={cn(
-              "shad-textArea bg-gray-200 text-black",
-              lang === "ar" ? "text-end" : ""
-            )}
+            className={cn("shad-textArea bg-gray-200 text-black")}
             disabled={props.disabled}
           />
         </FormControl>
@@ -229,7 +216,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
 };
 
 const CustomFormField = (props: CustomProps) => {
-  const { control, fieldType, name, label, required, lang } = props;
+  const { control, fieldType, name, label, required } = props;
   const [defaultCountry, setDefaultCountry] = useState<string | undefined>(
     "US"
   );
@@ -259,12 +246,7 @@ const CustomFormField = (props: CustomProps) => {
           {fieldType !== FormFieldType.CHECKBOX &&
             label &&
             (required ? (
-              <p
-                className={cn(
-                  " w-full gap-2 flex ",
-                  lang === "ar" ? "justify-end" : ""
-                )}
-              >
+              <p className={cn(" w-full gap-2 flex ")}>
                 <FormLabel>{label}</FormLabel>
                 <span className="text-red-400 text-2xl -mt-1 ">*</span>
               </p>

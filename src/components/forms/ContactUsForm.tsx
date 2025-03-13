@@ -14,7 +14,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 const ContactUsForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const locale = useLocale();
+
   const t = useTranslations("Certificates");
 
   const form = useForm<z.infer<typeof ContactUsFormValidation>>({
@@ -58,7 +58,6 @@ const ContactUsForm = () => {
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
-            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -68,7 +67,6 @@ const ContactUsForm = () => {
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
-            lang={locale}
           />
         </div>
 
@@ -81,7 +79,6 @@ const ContactUsForm = () => {
             iconSrc="/icons/mail.svg"
             iconAlt="email"
             required
-            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.PHONE_INPUT}
@@ -89,7 +86,6 @@ const ContactUsForm = () => {
             name="phone"
             placeholder="Phone Number"
             required
-            lang={locale}
           />
         </div>
 
@@ -99,7 +95,6 @@ const ContactUsForm = () => {
           name="message"
           placeholder={t("Form.message")}
           required
-          lang={locale}
         />
 
         <SubmitButton isLoading={isLoading}>{t("Form.send")}</SubmitButton>

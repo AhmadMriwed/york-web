@@ -82,12 +82,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
             {t("card.title")}
           </h2>
           <div className="space-y-4">
-            <p
-              className={cn(
-                "flex items-center space-x-2 text-gray-700",
-                locale === "ar" ? "flex-row-reverse" : ""
-              )}
-            >
+            <p className={cn("flex items-center space-x-2 text-gray-700")}>
               <span className="font-semibold flex items-center">
                 <Calendar className="size-6 mx-2 text-primary-color2" />
                 {t("card.valid from")}
@@ -100,12 +95,7 @@ const CertificateDetails = ({ certificate }: CertificateDetailsProps) => {
                 {certificate.valid_from}
               </span>
             </p>
-            <p
-              className={cn(
-                "flex items-center space-x-2 text-gray-700",
-                locale === "ar" ? "flex-row-reverse" : ""
-              )}
-            >
+            <p className={cn("flex items-center space-x-2 text-gray-700")}>
               <span className="font-semibold flex items-center">
                 <Calendar className="size-6 mx-2 text-primary-color2" />
                 {t("card.valid to")}

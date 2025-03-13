@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { SafeDescription } from "@/components/review/SafeDescription";
 
 interface Props {
   params: { id: number };
@@ -117,22 +118,13 @@ const Page = ({ params }: Props) => {
           {/* Details Table */}
           <div className="my-12 bg-white p-6 rounded-lg shadow-md">
             <h2
-              className={cn(
-                "text-xl font-semibold text-primary-color2 mb-4",
-                locale == "en" ? "text-start" : "text-end"
-              )}
+              className={cn("text-xl font-semibold text-primary-color2 mb-4")}
             >
-              {locale === "en" ? "Details" : "التفاصيل"}
+              {locale === "en" ? "Details" : "التفاصيل:"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {head.map((item, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex items-center gap-2 ",
-                    locale === "ar" ? "flex-row-reverse" : ""
-                  )}
-                >
+                <div key={index} className={cn("flex items-center gap-2 ")}>
                   {item === "Code" && (
                     <FaCode className="text-primary-color1" />
                   )}
@@ -146,7 +138,7 @@ const Page = ({ params }: Props) => {
                     <FaEye className="text-primary-color1" />
                   )}
                   <span className="font-semibold">
-                    {locale === "ar" ? `:${item}` : `${item}:`}
+                    {locale === "ar" ? `${item}:` : `${item}:`}
                   </span>
                   <span className="text-gray-500">{values[index]}</span>
                 </div>
@@ -157,26 +149,17 @@ const Page = ({ params }: Props) => {
           {/* Course Outlines */}
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2
-              className={cn(
-                "text-xl font-semibold text-primary-color2 mb-4",
-                locale === "ar" ? "text-end" : "text-start"
-              )}
+              className={cn("text-xl font-semibold text-primary-color2 mb-4")}
             >
               {locale === "ar"
                 ? `لماذا اخترت ${course.title}؟ `
                 : `Why choose ${course.title}?`}
             </h2>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: decodeHtmlEntities(course.outlines || "").replace(
-                  /\n/g,
-                  "<br/>"
-                ),
-              }}
-              className={cn(
-                "text-gray-700 space-y-4 ",
-                locale === "ar" && "text-end"
-              )}
+
+            <SafeDescription
+              description={course.outlines || ""}
+              lang={locale}
+              color="gray-700"
             />
           </div>
 
@@ -184,16 +167,15 @@ const Page = ({ params }: Props) => {
           {course.description && (
             <div className="bg-white p-6 rounded-lg shadow-md mt-6">
               <h2
-                className={cn(
-                  "text-xl font-semibold text-primary-color2 mb-4",
-                  locale === "ar" ? "text-end" : "text-start"
-                )}
+                className={cn("text-xl font-semibold text-primary-color2 mb-4")}
               >
                 {locale === "ar" ? `:التفاصيل` : `Description : `}
               </h2>
-              <div
-                dangerouslySetInnerHTML={{ __html: course.description || "" }}
-                className="text-gray-700 space-y-4"
+
+              <SafeDescription
+                description={course.description || ""}
+                lang={locale}
+                color="gray-700"
               />
             </div>
           )}
@@ -201,12 +183,9 @@ const Page = ({ params }: Props) => {
 
         {/* Right Section - Related Courses */}
         <div className="w-full md:w-[350px] relative">
-          <div className="bg-white w-full  p-4 rounded-lg shadow-md md:absolute md:-top-44">
+          <div className="bg-white w-full  p-4 rounded-lg max-h-[100vh] overflow-y-scroll shadow-md md:absolute md:-top-44">
             <h2
-              className={cn(
-                "text-xl font-semibold text-primary-color2 mb-4",
-                locale === "ar" ? "text-end" : "text-start"
-              )}
+              className={cn("text-xl font-semibold text-primary-color2 mb-4")}
             >
               {locale === "ar" ? `:كورسات مشابهة` : `Related Courses: `}
             </h2>

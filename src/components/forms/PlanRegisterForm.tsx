@@ -21,7 +21,7 @@ const PlanRegisterForm = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("TrainingPlan");
-  const locale = useLocale();
+
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
@@ -72,7 +72,6 @@ const PlanRegisterForm = ({
           iconSrc="/icons/user.svg"
           iconAlt="user"
           required={true}
-          lang={locale}
         />
         <CustomFormField
           fieldType={FormFieldType.INPUT}
@@ -83,7 +82,6 @@ const PlanRegisterForm = ({
           iconSrc="/icons/mail.svg"
           iconAlt="email"
           required={true}
-          lang={locale}
         />
         <CustomFormField
           fieldType={FormFieldType.PHONE_INPUT}
@@ -92,7 +90,6 @@ const PlanRegisterForm = ({
           label={t("Form.phone_lable")}
           placeholder="+963 999 999 999"
           required={true}
-          lang={locale}
         />
         <SubmitButton isLoading={isLoading}>{t("register")}</SubmitButton>
       </form>

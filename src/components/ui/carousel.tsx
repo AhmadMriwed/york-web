@@ -8,9 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { motion, Transition, useMotionValue } from "motion/react";
+import { motion, Transition, useMotionValue } from "framer-motion"; // Corrected import
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale } from "next-intl"; // Import useLocale for language detection
 
 export type CarouselContextType = {
   index: number;
@@ -125,6 +126,7 @@ function CarouselNavigation({
   alwaysShow,
 }: CarouselNavigationProps) {
   const { index, setIndex, itemsCount } = useCarousel();
+  const lang = useLocale(); // Get the current language
 
   return (
     <div
@@ -133,56 +135,113 @@ function CarouselNavigation({
         className
       )}
     >
-      <button
-        type="button"
-        aria-label="Previous slide"
-        className={cn(
-          "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
-          alwaysShow
-            ? "opacity-100"
-            : "opacity-0 group-hover/hover:opacity-100",
-          alwaysShow
-            ? "disabled:opacity-40"
-            : "disabled:group-hover/hover:opacity-40",
-          classNameButton
-        )}
-        disabled={index === 0}
-        onClick={() => {
-          if (index > 0) {
-            setIndex(index - 1);
-          }
-        }}
-      >
-        <ChevronLeft
-          className="stroke-zinc-600 dark:stroke-zinc-50"
-          size={16}
-        />
-      </button>
-      <button
-        type="button"
-        className={cn(
-          "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
-          alwaysShow
-            ? "opacity-100"
-            : "opacity-0 group-hover/hover:opacity-100",
-          alwaysShow
-            ? "disabled:opacity-40"
-            : "disabled:group-hover/hover:opacity-40",
-          classNameButton
-        )}
-        aria-label="Next slide"
-        disabled={index + 1 === itemsCount}
-        onClick={() => {
-          if (index < itemsCount - 1) {
-            setIndex(index + 1);
-          }
-        }}
-      >
-        <ChevronRight
-          className="stroke-zinc-600 dark:stroke-zinc-50"
-          size={16}
-        />
-      </button>
+      {lang === "ar" ? (
+        <>
+          <button
+            type="button"
+            aria-label="Next slide"
+            className={cn(
+              "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
+              alwaysShow
+                ? "opacity-100"
+                : "opacity-0 group-hover/hover:opacity-100",
+              alwaysShow
+                ? "disabled:opacity-40"
+                : "disabled:group-hover/hover:opacity-40",
+              classNameButton
+            )}
+            disabled={index + 1 === itemsCount}
+            onClick={() => {
+              if (index < itemsCount - 1) {
+                setIndex(index + 1);
+              }
+            }}
+          >
+            <ChevronRight
+              className="stroke-zinc-600 dark:stroke-zinc-50"
+              size={16}
+            />
+          </button>
+          <button
+            type="button"
+            aria-label="Previous slide"
+            className={cn(
+              "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
+              alwaysShow
+                ? "opacity-100"
+                : "opacity-0 group-hover/hover:opacity-100",
+              alwaysShow
+                ? "disabled:opacity-40"
+                : "disabled:group-hover/hover:opacity-40",
+              classNameButton
+            )}
+            disabled={index === 0}
+            onClick={() => {
+              if (index > 0) {
+                setIndex(index - 1);
+              }
+            }}
+          >
+            <ChevronLeft
+              className="stroke-zinc-600 dark:stroke-zinc-50"
+              size={16}
+            />
+          </button>
+        </>
+      ) : (
+        <>
+          <button
+            type="button"
+            aria-label="Previous slide"
+            className={cn(
+              "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
+              alwaysShow
+                ? "opacity-100"
+                : "opacity-0 group-hover/hover:opacity-100",
+              alwaysShow
+                ? "disabled:opacity-40"
+                : "disabled:group-hover/hover:opacity-40",
+              classNameButton
+            )}
+            disabled={index === 0}
+            onClick={() => {
+              if (index > 0) {
+                setIndex(index - 1);
+              }
+            }}
+          >
+            <ChevronLeft
+              className="stroke-zinc-600 dark:stroke-zinc-50"
+              size={16}
+            />
+          </button>
+          <button
+            type="button"
+            aria-label="Next slide"
+            className={cn(
+              "pointer-events-auto h-fit w-fit rounded-full bg-zinc-50 p-2 transition-opacity duration-300 dark:bg-zinc-950",
+              alwaysShow
+                ? "opacity-100"
+                : "opacity-0 group-hover/hover:opacity-100",
+              alwaysShow
+                ? "disabled:opacity-40"
+                : "disabled:group-hover/hover:opacity-40",
+              classNameButton
+            )}
+            disabled={index + 1 === itemsCount}
+            onClick={() => {
+              if (index < itemsCount - 1) {
+                setIndex(index + 1);
+              }
+            }}
+          >
+            <ChevronRight
+              className="stroke-zinc-600 dark:stroke-zinc-50"
+              size={16}
+            />
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -242,6 +301,7 @@ function CarouselContent({
   const dragX = useMotionValue(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const itemsLength = Children.count(children) - 2;
+  const lang = useLocale(); // Get the current language
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -277,10 +337,20 @@ function CarouselContent({
   const onDragEnd = () => {
     const x = dragX.get();
 
-    if (x <= -10 && index < itemsLength - 1) {
-      setIndex(index + 1);
-    } else if (x >= 10 && index > 0) {
-      setIndex(index - 1);
+    if (lang === "ar") {
+      // Reverse the drag logic for RTL
+      if (x >= 10 && index < itemsLength - 1) {
+        setIndex(index + 1);
+      } else if (x <= -10 && index > 0) {
+        setIndex(index - 1);
+      }
+    } else {
+      // Normal drag logic for LTR
+      if (x <= -10 && index < itemsLength - 1) {
+        setIndex(index + 1);
+      } else if (x >= 10 && index > 0) {
+        setIndex(index - 1);
+      }
     }
   };
 
@@ -300,7 +370,10 @@ function CarouselContent({
         x: disableDrag ? undefined : dragX,
       }}
       animate={{
-        translateX: `-${index * (100 / visibleItemsCount)}%`,
+        translateX:
+          lang === "ar"
+            ? `${index * (100 / visibleItemsCount)}%` // Reverse for RTL
+            : `-${index * (100 / visibleItemsCount)}%`, // Normal for LTR
       }}
       onDragEnd={disableDrag ? undefined : onDragEnd}
       transition={

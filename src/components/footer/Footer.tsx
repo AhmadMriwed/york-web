@@ -85,62 +85,26 @@ const Footer = async () => {
             <h1 className="text-white text-center leading-6 mb-6">
               {t("paragraph")}
             </h1>
-            <div
-              className={cn(
-                "flex items-center gap-4",
-                language === "ar" && " flex-row-reverse "
-              )}
-            >
+            <div className={cn("flex items-center gap-4")}>
               <MapPinHouseIcon className="text-gray-300" />
               <div>
-                <p
-                  className={cn(
-                    "-mb-1 text-lg",
-                    language == "ar" && "text-end"
-                  )}
-                >
-                  {t("icons.office")}
-                </p>
+                <p className={cn("-mb-1 text-lg")}>{t("icons.office")}</p>
                 <p className="text-white mt-2">{address}</p>
               </div>
             </div>
 
-            <div
-              className={cn(
-                "flex items-center gap-4",
-                language === "ar" && " flex-row-reverse "
-              )}
-            >
+            <div className={cn("flex items-center gap-4")}>
               <MdEmail className="text-gray-300 size-6" />
               <div>
-                <p
-                  className={cn(
-                    "-mb-1 mt-2 text-lg",
-                    language == "ar" && "text-end"
-                  )}
-                >
-                  {t("icons.email")}{" "}
-                </p>
+                <p className={cn("-mb-1 mt-2 text-lg")}>{t("icons.email")} </p>
                 <p className="text-white mt-2">{email}</p>
               </div>
             </div>
 
-            <div
-              className={cn(
-                "flex items-center gap-4",
-                language === "ar" && " flex-row-reverse "
-              )}
-            >
+            <div className={cn("flex items-center gap-4")}>
               <PhoneCall className="text-gray-300 size-6" />
               <div>
-                <p
-                  className={cn(
-                    "-mb-1 mt-2 text-lg",
-                    language == "ar" && "text-end"
-                  )}
-                >
-                  {t("icons.phone")}
-                </p>
+                <p className={cn("-mb-1 mt-2 text-lg")}>{t("icons.phone")}</p>
                 {phones?.map((phone, index) => (
                   <p key={index} className="text-white mt-2">
                     {phone.title}: {phone.content}
@@ -148,22 +112,10 @@ const Footer = async () => {
                 ))}
               </div>
             </div>
-            <div
-              className={cn(
-                "flex items-center gap-4",
-                language === "ar" && " flex-row-reverse "
-              )}
-            >
+            <div className={cn("flex items-center gap-4")}>
               <LinkIcon className="text-gray-300 size-6" />
               <div>
-                <p
-                  className={cn(
-                    "-mb-1 mt-4 text-lg",
-                    language == "ar" && "text-end"
-                  )}
-                >
-                  {t("icons.website")}
-                </p>
+                <p className={cn("-mb-1 mt-4 text-lg")}>{t("icons.website")}</p>
                 <a
                   href="https://www.yorkbritishacademy.uk"
                   className="text-primary-color1 mt-4 text-base hover:underline"
@@ -177,15 +129,10 @@ const Footer = async () => {
 
         {/* Quick Links */}
         <div className="text-white relative w-full md:w-[25%] md:mb-40">
-          <h3 className="font-bold text-[24px] capitalize text-center">
-            {language == "ar" ? ": روابط مباشرة" : "Quick Links : "}
+          <h3 className="font-bold text-[24px] capitalize ">
+            {language == "ar" ? " روابط مباشرة :" : "Quick Links : "}
           </h3>
-          <ul
-            className={`list-disc mt-[10px] ${
-              language === "ar" ? "mr-4" : "ml-4"
-            }`}
-            style={{ direction: language === "ar" ? "rtl" : "ltr" }}
-          >
+          <ul className={`list-disc mt-[10px] `}>
             {links?.map((link) => (
               <li
                 key={link.id}

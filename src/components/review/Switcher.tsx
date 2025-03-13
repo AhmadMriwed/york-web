@@ -86,6 +86,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 type Props = {};
 
@@ -95,8 +96,8 @@ const Switcher = (props: Props) => {
   const locale = useLocale();
 
   const Languages = [
-    { name: "English", countryCode: "US", value: "en" }, // Country code should be uppercase
-    { name: "Arabic", countryCode: "SA", value: "ar" },
+    { name: "English", countryCode: "US", value: "en" },
+    { name: "العربية", countryCode: "SA", value: "ar" },
   ];
 
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -138,7 +139,12 @@ const Switcher = (props: Props) => {
         <SelectTrigger className=" w-12 md:w-[108px] bg-gray-200 text-black">
           <SelectValue placeholder="Select Language" />
         </SelectTrigger>
-        <SelectContent className="absolute -left-16 md:left-0 z-[1000]">
+        <SelectContent
+          className={cn(
+            "absolute   md:left-0 z-[1000]",
+            locale == "ar" ? "left-4" : "right-0"
+          )}
+        >
           {Languages.map((language) => (
             <SelectItem key={language.value} value={language.value}>
               <div className="flex items-center gap-2">

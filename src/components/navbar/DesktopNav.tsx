@@ -15,7 +15,6 @@ import { usePathname } from "next/navigation";
 import { ListItem } from "./Navbar";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
 import { useLocale } from "next-intl";
-import Cookies from "js-cookie";
 
 /* Dropdown Section for Desktop Menu */
 const DropdownSection = ({
@@ -64,7 +63,12 @@ export default function DesktopNav({
   const path = usePathname();
   const locale = useLocale();
   return (
-    <NavigationMenuList className="space-x-6 hidden md:flex">
+    <NavigationMenuList
+      className={cn(
+        "space-x-6 hidden md:flex",
+        locale == "ar" && "flex-row-reverse"
+      )}
+    >
       {navItems.map((item) => (
         <NavigationMenuItem key={item.title}>
           <Link href={`/${locale}/${item.href}`} legacyBehavior>

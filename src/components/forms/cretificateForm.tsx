@@ -61,7 +61,6 @@ const CertificateForm = () => {
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
-            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -71,7 +70,6 @@ const CertificateForm = () => {
             iconSrc="/icons/user.svg"
             iconAlt="user"
             required
-            lang={locale}
           />
         </div>
         <div className="grid md:grid-cols-2 gap-3">
@@ -83,7 +81,6 @@ const CertificateForm = () => {
             iconSrc="/icons/mail.svg"
             iconAlt="email"
             required
-            lang={locale}
           />
           <CustomFormField
             fieldType={FormFieldType.INPUT}
@@ -93,7 +90,6 @@ const CertificateForm = () => {
             iconSrc="/icons/code.svg"
             iconAlt="code"
             required
-            lang={locale}
           />
         </div>
         <CustomFormField
@@ -102,7 +98,6 @@ const CertificateForm = () => {
           name="message"
           placeholder={t("Form.message")}
           required
-          lang={locale}
         />
         <SubmitButton isLoading={isLoading}>{t("Form.send")}</SubmitButton>
       </form>
