@@ -449,18 +449,6 @@ h1,h2,h3 {
   z-index: 1;
 }
 
-.home-footer-bg::after {
-  content: "";
-  position: absolute;
-  transform: translate(-50%);
-  width: 200px;
-  height: 100%;
-  background-image: url("/assets/user/home/footer-bg-2.png");
-  background-position: bottom;
-  background-size: 175%;
-  background-repeat: no-repeat;
-  z-index: 0;
-}
 
 .home-landing-bg > *,
 .home-welcome-bg > *,
@@ -882,4 +870,16 @@ h1,h2,h3 {
       transform: scale(1.2, 1);
     }
   }
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
 }

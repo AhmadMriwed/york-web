@@ -66,12 +66,11 @@ const Footer = async () => {
   ];
 
   return (
-    <footer className="home-footer-bg px-[30px] md:px-[80px] py-[30px] flex items-center justify-around gap-x-[30px] gap-y-[20px] flex-wrap">
+    <footer className="home-footer-bg fixed bottom-0 w-full mx-auto px-[30px] md:px-[80px] py-[30px] flex flex-col gap-y-8 ">
       <div className="w-full h-full absolute top-0 left-0 bg-[#13181ec7]" />
-
-      <div className="flex items-center justify-between w-full mb-16 gap-8 flex-wrap">
+      <div className="flex items-center justify-around md:flex-row flex-col gap-y-4 px-2">
         {/* Logo and Description */}
-        <div className="text-center flex items-center gap-8 flex-col relative md:w-[30%]">
+        <div className="text-center flex items-center gap-2 flex-col relative md:w-[30%]">
           <Image src={"/logo.png"} alt="Logo" width={240} height={240} />
           <h1 className="text-white leading-8">{description}</h1>
         </div>
@@ -117,7 +116,7 @@ const Footer = async () => {
               <div>
                 <p className={cn("-mb-1 mt-4 text-lg")}>{t("icons.website")}</p>
                 <a
-                  href="https://www.yorkbritishacademy.uk"
+                  href="https:www.yorkbritishacademy.uk"
                   className="text-primary-color1 mt-4 text-base hover:underline"
                 >
                   www.yorkbritishacademy.uk
@@ -127,7 +126,7 @@ const Footer = async () => {
           </div>
         </div>
 
-        {/* Quick Links */}
+        {/* quick links  */}
         <div className="text-white relative w-full md:w-[25%] md:mb-40">
           <h3 className="font-bold text-[24px] capitalize ">
             {language == "ar" ? " روابط مباشرة :" : "Quick Links : "}
@@ -149,8 +148,9 @@ const Footer = async () => {
           </ul>
         </div>
       </div>
+
       {/* icons */}
-      <div className="w-[100vw] h-18 text-center">
+      <div className="w-fit mx-auto h-18 text-center">
         <ul className="flex gap-4 items-center w-fit mx-auto">
           {icons?.map((icon) => (
             <Link href={icon.url || ""} key={icon.url}>
@@ -171,7 +171,7 @@ const Footer = async () => {
       </div>
 
       {/* copyright */}
-      <div className="border-t-gray-50 p-8 w-full">
+      <div className="border-t-gray-500 border-t-1 p-8 w-full">
         <p className="text-white font-semibold">{copyright}</p>
       </div>
     </footer>

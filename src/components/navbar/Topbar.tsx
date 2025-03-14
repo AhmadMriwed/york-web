@@ -25,7 +25,7 @@ export default function TopBar() {
   ];
 
   return (
-    <div className=" bg-[#0b2426] opacity-100 w-full z-50 text-white py-4  md:block relative">
+    <div className=" bg-[#0b2426] opacity-100 min-w-full z-50 text-white py-4  md:block relative">
       <div className="container mx-auto px-4 w-full flex items-center justify-between ">
         {/* Contact Info */}
         <div className="flex  space-x-6 text-sm  w-fit">
