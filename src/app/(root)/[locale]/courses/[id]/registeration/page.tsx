@@ -38,9 +38,18 @@ import { TiThLarge } from "react-icons/ti";
 import { PiMapPin } from "react-icons/pi";
 import { Button } from "@/components/ui/button";
 import TermAndPrivacy from "@/components/review/TermAndPrivacy";
-import { RegisterationFormValidation } from "@/lib/validation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { RegisterationFormValidation } from "@/lib/validation";
+import Loader from "@/components/loading/Loader";
+
+interface DiscountInfo {
+  discount_code: string;
+  original_fee: number;
+  discount_fee: number;
+  total_fee: number;
+}
 
 type FormValues = z.infer<typeof RegisterationFormValidation>;
 
@@ -64,15 +73,13 @@ const RegistrationForm = () => {
   const [venues, setVenues] = useState<Venue[]>();
   const [accept, setAccept] = useState(false);
   const [termDailogOpen, setTermDialogOpen] = useState(false);
-  const [discountCode, setDiscountCode] = useState("");
-  const [discountInfo, setDiscountInfo] = useState<{
-    code: string;
-    percentage: number;
-    fee: number;
-  } | null>(null);
 
-  const [totalFee, setTotalFee] = useState<number>(0);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountCheck, setDiscountCheck] = useState(false);
+
+  const [totalFee, setTotalFee] = useState<DiscountInfo | null>(null);
   const t = useTranslations("Courses");
+  const toastMessages = useTranslations("Toast");
   const locale = useLocale();
 
   useEffect(() => {
@@ -109,7 +116,6 @@ const RegistrationForm = () => {
           setValue("language", course.language);
           setValue("category_id", course.category.id);
           setValue("venue_id", course.venue.id);
-          setTotalFee(Number(course.fee));
         }
       } catch (error) {
         console.error("Error fetching course:", error);
@@ -122,49 +128,39 @@ const RegistrationForm = () => {
     try {
       //@ts-ignore
       await registration(data);
-      toast.success("Registration completed successfully");
+      toast.success(toastMessages("courseRegisterForm.success"));
       reset();
     } catch (error) {
       console.log(error);
+      toast.error(toastMessages("courseRegisterForm.error"));
     }
   };
 
-  const handleDiscountCodeValidation = async () => {
+  const handleDiscountCode = async (discountCode: string) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/discounts/search?code=${discountCode}`
-      );
-      const discountData = await response.json();
-
-      if (discountData && discountData.code) {
-        setDiscountInfo(discountData);
-        const fee = Number(course?.fee) || 0;
-        let appliedDiscountFee = 0;
-
-        if (discountData.percentage > 0) {
-          appliedDiscountFee = (fee * discountData.percentage) / 100;
-        } else if (discountData.fee > 0) {
-          appliedDiscountFee = discountData.fee;
+      const fee = course?.fee
+        ? course.fee.toString().replace(/[^\d]/g, "")
+        : "0";
+      console.log(fee);
+      const response = await axios.get(
+        `https://main.yorkacademy.uk/api/discounts/apply?code=${discountCode}&fee=${fee}`,
+        {
+          headers: {
+            "Accept-Language": locale,
+          },
         }
+      );
 
-        setTotalFee(fee - appliedDiscountFee);
-        toast.success(`Discount applied: ${discountData.code}`);
-      } else {
-        setDiscountInfo(null);
-        toast.error("Invalid discount code");
-      }
-    } catch (error) {
-      console.error("Error validating discount code:", error);
-      setDiscountInfo(null);
-      toast.error("Error validating discount code");
+      setTotalFee(response.data.data);
+      toast.success(toastMessages("discount.success"));
+      reset();
+      return response.data;
+    } catch (error: any) {
+      toast.error(toastMessages("discount.error"));
+      throw new Error(
+        error.response?.data?.message || "Failed to fetch discount"
+      );
     }
-  };
-
-  const handleRemoveDiscount = () => {
-    setDiscountInfo(null);
-    setDiscountCode("");
-    setTotalFee(Number(course?.fee));
-    toast.success("Discount removed");
   };
 
   const languages = [
@@ -186,6 +182,9 @@ const RegistrationForm = () => {
       title: locale === "en" ? "Private" : "خاص",
     },
   ];
+  if (!course) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -698,56 +697,50 @@ const RegistrationForm = () => {
           </div>
 
           {/* Discount Code Section */}
-          <div className="p-4 md:p-8 shadow-xl">
-            <p
-              className={cn(
-                "text-lg font-bold  flex text-primary-color1 mb-10 ml-auto w-full"
-              )}
-            >
-              {t("registeration.discount_code.code")}
-            </p>
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  <FaCheck className="inline-block mr-2 text-primary-color2" />
-                  {t("registeration.discount_code.code")}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={discountCode}
-                    onChange={(e) => setDiscountCode(e.target.value)}
-                    className={`mt-1 block w-full p-2 border focus:outline-primary-color2 border-gray-300 rounded-md`}
-                    disabled={!!discountInfo}
-                  />
-                  {discountInfo ? (
-                    <button
-                      type="button"
-                      onClick={handleRemoveDiscount}
-                      className="mt-1 bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
-                    >
-                      <FaTimes className="inline-block mr-2" />
-                      Remove
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleDiscountCodeValidation}
-                      className="mt-1 bg-primary-color2 text-white p-2 rounded-md hover:bg-primary-color1"
-                    >
-                      <FaCheck className="inline-block mr-2" />
-                      Validate
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div> */}
+          <div>
+            <ul className="my-8">
+              <LiComponent>
+                <input
+                  type="checkbox"
+                  checked={discountCheck}
+                  onChange={() => setDiscountCheck(!discountCheck)}
+                  className="mr-2 "
+                />
+                {t("registeration.discount_code.question")}
+              </LiComponent>
+            </ul>
           </div>
+
+          {discountCheck && (
+            <div className="p-4 md:p-8 shadow-xl flex items-center gap-3 ">
+              <input
+                type="text"
+                value={discountCode}
+                placeholder={
+                  locale == "ar"
+                    ? "ادخل كود الخصم الخاص بك "
+                    : "Entery discount code.."
+                }
+                onChange={(e) => setDiscountCode(e.target.value)}
+                className={` block w-[50%] p-1.5 border focus:outline-primary-color2 border-gray-300 rounded-md`}
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDiscountCode(discountCode);
+                }}
+                className="p-1.5 px-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+              >
+                {locale == "ar" ? "تطبيق" : "apply"}
+              </button>
+            </div>
+          )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={accept}
             className="w-full bg-primary-color2 text-white p-2 rounded-md hover:bg-primary-color1 flex items-center justify-center"
           >
             {isSubmitting ? (
@@ -820,35 +813,37 @@ const RegistrationForm = () => {
                     locale === "ar" ? "right-5" : "left-5"
                   )}
                 >
-                  {locale === "ar" ? "تكلفة الكورس" : "Course Fee"}
+                  {locale === "ar" ? "تكلفة الدورة" : "Course Fee"}
                 </p>
                 <ul className="space-y-4">
                   <LiComponent>
                     <CiMoneyBill className="inline-block mr-2 text-primary-color2 mt-1" />
-
                     <p>
-                      {locale === "ar" ? ": سعر الكورس " : "Course Fee : "}
+                      {locale === "ar" ? "سعر الدورة: " : "Course Fee: "}
                       {"  "}
                     </p>
                     <span className="text-gray-600 mx-2">{course?.fee} </span>
                   </LiComponent>
                   <LiComponent>
                     <CiMoneyBill className="inline-block mr-2 text-primary-color2 mt-1" />
-                    {locale === "ar" ? ":الخصم " : "Discount : "}
+                    {locale === "ar" ? "الخصم: " : "Discount: "}
                     <p>
                       <span className="text-gray-600">
-                        {discountInfo?.code
-                          ? `${discountInfo.code} (${
-                              discountInfo.percentage || 0
-                            }% or ${discountInfo.fee || 0}$)`
-                          : "0 $"}
+                        {totalFee?.discount_fee ? totalFee.discount_fee : "0"}
                       </span>
                     </p>
                   </LiComponent>
                   <LiComponent>
                     <CiMoneyBill className="inline-block mr-2 text-primary-color2" />
-                    {locale === "ar" ? " السعر الكلي: " : "Total: "}
-                    {"  "} <span className="text-gray-600">{totalFee} </span>
+                    {locale === "ar"
+                      ? "السعر الكلي بعد الخصم: "
+                      : "Total with discount: "}
+                    {"  "}{" "}
+                    <span className="text-gray-600">
+                      {totalFee?.total_fee
+                        ? `${totalFee?.total_fee}£`
+                        : course?.fee}{" "}
+                    </span>
                   </LiComponent>
                 </ul>
               </div>

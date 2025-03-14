@@ -1,71 +1,26 @@
 import { z } from "zod";
 
+import Cookies from 'js-cookie'
+
+const getMessage = (en: string, ar: string): string => {
+  const language = Cookies.get('language');
+  return language === 'ar' ? ar : en;
+};
+
+
+
 // Validation schema for UserForm
 export const UserFormValidation = z.object({
   name: z
     .string()
-    .min(2, "Name must be at least 2 characters.")
-    .max(50, "Name must be at most 50 characters."),
-  email: z.string().email("Invalid email address."),
+    .min(2, getMessage("Name must be at least 2 characters.", "يجب أن يكون الاسم على الأقل حرفين."))
+    .max(50, getMessage("Name must be at most 50 characters.", "يجب أن يكون الاسم على الأكثر 50 حرفًا.")),
+  email: z.string().email(getMessage("Invalid email address.", "عنوان البريد الإلكتروني غير صالح.")),
   phone: z
     .string()
     .refine((phone) => /^\+\d{10,15}$/.test(phone), {
-      message: "Invalid phone number. Format: +1234567890",
+      message: getMessage("Invalid phone number. Format: +1234567890", "رقم الهاتف غير صالح. التنسيق: +1234567890"),
     }),
-});
-
-// Validation schema for RegistrationForm
-export const RegistrationFormValidation = z.object({
-  name: z
-    .string()
-    .min(2, "Name must be at least 2 characters.")
-    .max(50, "Name must be at most 50 characters."),
-  email: z.string().email("Invalid email address."),
-  phone: z
-    .string()
-    .refine((phone) => /^\+\d{10,15}$/.test(phone), {
-      message: "Invalid phone number. Format: +1234567890",
-    }),
-  address: z
-    .string()
-    .min(2, "Address must be at least 2 characters.")
-    .max(50, "Address must be at most 50 characters.")
-    .optional(),
-  notes: z
-    .string()
-    .min(2, "Notes must be at least 2 characters.")
-    .max(50, "Notes must be at most 50 characters.")
-    .optional(),
-});
-
-
-
-export const RegisterationSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  fee: z.number().optional(),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().min(1, "End date is required"),
-  hours: z.number().min(1, "Hours are required"),
-  language: z.string().min(1, "Language is required"),
-  venue_id: z.number().min(1, "Venue ID is required"),
-  category_id: z.number().min(1, "Category ID is required"),
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  url: z.string().min(1, "URL is required"),
-  job_title: z.string().min(1, "Job title is required"),
-  cv_trainer: z.string().min(1, "CV trainer is required"),
-  course_ad_id: z.number().optional(),
-  num_people: z.number().min(1, "Number of people is required").optional(),
-  selection_training: z
-    .object({
-      name: z.string().optional(),
-      email: z.string().email("Invalid email").optional(),
-      functional_specialization: z.string().optional(),
-      phone_number: z.string().optional(),
-      trainer_id: z.number().optional(),
-    })
-    .optional(),
 });
 
 
@@ -73,72 +28,72 @@ export const RegisterationSchema = z.object({
 export const ContactUsFormValidation = z.object({
   first_name: z
     .string()
-    .min(2, "first name must be at least 2 characters.")
-    .max(50, "first name must be at most 50 characters."),
+    .min(2, getMessage("First name must be at least 2 characters.", "يجب أن يكون الاسم الأول على الأقل حرفين."))
+    .max(50, getMessage("First name must be at most 50 characters.", "يجب أن يكون الاسم الأول على الأكثر 50 حرفًا.")),
   last_name: z
     .string()
-    .min(2, "last name must be at least 2 characters.")
-    .max(50, "last name must be at most 50 characters."),
-  email: z.string().email("Invalid email address."),
+    .min(2, getMessage("Last name must be at least 2 characters.", "يجب أن يكون الاسم الأخير على الأقل حرفين."))
+    .max(50, getMessage("Last name must be at most 50 characters.", "يجب أن يكون الاسم الأخير على الأكثر 50 حرفًا.")),
+  email: z.string().email(getMessage("Invalid email address.", "عنوان البريد الإلكتروني غير صالح.")),
   phone: z
-  .string()
-  .regex(/^\d{10,15}$/, {
-    message: "Invalid phone number format. Must be 10-15 digits.",
-  }),
-    message:z.string().min(2,'message must be at least 2 characters.')
+    .string()
+    .regex(/^\d{10,15}$/, {
+      message: getMessage("Invalid phone number format. Must be 10-15 digits.", "تنسيق رقم الهاتف غير صالح. يجب أن يكون من 10 إلى 15 رقمًا."),
+    }),
+  message: z.string().min(2, getMessage("Message must be at least 2 characters.", "يجب أن تكون الرسالة على الأقل حرفين.")),
 });
+
 
 
 export const CertificateFormValidation = z.object({
   first_name: z
     .string()
-    .min(2, "first name must be at least 2 characters.")
-    .max(50, "first name must be at most 50 characters."),
+    .min(2, getMessage("First name must be at least 2 characters.", "يجب أن يكون الاسم الأول على الأقل حرفين."))
+    .max(50, getMessage("First name must be at most 50 characters.", "يجب أن يكون الاسم الأول على الأكثر 50 حرفًا.")),
   last_name: z
     .string()
-    .min(2, "last name must be at least 2 characters.")
-    .max(50, "last name must be at most 50 characters."),
-  email: z.string().email("Invalid email address."),
- 
-    message:z.string().min(2,'message must be at least 2 characters.'),
-    certificate_code:z.string().min(1,'cretificate code is required.')
+    .min(2, getMessage("Last name must be at least 2 characters.", "يجب أن يكون الاسم الأخير على الأقل حرفين."))
+    .max(50, getMessage("Last name must be at most 50 characters.", "يجب أن يكون الاسم الأخير على الأكثر 50 حرفًا.")),
+  email: z.string().email(getMessage("Invalid email address.", "عنوان البريد الإلكتروني غير صالح.")),
+  message: z.string().min(2, getMessage("Message must be at least 2 characters.", "يجب أن تكون الرسالة على الأقل حرفين.")),
+  certificate_code: z.string().min(1, getMessage("Certificate code is required.", "رمز الشهادة مطلوب.")),
 });
+
+
 
 // Define the RegisterationFormValidation for the form
 export const RegisterationFormValidation = z.object({
   title: z
     .string()
-    .min(1, "Title is required")
-    .max(255, "Title must be less than 255 characters"),
+    .min(1, getMessage("Title is required", "العنوان مطلوب"))
+    .max(255, getMessage("Title must be less than 255 characters", "يجب أن يكون العنوان أقل من 255 حرفًا")),
   description: z.string().nullable().optional(),
-  fee: z.string().min(1, "Fee is required"),
-  start_date: z.string().min(1, "Start date is required"),
-  end_date: z.string().min(1, "End date is required"),
-  houres: z.number().min(1, "Hours are required"),
-  language: z.string().min(1, "Language is required"),
+  fee: z.string().min(1, getMessage("Fee is required", "الرسوم مطلوبة")),
+  start_date: z.string().min(1, getMessage("Start date is required", "تاريخ البدء مطلوب")),
+  end_date: z.string().min(1, getMessage("End date is required", "تاريخ الانتهاء مطلوب")),
+  houres: z.number().min(1, getMessage("Hours are required", "الساعات مطلوبة")),
+  language: z.string().min(1, getMessage("Language is required", "اللغة مطلوبة")),
   code: z.string().optional(),
-  category_id: z.number().min(1, "Category ID is required").int(),
-  venue_id: z.number().min(1, "Venue ID is required").int(),
+  category_id: z.number().min(1, getMessage("Category ID is required", "معرف الفئة مطلوب")).int(),
+  venue_id: z.number().min(1, getMessage("Venue ID is required", "معرف المكان مطلوب")).int(),
   name: z.string().nullable().optional(),
-  email: z.string().email("Invalid email").nullable().optional(),
+  email: z.string().email(getMessage("Invalid email", "البريد الإلكتروني غير صالح")).nullable().optional(),
   url: z.string().nullable().optional(),
   job_title: z.string().nullable().optional(),
   cv_trainer: z.instanceof(File).optional(),
   selection_training: z
     .object({
       name: z.string().optional(),
-      email: z.string().email("Invalid email").nullable().optional(),
+      email: z.string().email(getMessage("Invalid email", "البريد الإلكتروني غير صالح")).nullable().optional(),
       functional_specialization: z.string().optional(),
       phone_number: z.string().optional(),
       trainer_id: z.number().nullable().optional(),
     })
     .nullable()
     .optional(),
-  num_people: z.number().min(1, "Number of people is required").int(),
-  entity_type: z.string().min(1, "Entity type is required"),
+  num_people: z.number().min(1, getMessage("Number of people is required", "عدد الأشخاص مطلوب")).int(),
+  entity_type: z.string().min(1, getMessage("Entity type is required", "نوع الكيان مطلوب")),
   user_id: z.number().nullable().optional(),
   course_ad_id: z.number().nullable().optional(),
   discount_code: z.string().optional(),
 });
-
-

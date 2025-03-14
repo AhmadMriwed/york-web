@@ -22,6 +22,8 @@ const PlanRegisterForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("TrainingPlan");
 
+  const toastMessages = useTranslations("Toast");
+
   const form = useForm<z.infer<typeof UserFormValidation>>({
     resolver: zodResolver(UserFormValidation),
     defaultValues: {
@@ -46,12 +48,11 @@ const PlanRegisterForm = ({
       };
       await storePlanRegister(userData);
 
-      toast.success("Registration successful");
+      toast.success(toastMessages("planRegisterForm.success"));
       form.reset();
       onRegistrationSuccess();
     } catch (error) {
-      console.error("Registration failed:", error);
-      toast.error("Registration failed. Please try again.");
+      toast.error("planRegisterForm.error");
     } finally {
       setIsLoading(false);
     }

@@ -16,6 +16,7 @@ const ContactUsForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const t = useTranslations("Certificates");
+  const toastMessages = useTranslations("Toast");
 
   const form = useForm<z.infer<typeof ContactUsFormValidation>>({
     resolver: zodResolver(ContactUsFormValidation),
@@ -33,11 +34,10 @@ const ContactUsForm = () => {
     try {
       await contact_us(values);
 
-      toast.success("Message sent successfully!");
+      toast.success(toastMessages("contactUsForm.success"));
       form.reset();
     } catch (error: any) {
-      console.error("Submission failed:", error);
-      toast.error(error.message || "Failed to send message. Please try again.");
+      toast.error(toastMessages("contactUsForm.error"));
     } finally {
       setIsLoading(false);
     }

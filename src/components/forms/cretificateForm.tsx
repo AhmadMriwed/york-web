@@ -15,6 +15,8 @@ import { useLocale, useTranslations } from "next-intl";
 const CertificateForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslations("Certificates");
+  const toastMessages = useTranslations("Toast");
+
   const locale = useLocale();
 
   const form = useForm<z.infer<typeof CertificateFormValidation>>({
@@ -33,11 +35,10 @@ const CertificateForm = () => {
   ) => {
     try {
       await CertificateReview(values);
-      toast.success("Message sent successfully!");
+      toast.success(toastMessages("certificateForm.success"));
       form.reset();
     } catch (error: any) {
-      console.error("Submission failed:", error);
-      toast.error(error.message || "Failed to send message. Please try again.");
+      toast.error(toastMessages("certificateForm.error"));
     } finally {
       setIsLoading(false);
     }

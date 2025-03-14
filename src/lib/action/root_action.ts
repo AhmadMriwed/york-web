@@ -465,7 +465,7 @@ export const CertificateReview = async (values: {
 }) => {
   
   try {
-    const response = await axios.post(`/api /certificates_review`, values, {
+    const response = await axios.post(`/api/certificates_review`, values, {
       headers: {
         'Accept-Language': Cookies.get("language")
       },

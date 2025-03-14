@@ -1,14 +1,19 @@
+import SafeDescription from "@/components/review/SafeDescription";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useLocale } from "next-intl";
+import { cookies } from "next/headers";
 const FrequentlyAskedQuestions = ({
   questions = [],
 }: {
   questions: { question: string; answer: string }[];
 }) => {
+  const cookieStore = cookies();
+
   return (
     <Accordion
       type="single"
@@ -28,9 +33,10 @@ const FrequentlyAskedQuestions = ({
             {item.question.substring(2)}
           </AccordionTrigger>
           <AccordionContent>
-            <span
-              dangerouslySetInnerHTML={{ __html: item.answer }}
-              className="text-[10px]"
+            <SafeDescription
+              description={item.answer}
+              lang={"ar"}
+              color="gray-700"
             />
           </AccordionContent>
         </AccordionItem>

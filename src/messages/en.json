@@ -129,6 +129,7 @@
           "number_of_people":"Number Of People : "
         },
         "discount_code":{
+          "question":"Do you have a discount code ? ",
           "code":"Diescount Code : "
         }
       }
@@ -142,5 +143,40 @@
         "phone":"Phone : ",
         "website":"Webiste : "
       }
+    },
+    "Validation": {
+      "required": "This field is required.",
+      "minLength": "Must be at least {min} characters.",
+      "maxLength": "Must be at most {max} characters.",
+      "invalidEmail": "Invalid email address.",
+      "invalidPhone": "Invalid phone number. Format: +1234567890",
+      "invalidPhoneDigits": "Invalid phone number format. Must be 10-15 digits.",
+      "invalidNumber": "Must be a valid number.",
+      "invalidDate": "Invalid date format.",
+      "invalidUrl": "Invalid URL.",
+      "invalidFile": "Invalid file format."
+    },
+    "Toast":{
+      "contactUsForm":{
+        "success":"Message sent successfully!",
+        "error":"Failed to send message. Please try again."
+      },
+      "certificateForm":{
+        "success":"Message sent successfully!",
+        "error":"Failed to send message. Please try again." 
+      },
+      "planRegisterForm":{
+        "success":"Registration successful",
+        "error":"Registration failed. Please try again."
+      },
+      "discount":{
+        "success":"Discount applied",
+        "error":"Invalid discount code"
+      },
+      
+"courseRegisterForm":{
+  "success":"Registration completed successfully",
+  "error":"Registration failed. Please try again."
+}
     }
   }
