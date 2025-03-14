@@ -32,7 +32,6 @@ const Page = ({ params }: Props) => {
 
     fetchData();
   }, [id]);
-  console.log(courses);
 
   if (error) {
     return (
@@ -47,7 +46,7 @@ const Page = ({ params }: Props) => {
   }
 
   return (
-    <main className="h-full relative">
+    <main className="h-full relative block">
       {/* Hero Section */}
       <div
         className="h-[80vh] flex flex-col items-center justify-center"

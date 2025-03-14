@@ -70,6 +70,7 @@ const RegistrationForm = () => {
     percentage: number;
     fee: number;
   } | null>(null);
+
   const [totalFee, setTotalFee] = useState<number>(0);
   const t = useTranslations("Courses");
   const locale = useLocale();

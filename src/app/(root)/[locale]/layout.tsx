@@ -40,9 +40,12 @@ export default async function RootLayout({
         <TooltipProvider>
           <NextIntlClientProvider messages={messages} locale={locale}>
             <Navbar />
-            {children}
+            <div className="block">{children}</div>
             <Conversation />
-            <Footer />
+            <div className="block">
+              <Footer />
+            </div>
+
             <Toaster richColors position="top-right" />
           </NextIntlClientProvider>
         </TooltipProvider>
