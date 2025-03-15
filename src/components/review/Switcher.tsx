@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { usePathname, useRouter } from "@/i18n/routing";
 import Cookies from "js-cookie";
-import { useLocale } from "next-intl";
 import {
   Select,
   SelectContent,
