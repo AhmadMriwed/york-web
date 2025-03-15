@@ -36,7 +36,7 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Chaparral+Pro:wght@600&display=swap"
         />
       </head>
-      <body>
+      <body className="overflow-x-clip">
         <TooltipProvider>
           <NextIntlClientProvider messages={messages} locale={locale}>
             <Navbar />

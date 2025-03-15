@@ -19,6 +19,7 @@ import { GlobalState } from "@/types/storeTypes";
 import axios from "axios";
 import { loginAdmin } from "@/store/adminstore/slices/authSlice";
 import { userLogin } from "@/store/userStore/slices/userSlice";
+import { LinkIcon } from "lucide-react";
 
 interface FormValues {
   email: string;
@@ -305,7 +306,15 @@ const Login = ({ userType }: { userType: string }) => {
                     onChange={() => {}}
                   />
                 </div>
+                <Link
+                  href={"https://main.yorkacademy.uk/admin"}
+                  className="text-white text-start flex gap-2 w-fit mr-auto"
+                >
+                  <LinkIcon height={16} />
+                  <span>go to the secondary dashboard</span>
+                </Link>
               </div>
+              <div></div>
             </div>
           </div>
         </Reveal>

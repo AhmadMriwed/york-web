@@ -65,7 +65,7 @@ const Page = () => {
       <div className="container py-16 px-8 md:px-2 mx-auto">
         <div className="border-b border-gray-300 py-8">
           <h1 className="text-primary-color1 text-xl md:text-2xl font-semibold mb-6">
-            {trainingPlan?.title} {trainingPlan?.year}
+            {trainingPlan?.title}
           </h1>
           <h2 className="text-gray-500 text-base mb-3">
             {trainingPlan?.sub_title || "No title available"}

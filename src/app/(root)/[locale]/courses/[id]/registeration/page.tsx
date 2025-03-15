@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Category, Course, Venue } from "@/types/rootTypes/rootTypes";
 import {
   fetchCategories,
   fetchVenues,
   getCourseById,
   registration,
+  SearchCourse,
 } from "@/lib/action/root_action";
 import {
   FaUser,
@@ -26,23 +27,28 @@ import {
   FaExclamationCircle,
   FaSpinner,
   FaPhone,
-  FaCheck,
-  FaTimes,
 } from "react-icons/fa";
 import { MdCategory, MdDescription } from "react-icons/md";
 import { BsPeople } from "react-icons/bs";
-import { Building, Code2, Map, TypeIcon } from "lucide-react";
+import { Building, Code2, Map, TypeIcon, X } from "lucide-react";
 import { CiMoneyBill } from "react-icons/ci";
 import { toast } from "sonner";
 import { TiThLarge } from "react-icons/ti";
 import { PiMapPin } from "react-icons/pi";
-import { Button } from "@/components/ui/button";
 import TermAndPrivacy from "@/components/review/TermAndPrivacy";
 import { useLocale, useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { cn, shootRelisticConfetti } from "@/lib/utils";
 import axios from "axios";
 import { RegisterationFormValidation } from "@/lib/validation";
 import Loader from "@/components/loading/Loader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Spinner } from "@heroui/react";
 
 interface DiscountInfo {
   discount_code: string;
@@ -76,11 +82,16 @@ const RegistrationForm = () => {
 
   const [discountCode, setDiscountCode] = useState("");
   const [discountCheck, setDiscountCheck] = useState(false);
+  const [discountCounter, setDiscountCounter] = useState(true);
 
   const [totalFee, setTotalFee] = useState<DiscountInfo | null>(null);
   const t = useTranslations("Courses");
   const toastMessages = useTranslations("Toast");
   const locale = useLocale();
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -136,6 +147,19 @@ const RegistrationForm = () => {
     }
   };
 
+  const handleDiscountScroll = () => {
+    if (divRef.current) {
+      divRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      divRef.current.focus();
+    }
+  };
+
+  const handleDiscountDecision = () => {
+    inputRef.current?.remove();
+    setDiscountCounter(true);
+    handleDiscountScroll();
+  };
+
   const handleDiscountCode = async (discountCode: string) => {
     try {
       const fee = course?.fee
@@ -153,7 +177,18 @@ const RegistrationForm = () => {
 
       setTotalFee(response.data.data);
       toast.success(toastMessages("discount.success"));
+
+      //confetti
+      shootRelisticConfetti();
+      if (audioRef.current) {
+        audioRef.current
+          .play()
+          .catch((e: any) => console.log("audio play failed", e));
+      }
+      handleDiscountScroll();
+
       reset();
+      setDiscountCounter(false);
       return response.data;
     } catch (error: any) {
       toast.error(toastMessages("discount.error"));
@@ -196,6 +231,9 @@ const RegistrationForm = () => {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-6 w-full md:w-2/3 md:p-4"
         >
+          <div className="flex gap-3 flex-col">
+            <SelectAnotherCourse courseTitle={course.title} />
+          </div>
           {/* Registration Type Selection */}
           <div>
             <div className={cn("mt-1  gap-4  mb-6 ml-4")}>
@@ -716,6 +754,7 @@ const RegistrationForm = () => {
               <input
                 type="text"
                 value={discountCode}
+                disabled={!discountCounter}
                 placeholder={
                   locale == "ar"
                     ? "ادخل كود الخصم الخاص بك "
@@ -724,17 +763,32 @@ const RegistrationForm = () => {
                 onChange={(e) => setDiscountCode(e.target.value)}
                 className={` block w-[50%] p-1.5 border focus:outline-primary-color2 border-gray-300 rounded-md`}
               />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDiscountCode(discountCode);
-                }}
-                className="p-1.5 px-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
-              >
-                {locale == "ar" ? "تطبيق" : "apply"}
-              </button>
+              {discountCounter ? (
+                <button
+                  type="button"
+                  disabled={!discountCounter}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDiscountCode(discountCode);
+                  }}
+                  className="p-1.5 px-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                >
+                  {locale == "ar" ? "تطبيق" : "apply"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDiscountDecision();
+                  }}
+                  className="p-1.5 px-3 bg-red-500 flex items-center hover:bg-red-400 text-white rounded-lg"
+                >
+                  <X className="text-white h-4" />
+                  {locale == "ar" ? "ازالة" : "remove"}
+                </button>
+              )}
             </div>
           )}
 
@@ -806,7 +860,10 @@ const RegistrationForm = () => {
                 </ul>
               </div>
 
-              <div className="border-2 relative border-dashed bg-gray-100 mt-4 p-6 border-[#025c63]  rounded-lg mb-6 mx-2">
+              <div
+                className="border-2 relative border-dashed bg-gray-100 mt-4 p-6 border-[#025c63]  rounded-lg mb-6 mx-2"
+                ref={divRef}
+              >
                 <p
                   className={cn(
                     "absolute px-4 py-1 rounded-full -top-4  bg-[#025c63] text-white",
@@ -829,7 +886,11 @@ const RegistrationForm = () => {
                     {locale === "ar" ? "الخصم: " : "Discount: "}
                     <p>
                       <span className="text-gray-600">
-                        {totalFee?.discount_fee ? totalFee.discount_fee : "0"}
+                        {discountCounter
+                          ? "0"
+                          : totalFee?.discount_fee
+                          ? totalFee.discount_fee
+                          : "0"}
                       </span>
                     </p>
                   </LiComponent>
@@ -840,12 +901,15 @@ const RegistrationForm = () => {
                       : "Total with discount: "}
                     {"  "}{" "}
                     <span className="text-gray-600">
-                      {totalFee?.total_fee
+                      {discountCounter
+                        ? course.fee
+                        : totalFee?.total_fee
                         ? `${totalFee?.total_fee}£`
-                        : course?.fee}{" "}
+                        : course?.fee}
                     </span>
                   </LiComponent>
                 </ul>
+                <audio ref={audioRef} src="/cashsound.mp3" />
               </div>
             </>
           )}
@@ -873,5 +937,91 @@ const LabelComponent = ({ children }: { children: React.ReactNode }) => {
     <label className={cn(" flex  gap-1 text-sm font-medium text-gray-700")}>
       {children}
     </label>
+  );
+};
+
+const SelectAnotherCourse = ({ courseTitle }: { courseTitle: string }) => {
+  const [courses, setCourses] = useState<Course[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const locale = useLocale();
+
+  useEffect(() => {
+    const fetchRelatedCourses = async () => {
+      try {
+        setLoading(true);
+        const relatedCourses = await SearchCourse({ title: courseTitle });
+        setCourses(relatedCourses);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRelatedCourses();
+  }, [courseTitle]);
+
+  const handleChange = (value: string) => {
+    router.push(`/${locale}/courses/${value}/registeration`);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Select onValueChange={handleChange}>
+        <SelectTrigger className="w-[240px] h-12 border-gray-400">
+          <SelectValue
+            placeholder={
+              locale === "ar"
+                ? "اختر دورة اخرى مشابهة"
+                : "Choose another related course.."
+            }
+            className="h-12"
+          />
+        </SelectTrigger>
+        <SelectContent className="max-h-80 overflow-y-scroll">
+          {loading ? (
+            <div className="text-center p-4">
+              <Spinner className=" mx-auto" />
+              <p className="animate-pulse mt-3">
+                {locale === "ar" ? "جاري التحميل..." : "Loading..."}
+              </p>
+            </div>
+          ) : courses && courses.length > 0 ? (
+            courses.map((course: Course) => (
+              <SelectItem key={course.id} value={course.id.toString()}>
+                <div className="flex gap-2 ">
+                  <Image
+                    src={
+                      course.venue.image
+                        ? `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${course.venue.image}`
+                        : "/default-image.png"
+                    }
+                    width={44}
+                    height={44}
+                    alt={course.venue.title}
+                    className="rounded-[50%]"
+                  />
+                  <div className="flex flex-col">
+                    <h5 className="font-semibold">{course.venue.title}</h5>
+                    <span className="text-sm text-gray-500 ">
+                      {course.fee}
+                      <CiMoneyBill className="ml-2 inline-block text-primary-color2 " />
+                    </span>
+                  </div>
+                </div>
+              </SelectItem>
+            ))
+          ) : (
+            <div className="text-center p-4">
+              <p className="text-gray-500">
+                {locale === "ar"
+                  ? "لا توجد دورات متاحة"
+                  : "No related courses available"}
+              </p>
+            </div>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };

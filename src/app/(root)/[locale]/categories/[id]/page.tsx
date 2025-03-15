@@ -79,12 +79,7 @@ const Page = ({ params }: Props) => {
           >
             {courses[0]?.category.title}
           </h1>
-          {/* <div
-            dangerouslySetInnerHTML={{
-              __html: courses[0]?.category.description || "",
-            }}
-            className={cn("text-gray-600")}
-          /> */}
+
           <SafeDescription
             description={courses[0]?.category.description}
             lang={locale}

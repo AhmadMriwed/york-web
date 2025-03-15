@@ -58,5 +58,5 @@ const nextConfig = {
 
 const withNextIntl = createNextIntlPlugin();
 
-// تصدير الإعدادات النهائية
+
 module.exports = withNextIntl(nextConfig);
