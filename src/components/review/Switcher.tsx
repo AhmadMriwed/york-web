@@ -1,77 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import ReactCountryFlag from "react-country-flag";
-// import { SelectPicker } from "rsuite";
-// import { routing, usePathname, useRouter } from "@/i18n/routing";
-// import Cookies from "js-cookie";
-// import { useLocale } from "next-intl";
-
-// type Props = {};
-
-// const Switcher = (props: Props) => {
-//   const router = useRouter();
-//   const pathname = usePathname();
-//   const locale = useLocale();
-
-//   const Languages = [
-//     { name: "English", countryCode: "us", value: "en" },
-//     { name: "Arabic", countryCode: "sa", value: "ar" },
-//   ];
-
-//   const LanguageOptions = Languages.map((language) => ({
-//     label: (
-//       <div className="flex items-center gap-2">
-//         <ReactCountryFlag countryCode={language.countryCode} svg />
-//         <span className="text-sm">{language.name}</span>
-//       </div>
-//     ),
-//     value: language.value,
-//   }));
-
-//   const [selectedLanguage, setSelectedLanguage] = useState(
-//     Cookies.get("language") || locale
-//   );
-
-//   const handleLanguageChange = (newLocale: string) => {
-//     Cookies.set("language", newLocale, { expires: 7 });
-//     setSelectedLanguage(newLocale);
-
-//     const pathnameWithoutLocale =
-//       pathname
-//         .replace(new RegExp(`^/(${routing.locales.join("|")})`), "")
-//         .replace(/^\/+/, "/") || "/";
-//     router.replace({ pathname: pathnameWithoutLocale }, { locale: newLocale });
-//   };
-
-//   useEffect(() => {
-//     const languageFromCookie = Cookies.get("language");
-//     if (languageFromCookie && languageFromCookie !== selectedLanguage) {
-//       setSelectedLanguage(languageFromCookie);
-//     }
-//   }, [selectedLanguage]);
-
-//   return (
-//     <div>
-//       <p className="sr-only">Change language :</p>
-//       <SelectPicker
-//         data={LanguageOptions}
-//         placement="bottom"
-//         className="w-full absolute z-[1000]"
-//         searchable={false}
-//         id="language"
-//         name="language"
-//         placeholder="Select Language"
-//         value={selectedLanguage}
-//         onChange={(value) => handleLanguageChange(value as string)}
-//         cleanable={false}
-//       />
-//     </div>
-//   );
-// };
-
-// export default Switcher;
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -87,22 +13,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useParams } from "next/navigation";
 
 type Props = {};
 
 const Switcher = (props: Props) => {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = useLocale();
+  const { locale } = useParams();
 
   const Languages = [
     { name: "English", countryCode: "US", value: "en" },
     { name: "العربية", countryCode: "SA", value: "ar" },
   ];
 
-  const [selectedLanguage, setSelectedLanguage] = useState(
-    Cookies.get("language") || locale
-  );
+  const [selectedLanguage, setSelectedLanguage] = useState(locale);
 
   const handleLanguageChange = (newLocale: string) => {
     Cookies.set("language", newLocale, { expires: 7 });
@@ -114,7 +39,6 @@ const Switcher = (props: Props) => {
         .replace(new RegExp(`^/(en|ar)`), "") // Replace only the current locale
         .replace(/^\/+/, "/") || "/";
 
-    // Navigate to the new locale
     router.replace(
       {
         pathname: pathnameWithoutLocale,
@@ -133,6 +57,7 @@ const Switcher = (props: Props) => {
   return (
     <div>
       <Select
+        //@ts-expect-error
         value={selectedLanguage}
         onValueChange={(value) => handleLanguageChange(value)}
       >
