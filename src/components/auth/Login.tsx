@@ -314,7 +314,6 @@ const Login = ({ userType }: { userType: string }) => {
                   <span>go to the secondary dashboard</span>
                 </Link>
               </div>
-              <div></div>
             </div>
           </div>
         </Reveal>

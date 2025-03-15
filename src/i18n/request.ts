@@ -12,15 +12,15 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const cookieStore = cookies();
   const cookieLocale = cookieStore.get('language')?.value;
 
-  if (cookieLocale && routing.locales.includes(cookieLocale as Locale)) {
+
+  if (cookieLocale) {
     locale = cookieLocale;
-  } else if (!locale || !routing.locales.includes(locale as Locale)) {
+  } else  {
     locale = routing.defaultLocale;
   }
 
-  // إرجاع الكائن مع `locale` كنوع `string`
   return {
-    locale, // الآن `locale` هو `string` وليس `Promise`
+    locale, 
     messages: (await import(`@/messages/${locale}.json`)).default,
   };
 });

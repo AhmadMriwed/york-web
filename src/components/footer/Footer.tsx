@@ -68,9 +68,9 @@ const Footer = async () => {
   return (
     <footer className="home-footer-bg fixed bottom-0 w-full mx-auto px-[30px] md:px-[80px] py-[30px] flex flex-col gap-y-8 ">
       <div className="w-full h-full absolute top-0 left-0 bg-[#13181ec7]" />
-      <div className="flex items-center justify-around md:flex-row flex-col gap-y-4 px-2">
+      <div className="flex items-start justify-around md:flex-row flex-col gap-y-4 px-2">
         {/* Logo and Description */}
-        <div className="text-center flex items-center gap-2 flex-col relative md:w-[30%]">
+        <div className="text-center flex items-center md:-mt-12 gap-2 flex-col relative md:w-[30%]">
           <Image src={"/logo.png"} alt="Logo" width={240} height={240} />
           <h1 className="text-white leading-8">{description}</h1>
         </div>
