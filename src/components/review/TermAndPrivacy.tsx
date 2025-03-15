@@ -37,10 +37,12 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
         </DialogHeader>
         <div className="text-white mt-4">
           <h2 className="text-xl font-bold text-primary-color2">
-            {isArabic ? "سياسة الخصوصية" : "Privacy Policy"}
+            {isArabic ? " سياسة الخصوصية :" : "Privacy Policy"}
           </h2>
           <p className="mt-4 text-sm">
-            <strong>{isArabic ? " : تاريخ النفاذ" : "Effective Date:"}</strong>{" "}
+            <strong>
+              {isArabic ? "   تاريخ النفاذ : " : "Effective Date:"}
+            </strong>{" "}
             {terms["Privacy Policy for [YORK BRITISH ACADEMY]"].effectiveDate}
           </p>
           <p className="mt-4">
@@ -48,7 +50,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
           </p>
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2">
-            {isArabic ? " : المعلومات التي نجمعها" : "Information We Collect:"}
+            {isArabic ? " المعلومات التي نجمعها : " : "Information We Collect:"}
           </h3>
           <ul
             className={` ${isArabic ? "pr-6 list-outside" : "pl-6 list-disc"}`}
@@ -65,7 +67,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
             {isArabic
-              ? " : كيف نستخدم معلوماتك "
+              ? " كيف نستخدم معلوماتك : "
               : "How We Use Your Information:"}
           </h3>
           <ul
@@ -81,7 +83,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
           </ul>
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
-            {isArabic ? ": مشاركة معلوماتك" : "Sharing Your Information:"}
+            {isArabic ? "  مشاركة معلوماتك :" : "Sharing Your Information:"}
           </h3>
           <p className="text-sm">
             {
@@ -106,14 +108,14 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
           </ul>
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
-            {isArabic ? ": أمان البيانات " : "Data Security:"}
+            {isArabic ? " أمان البيانات : " : "Data Security:"}
           </h3>
           <p className="text-sm">
             {terms["Privacy Policy for [YORK BRITISH ACADEMY]"].dataSecurity}
           </p>
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
-            {isArabic ? ": حقوقك" : "Your Rights:"}
+            {isArabic ? "حقوقك : " : "Your Rights:"}
           </h3>
           <ul
             className={` ${isArabic ? "pr-6 list-outside" : "pl-6 list-disc"}`}
@@ -129,7 +131,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
             {isArabic
-              ? " : ملفات تعريف الارتباط وتقنيات التتبع"
+              ? "   ملفات تعريف الارتباط وتقنيات التتبع : "
               : "Cookies and Tracking Technologies:"}
           </h3>
           <p className="text-sm">
@@ -141,7 +143,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
             {isArabic
-              ? ": التغييرات على سياسة الخصوصية هذه"
+              ? "التغييرات على سياسة الخصوصية هذه : "
               : "Changes to This Privacy Policy:"}
           </h3>
           <p className="text-sm">
@@ -152,7 +154,7 @@ const TermAndPrivacy = ({ termDialogOpen, setTermDialogOpen }: Props) => {
           </p>
 
           <h3 className="mt-4 font-semibold text-lg text-primary-color2 mb-2">
-            {isArabic ? ": اتصل بنا" : "Contact Us:"}
+            {isArabic ? "اتصل بنا : " : "Contact Us:"}
           </h3>
           <p className="text-sm">
             {terms["Privacy Policy for [YORK BRITISH ACADEMY]"].contactUs.tel}
