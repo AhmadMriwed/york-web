@@ -7,6 +7,7 @@ import Loading from "../Pars/Loading";
 import Image from "next/image";
 import { getSingleEnum } from "@/store/adminstore/slices/enums/singleEnumSlice";
 import { storageURL } from "@/utils/api";
+import { extractOrigin } from "@/lib/utils";
 
 export default function ShowEnumDetailes({
   open,
@@ -81,7 +82,7 @@ export default function ShowEnumDetailes({
                     <p className="m-0 text-[#777] w-[75px] capitalize">
                       {key}:
                     </p>
-                    <p className="m-0">{value}</p>
+                    <p className="m-0">{extractOrigin(value)}</p>
                   </div>
                 )
               );

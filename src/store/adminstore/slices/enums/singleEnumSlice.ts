@@ -1,13 +1,21 @@
 import { SingleEnumState } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import Cookie from "universal-cookie";
+
+ const cookie = new Cookie();
 
 export const getSingleEnum = createAsyncThunk(
    "singleEnum/getSingleEnum",
    async (url: string, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(url);
+         const res = await axios.get(`/api/${url}`,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
          console.log(res, "enum get single");
          if (res.status === 200) {
             return res.data.data;

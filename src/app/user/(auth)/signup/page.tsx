@@ -10,13 +10,13 @@ const UserSignup = () => {
           src="/register.png"
           alt="background image"
           fill
-          className="object-cover z-[-1] dark_gradient_background"
+          className="object-cover z-0 dark_gradient_background"
         />
         <Image
           src="/loo.png"
           alt="background image"
           fill
-          className="object-cover z-[-1] opacity-[0.05]"
+          className="object-cover z-1 opacity-[0.05]"
         />
         <div className="w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]"></div>
         <Reveal triggerOnce duration={1000}>

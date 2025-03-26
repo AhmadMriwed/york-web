@@ -22,6 +22,13 @@ export const UserFormValidation = z.object({
       message: getMessage("Invalid phone number. Format: +1234567890", "رقم الهاتف غير صالح. التنسيق: +1234567890"),
     }),
 });
+export const SubscribeValidation = z.object({
+  name: z
+    .string()
+    .min(2, getMessage("Name must be at least 2 characters.", "يجب أن يكون الاسم على الأقل حرفين."))
+    .max(50, getMessage("Name must be at most 50 characters.", "يجب أن يكون الاسم على الأكثر 50 حرفًا.")),
+  email: z.string().email(getMessage("Invalid email address.", "عنوان البريد الإلكتروني غير صالح.")),
+});
 
 
 
@@ -97,3 +104,12 @@ export const RegisterationFormValidation = z.object({
   course_ad_id: z.number().nullable().optional(),
   discount_code: z.string().optional(),
 });
+
+
+export const NewItemFormValidation = z.object({
+    title_en: z.string().min(1, "English title is required"),
+    description_en: z.string().optional(),
+    title_ar: z.string().optional(),
+    description_ar: z.string().optional(),
+    image: z.any().optional(),
+}); 

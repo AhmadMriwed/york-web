@@ -1,9 +1,12 @@
+import { string } from "zod";
+
 export interface EnumType1 {
    id: number;
-   title: string;
+   title: string;     
    description: string;
-   image: null | string;
-}
+   image: string;
+ }
+
 
 export interface EnumType2 {
    id: number;

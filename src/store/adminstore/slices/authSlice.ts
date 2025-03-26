@@ -2,6 +2,11 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
 import Cookies from "universal-cookie";
 import { Axios } from "@/utils/axios";
+import axios from "axios";
+import Cookie from "universal-cookie";
+
+ const cookie = new Cookie();
+
 
 export const loginAdmin = createAsyncThunk(
   "login",
@@ -10,7 +15,11 @@ export const loginAdmin = createAsyncThunk(
     const cookies = new Cookies();
 
     try {
-      const res = await Axios.post(`admin/login`, data);
+      const res = await axios.post(`/api/admin/login`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       if (res?.status === 200) {
         let token = res.data.data.access_token;
 
@@ -57,7 +66,11 @@ export const adminForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await Axios.post(`admin/forgot-password`, data);
+      const res = await axios.post(`/api/admin/forgot-password`,data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data;
       }
@@ -77,7 +90,11 @@ export const adminValidateForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await Axios.post(`admin/validate-forgot-password-otp`, data);
+      const res = await axios.post(`/api/admin/validate-forgot-password-otp`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.status === 422) {
@@ -95,7 +112,11 @@ export const adminResetPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await Axios.post(`admin/reset-password`, data);
+      const res = await Axios.post(`/api/admin/reset-password`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.status === 422) {
@@ -138,7 +159,7 @@ export const adminLogOut = createAsyncThunk(
     const { rejectWithValue } = thunAPI;
 
     try {
-      const res = await Axios.delete(`admin/logout`);
+      const res = await axios.delete(`/api/admin/logout`);
 
       let cookie = new Cookies();
       cookie.remove("admin_token");

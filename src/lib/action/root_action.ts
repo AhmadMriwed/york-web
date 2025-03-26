@@ -525,6 +525,23 @@ export const fetchFooterIcons = async (language:string): Promise<FooterIcons[]> 
   }
 };
 
+export const Subscribe = async (data:{name:string,email:string}): Promise<void> => {
+  try {
+    await axios.post('/api/subscribe', data); 
+  } catch (error: any) {
+
+    if (error.response) {
+      console.error('Error response:', error.response.data);
+    } else if (error.request) {
+      console.error('No response received:', error.request);
+    } else {
+      console.error('Request setup error:', error.message);
+    }
+
+  }
+};
+
+
 // dwonload file /// 
 export const downloadFile = async (filePath: string) => {
   try {

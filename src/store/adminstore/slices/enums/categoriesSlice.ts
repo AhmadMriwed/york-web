@@ -14,7 +14,7 @@ export const getCategories = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          const res = await Axios.get(
-            `admin/category?page=${activePage}&term=${term}`
+            `/category?page=${activePage}&term=${term}`
          );
 
          console.log("res venu", res);

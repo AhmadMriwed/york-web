@@ -57,3 +57,16 @@ fire(0.1, {
   startVelocity: 45,
 });
 }
+
+
+export function extractOrigin(value: string | { origin?: string; ar?: string | null; en?: string | null }): string {
+  if (typeof value === 'string' || typeof value ==='number') {
+    return value;
+  }
+  
+  if (value && typeof value === 'object') {
+    return value.origin || value.en || value.ar || '';
+  }
+  
+  return '';
+}

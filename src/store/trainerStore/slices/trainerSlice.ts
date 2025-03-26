@@ -1,7 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from "universal-cookie";
-import { TrainerAxios } from "@/utils/axios";
 import { TrainerState } from "@/types/trainerTypes/auth/authTypes";
+import axios from "axios";
+import Cookie from "universal-cookie";
+const cookie = new Cookie();
 
 export const trainerRegister = createAsyncThunk(
   "trainerRegister",
@@ -9,7 +11,11 @@ export const trainerRegister = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     let cookies = new Cookies();
     try {
-      const res = await TrainerAxios.post(`trainer/register`, data);
+      const res = await axios.post(`/api/trainer/register`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },
+      });
       if (res.status === 201) {
         let token = res.data.data.access_token;
         const expiryDate = new Date();
@@ -31,7 +37,11 @@ export const trainerLogin = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     const cookies = new Cookies();
     try {
-      const res = await TrainerAxios.post(`trainer/login`, data);
+      const res = await axios.post(`/api/trainer/login`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (res.status === 200) {
         let token = res.data.data.access_token;
         const expiryDate = new Date();
@@ -55,7 +65,10 @@ export const getTrainerProfile = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await TrainerAxios.get(`trainer`);
+      const res = await axios.get(`/api/trainer`,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },});
       if (res.status === 200) {
         return res.data.data;
       }
@@ -72,7 +85,10 @@ export const trainerUpdateProfile = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await TrainerAxios.put("trainer/updateProfile", data);
+      const res = await axios.put("/api/trainer/updateProfile", data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },});
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.data?.message)
@@ -87,7 +103,10 @@ export const trainerUpdatePassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await TrainerAxios.put(`trainer/updatePassword`, data);
+      const res = await axios.put(`/api/trainer/updatePassword`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },});
       if (res.status === 200) {
         return res.data.data;
       }
@@ -105,7 +124,10 @@ export const trainerForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await TrainerAxios.post(`trainer/forgot-password`, data);
+      const res = await axios.post(`/api/trainer/forgot-password`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },});
       if (res.status === 200) {
         return res.data;
       }
@@ -124,9 +146,12 @@ export const trainerValidateForgotPassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await TrainerAxios.post(
-        `trainer/validate-forgot-password-otp`,
-        data
+      const res = await axios.post(
+        `/api/trainer/validate-forgot-password-otp`,
+        data,{
+          headers: {
+            Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+          },}
       );
       return res.data.data;
     } catch (error: any) {
@@ -144,7 +169,10 @@ export const trainerResetPassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await TrainerAxios.post(`trainer/reset-password`, data);
+      const res = await axios.post(`/api/trainer/reset-password`, data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("trainer_token")}`, 
+        },});
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.status === 422) {
@@ -161,7 +189,7 @@ export const trainerLogOut = createAsyncThunk(
   async (_, thunAPI) => {
     const { rejectWithValue } = thunAPI;
     try {
-      const res = await TrainerAxios.delete(`trainer/logout`);
+      const res = await axios.delete(`/api/trainer/logout`);
       let cookie = new Cookies();
       cookie.remove("trainer_token");
       return res.data;

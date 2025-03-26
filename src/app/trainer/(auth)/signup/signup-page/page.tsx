@@ -24,6 +24,9 @@ import { formatFileSize } from "@/utils/helpers";
 
 import dynamic from "next/dynamic";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import axios from "axios";
+import Cookie from "universal-cookie";
+const cookie = new Cookie();
 const LocationModal = dynamic(
   () => import("@/components/accounts/trainers/LocationModal"),
   {
@@ -294,7 +297,12 @@ const TrainerSignupPage = () => {
               let formData = new FormData();
               formData.append("file", e.target.files[0]);
               setLoadingResume(true);
-              TrainerAxios.post(`trainer/upload_resume`, formData)
+              axios
+                .post(`/api/trainer/upload_resume`, formData, {
+                  headers: {
+                    Authorization: `Bearer ${cookie.get("trainer_token")}`,
+                  },
+                })
                 .then((res) => {
                   setErrorResume("");
                   setFileName(res.data.data.name);

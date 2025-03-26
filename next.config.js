@@ -36,6 +36,22 @@ const nextConfig = {
         source: "/api/pdf/:path*",
         destination: "https://review-main.yorkacademy.uk/api/read_file?path=:path*",
       },
+      {
+        source: "/api/admin/:path*", 
+        destination: "https://cms.yorkacademy.uk/api/admin/:path*", 
+      },
+      {
+        source: "/api/trainer/:path*", 
+        destination: "https://cms.yorkacademy.uk/api/trainer/:path*", 
+      },
+      {
+        source: "/api/user/:path*", 
+        destination: "https://cms.yorkacademy.uk/api/user/:path*", 
+      },
+      {
+        source: "/api/:path*", 
+        destination: "https://cms.yorkacademy.uk/api/:path*", 
+      },
     ];
   },
   reactStrictMode: false,

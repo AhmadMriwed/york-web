@@ -15,6 +15,7 @@ import {
 } from "@/store/userStore/slices/userSlice";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import axios from "axios";
 
 export interface FormVal {
   first_name: string;
@@ -276,18 +277,18 @@ const UserSignupPage = () => {
                 text="signup_with"
                 onSuccess={(credentialResponse) => {
                   console.log(credentialResponse);
-                  // let token = credentialResponse.credential;
-                  // try {
-                  //   axios
-                  //     .post(
-                  //       `https://cms.yorkacademy.uk/api/google/callback?token=${token}`
-                  //     )
-                  //     .then((res) => {
-                  //       console.log(res);
-                  //     });
-                  // } catch (error) {
-                  //   console.log(error);
-                  // }
+                  let token = credentialResponse.credential;
+                  try {
+                    axios
+                      .post(
+                        `https://cms.yorkacademy.uk/api/google/callback?token=${token}`
+                      )
+                      .then((res) => {
+                        console.log(res);
+                      });
+                  } catch (error) {
+                    console.log(error);
+                  }
                 }}
                 onError={() => {
                   console.log("Login Failed");

@@ -30,7 +30,7 @@ import {
 } from "react-icons/fa";
 import { MdCategory, MdDescription } from "react-icons/md";
 import { BsPeople } from "react-icons/bs";
-import { Building, Code2, Map, TypeIcon, X } from "lucide-react";
+import { Building, Calendar, Code2, Map, TypeIcon, X } from "lucide-react";
 import { CiMoneyBill } from "react-icons/ci";
 import { toast } from "sonner";
 import { TiThLarge } from "react-icons/ti";
@@ -968,7 +968,7 @@ const SelectAnotherCourse = ({ courseTitle }: { courseTitle: string }) => {
   return (
     <div className="flex items-center gap-2">
       <Select onValueChange={handleChange}>
-        <SelectTrigger className="w-[240px] h-12 border-gray-400">
+        <SelectTrigger className="w-[70%] h-12 border-gray-400">
           <SelectValue
             placeholder={
               locale === "ar"
@@ -1004,8 +1004,10 @@ const SelectAnotherCourse = ({ courseTitle }: { courseTitle: string }) => {
                   <div className="flex flex-col">
                     <h5 className="font-semibold">{course.venue.title}</h5>
                     <span className="text-sm text-gray-500 ">
-                      {course.fee}
-                      <CiMoneyBill className="ml-2 inline-block text-primary-color2 " />
+                      <Calendar className="mr-2 inline-block size-3 text-primary-color2 " />
+                      {course.start_date}
+                      <span className="mx-2">-</span>
+                      {course.end_date}
                     </span>
                   </div>
                 </div>

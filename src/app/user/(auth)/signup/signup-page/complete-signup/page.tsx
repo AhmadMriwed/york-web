@@ -23,6 +23,7 @@ import { FaArrowRight } from "react-icons/fa";
 
 import dynamic from "next/dynamic";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import { Category } from "@/types/rootTypes/rootTypes";
 const LocationModal = dynamic(
   () => import("@/components/accounts/trainers/LocationModal"),
   {
@@ -68,7 +69,7 @@ const UserCompleteSignup = () => {
   const router = useRouter();
 
   const validationSchema = yup.object().shape({
-    url: yup.string().url("Please enter a valid URL"),
+    url: yup.string(),
     about_me: yup.string(),
     image: yup.mixed(),
     gender: yup.string().nullable(),

@@ -1,7 +1,12 @@
 import { VenuesState } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { toast } from "sonner";
+import Cookie from "universal-cookie";
 
+ const cookie = new Cookie();
+ 
 export const getVenues = createAsyncThunk(
    "venues/getVenues",
    async (
@@ -11,8 +16,12 @@ export const getVenues = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          const res = await Axios.get(
-            `admin/venue?page=${activePage}&term=${term}`
-         );
+            `/venue?page=${activePage}&term=${term}`
+         ,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res venu", res);
          if (res.status === 200) {
@@ -37,7 +46,12 @@ export const updateVenue = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.put(`}admin/venue/${enumId}`, formData);
+         const res = await axios.post(`/api/admin/venue/update/${enumId}`, formData,{
+               headers: {
+                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
+                },
+            
+         });
 
          console.log("res venue updated", res);
          if (res.status === 200) {
@@ -52,28 +66,45 @@ export const updateVenue = createAsyncThunk(
 
 export const createVenue = createAsyncThunk(
    "venues/createVenue",
-   async (data: any, thunkAPI) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.post(`admin/venue`, data);
-
-         console.log("res venu created", res);
-         if (res.status === 201) {
-            return res.data.data;
-         }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+   async (formData: FormData, thunkAPI) => {
+     try {
+       const res = await axios.post(`/api/admin/venue`, formData, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Content-Type": "multipart/form-data",
+         },
+       });
+ 
+       if (res.status === 201) {
+         toast.success('Venue created successfully');
+         return {
+           title: {
+             en: res.data.data["title.en"],
+             ar: res.data.data["title.ar"]
+           },
+           description: {
+             en: res.data.data["description.en"],
+             ar: res.data.data["description.ar"]
+           },
+           image: res.data.data.image
+         };
+       }
+     } catch (error: any) {
+       console.error('Full error response:', error.response);
+       toast.error(error.response?.data?.message || 'Failed to create venue');
+       return thunkAPI.rejectWithValue(error.response?.data);
+     }
    }
-);
+ );
+
 
 export const deleteVenue = createAsyncThunk(
    "venues/deleteVenue",
    async (id: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/venue/${id}`);
+         const res = await Axios.delete(`/venue/${id}`);
+         console.log('')
 
          console.log("res venu delete", res);
          if (res.status === 200) {

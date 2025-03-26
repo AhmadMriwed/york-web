@@ -1,7 +1,11 @@
 import { UserState } from "@/types/userTypes/auth/authTypes";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { UserAxios } from "@/utils/axios";
 import Cookies from "universal-cookie";
+import Cookie from "universal-cookie";
+
+import axios from "axios";
+const cookie = new Cookie();
+
 
 export const userLogin = createAsyncThunk(
   "userLogin",
@@ -9,7 +13,10 @@ export const userLogin = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     const cookies = new Cookies();
     try {
-      const res = await UserAxios.post(`user/login`, data);
+      const res = await axios.post(
+        `/api/user/login`,
+        data
+      );
       if (res.status === 200) {
         let token = res.data.data.access_token;
         const expiryDate = new Date();
@@ -18,6 +25,7 @@ export const userLogin = createAsyncThunk(
         return res.data.data;
       }
     } catch (error: any) {
+      console.log(error);
       if (error?.response?.status === 422) {
         return rejectWithValue(error.response.data.message);
       } else if (error?.response?.status === 403) {
@@ -33,7 +41,11 @@ export const userRegister = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     const cookies = new Cookies();
     try {
-      const res = await UserAxios.post(`user/register`, data);
+      const res = await axios.post(`/api/user/register`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       if (res.status === 201) {
         let token = res.data.data.access_token;
         const expiryDate = new Date();
@@ -54,7 +66,11 @@ export const getUserProfile = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await UserAxios.get(`user`);
+      const res = await axios.get(`/api/user`, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data.data;
       }
@@ -71,7 +87,11 @@ export const CompleteUserProfile = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await UserAxios.post(`user/updateProfile`, data);
+      const res = await axios.post(`/api/user/updateProfile`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data.data;
       }
@@ -89,7 +109,11 @@ export const userForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await UserAxios.post(`user/forgot-password`, data);
+      const res = await axios.post(`/api/user/forgot-password`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data;
       }
@@ -108,9 +132,13 @@ export const userValidateForgotPassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await UserAxios.post(
+      const res = await axios.post(
         `user/validate-forgot-password-otp`,
-        data
+        data, {
+          headers: {
+            Authorization: `Bearer ${cookie.get("user_token")}`, 
+          },
+        }
       );
       return res.data.data;
     } catch (error: any) {
@@ -128,7 +156,11 @@ export const userResetPassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await UserAxios.post(`user/reset-password`, data);
+      const res = await axios.post(`/api/user/reset-password`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.status === 422) {
@@ -145,7 +177,11 @@ export const userUpdatePassword = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await UserAxios.put(`user/updatePassword`, data);
+      const res = await axios.put(`/api/user/updatePassword`, data, {
+        headers: {
+          Authorization: `Bearer ${cookie.get("user_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data.data;
       }
@@ -160,7 +196,7 @@ export const userUpdatePassword = createAsyncThunk(
 export const userLogOut = createAsyncThunk("userLogout", async (_, thunAPI) => {
   const { rejectWithValue } = thunAPI;
   try {
-    const res = await UserAxios.delete(`user/logout`);
+    const res = await axios.delete(`/api/user/logout`);
     let cookie = new Cookies();
     cookie.remove("user_token");
     return res.data;

@@ -10,17 +10,17 @@ const TrainerSignup = () => {
           src="/register.png"
           alt="background image"
           fill
-          className="object-cover z-[-1] dark_gradient_background"
+          className="object-cover z-0 dark_gradient_background"
         />
         <Image
           src="/loo.png"
           alt="background image"
           fill
-          className="object-cover z-[-1] opacity-[0.05]"
+          className="object-cover z-1 opacity-[0.05]"
         />
         <div className="w-full h-full absolute top-0 left-0 mix-blend-color z-[-1]"></div>
         <Reveal triggerOnce duration={1000}>
-          <div className="flex flex-col gap-20">
+          <div className="flex flex-col gap-20 min-w-[100vw]">
             <div className="flex items-center justify-center">
               <div className="flex flex-col text-center gap-2">
                 <p className="text-[whitesmoke] text-lg sm:text-xl tracking-widest">

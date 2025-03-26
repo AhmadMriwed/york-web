@@ -5,8 +5,10 @@ import OperationAlert from "@/components/Pars/OperationAlert";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
 import AddEnums from "@/components/enums/AddEnums";
+import { AddNewItem } from "@/components/enums/AddNew";
 import EditEnums from "@/components/enums/EditEnums";
 import ShowEnumDetailes from "@/components/enums/ShowEnumDetailes";
+import { NewItemFormValidation } from "@/lib/validation";
 import {
   completedVenueOperation,
   createVenue,
@@ -23,6 +25,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from "rsuite";
 import * as yup from "yup";
+import { z } from "zod";
 
 export default function Venues() {
   const [activePage, setActivePage] = useState(1);
@@ -33,6 +36,7 @@ export default function Venues() {
   const [term, setTerm] = useState("");
   const [enumId, setEnumId] = useState<number>(0);
   const dispatch: any = useDispatch();
+
   const messageOperation: string =
     (openAdd && "adding") ||
     (openEdit && "updating") ||
@@ -45,36 +49,31 @@ export default function Venues() {
   const columns = [
     {
       name: "ID",
-      selector: (row: EnumType1) => row.id,
+      selector: (row: EnumType1) => row.id || "1",
       sortable: true,
     },
     {
       name: "Title",
-      selector: (row: EnumType1) => row.title,
+      selector: (row: EnumType1) =>
+        //@ts-ignore
+        typeof row.title === "string" ? row.title : row.title?.en || "No title",
       sortable: true,
-
       wrap: true,
-      style: {
-        minWidth: "100px",
-        marginInline: "10px",
-        padding: "10px",
-      },
     },
     {
       name: "Description",
-      selector: (row: EnumType1) => row.description,
+      selector: (row: EnumType1) =>
+        typeof row.description === "string"
+          ? row.description
+          : //@ts-ignore
+            row.description?.en || "No description",
       sortable: true,
       wrap: true,
-      grow: 3,
-      style: {
-        minWidth: "300px",
-        marginLeft: "10px",
-        padding: "10px",
-      },
     },
     {
       name: "Image",
       selector: (row: EnumType1) => {
+        console.log(row);
         if (row.image === null) {
           return "no image available";
         } else {
@@ -114,46 +113,66 @@ export default function Venues() {
     },
   ];
 
-  const formFields = [
+  const ArabicFormFields = [
     {
-      name: "title",
-      label: "Title",
+      name: "title[ar]",
+      label: "Title (Arabic)",
       type: "text",
-      placeholder: "Enter a venue title",
-      validation: yup.string().required("Venue Title is Required"),
+      validation: yup.string(),
+      placeholder: "Enter title in Arabic",
     },
-
     {
-      name: "description",
-      label: "Description",
+      name: "description[ar]",
+      label: "Description (Arabic)",
       type: "textarea",
-      placeholder: "Enter a Venue description",
-      validation: yup.string().required("Venue Description is Required"),
+      validation: yup.string(),
+      placeholder: "Enter description in Arabic",
+    },
+  ];
+
+  const EnglsihFormFields = [
+    {
+      name: "title[en]",
+      label: "Title (English)",
+      type: "text",
+      validation: yup.string().required("English title is required"),
+      placeholder: "Enter title in English",
+    },
+    {
+      name: "description[en]",
+      label: "Description (English)",
+      type: "textarea",
+      validation: yup.string().required("English description is required"),
+      placeholder: "Enter description in English",
     },
     {
       name: "image",
-      label: "Venue Image",
+      label: "Image",
       type: "file",
-      placeholder: "Enter a Venue image",
-      validation: yup.mixed(),
+      validation: yup.mixed().required("Image is required"),
+      placeholder: "Upload an image",
     },
   ];
 
   const initialValues = {
-    title: "",
-    description: "",
+    "title[en]": "",
+    "title[ar]": "",
+    "description[en]": "",
+    "description[ar]": "",
     image: null,
   };
-
-  const handleSubmit = (values: any, singleEnum: any) => {
-    console.log("submit", values);
-    const data = mergeDifferentProperties(singleEnum, values);
-    console.log("data", data);
+  const handleSubmit = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
-    });
-    console.log(formData);
+
+    // Append data in the format the backend expects
+    formData.append("title[en]", values.title_en);
+    if (values.description_en)
+      formData.append("description[en]", values.description_en);
+    if (values.title_ar) formData.append("title[ar]", values.title_ar);
+    if (values.description_ar)
+      formData.append("description[ar]", values.description_ar);
+    if (values.image) formData.append("image", values.image);
+
     dispatch(createVenue(formData));
   };
 
@@ -171,8 +190,10 @@ export default function Venues() {
     dispatch(updateVenue({ formData, enumId }));
   };
 
+  console.log(venues);
+
   return (
-    <main className="pt-0 overflow-x-auto overflow-y-clip max-w-full">
+    <main className=" overflow-x-auto overflow-y-clip max-w-full">
       {isLoading && <Loading />}
       {!isLoading && venues.length > 0 && (
         <>
@@ -199,7 +220,7 @@ export default function Venues() {
               maxButtons={3}
               activePage={activePage}
               onChangePage={setActivePage}
-              className="my-[30px] w-max absolute left-[50%] bottom-0 translate-x-[-50%] 
+              className="my-[30px] w-max absolute left-[50%] -bottom-6 translate-x-[-50%] 
                               [&>div_.rs-pagination-btn]:!bg-white
                                  [&>div_.rs-pagination-btn]:!text-[var(--primary-color2)]
                                  [&>div_.rs-pagination-btn]:!mx-[5px]
@@ -223,7 +244,7 @@ export default function Venues() {
         closeDelete={setOpenDelete}
       />
 
-      <AddEnums
+      {/* <AddEnums
         formFields={formFields}
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -232,6 +253,26 @@ export default function Venues() {
         requestType="Add a Venue"
         isLoading={operationLoading}
         loadingContent="Venue Creating ..."
+      /> */}
+      {/* <AddNewItem
+     
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        open={openAdd}
+        setOpen={setOpenAdd}
+        requestType="Add a Venue"
+        isLoading={operationLoading}
+        loadingContent="Venue Creating ..."
+      /> */}
+
+      <AddNewItem
+        open={openAdd}
+        setOpen={setOpenAdd}
+        requestType="Add New Venue"
+        //@ts-ignore
+        onSubmit={handleSubmit}
+        isLoading={operationLoading}
+        loadingContent="Creating venue..."
       />
 
       <AlertModal
@@ -245,7 +286,7 @@ export default function Venues() {
         label="Are you sure you want to delete the selected Venue ?"
       />
 
-      <EditEnums
+      {/* <EditEnums
         id={enumId}
         open={openEdit}
         setOpen={setOpenEdit}
@@ -256,7 +297,7 @@ export default function Venues() {
         onSubmit={handleEdit}
         initialValues={initialValues}
         url="admin/venue/"
-      />
+      /> */}
       <AlertModal
         open={openDelete}
         setOpen={setOpenDelete}
