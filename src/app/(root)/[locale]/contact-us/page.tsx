@@ -80,12 +80,6 @@ const Page = async () => {
                   +442032900440
                 </p>
               </div>
-              <div className="flex items-center transition-all duration-200 hover:text-primary-color2">
-                <MapPin className="text-gray-300 w-8  h-8 mx-2" />
-                <p className="cursor-pointer md:text-xl font-semibold  md:max-w-[400px]">
-                  27 Old Gloucester Street, WC1N 3AX, London, United Kingdom
-                </p>
-              </div>
 
               {/* البريد الإلكتروني */}
               <div className="flex items-center space-x-3 transition-all duration-200 hover:text-primary-color2">
