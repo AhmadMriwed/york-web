@@ -71,13 +71,9 @@ export function EditItem({
   useEffect(() => {
     if (singleEnum) {
       form.reset({
-        //@ts-ignore
         title_en: singleEnum.title?.en || "",
-        //@ts-ignore
         description_en: singleEnum.description?.en || "",
-        //@ts-ignore
         title_ar: singleEnum.title?.ar || "",
-        //@ts-ignore
         description_ar: singleEnum.description?.ar || "",
         image: null, // Keep as null for edit unless user wants to change
       });

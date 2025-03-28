@@ -90,10 +90,6 @@ const Footer = async () => {
             <h3 className="text-xl font-bold my-5 uppercase">York academy</h3>
             <div className="space-y-2">
               <p className="text-white">Company: YORK ACADEMY LTD</p>
-              <p className="text-white">Street: 27 Old Gloucester Street </p>
-              <p className="text-white">City: LONDON </p>
-              <p className="text-white">Postcode: WC1N 3AX </p>
-              <p className="text-white">D-U-N-S® Number: 225232758</p>
             </div>
           </div>
 

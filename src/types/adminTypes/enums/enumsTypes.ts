@@ -98,14 +98,19 @@ export interface CourseTypesState {
 }
 export interface SingleEnumType {
    id: number;
-   title?: string;
-   description?: string;
+   title?: {
+     en?: string;
+     ar?: string;
+   };
+   description?: {
+     en?: string;
+     ar?: string;
+   };
    image?: null | string;
    hint?: string;
    type?: string;
    name?: string;
-}
-
+ }
 export interface SingleEnumState {
    isLoading: boolean;
    error: any;
