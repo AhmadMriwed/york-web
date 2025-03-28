@@ -126,9 +126,9 @@ const Home = async () => {
           />
           <div className=" w-fit  mx-auto relative">
             <Image
-              src={"/logo york.gif"}
-              width={500}
-              height={100}
+              src={"/logo dark.png"}
+              width={480}
+              height={120}
               alt="logo"
               className=" w-72 md:w-full -mt-8  md:-mt-16 -mb-32"
             />
@@ -144,7 +144,7 @@ const Home = async () => {
             />
             <div className="w-full h-full absolute top-0 left-0 bg-[#13181eec] bg-opacity-95" />
             <div className="min-w-[100px] lg:ms-[100px] relative">
-              <Image src="/logo.png" alt="Logo" width={340} height={340} />
+              <Image src="/logo.png" alt="Logo" width={300} height={300} />
             </div>
             <div className="basis-[50%] relative">
               <h1

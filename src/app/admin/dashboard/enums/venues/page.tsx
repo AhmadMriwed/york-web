@@ -7,6 +7,7 @@ import CrudLayout from "@/components/crud/CrudLayout";
 import AddEnums from "@/components/enums/AddEnums";
 import { AddNewItem } from "@/components/enums/AddNew";
 import EditEnums from "@/components/enums/EditEnums";
+import { EditItem } from "@/components/enums/EditItem";
 import ShowEnumDetailes from "@/components/enums/ShowEnumDetailes";
 import { NewItemFormValidation } from "@/lib/validation";
 import {
@@ -73,7 +74,6 @@ export default function Venues() {
     {
       name: "Image",
       selector: (row: EnumType1) => {
-        console.log(row);
         if (row.image === null) {
           return "no image available";
         } else {
@@ -187,10 +187,8 @@ export default function Venues() {
       formData.append(key, values[key]);
     });
     console.log(formData);
-    dispatch(updateVenue({ formData, enumId }));
+    dispatch(updateVenue({ formData, id: enumId }));
   };
-
-  console.log(venues);
 
   return (
     <main className=" overflow-x-auto overflow-y-clip max-w-full">
@@ -208,6 +206,8 @@ export default function Venues() {
             isThereChangeStatus={false}
             withImportExport={true}
             setTerm={setTerm}
+            importUrl={"/api/admin/venue/import"}
+            exportUrl={"/api/admin/venue/export"}
           />
 
           {total > perPage && (
@@ -244,32 +244,10 @@ export default function Venues() {
         closeDelete={setOpenDelete}
       />
 
-      {/* <AddEnums
-        formFields={formFields}
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
-        open={openAdd}
-        setOpen={setOpenAdd}
-        requestType="Add a Venue"
-        isLoading={operationLoading}
-        loadingContent="Venue Creating ..."
-      /> */}
-      {/* <AddNewItem
-     
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
-        open={openAdd}
-        setOpen={setOpenAdd}
-        requestType="Add a Venue"
-        isLoading={operationLoading}
-        loadingContent="Venue Creating ..."
-      /> */}
-
       <AddNewItem
         open={openAdd}
         setOpen={setOpenAdd}
         requestType="Add New Venue"
-        //@ts-ignore
         onSubmit={handleSubmit}
         isLoading={operationLoading}
         loadingContent="Creating venue..."
@@ -285,19 +263,18 @@ export default function Venues() {
         deleteAction={deleteVenue}
         label="Are you sure you want to delete the selected Venue ?"
       />
-
-      {/* <EditEnums
+      <EditItem
         id={enumId}
         open={openEdit}
         setOpen={setOpenEdit}
-        isLoading={operationLoading}
         requestType="Edit Venue"
-        loadingContent="Editing ..."
-        formFields={formFields}
+        //@ts-ignore
         onSubmit={handleEdit}
-        initialValues={initialValues}
+        isLoading={operationLoading}
+        loadingContent="Creating venue..."
         url="admin/venue/"
-      /> */}
+      />
+
       <AlertModal
         open={openDelete}
         setOpen={setOpenDelete}

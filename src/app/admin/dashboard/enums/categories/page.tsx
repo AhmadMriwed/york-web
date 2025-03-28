@@ -5,8 +5,10 @@ import OperationAlert from "@/components/Pars/OperationAlert";
 import Action from "@/components/crud/Action";
 import CrudLayout from "@/components/crud/CrudLayout";
 import AddEnums from "@/components/enums/AddEnums";
+import { AddNewItem } from "@/components/enums/AddNew";
 import EditEnums from "@/components/enums/EditEnums";
 import ShowEnumDetailes from "@/components/enums/ShowEnumDetailes";
+import { NewItemFormValidation } from "@/lib/validation";
 import {
   completedCategoriesOperation,
   createCategory,
@@ -23,6 +25,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from "rsuite";
 import * as yup from "yup";
+import { z } from "zod";
 
 export default function Categories() {
   const [activePage, setActivePage] = useState(1);
@@ -153,13 +156,18 @@ export default function Categories() {
     image: null,
   };
 
-  const handleSubmit = (values: any) => {
-    console.log("submit", values);
+  const handleSubmit = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
-    Object.keys(values).forEach((key) => {
-      formData.append(key, values[key]);
-    });
-    console.log(formData);
+
+    // Append data in the format the backend expects
+    formData.append("title[en]", values.title_en);
+    if (values.description_en)
+      formData.append("description[en]", values.description_en);
+    if (values.title_ar) formData.append("title[ar]", values.title_ar);
+    if (values.description_ar)
+      formData.append("description[ar]", values.description_ar);
+    if (values.image) formData.append("image", values.image);
+
     dispatch(createCategory(formData));
   };
 
@@ -179,8 +187,6 @@ export default function Categories() {
   useEffect(() => {
     dispatch(getCategories({ activePage, term }));
   }, [dispatch, activePage, term]);
-
-  // && categories.length > 0
 
   return (
     <main
@@ -236,15 +242,13 @@ export default function Categories() {
         closeDelete={setOpenDelete}
       />
 
-      <AddEnums
-        formFields={formFields}
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
+      <AddNewItem
         open={openAdd}
         setOpen={setOpenAdd}
-        requestType="Add a Category"
+        requestType="Add New Category"
+        onSubmit={handleSubmit}
         isLoading={operationLoading}
-        loadingContent="creating category ..."
+        loadingContent="Creating category..."
       />
 
       <EditEnums

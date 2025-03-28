@@ -40,7 +40,7 @@ const Page = async () => {
         </div>
 
         {/* Contact Cards Section */}
-        <div className="container px-8 py-12 my-4 items-center space-y-2 md:mx-auto md:grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="container px-8 py-12 my-4 items-center justify-evenly space-y-2 md:mx-auto md:grid grid-cols-1 md:grid-cols-2  gap-6">
           {contactUsData?.map((item) => {
             // Validate that item.type.type is a valid key for contactUsImage
             const type = item.type.type as ContactUsImageKey;
@@ -60,16 +60,6 @@ const Page = async () => {
           })}
         </div>
 
-        {/* Map Section */}
-        <div className="w-[70vw] mx-auto text-center my-14">
-          <h1 className="text-2xl text-primary-color1 mb-8 font-semibold">
-            {t("location")}
-          </h1>
-          <div className="w-[80%] mx-auto">
-            <Map />
-          </div>
-        </div>
-
         {/* Contact Form Section */}
         <div className="bg-primary-color4 md:px-16 px-4 md:py-24 gap-16 py-16 ">
           <div className="md:w-[80%] md:mx-auto w-full flex items-center md:items-start gap-12 flex-col md:flex-row">
@@ -77,9 +67,9 @@ const Page = async () => {
               {/* Logo */}
               <Image
                 src="/logo.png"
-                height={200}
-                width={200}
-                className=" mx-auto md:ml-24 "
+                height={300}
+                width={250}
+                className=" mx-auto md:ml-24 -mb-16 "
                 alt="logo"
               />
 
@@ -87,7 +77,7 @@ const Page = async () => {
               <div className="flex -mt-24 items-center transition-all  duration-200 hover:text-primary-color2 space-x-3">
                 <Phone className="text-gray-300  w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold">
-                  +442087209292 / +447520619292
+                  +442032900440
                 </p>
               </div>
               <div className="flex items-center transition-all duration-200 hover:text-primary-color2">
@@ -101,7 +91,7 @@ const Page = async () => {
               <div className="flex items-center space-x-3 transition-all duration-200 hover:text-primary-color2">
                 <Mail className="text-gray-300 w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold ">
-                  info@yorkbritishacademy.uk
+                  Info@yorkacademy.uk
                 </p>
               </div>
             </div>

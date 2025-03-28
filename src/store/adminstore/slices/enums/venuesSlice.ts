@@ -38,31 +38,40 @@ export const getVenues = createAsyncThunk(
    }
 );
 
-export const updateVenue = createAsyncThunk(
-   "venues/updatevenue",
-   async (
-      { formData, enumId }: { formData: any; enumId: number },
-      thunkAPI
-   ) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await axios.post(`/api/admin/venue/update/${enumId}`, formData,{
-               headers: {
-                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
-                },
-            
-         });
 
-         console.log("res venue updated", res);
-         if (res.status === 200) {
-            return res.data.data;
-         }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+export const updateVenue = createAsyncThunk(
+   "venues/updateVenue",
+   async ({ id, formData }: { id: number; formData: FormData }, thunkAPI) => {
+     try {
+       const res = await axios.post(`/api/admin/venue/update/${id}`, formData, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Content-Type": "multipart/form-data",
+         },
+       });
+ 
+       if (res.status === 200) {
+         return {
+           id,
+           data: {
+             title: {
+               en: res.data.data["title.en"],
+               ar: res.data.data["title.ar"]
+             },
+             description: {
+               en: res.data.data["description.en"],
+               ar: res.data.data["description.ar"]
+             },
+             image: res.data.data.image
+           }
+         };
+       }
+     } catch (error: any) {
+       console.error('Update error:', error.response);
+       return thunkAPI.rejectWithValue(error.response?.data);
+     }
    }
-);
+ );
 
 export const createVenue = createAsyncThunk(
    "venues/createVenue",
@@ -76,7 +85,6 @@ export const createVenue = createAsyncThunk(
        });
  
        if (res.status === 201) {
-         toast.success('Venue created successfully');
          return {
            title: {
              en: res.data.data["title.en"],
@@ -91,7 +99,6 @@ export const createVenue = createAsyncThunk(
        }
      } catch (error: any) {
        console.error('Full error response:', error.response);
-       toast.error(error.response?.data?.message || 'Failed to create venue');
        return thunkAPI.rejectWithValue(error.response?.data);
      }
    }
@@ -103,7 +110,12 @@ export const deleteVenue = createAsyncThunk(
    async (id: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`/venue/${id}`);
+         const res = await axios.delete(`/api/admin/venue/${id}`,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`,
+               "Content-Type": "multipart/form-data",
+             },
+         });
          console.log('')
 
          console.log("res venu delete", res);
@@ -116,6 +128,77 @@ export const deleteVenue = createAsyncThunk(
       }
    }
 );
+
+export const importFile = createAsyncThunk(
+   "importAndExport/ImportFile",
+   async ({ data, url }: { data: FormData, url: string }, thunkAPI) => {
+     const { rejectWithValue } = thunkAPI;
+     try {
+       const res = await axios.post(url, data, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Content-Type": "multipart/form-data",
+         }
+       });
+       
+       if (res.status === 200) {
+         toast.success('The file has been imported successfully')
+         return res.data.data;
+       }
+     } catch (error: any) {
+       console.error("Error:", error);
+       if (error.response) {
+         // Return the server's error message if available
+         return rejectWithValue(error.response.data.message || error.message);
+       }
+       return rejectWithValue(error.message);
+     }
+   }
+ );
+ export const exportFile = createAsyncThunk(
+   "importAndExport/ExportFile", 
+   async (
+     { 
+       url, 
+       from, 
+       to,
+      //  fileName,
+      //  fileType
+     }: { 
+       url: string, 
+       from: number | undefined, 
+       to: number | undefined,
+      //  fileName: string,
+      //  fileType: string
+     }, 
+     thunkAPI
+   ) => {
+     const { rejectWithValue } = thunkAPI;
+     try {
+       const res = await axios.get(url, {
+         params: {
+           from:1,
+           to:2,
+         //   file_name: fileName,
+         //   file_type: fileType
+         },
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Accept": "application/json" 
+         },
+       });
+ 
+       console.log("Export response", res);
+       
+       if (res.status === 200) {
+         return res.data;
+       }
+     } catch (error: any) {
+       console.error("Export Error:", error);
+       return rejectWithValue(error.response?.data?.message || error.message);
+     }
+   }
+ );
 
 const venues = createSlice({
    name: "venues",

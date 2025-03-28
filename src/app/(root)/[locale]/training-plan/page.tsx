@@ -78,11 +78,11 @@ const Page = () => {
                 </DialogTrigger>
               </div>
               <DialogContent className="bg-slate-800 border-none p-6 max-w-md mx-auto rounded-lg">
-                <DialogHeader>
+                <DialogHeader className="-mb-16">
                   <Image
                     src="/logo.png"
-                    height={180}
-                    width={180}
+                    height={200}
+                    width={200}
                     alt="logo"
                     className="mx-auto"
                   />

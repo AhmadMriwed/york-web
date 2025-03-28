@@ -111,9 +111,9 @@ export function Navbar(): JSX.Element {
         >
           <Image
             src="/logo.png"
-            height={130}
-            width={130}
-            className="size-20 md:size-44 inline-block"
+            height={150}
+            width={150}
+            className="size-20 md:size-52 mt-3 inline-block"
             alt="logo"
           />
         </Link>

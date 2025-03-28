@@ -5,6 +5,10 @@ import { Form, Formik } from "formik";
 import * as yup from "yup";
 import CustomInput from "../Pars/CustomInput";
 import { useDispatch } from "react-redux";
+import { usePathname } from "next/navigation";
+import { exportFile } from "@/store/adminstore/slices/enums/venuesSlice";
+import { API_ENDPOINTS } from "@/api/apiEndpoints";
+import { getImportExportEndpoint } from "./getEndpoint";
 
 interface ModalType {
   open: boolean;
@@ -13,16 +17,19 @@ interface ModalType {
 }
 
 export default function ExportFile({ open, setOpen, ids }: ModalType) {
+  const pathname = usePathname();
+
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [fileType, setFileType] = useState("");
   const dispatch: any = useDispatch();
 
+  const endpoint = getImportExportEndpoint(pathname, "export");
+
   const submitHandler = (values: any, actions: any) => {
-    console.log("submitted");
-    console.log(values);
     if (ids) {
     }
-    // dispatch();
+    //@ts-expect-error
+    dispatch(exportFile({ values, url: endpoint }));
   };
 
   const validationSchema = yup.object().shape({

@@ -3,12 +3,13 @@ import StoreProvider from "@/store/adminstore/StoreProvider";
 
 import "./globals.css";
 import { Metadata } from "next";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "York British Academy",
+  title: "York  Academy",
   description: "Enhance your career with York Academy's educational programs.",
   icons: {
-    icon: "/dark_logo.png",
+    icon: "/logo.png",
   },
 };
 
@@ -20,7 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="">
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          {children}
+
+          <Toaster richColors position="top-right" />
+        </StoreProvider>
       </body>
     </html>
   );

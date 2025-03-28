@@ -29,6 +29,8 @@ interface CrudLayoutType {
   factor?: "user_id" | "id";
   withImportExport?: boolean;
   totalItems?: number;
+  importUrl?: string;
+  exportUrl?: string;
 }
 
 export default function CrudLayout({
@@ -45,9 +47,12 @@ export default function CrudLayout({
   setTerm,
   withImportExport,
   totalItems,
+  importUrl,
+  exportUrl,
 }: CrudLayoutType) {
   const [selectedRowsIds, setSelectedRowsIds] = useState([]);
   const [toggleCleared, setToggleCleared] = useState(false);
+  console.log(importUrl);
 
   const dispatch: any = useDispatch();
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);

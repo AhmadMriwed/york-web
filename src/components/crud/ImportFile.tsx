@@ -3,6 +3,10 @@ import { Button, Input, Modal } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
+import { usePathname } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { importFile } from "@/store/adminstore/slices/enums/venuesSlice";
+import { getImportExportEndpoint } from "./getEndpoint";
 
 interface ModalType {
   open: boolean;
@@ -10,39 +14,40 @@ interface ModalType {
 }
 
 export default function ImportFile({ open, setOpen }: ModalType) {
+  const pathname = usePathname();
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const dispatch: any = useDispatch();
 
   const validationSchema = yup.object().shape({
     file: yup
       .mixed()
-      .required("the file is required")
+      .required("File is required")
       .test(
         "fileFormat",
-        "Unsupported Format , the type must be only Excel types",
+        "Unsupported Format. Please upload an Excel file (.xls, .xlsx)",
         (value: any) => {
-          const SUPPORTED_FORMATS = [
-            "xls",
-            "xlsx",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.openxmlformats-officedocument",
-          ];
+          if (!value) return false;
 
-          return (
-            value && SUPPORTED_FORMATS.includes(value.name.split(".").pop())
-          );
+          const supportedExtensions = ["xls", "xlsx"];
+          const extension = value.name.split(".").pop().toLowerCase();
+          return supportedExtensions.includes(extension);
         }
       ),
   });
 
   const submitHandler = (values: any, actions: any) => {
-    console.log("submitted");
-    console.log(values);
-    // dispatch();
     const formData = new FormData();
-    Object.keys(values).forEach((key) => {
-      formData.append(key, values[key]);
-    });
-    console.log(formData);
+    formData.append("file", values.file);
+
+    const endpoint = getImportExportEndpoint(pathname, "import");
+
+    dispatch(importFile({ data: formData, url: endpoint }))
+      .then(() => {
+        setOpen(false);
+      })
+      .catch((error: any) => {
+        console.error("Import failed:", error);
+      });
   };
 
   return (
@@ -87,7 +92,10 @@ export default function ImportFile({ open, setOpen }: ModalType) {
                 name="file"
                 type="file"
                 onChange={(value, e: any) => {
-                  props.setFieldValue("file", e.target.files[0]);
+                  const file = e.target.files[0];
+                  if (file) {
+                    props.setFieldValue("file", file);
+                  }
                 }}
                 accept=".xls, .xlsx"
               />

@@ -51,7 +51,7 @@ export default function EditEnums({
 
   // Define validation schema
   const validationSchema = yup.object().shape(
-    formFields.reduce((accumulator: any, field) => {
+    formFields?.reduce((accumulator: any, field) => {
       accumulator[field.name] = field.validation;
       return accumulator;
     }, {})

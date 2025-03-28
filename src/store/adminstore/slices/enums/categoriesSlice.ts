@@ -4,6 +4,12 @@ import {
 } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { toast } from "sonner";
+import Cookie from "universal-cookie";
+
+ const cookie = new Cookie();
+ 
 
 export const getCategories = createAsyncThunk(
    "categories/getCategories",
@@ -13,8 +19,12 @@ export const getCategories = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(
-            `/category?page=${activePage}&term=${term}`
+         const res = await axios.get(
+            `/api/category?page=${activePage}&term=${term}`,{
+               headers: {
+                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
+                },
+            }
          );
 
          console.log("res venu", res);
@@ -37,7 +47,11 @@ export const getCategoriesAsMenue = createAsyncThunk(
    async (_, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get("admin/category");
+         const res = await axios.get("/api/admin/category",{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res category", res);
          if (res.status === 200) {
@@ -50,23 +64,39 @@ export const getCategoriesAsMenue = createAsyncThunk(
    }
 );
 
+
 export const createCategory = createAsyncThunk(
    "categories/createCategory",
-   async (data: any, thunkAPI) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.post(`admin/category`, data);
-
-         console.log("res categ created", res);
-         if (res.status === 201) {
-            return res.data.data;
-         }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+   async (formData: FormData, thunkAPI) => {
+     try {
+       const res = await axios.post(`/api/admin/category`, formData, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Content-Type": "multipart/form-data",
+         },
+       });
+       console.log("hello",res)
+ 
+       if (res.status === 201) {
+         return {
+           title: {
+             en: res.data.data["title.en"],
+             ar: res.data.data["title.ar"]
+           },
+           description: {
+             en: res.data.data["description.en"],
+             ar: res.data.data["description.ar"]
+           },
+           image: res.data.data.image
+         };
+       }
+     } catch (error: any) {
+       console.error('Full error response:', error.response);
+       return thunkAPI.rejectWithValue(error.response?.data);
+     }
    }
-);
+ );
+
 
 export const updateCategory = createAsyncThunk(
    "categories/updateCategory",
