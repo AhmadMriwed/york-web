@@ -56,32 +56,26 @@ export default function Categories() {
   const columns = [
     {
       name: "ID",
-      selector: (row: EnumType1) => row.id,
+      selector: (row: EnumType1) => row.id || "1",
       sortable: true,
     },
     {
       name: "Title",
-      selector: (row: EnumType1) => row.title,
+      selector: (row: EnumType1) =>
+        //@ts-ignore
+        typeof row.title === "string" ? row.title : row.title?.en || "No title",
       sortable: true,
-      grow: 1,
       wrap: true,
-      style: {
-        minWidth: "150px",
-        marginInline: "10px",
-        padding: "5px",
-      },
     },
     {
       name: "Description",
-      selector: (row: EnumType1) => row.description,
+      selector: (row: EnumType1) =>
+        typeof row.description === "string"
+          ? row.description
+          : //@ts-ignore
+            row.description?.en || "No description",
       sortable: true,
       wrap: true,
-      grow: 4,
-      style: {
-        minWidth: "300px",
-        marginInline: "10px",
-        padding: "10px",
-      },
     },
     {
       name: "Image",

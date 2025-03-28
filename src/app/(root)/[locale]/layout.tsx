@@ -25,7 +25,7 @@ export default async function RootLayout({
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>York British Academy</title>
+        <title>York Academy</title>
 
         <link
           rel="stylesheet"

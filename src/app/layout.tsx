@@ -8,9 +8,6 @@ import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "York  Academy",
   description: "Enhance your career with York Academy's educational programs.",
-  icons: {
-    icon: "/logo.png",
-  },
 };
 
 export default function RootLayout({
