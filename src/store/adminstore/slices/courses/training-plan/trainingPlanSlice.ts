@@ -2,6 +2,8 @@ import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { trainingPlanState } from "@/types/adminTypes/courses/coursesTypes";
 import { storageURL } from "@/utils/api";
+import axios from "axios";
+import { getAuthHeaders } from "../../enums/authHeaders";
 
 // get training plan
 export const getTrainingPlan = createAsyncThunk(
@@ -9,7 +11,7 @@ export const getTrainingPlan = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get("admin/training_plan/get_last");
+      const res = await axios.get("/api/admin/training_plan/get_last",getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -27,7 +29,7 @@ export const getPlanInfo = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/training_plan/${id}`);
+      const res = await axios.get(`/api/admin/training_plan/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -45,8 +47,8 @@ export const updatePlan = createAsyncThunk(
   async (params: { id: number; data: any }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post(
-        `admin/training_plan/update/${params.id}`,
+      const res = await axios.post(
+        `/api/admin/training_plan/update/${params.id}`,
         params.data
       );
       if (res.status === 200) {
@@ -66,7 +68,7 @@ export const addPlan = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post(`admin/training_plan`, data);
+      const res = await axios.post(`/api/admin/training_plan`, data,getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,

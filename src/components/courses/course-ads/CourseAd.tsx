@@ -24,6 +24,7 @@ import { IoLanguage } from "react-icons/io5";
 import Image from "next/image";
 import { Dropdown, IconButton } from "rsuite";
 import AlertModal from "@/components/Pars/AlertModal";
+import { getTranslatedText } from "@/lib/utils";
 
 const CourseAd = ({ ad }: { ad: courseAdType }) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -73,6 +74,7 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
     dispatch(changeAdStatus(ad.id));
   };
 
+  console.log(ad);
   return (
     <article
       className={`p-3 sm:p-6 flex justify-between gap-2
@@ -92,13 +94,28 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
       />
 
       <div className="flex justify-between gap-2">
-        <div className="bg-slate-400 min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
-          {ad.image && (
+        <div className=" min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
+          {ad.image ? (
             <Image
-              src={storageURL + ad.image}
+              src={ad.image ? storageURL + ad.image : "/background_horse.png"}
               alt="course ad image"
               width={400}
               height={400}
+              className=""
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "8px",
+              }}
+            />
+          ) : (
+            <Image
+              src={"/register.png"}
+              alt="course ad image"
+              width={400}
+              height={400}
+              className="border border-blue-500 relative"
               style={{
                 width: "100%",
                 height: "100%",
@@ -111,7 +128,7 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
 
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
-            {ad.title && `${ad.title.slice(0, 16)} `}
+            {getTranslatedText(ad.title).slice(0, 10) }
             <span
               className="w-fit bg-[var(--primary-color1)] text-white text-[10px] sm:text-[12px]
             text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
@@ -119,7 +136,7 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
               {ad.change_active_date ? "Active" : "Inactive"}
             </span>
           </p>
-          <p className="m-0 text-[10px] sm:text-[14px] sm:text-[16px] text-[#888]">
+          <p className="m-0 text-[10px]  sm:text-[16px] text-[#888]">
             {ad.code && `#${ad.code}`}
           </p>
           <div

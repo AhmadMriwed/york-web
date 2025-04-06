@@ -27,7 +27,7 @@ import { NewItemFormValidation } from "@/lib/validation";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleEnum } from "@/store/adminstore/slices/enums/singleEnumSlice";
 import { GlobalState } from "@/types/storeTypes";
-import { updateVenue } from "@/store/adminstore/slices/enums/venuesSlice";
+import { AppDispatch } from "@/redux/store";
 
 interface ModalType {
   open: boolean;
@@ -36,6 +36,8 @@ interface ModalType {
   id: number;
   isLoading: boolean;
   url: string;
+  onSubmit: (values: z.infer<typeof NewItemFormValidation>) => void;
+  loadingContent?: string;
 }
 
 export function EditItem({
@@ -45,9 +47,11 @@ export function EditItem({
   url,
   id,
   isLoading,
+  onSubmit,
+  loadingContent = "Updating...",
 }: ModalType) {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const dispatch: any = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { singleEnum } = useSelector((state: GlobalState) => state.singleEnum);
 
@@ -75,26 +79,10 @@ export function EditItem({
         description_en: singleEnum.description?.en || "",
         title_ar: singleEnum.title?.ar || "",
         description_ar: singleEnum.description?.ar || "",
-        image: null, // Keep as null for edit unless user wants to change
+        image: null,
       });
     }
   }, [singleEnum, form]);
-
-  const handleEdit = (values: z.infer<typeof NewItemFormValidation>) => {
-    const formData = new FormData();
-
-    // Append data in the same format as create
-    formData.append("title[en]", values.title_en);
-    if (values.description_en)
-      formData.append("description[en]", values.description_en);
-    if (values.title_ar) formData.append("title[ar]", values.title_ar);
-    if (values.description_ar)
-      formData.append("description[ar]", values.description_ar);
-    if (values.image) formData.append("image", values.image);
-    console.log(id);
-
-    dispatch(updateVenue({ id, formData }));
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -110,7 +98,7 @@ export function EditItem({
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleEdit)}
+            onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 flex-1 w-full p-2"
           >
             <Tabs defaultValue="English" className="w-full">

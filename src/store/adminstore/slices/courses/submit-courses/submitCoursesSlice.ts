@@ -1,6 +1,8 @@
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { submitCourseState } from "@/types/adminTypes/courses/coursesTypes";
+import axios from "axios";
+import { getAuthHeaders } from "../../enums/authHeaders";
 
 // get submit courses by type
 export const getSubmitCoursesByType = createAsyncThunk(
@@ -28,7 +30,7 @@ export const getSubmitDetails = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/submit_courses/${id}`);
+      const res = await axios.get(`/api/admin/submit_courses/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -46,8 +48,8 @@ export const getAdSubmitCourses = createAsyncThunk(
   async (params: { id: number; type: string }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(
-        `admin/course_ads/${params.id}/submitCourses?status=${params.type}`
+      const res = await axios.get(
+        `/api/admin/course_ads/${params.id}/submitCourses?status=${params.type}`,getAuthHeaders()
       );
       if (res.status === 200) {
         return {

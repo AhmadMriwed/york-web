@@ -1,6 +1,13 @@
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { myCoursesState } from "@/types/adminTypes/courses/coursesTypes";
+import axios from "axios";
+import Cookie from "universal-cookie";
+
+ const cookie = new Cookie();
+ 
+
+
 
 // get my courses
 export const getMyCourses = createAsyncThunk(
@@ -8,7 +15,12 @@ export const getMyCourses = createAsyncThunk(
   async (status: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/course/getMyCourses?status=${status}`);
+      const res = await axios.get(`admin/course/getMyCourses?status=${status}`,{
+          headers: {
+            Authorization: `Bearer ${cookie.get("admin_token")}`,
+            "Content-Type": "multipart/form-data",
+          },
+      });
       if (res.status === 200) {
         return {
           data: res.data.data,

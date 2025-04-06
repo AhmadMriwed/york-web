@@ -1,5 +1,6 @@
+"use client";
 import React, { useContext, useState } from "react";
-import { Button, Checkbox, Dropdown, Input, Modal } from "rsuite";
+import { Button, Dropdown, Modal } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { Form, Formik } from "formik";
 import * as yup from "yup";
@@ -7,56 +8,86 @@ import CustomInput from "../Pars/CustomInput";
 import { useDispatch } from "react-redux";
 import { usePathname } from "next/navigation";
 import { exportFile } from "@/store/adminstore/slices/enums/venuesSlice";
-import { API_ENDPOINTS } from "@/api/apiEndpoints";
 import { getImportExportEndpoint } from "./getEndpoint";
+import { toast } from "sonner";
 
 interface ModalType {
   open: boolean;
-  setOpen: any;
-  ids?: number[];
+  setOpen: (open: boolean) => void;
+  selected_ids?: number[];
 }
 
-export default function ExportFile({ open, setOpen, ids }: ModalType) {
+export default function ExportFile({ open, setOpen, selected_ids }: ModalType) {
   const pathname = usePathname();
-
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const [fileType, setFileType] = useState("");
+  const [format, setFormat] = useState("");
   const dispatch: any = useDispatch();
 
   const endpoint = getImportExportEndpoint(pathname, "export");
 
   const submitHandler = (values: any, actions: any) => {
-    if (ids) {
+    if (!values.format) {
+      toast.error("Please select a file format");
+      return;
     }
-    //@ts-expect-error
-    dispatch(exportFile({ values, url: endpoint }));
+
+    if (!selected_ids?.length && (!values.from || !values.to)) {
+      toast.error("Please either select items or specify a range");
+      return;
+    }
+
+    dispatch(
+      exportFile({
+        url: endpoint,
+        selected_ids: selected_ids?.length ? selected_ids : undefined,
+        from: selected_ids?.length ? undefined : values.from,
+        to: selected_ids?.length ? undefined : values.to,
+        fileName: values.fileName,
+        format: values.format,
+      })
+    ).then((action: any) => {
+      if (exportFile.fulfilled.match(action)) {
+        toast.success("File exported successfully");
+        setOpen(false);
+        actions.resetForm();
+      }
+    });
   };
 
   const validationSchema = yup.object().shape({
     fileName: yup.string().required("File Name is required"),
-    checkAll: yup.boolean(),
-    ids: yup.number(),
-    from: yup.number().when("$checkAll", (checkAll, schema) => {
-      return checkAll[0]
+    format: yup.string().required("Format is required"),
+    from: yup.number().when("selected_ids", (selected_ids, schema) => {
+      return !selected_ids || selected_ids.length === 0
+        ? schema.required("From is required when no items are selected")
+        : schema.notRequired();
+    }),
+    to: yup.number().when("selected_ids", (selected_ids, schema) => {
+      return !selected_ids || selected_ids.length === 0
         ? schema
-        : yup.number().required("Inital ID is required");
+            .required("To is required when no items are selected")
+            .min(yup.ref("from"), "'To' must be >= 'From'")
+        : schema.notRequired();
     }),
-    to: yup.number().when("$checkAll", (checkAll, schema) => {
-      console.log("check all", checkAll[0]);
-      return checkAll[0]
-        ? yup.number()
-        : yup.number().required("Last ID List is required");
-    }),
-    fileType: yup.string().required("File Type is required"),
   });
+
+  const formats = [
+    { label: "Excel", value: "xlsx" },
+    { label: "CSV", value: "csv" },
+    { label: "PDF", value: "pdf" },
+    { label: "Word", value: "docx" },
+  ];
 
   return (
     <Modal
       backdrop={true}
       open={open}
-      onClose={() => setOpen(false)}
+      onClose={() => {
+        setOpen(false);
+        setFormat("");
+      }}
       size="md"
-      className={`rounded-[17px]  border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] h-auto ${
+      className={`rounded-[17px] border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] h-auto ${
         mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
       }`}
     >
@@ -75,16 +106,15 @@ export default function ExportFile({ open, setOpen, ids }: ModalType) {
         <Formik
           initialValues={{
             fileName: "",
-            fileType: "",
-            from: ids ? 0 : "",
-            checkAll: false,
-            to: ids ? 0 : "",
+            format: "",
+            from: "",
+            to: "",
           }}
           validationSchema={validationSchema}
           onSubmit={submitHandler}
         >
           {(props) => (
-            <Form className="">
+            <Form>
               <CustomInput
                 label="File Name"
                 name="fileName"
@@ -93,88 +123,67 @@ export default function ExportFile({ open, setOpen, ids }: ModalType) {
               />
 
               <label className="block pl-[5px] text-[#888] mb-1">
-                File Type :
+                Format :
               </label>
-
               <Dropdown
-                title={fileType ? fileType : "Select The File Type"}
-                name="status"
-                className="w-full bg-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-white [&>button.rs-btn:focus]:!text-[#888] [&>*]:!text-left mb-[10px] hover:text-[#888] !blur-none"
+                title={format || "Select The Format"}
+                className={`w-full rounded-[6px] border-[#c1c1c1] mb-[10px] ${
+                  mode === "dark" ? "bg-dark text-light" : "bg-white text-dark"
+                }`}
                 block
               >
-                <Dropdown.Item
-                  onClick={() => {
-                    setFileType("Word");
-                    props.values.fileType = "word";
-                  }}
-                >
-                  Word
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => {
-                    setFileType("PDF");
-                    props.values.fileType = "pdf";
-                  }}
-                >
-                  PDF
-                </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={() => {
-                    setFileType("Excel");
-                    props.values.fileType = "excel";
-                  }}
-                >
-                  Excel
-                </Dropdown.Item>
+                {formats.map((type) => (
+                  <Dropdown.Item
+                    key={type.value}
+                    onClick={() => {
+                      setFormat(type.label);
+                      props.setFieldValue("format", type.value);
+                    }}
+                  >
+                    {type.label}
+                  </Dropdown.Item>
+                ))}
               </Dropdown>
-              {props.errors.fileType && props.touched.fileType && (
+              {props.errors.format && props.touched.format && (
                 <div className="pl-[5px] ml-[10px] mb-[10px] text-red-600">
-                  {props.errors.fileType}
+                  {props.errors.format}
                 </div>
               )}
 
-              {ids ? (
-                <div className="mt-1 ms-2">
-                  <p>your selected IDs : </p>
-                  <p className="mb-2">[{ids.join(",")}]</p>
+              {selected_ids && selected_ids.length > 0 ? (
+                <div className="mt-1 ms-2 mb-4">
+                  <p>Exporting {selected_ids.length} selected items</p>
+                  <p className="text-sm text-gray-500">
+                    IDs: [{selected_ids.join(", ")}]
+                  </p>
                 </div>
               ) : (
-                <>
+                <div className="flex gap-4">
                   <CustomInput
-                    label="From :"
+                    label="From ID"
                     name="from"
                     type="number"
-                    placeholder="Enter the inital ID"
+                    min={1}
+                    placeholder="Start ID"
+                    className="flex-1 p-2 rounded-md"
                   />
                   <CustomInput
-                    label="To :"
+                    label="To ID"
                     name="to"
                     type="number"
-                    placeholder="Enter the lsat ID"
+                    min={props.values.from || 1}
+                    placeholder="End ID"
+                    className="flex-1 p-2 rounded-md"
                   />
-                </>
+                </div>
               )}
-
-              <div className="flex items-center gap-2 mt-4 ms-1">
-                <Input
-                  placeholder="Enter a file"
-                  name="checkAll"
-                  type="checkbox"
-                  onChange={(value, e: any) => {
-                    console.log(e);
-                    console.log("caheckall", value);
-                    props.setFieldValue("checkAll", e.target.checked);
-                  }}
-                  className="w-fit"
-                />
-                <label className="pl-[5px] text-[#888] mb-1">
-                  Select all IDs
-                </label>
-              </div>
 
               <Modal.Footer className="mt-2 pr-1">
                 <Button
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setFormat("");
+                  }}
                   appearance="subtle"
                   className="bg-red-500 text-white hover:bg-red-400 hover:text-white"
                 >

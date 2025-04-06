@@ -2,6 +2,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import confetti from 'canvas-confetti'
+import { FlexibleTranslatedText, TranslatedText } from "@/types/adminTypes/courses/coursesTypes";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -69,4 +70,15 @@ export function extractOrigin(value: string | { origin?: string; ar?: string | n
   }
   
   return '';
+}
+
+export function getTranslatedText(text: FlexibleTranslatedText, lang: keyof TranslatedText = 'origin'): string {
+  if (typeof text === 'string') return text;
+  return text[lang] || text.origin;
+}
+
+export function getFlexibleText(text: FlexibleTranslatedText | undefined, lang: keyof TranslatedText): string {
+  if (!text) return "";
+  if (typeof text === 'string') return text;
+  return text[lang] || "";
 }

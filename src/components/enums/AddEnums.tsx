@@ -15,7 +15,9 @@ interface ModalType {
     label: string;
     type: string;
     validation: any;
-    placeholder: string;
+    placeholder?: string;
+    image?: string;
+    accept?: string;
   }[];
   initialValues: any;
   onSubmit: any;

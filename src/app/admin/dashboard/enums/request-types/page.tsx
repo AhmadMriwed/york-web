@@ -11,6 +11,7 @@ import {
   completedRequestTypeOperation,
   createRequestType,
   deleteRequestType,
+  deleteRequestTypes,
   getRequestTypes,
   updateRequestType,
 } from "@/store/adminstore/slices/enums/requestTypesSlice";
@@ -34,7 +35,7 @@ export default function RequestTypes() {
     (openAdd && "adding") ||
     (openEdit && "updating") ||
     (openDelete && "deleting") ||
-    "";
+    "deleting";
   const dispatch: any = useDispatch();
 
   const {
@@ -111,12 +112,19 @@ export default function RequestTypes() {
   const handleSubmit = (values: any) => {
     console.log("submit", values);
     dispatch(createRequestType(values));
+    dispatch(getRequestTypes({ activePage, term }));
   };
   const handleEdit = (values: any, singleEnum: any) => {
     console.log("submit", values);
     const data = mergeDifferentProperties(singleEnum, values);
     console.log("data", data);
     dispatch(updateRequestType({ formData: data, enumId }));
+    dispatch(getRequestTypes({ activePage, term }));
+  };
+
+  const handleDelete = async () => {
+    await dispatch(deleteRequestType(enumId));
+    dispatch(getRequestTypes({ activePage, term }));
   };
 
   useEffect(() => {
@@ -131,7 +139,7 @@ export default function RequestTypes() {
     >
       {" "}
       {isLoading && <Loading />}
-      {!isLoading && requestTypes.length > 0 && (
+      {!isLoading && (
         <CrudLayout
           columns={columns}
           dataTabel={requestTypes}
@@ -140,8 +148,9 @@ export default function RequestTypes() {
           interfaceName="Request Types"
           isThereAdd={true}
           isLoading={isLoading}
-          withImportExport={true}
+          withImportExport={false}
           setTerm={setTerm}
+          action={deleteRequestTypes}
         />
       )}
       {total > perPage && (
@@ -169,11 +178,12 @@ export default function RequestTypes() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Category has been ${messageOperation} successfully`}
+        messageOnSuccess={`Request Type has been ${messageOperation} successfully`}
         completedAction={completedRequestTypeOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
         closeDelete={setOpenDelete}
+        onSuccess={() => dispatch(getRequestTypes({ activePage, term }))}
       />
       <AddEnums
         formFields={formFields}
@@ -204,7 +214,7 @@ export default function RequestTypes() {
         id={enumId}
         status={status}
         completed={completedRequestTypeOperation}
-        deleteAction={deleteRequestType}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this requst type ?"
       />
       <ShowEnumDetailes

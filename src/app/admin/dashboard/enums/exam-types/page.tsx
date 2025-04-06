@@ -12,6 +12,7 @@ import {
   completedExamTypeOperation,
   createExamType,
   deleteExamType,
+  deleteExamTypes,
   getExamTypes,
   updateExamType,
 } from "@/store/adminstore/slices/enums/examTypesSlice";
@@ -35,7 +36,7 @@ export default function ExamTypes() {
     (openAdd && "adding") ||
     (openEdit && "updating") ||
     (openDelete && "deleting") ||
-    "";
+    "deleting";
 
   const dispatch: any = useDispatch();
 
@@ -145,14 +146,27 @@ export default function ExamTypes() {
   const handleSubmit = (values: any) => {
     console.log("submit", values);
     dispatch(createExamType(values));
+    dispatch(getExamTypes({ activePage, term }));
   };
 
   const handleEdit = (values: any, singleEnum: any) => {
-    console.log("submit", values);
-    const data = mergeDifferentProperties(singleEnum, values);
-    console.log("data", data);
-    dispatch(updateExamType({ formData: data, enumId }));
+    const formData = new FormData();
+
+    for (const key in values) {
+      formData.append(key, values[key]);
+    }
+
+    console.log("enum id ", enumId);
+
+    dispatch(updateExamType({ formData: formData, enumId: enumId }));
+    dispatch(getExamTypes({ activePage, term }));
   };
+
+  const handleDelete = async () => {
+    await dispatch(deleteExamType(enumId));
+    dispatch(getExamTypes({ activePage, term }));
+  };
+
   useEffect(() => {
     dispatch(getExamTypes({ activePage, term }));
   }, [dispatch, activePage, term]);
@@ -181,6 +195,7 @@ export default function ExamTypes() {
           isThereAdd={true}
           isLoading={isLoading}
           setTerm={setTerm}
+          action={deleteExamTypes}
         />
       )}
       {total > perPage && (
@@ -208,7 +223,7 @@ export default function ExamTypes() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Category has been ${messageOperation} successfully`}
+        messageOnSuccess={`Exam type has been ${messageOperation} successfully`}
         completedAction={completedExamTypeOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
@@ -243,14 +258,14 @@ export default function ExamTypes() {
         id={enumId}
         status={status}
         completed={completedExamTypeOperation}
-        deleteAction={deleteExamType}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this exam type ?"
       />
       <ShowEnumDetailes
         id={enumId}
         open={openVisible}
         setOpen={setOpenvisible}
-        title="Exam Type Destailes"
+        title="Exam Type Details"
         url="admin/examtype/"
       />
     </main>

@@ -7,11 +7,13 @@ import CrudLayout from "@/components/crud/CrudLayout";
 import AddEnums from "@/components/enums/AddEnums";
 import { AddNewItem } from "@/components/enums/AddNew";
 import EditEnums from "@/components/enums/EditEnums";
+import { EditItem } from "@/components/enums/EditItem";
 import ShowEnumDetailes from "@/components/enums/ShowEnumDetailes";
 import { NewItemFormValidation } from "@/lib/validation";
 import {
   completedCategoriesOperation,
   createCategory,
+  deleteCategories,
   deleteCategory,
   getCategories,
   updateCategory,
@@ -119,41 +121,8 @@ export default function Categories() {
     },
   ];
 
-  const formFields = [
-    {
-      name: "title",
-      label: "Title",
-      type: "text",
-      placeholder: "Enter a category title",
-      validation: yup.string().required("Category Title is Required"),
-    },
-
-    {
-      name: "description",
-      label: "Description",
-      type: "textarea",
-      placeholder: "Enter a category description",
-      validation: yup.string().required("Category Description is Required"),
-    },
-    {
-      name: "image",
-      label: "Category image",
-      type: "file",
-      placeholder: "Enter a category image",
-      validation: yup.mixed(),
-    },
-  ];
-
-  const initialValues = {
-    title: "",
-    description: "",
-    image: null,
-  };
-
   const handleSubmit = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
-
-    // Append data in the format the backend expects
     formData.append("title[en]", values.title_en);
     if (values.description_en)
       formData.append("description[en]", values.description_en);
@@ -163,24 +132,31 @@ export default function Categories() {
     if (values.image) formData.append("image", values.image);
 
     dispatch(createCategory(formData));
+    dispatch(getCategories({ activePage, term }));
   };
 
-  const handleEdit = (values: any, singleEnum: any) => {
-    console.log("submit", values);
-    console.log("submit , single", singleEnum);
-    const data = mergeDifferentProperties(singleEnum, values);
-    console.log("data", data);
+  const handleEditVenue = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
-    });
-    console.log(formData);
-    dispatch(updateCategory({ formData, enumId }));
+    formData.append("title[en]", values.title_en);
+    if (values.description_en)
+      formData.append("description[en]", values.description_en);
+    if (values.title_ar) formData.append("title[ar]", values.title_ar);
+    if (values.description_ar)
+      formData.append("description[ar]", values.description_ar);
+    if (values.image) formData.append("image", values.image);
+
+    dispatch(updateCategory({ id: enumId, formData }));
+    dispatch(getCategories({ activePage, term }));
   };
 
   useEffect(() => {
     dispatch(getCategories({ activePage, term }));
   }, [dispatch, activePage, term]);
+
+  const handleDelete = async () => {
+    await dispatch(deleteCategory(enumId));
+    dispatch(getCategories({ activePage, term }));
+  };
 
   return (
     <main
@@ -200,6 +176,7 @@ export default function Categories() {
           isLoading={isLoading}
           withImportExport={true}
           setTerm={setTerm}
+          action={deleteCategories}
         />
       )}
 
@@ -245,16 +222,14 @@ export default function Categories() {
         loadingContent="Creating category..."
       />
 
-      <EditEnums
+      <EditItem
         id={enumId}
         open={openEdit}
         setOpen={setOpenEdit}
-        isLoading={operationLoading}
         requestType="Edit Category"
-        loadingContent="Editing ..."
-        formFields={formFields}
-        onSubmit={handleEdit}
-        initialValues={initialValues}
+        onSubmit={handleEditVenue}
+        isLoading={operationLoading}
+        loadingContent="Updating venue..."
         url="admin/category/"
       />
 
@@ -265,7 +240,7 @@ export default function Categories() {
         id={enumId}
         status={status}
         completed={completedCategoriesOperation}
-        deleteAction={deleteCategory}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this category ?"
       />
 

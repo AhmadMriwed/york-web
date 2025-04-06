@@ -17,7 +17,11 @@ import { usePathname, useRouter } from "next/navigation";
 import MobileNav from "./MobileNav";
 import DesktopNav from "./DesktopNav";
 import { Category, Venue } from "@/types/rootTypes/rootTypes";
-import { fetchCategories, fetchVenues } from "@/lib/action/root_action";
+import {
+  fetchCategories,
+  fetchFooterDetails,
+  fetchVenues,
+} from "@/lib/action/root_action";
 import { useLocale } from "next-intl";
 
 export interface NavItem {
@@ -31,6 +35,8 @@ export function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [venues, setVenues] = React.useState<Venue[]>([]);
+  const [data, setData] = React.useState<any>([]);
+
   const locale = useLocale();
 
   const navItems1: NavItem[] = [
@@ -61,14 +67,20 @@ export function Navbar(): JSX.Element {
   const navItems = [...navItems1, ...navItems2];
 
   React.useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 0);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   React.useEffect(() => {
@@ -77,13 +89,15 @@ export function Navbar(): JSX.Element {
       setCategories(categories);
       const venues = await fetchVenues(locale);
       setVenues(venues);
+      const res = await fetchFooterDetails(locale);
+      setData(res);
     };
     fetch();
   }, []);
 
   return (
     <div>
-      <TopBar />
+      <TopBar phone={data[1]?.content} email={data[0]?.content} />
       <NavigationMenu
         className={cn(
           "px-16 fixed max-h-24 min-w-full max-w-full z-[500] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",

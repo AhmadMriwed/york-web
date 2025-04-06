@@ -5,11 +5,10 @@ import {
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
-import Cookie from "universal-cookie";
+import { getAuthHeaders } from "./authHeaders";
 
- const cookie = new Cookie();
- 
 
 export const getCategories = createAsyncThunk(
    "categories/getCategories",
@@ -20,11 +19,7 @@ export const getCategories = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          const res = await axios.get(
-            `/api/category?page=${activePage}&term=${term}`,{
-               headers: {
-                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
-                },
-            }
+            `/api/category?page=${activePage}&term=${term}`,getAuthHeaders()
          );
 
          console.log("res venu", res);
@@ -47,12 +42,9 @@ export const getCategoriesAsMenue = createAsyncThunk(
    async (_, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await axios.get("/api/admin/category",{
-            headers: {
-               Authorization: `Bearer ${cookie.get("admin_token")}`, 
-             },
-         });
 
+
+              const res = await axios.get("/api/admin/category", getAuthHeaders());
          console.log("res category", res);
          if (res.status === 200) {
             return res.data.data;
@@ -69,12 +61,8 @@ export const createCategory = createAsyncThunk(
    "categories/createCategory",
    async (formData: FormData, thunkAPI) => {
      try {
-       const res = await axios.post(`/api/admin/category`, formData, {
-         headers: {
-           Authorization: `Bearer ${cookie.get("admin_token")}`,
-           "Content-Type": "multipart/form-data",
-         },
-       });
+       const res = await axios.post(`/api/admin/category`, formData,getAuthHeaders());
+       
        console.log("hello",res)
  
        if (res.status === 201) {
@@ -98,37 +86,49 @@ export const createCategory = createAsyncThunk(
  );
 
 
+
 export const updateCategory = createAsyncThunk(
    "categories/updateCategory",
-   async (
-      { formData, enumId }: { formData: any; enumId: number },
-      thunkAPI
-   ) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.put(`admin/category/${enumId}`, formData);
-
-         console.log("res categ updated", res);
-         if (res.status === 200) {
-            return res.data.data;
-         }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+   async ({ id, formData }: { id: number; formData: FormData }, thunkAPI) => {
+     try {
+       const res = await axios.post(`/api/admin/category/${id}`, formData, getAuthHeaders());
+ 
+       if (res.status === 200) {
+         return {
+           id,
+           data: {
+             title: {
+               en: res.data.data["title.en"],
+               ar: res.data.data["title.ar"]
+             },
+             description: {
+               en: res.data.data["description.en"],
+               ar: res.data.data["description.ar"]
+             },
+             image: res.data.data.image
+           }
+         };
+       }
+     } catch (error: any) {
+       console.error('Update error:', error.response);
+       return thunkAPI.rejectWithValue(error.response?.data);
+     }
    }
-);
+ );
 
 export const deleteCategory = createAsyncThunk(
    "categories/deleteCategory",
-   async (enumId: number, thunkAPI) => {
+
+   async (id: number, thunkAPI) => {
+      const dispatch: any = useDispatch();
+
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/category/${enumId}`);
+         const res = await axios.delete(`/api/admin/category/${id}`,getAuthHeaders());
 
-         console.log("res venu delete", res);
          if (res.status === 200) {
-            return { data: res.data, enumId };
+            dispatch(getCategories({ activePage: 1, term: "" }));
+            return { data: res.data, id };
          }
       } catch (error: any) {
          console.error("Error:", error);
@@ -136,6 +136,31 @@ export const deleteCategory = createAsyncThunk(
       }
    }
 );
+
+
+export const deleteCategories = createAsyncThunk(  
+   "categories/deleteMultipleVenues",  
+   async (ids: number[], thunkAPI) => {
+     try {
+       const res = await axios.delete(`/api/admin/category/bulk-destroy`, {
+         ...getAuthHeaders("application/json"),
+         data: { ids }, 
+ 
+       });
+       console.log(res);
+ 
+       if (res.status === 200) {
+         return { data: res.data, ids };
+       }
+     } catch (error: any) {
+       console.error("Error:", error);
+       return thunkAPI.rejectWithValue(error.message);
+     }
+   }
+ );
+
+
+
 
 const categories = createSlice({
    name: "categories",
@@ -242,6 +267,26 @@ const categories = createSlice({
          state.error = action.payload;
          state.status = true;
       });
+
+      // delete categories :
+         builder.addCase(deleteCategories.pending, (state) => {
+               state.error = null;
+               state.operationLoading = true;
+            });
+            builder.addCase(deleteCategories.fulfilled, (state, action: any) => {
+               state.error = null;
+               state.operationLoading = false;
+               state.categories = state.categories.filter(
+                  (category) => category.id !== action.payload.id
+               );
+               state.status = true;
+            });
+            builder.addCase(deleteCategories.rejected, (state, action: any) => {
+               state.operationLoading = false;
+               state.error = action.payload;
+               state.status = true;
+            });
+
    },
 });
 

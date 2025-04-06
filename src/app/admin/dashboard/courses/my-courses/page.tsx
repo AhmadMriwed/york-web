@@ -72,6 +72,8 @@ export default function MyCourses() {
     error: myCoursesError,
   } = useSelector((state: GlobalState) => state.myCourses);
 
+  console.log(myCourses);
+
   const {
     isLoading,
     error,
@@ -109,6 +111,8 @@ export default function MyCourses() {
       dispatch(getAllCourses({}));
     }
   }, [dispatch, filterAll, selectedTrainer, showBy]);
+
+  console.log("Courses data:", allCourses); // Debug log
 
   const scrollTo = (direction: "left" | "right") => {
     const container = containerRef.current;

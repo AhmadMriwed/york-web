@@ -5,15 +5,26 @@ import {
   courseAdsState,
 } from "@/types/adminTypes/courses/coursesTypes";
 
+import Cookie from "universal-cookie";
+import axios from "axios";
+import { getAuthHeaders } from "../../enums/authHeaders";
+
+ const cookie = new Cookie();
+
+ 
+
+
+
 // get filtered course ads
 export const getCourseAds = createAsyncThunk(
   "courseAds/getCourseAds",
   async (filterValues: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+
     try {
-      const res = await Axios.post(
-        "admin/course_ads/getAll?page=1",
-        filterValues
+      const res = await axios.post(
+        "/api/admin/course_ads/getAll?page=1",
+        filterValues,getAuthHeaders()
       );
       if (res.status === 200) {
         return {
@@ -32,7 +43,12 @@ export const getFilterData = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get("admin/course_ads/getMap/filterCourse");
+      const res = await axios.get("/api/admin/course_ads/getMap/filterCourse",{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -50,7 +66,7 @@ export const getCourseAdInfo = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/course_ads/${id}`);
+      const res = await axios.get(`/api/admin/course_ads/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -68,12 +84,21 @@ export const createCourseAd = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post("admin/course_ads", data);
+      const res = await axios.post("/api/admin/course_ads", data,getAuthHeaders());
       if (res.status === 201) {
         return res.data.data;
       }
     } catch (error: any) {
-      return rejectWithValue(error.message);
+if (error.response) {
+  console.error("Server error:", error.response.data);
+  return rejectWithValue(error.response.data.message || error.response.data);
+} else if (error.request) {
+  console.error("No response received:", error.request);
+  return rejectWithValue("No response from server");
+} else {
+  console.error("Request setup error:", error.message);
+  return rejectWithValue(error.message);
+}
     }
   }
 );
@@ -81,18 +106,41 @@ export const createCourseAd = createAsyncThunk(
 // update course ad
 export const updateCourseAd = createAsyncThunk(
   "courseAds/updateCourseAd",
-  async (params: { data: {}; id?: number }, thunkAPI) => {
+  async (params: { data: FormData; id: number }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+    
     try {
-      const res = await Axios.post(
-        `admin/course_ads/update/${params.id}`,
-        params.data
-      );
-      if (res.status === 200) {
-        return { status: true };
+      // Log the FormData contents for debugging
+      console.log("FormData contents:");
+      for (const [key, value] of (params.data as any).entries()) {
+        console.log(key, value);
       }
+
+      const res = await axios.post(
+        `/api/admin/course_ads/update/${params.id}`,
+        params.data,
+       getAuthHeaders()
+      );
+
+      if (res.status === 200) {
+        return res.data; // Return the full response data
+      }
+      return rejectWithValue("Unexpected response from server");
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      // Handle Axios errors more specifically
+      if (error.response) {
+        // Server responded with a status code outside 2xx
+        console.error("Server error:", error.response.data);
+        return rejectWithValue(error.response.data.message || error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+        return rejectWithValue("No response from server");
+      } else {
+        // Something happened in setting up the request
+        console.error("Request setup error:", error.message);
+        return rejectWithValue(error.message);
+      }
     }
   }
 );
@@ -103,7 +151,8 @@ export const deleteCourseAd = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.delete(`admin/course_ads/${id}`);
+      const res = await axios.delete(`/api/admin/course_ads/${id}`,getAuthHeaders());
+      console.log(res);
       if (res.status === 200) {
         return { id };
       }
@@ -118,8 +167,9 @@ export const duplicateCourseAd = createAsyncThunk(
   "courseAds/duplicateCourseAd",
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+    console.log(cookie.get("admin_token"))
     try {
-      const res = await Axios.post(`admin/course_ads/replicate/${id}`);
+      const res = await axios.post(`/api/admin/course_ads/replicate/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return res.data.data;
       }
@@ -134,8 +184,10 @@ export const changeAdStatus = createAsyncThunk(
   "courseAds/changeAdStatus",
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+ console.log(cookie.get("admin_token"))
+
     try {
-      const res = await Axios.post(`admin/course_ads/operation/activity/${id}`);
+      const res = await axios.post(`/api/admin/course_ads/operation/activity/${id}`,getAuthHeaders);
       if (res.status === 200) {
         return {
           data: res.data.data,

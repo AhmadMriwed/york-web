@@ -1,6 +1,13 @@
 import { ExamTypesState } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import Cookie from "universal-cookie";
+import { getAuthHeaders } from "./authHeaders";
+
+ const cookie = new Cookie();
+ 
+
 
 export const getExamTypes = createAsyncThunk(
    "examTypes/getExamTypes",
@@ -10,8 +17,14 @@ export const getExamTypes = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(
-            `admin/examtype?page=${activePage}&term=${term}`
+         const res = await axios.get(
+            `/api/admin/examtype?page=${activePage}&term=${term}`
+            ,{
+               headers: {
+                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
+                }, 
+       
+            }
          );
 
          console.log("res exam types", res);
@@ -34,7 +47,11 @@ export const createExamType = createAsyncThunk(
    async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/examtype`, data);
+         const res = await axios.post(`/api/admin/examtype`, data,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             }, 
+         });
 
          console.log("res exam type created", res);
          if (res.status === 201) {
@@ -52,30 +69,50 @@ export const createExamType = createAsyncThunk(
 export const updateExamType = createAsyncThunk(
    "examTypes/updateExamType",
    async (
-      { formData, enumId }: { formData: any; enumId: number },
-      thunkAPI
+     { formData, enumId }: { formData: any; enumId: number },
+     thunkAPI
    ) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.put(`admin/examtype/${enumId}`, formData);
-
-         console.log("res exam updated", res);
-         if (res.status === 200) {
-            return res.data.data;
+     const { rejectWithValue } = thunkAPI;
+     try {
+       const res = await axios.post(`/api/admin/examtype/2`, formData, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+           "Content-Type": "multipart/form-data", 
+         },
+       });
+ 
+       console.log("Update exam type response:", res);
+ 
+       if (res.status === 200) {
+         // Validate the response structure
+         if (!res.data || !res.data.data) {
+           throw new Error("Invalid response structure from server");
          }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+         return { id: enumId, data: res.data.data }; // Return both id and data
+       }
+       throw new Error("Failed to update exam type");
+     } catch (error: any) {
+       console.error("Update exam type error:", error);
+       
+       // More robust error handling
+       const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          "Network error";
+       return rejectWithValue(errorMessage);
+     }
    }
-);
+ );
 
 export const deleteExamType = createAsyncThunk(
    "examTypes/deleteExamType ",
    async (enumId: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/examtype/${enumId}`);
+         const res = await axios.delete(`/api/admin/examtype/${enumId}`,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             }, 
+         });
 
          console.log("res venu delete", res);
          if (res.status === 200) {
@@ -87,6 +124,25 @@ export const deleteExamType = createAsyncThunk(
       }
    }
 );
+
+export const deleteExamTypes = createAsyncThunk(  
+   "venues/deleteMultipleVenues",  
+   async (ids: number[], thunkAPI) => {
+     try {
+       const res = await axios.delete(`/api/admin/examtype/bulk-destroy`, {
+         ...getAuthHeaders("application/json"),
+         data: { ids }, 
+ 
+       });
+       console.log(res);
+ 
+     } catch (error: any) {
+       console.error("Error:", error);
+       return thunkAPI.rejectWithValue(error.message);
+     }
+   }
+ );
+
 
 const examTypes = createSlice({
    name: "examTypes",
@@ -174,6 +230,23 @@ const examTypes = createSlice({
          state.status = true;
       });
       builder.addCase(deleteExamType.rejected, (state, action: any) => {
+         state.operationLoading = false;
+         state.error = action.payload;
+         state.status = true;
+      });
+      
+      // delete categories : 
+      builder.addCase(deleteExamTypes.pending, (state) => {
+         state.error = null;
+         state.operationLoading = true;
+      });
+      builder.addCase(deleteExamTypes.fulfilled, (state, action: any) => {
+         state.error = null;
+         state.operationLoading = false;
+      
+         state.status = true;
+      });
+      builder.addCase(deleteExamTypes.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
          state.status = true;

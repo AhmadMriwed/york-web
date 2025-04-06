@@ -14,6 +14,7 @@ import {
   completedVenueOperation,
   createVenue,
   deleteVenue,
+  deleteVenues,
   getVenues,
   updateVenue,
 } from "@/store/adminstore/slices/enums/venuesSlice";
@@ -46,6 +47,7 @@ export default function Venues() {
 
   const { isLoading, error, venues, perPage, status, total, operationLoading } =
     useSelector((state: GlobalState) => state.venues);
+  console.log(venues);
 
   const columns = [
     {
@@ -113,54 +115,6 @@ export default function Venues() {
     },
   ];
 
-  const ArabicFormFields = [
-    {
-      name: "title[ar]",
-      label: "Title (Arabic)",
-      type: "text",
-      validation: yup.string(),
-      placeholder: "Enter title in Arabic",
-    },
-    {
-      name: "description[ar]",
-      label: "Description (Arabic)",
-      type: "textarea",
-      validation: yup.string(),
-      placeholder: "Enter description in Arabic",
-    },
-  ];
-
-  const EnglsihFormFields = [
-    {
-      name: "title[en]",
-      label: "Title (English)",
-      type: "text",
-      validation: yup.string().required("English title is required"),
-      placeholder: "Enter title in English",
-    },
-    {
-      name: "description[en]",
-      label: "Description (English)",
-      type: "textarea",
-      validation: yup.string().required("English description is required"),
-      placeholder: "Enter description in English",
-    },
-    {
-      name: "image",
-      label: "Image",
-      type: "file",
-      validation: yup.mixed().required("Image is required"),
-      placeholder: "Upload an image",
-    },
-  ];
-
-  const initialValues = {
-    "title[en]": "",
-    "title[ar]": "",
-    "description[en]": "",
-    "description[ar]": "",
-    image: null,
-  };
   const handleSubmit = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
 
@@ -180,14 +134,17 @@ export default function Venues() {
     dispatch(getVenues({ activePage, term }));
   }, [dispatch, activePage, term]);
 
-  const handleEdit = (values: any) => {
-    console.log("submit", values);
+  const handleEditVenue = (values: z.infer<typeof NewItemFormValidation>) => {
     const formData = new FormData();
-    Object.keys(values).forEach((key) => {
-      formData.append(key, values[key]);
-    });
-    console.log(formData);
-    dispatch(updateVenue({ formData, id: enumId }));
+    formData.append("title[en]", values.title_en);
+    if (values.description_en)
+      formData.append("description[en]", values.description_en);
+    if (values.title_ar) formData.append("title[ar]", values.title_ar);
+    if (values.description_ar)
+      formData.append("description[ar]", values.description_ar);
+    if (values.image) formData.append("image", values.image);
+
+    dispatch(updateVenue({ id: enumId, formData }));
   };
 
   return (
@@ -206,8 +163,7 @@ export default function Venues() {
             isThereChangeStatus={false}
             withImportExport={true}
             setTerm={setTerm}
-            importUrl={"/api/admin/venue/import"}
-            exportUrl={"/api/admin/venue/export"}
+            action={deleteVenues}
           />
 
           {total > perPage && (
@@ -237,7 +193,11 @@ export default function Venues() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Venue has been ${messageOperation} successfully`}
+        messageOnSuccess={
+          messageOperation === "deleting"
+            ? "Selected venues have been deleted successfully"
+            : `Venue has been deleted ${messageOperation} successfully`
+        }
         completedAction={completedVenueOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
@@ -268,10 +228,9 @@ export default function Venues() {
         open={openEdit}
         setOpen={setOpenEdit}
         requestType="Edit Venue"
-        //@ts-ignore
-        onSubmit={handleEdit}
+        onSubmit={handleEditVenue}
         isLoading={operationLoading}
-        loadingContent="Creating venue..."
+        loadingContent="Updating venue..."
         url="admin/venue/"
       />
 

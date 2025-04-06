@@ -40,7 +40,7 @@ const Footer = async () => {
 
   const email = footerData.find((item) => item.type === "email")?.content;
   const address = footerData.find((item) => item.type === "address")?.content;
-  const phones = footerData.filter((item) => item.type === "phone");
+  const phones = footerData.find((item) => item.type === "phone")?.concat;
   const description = footerData.find(
     (item) => item.section === "about"
   )?.content;

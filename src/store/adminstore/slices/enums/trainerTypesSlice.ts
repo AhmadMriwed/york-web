@@ -1,6 +1,13 @@
 import { TrainerTypesState } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import Cookie from "universal-cookie";
+import { getAuthHeaders } from "./authHeaders";
+import { toast } from "sonner";
+
+ const cookie = new Cookie();
+
 
 export const getTrainerTypes = createAsyncThunk(
    "trainerTypes/getTrainerTypes",
@@ -10,9 +17,10 @@ export const getTrainerTypes = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(
-            `admin/training_sessions_type?page=${activePage}&term=${term}`
+         const res = await axios.get(
+            `/api/admin/training_sessions_type?page=${activePage}&term=${term}`,getAuthHeaders()
          );
+
 
          console.log("res trainer types", res);
          if (res.status === 200) {
@@ -29,12 +37,13 @@ export const getTrainerTypes = createAsyncThunk(
    }
 );
 
+
 export const createTrainerType = createAsyncThunk(
    "trainerTypes/createTrainerType",
    async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/training_sessions_type`, data);
+         const res = await axios.post(`/api/admin/training_sessions_type`, data,getAuthHeaders());
 
          console.log("res trainer type created", res);
          if (res.status === 201) {
@@ -47,7 +56,8 @@ export const createTrainerType = createAsyncThunk(
    }
 );
 
-export const updateTrainerType = createAsyncThunk(
+
+ export const updateTrainerType = createAsyncThunk(
    "trainerTypes/updateTrainerType",
    async (
       { formData, enumId }: { formData: any; enumId: number },
@@ -55,12 +65,13 @@ export const updateTrainerType = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.put(
-            `admin/training_sessions_type/${enumId}`,
-            formData
-         );
+         const res = await axios.put(`/api/admin/training_sessions_type/${enumId}`, formData,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
-         console.log("res categ updated", res);
+         console.log("res requestType updated", res);
          if (res.status === 200) {
             return res.data.data;
          }
@@ -71,14 +82,18 @@ export const updateTrainerType = createAsyncThunk(
    }
 );
 
+
+
+
+
 export const deleteTrainerType = createAsyncThunk(
    "trainerTypes/deleteTrainerType ",
    async (enumId: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(
-            `admin/training_sessions_type/${enumId}`
-         );
+         const res = await axios.delete(
+            `/api/admin/training_sessions_type/${enumId}`
+         ,getAuthHeaders());
 
          console.log("res venu delete", res);
          if (res.status === 200) {
@@ -90,6 +105,24 @@ export const deleteTrainerType = createAsyncThunk(
       }
    }
 );
+export const deleteTrainerTypes = createAsyncThunk(  
+   "venues/deleteMultipleVenues",  
+   async (ids: number[], thunkAPI) => {
+     try {
+       const res = await axios.delete(`/api/admin/training_sessions_type/bulk-destroy`, {
+         ...getAuthHeaders("application/json"),
+         data: { ids }, 
+ 
+       });
+       console.log(res);
+ 
+     } catch (error: any) {
+       console.error("Error:", error);
+       return thunkAPI.rejectWithValue(error.message);
+     }
+   }
+ );
+ 
 
 const trainerTypes = createSlice({
    name: "trainerTypes",
@@ -175,6 +208,21 @@ const trainerTypes = createSlice({
          state.status = true;
       });
       builder.addCase(deleteTrainerType.rejected, (state, action: any) => {
+         state.operationLoading = false;
+         state.error = action.payload;
+         state.status = true;
+      });
+      builder.addCase(deleteTrainerTypes.pending, (state) => {
+         state.error = null;
+         state.operationLoading = true;
+      });
+      builder.addCase(deleteTrainerTypes.fulfilled, (state, action: any) => {
+         state.error = null;
+         state.operationLoading = false;
+      
+         state.status = true;
+      });
+      builder.addCase(deleteTrainerTypes.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
          state.status = true;

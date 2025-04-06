@@ -1,6 +1,12 @@
 import { QuestionTypesState } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import Cookie from "universal-cookie";
+import { getAuthHeaders } from "./authHeaders";
+
+ const cookie = new Cookie();
+ 
 
 export const getQuestionTypes = createAsyncThunk(
    "questionTypes/getQuestionTypes",
@@ -11,8 +17,12 @@ export const getQuestionTypes = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          const res =
-            await Axios.get(`admin/questiontype?page=${activePage}&term=${term}
-         `);
+            await axios.get(`/api/admin/questiontype?page=${activePage}&term=${term}
+         `,{
+            headers:{
+               Authorization: `Bearer ${cookie.get("admin_token")}`,
+             },
+         });
 
          console.log("res question types", res);
          if (res.status === 200) {
@@ -34,7 +44,11 @@ export const createQuestionType = createAsyncThunk(
    async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/questiontype`, data);
+         const res = await axios.post(`/api/admin/questiontype`, data,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             }, 
+         });
 
          console.log("res question type created", res);
          if (res.status === 201) {
@@ -49,31 +63,49 @@ export const createQuestionType = createAsyncThunk(
 
 export const updateQuestionType = createAsyncThunk(
    "questionTypes/updateQuestionType",
-   async (
-      { formData, enumId }: { formData: any; enumId: number },
-      thunkAPI
-   ) => {
-      const { rejectWithValue } = thunkAPI;
-      try {
-         const res = await Axios.put(`admin/questiontype/${enumId}`, formData);
+   async ({ formData, enumId }: { formData: any; enumId: number }, thunkAPI) => {
+     const { rejectWithValue } = thunkAPI;
+     try {
+       const res = await axios.post(`/api/admin/questiontype/${enumId}`, formData, {
+         headers: {
+           Authorization: `Bearer ${cookie.get("admin_token")}`,
+         },
+       });
+       if(res.status===201){
 
-         console.log("res categ updated", res);
-         if (res.status === 200) {
-            return res.data.data;
+          return res.data.data;
+       }
+ 
+       if (res.status === 200) {
+         // Ensure response has valid data structure
+         if (!res.data?.data) {
+           throw new Error('Invalid response format');
          }
-      } catch (error: any) {
-         console.error("Error:", error);
-         return rejectWithValue(error.response.data.message || "network error");
-      }
+         return res.data.data;
+       }
+       throw new Error('Update failed');
+     } catch (error: any) {
+       console.error("Error:", error);
+       return rejectWithValue(
+         error.response?.data?.message || 
+         error.message || 
+         "Network error occurred"
+       );
+     }
    }
-);
+ );
 
 export const deleteQuestionType = createAsyncThunk(
    "questionTypes/deleteQuestionType ",
    async (enumId: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/questiontype/${enumId}`);
+         const res = await axios.delete(`/api/admin/questiontype/${enumId}`,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             }, 
+    
+         });
 
          console.log("res questiontype delete", res);
          if (res.status === 200) {
@@ -85,6 +117,25 @@ export const deleteQuestionType = createAsyncThunk(
       }
    }
 );
+
+export const deleteQuestionTypes = createAsyncThunk(  
+   "venues/deleteMultipleVenues",  
+   async (ids: number[], thunkAPI) => {
+     try {
+       const res = await axios.delete(`/api/admin/questiontype/bulk-destroy`, {
+         ...getAuthHeaders("application/json"),
+         data: { ids }, 
+ 
+       });
+       console.log(res);
+ 
+     } catch (error: any) {
+       console.error("Error:", error);
+       return thunkAPI.rejectWithValue(error.message);
+     }
+   }
+ );
+
 
 const questionTypes = createSlice({
    name: "questionTypes",
@@ -147,7 +198,14 @@ const questionTypes = createSlice({
       builder.addCase(updateQuestionType.fulfilled, (state, action: any) => {
          state.error = null;
          state.operationLoading = false;
-         // state.categories.unshift(action.payload);
+  if (action.payload && action.payload.id) {
+   const index = state.questionTypes.findIndex(
+     (item) => item.id === action.payload.id
+   );
+   if (index !== -1) {
+     state.questionTypes[index] = action.payload;
+   }
+ }
          state.status = true;
       });
       builder.addCase(updateQuestionType.rejected, (state, action: any) => {
@@ -170,6 +228,23 @@ const questionTypes = createSlice({
          state.status = true;
       });
       builder.addCase(deleteQuestionType.rejected, (state, action: any) => {
+         state.operationLoading = false;
+         state.error = action.payload;
+         state.status = true;
+      });
+      
+      // delete question types : 
+      builder.addCase(deleteQuestionTypes.pending, (state) => {
+         state.error = null;
+         state.operationLoading = true;
+      });
+      builder.addCase(deleteQuestionTypes.fulfilled, (state, action: any) => {
+         state.error = null;
+         state.operationLoading = false;
+        
+         state.status = true;
+      });
+      builder.addCase(deleteQuestionTypes.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
          state.status = true;

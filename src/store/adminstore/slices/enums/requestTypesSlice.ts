@@ -4,6 +4,12 @@ import {
 } from "@/types/adminTypes/enums/enumsTypes";
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+import Cookie from "universal-cookie";
+import { getAuthHeaders } from "./authHeaders";
+
+ const cookie = new Cookie();
 
 export const getRequestTypes = createAsyncThunk(
    "requestTypes/getRequestTypes",
@@ -13,8 +19,12 @@ export const getRequestTypes = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(
-            `admin/requestType?page=${activePage}&term=${term}`
+         const res = await axios.get(
+            `/api/admin/requestType?page=${activePage}&term=${term}`,{
+               headers: {
+                  Authorization: `Bearer ${cookie.get("admin_token")}`, 
+                },
+            }
          );
 
          console.log("res request types", res);
@@ -32,12 +42,16 @@ export const getRequestTypes = createAsyncThunk(
    }
 );
 
-export const getRequestTypesAsMenue = createAsyncThunk(
+export const getRequestTypesAsMenue = createAsyncThunk(  
    "requestTypes/getRequestTypesAsMenue",
    async (_, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get("admin/requestType");
+         const res = await axios.get("/api/admin/requestType",{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res request types", res);
          if (res.status === 200) {
@@ -55,7 +69,11 @@ export const createRequestType = createAsyncThunk(
    async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/requestType`, data);
+         const res = await axios.post(`/api/admin/requestType`, data,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res req type created", res);
          if (res.status === 201) {
@@ -76,7 +94,11 @@ export const updateRequestType = createAsyncThunk(
    ) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.put(`admin/requestType/${enumId}`, formData);
+         const res = await axios.put(`/api/admin/requestType/${enumId}`, formData,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res requestType updated", res);
          if (res.status === 200) {
@@ -94,7 +116,11 @@ export const deleteRequestType = createAsyncThunk(
    async (enumId: number, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/requestType/${enumId}`);
+         const res = await axios.delete(`/api/admin/requestType/${enumId}`,{
+            headers: {
+               Authorization: `Bearer ${cookie.get("admin_token")}`, 
+             },
+         });
 
          console.log("res requestType delete", res);
          if (res.status === 200) {
@@ -106,6 +132,24 @@ export const deleteRequestType = createAsyncThunk(
       }
    }
 );
+
+export const deleteRequestTypes = createAsyncThunk(  
+   "venues/deleteMultipleVenues",  
+   async (ids: number[], thunkAPI) => {
+     try {
+       const res = await axios.delete(`/api/admin/requestType/bulk-destroy`, {
+         ...getAuthHeaders("application/json"),
+         data: { ids }, 
+ 
+       });
+       console.log(res);
+ 
+     } catch (error: any) {
+       console.error("Error:", error);
+       return thunkAPI.rejectWithValue(error.message);
+     }
+   }
+ );
 
 const requestTypes = createSlice({
    name: "requestTypes",
@@ -214,6 +258,25 @@ const requestTypes = createSlice({
          state.status = true;
       });
       builder.addCase(deleteRequestType.rejected, (state, action: any) => {
+         state.operationLoading = false;
+         state.error = action.payload;
+         state.status = true;
+      });
+
+      //delete request types 
+      builder.addCase(deleteRequestTypes.pending, (state) => {
+         state.error = null;
+         state.operationLoading = true;
+      });
+      builder.addCase(deleteRequestTypes.fulfilled, (state, action: any) => {
+         state.error = null;
+         state.operationLoading = false;
+         state.requestTypes = state.requestTypes.filter(
+            (requestType) => requestType.id !== action.payload.id
+         );
+         state.status = true;
+      });
+      builder.addCase(deleteRequestTypes.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
          state.status = true;

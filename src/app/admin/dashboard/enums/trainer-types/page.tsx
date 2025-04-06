@@ -11,6 +11,7 @@ import {
   completedTrainerTypeOperation,
   createTrainerType,
   deleteTrainerType,
+  deleteTrainerTypes,
   getTrainerTypes,
   updateTrainerType,
 } from "@/store/adminstore/slices/enums/trainerTypesSlice";
@@ -34,7 +35,7 @@ export default function TrainerTypes() {
     (openAdd && "adding") ||
     (openEdit && "updating") ||
     (openDelete && "deleting") ||
-    "";
+    "deleting";
   const dispatch: any = useDispatch();
 
   const {
@@ -127,11 +128,18 @@ export default function TrainerTypes() {
     console.log("submit", values);
     dispatch(createTrainerType(values));
   };
+
   const handleEdit = (values: any, singleEnum: any) => {
     console.log("submit", values);
     const data = mergeDifferentProperties(singleEnum, values);
     console.log("data", data);
     dispatch(updateTrainerType({ formData: data, enumId }));
+    dispatch(getTrainerTypes({ activePage, term }));
+  };
+
+  const handleDelete = async () => {
+    await dispatch(deleteTrainerType(enumId));
+    dispatch(getTrainerTypes({ activePage, term }));
   };
 
   useEffect(() => {
@@ -156,6 +164,8 @@ export default function TrainerTypes() {
           isThereAdd={true}
           isLoading={isLoading}
           setTerm={setTerm}
+          withImportExport={false}
+          action={deleteTrainerTypes}
         />
       )}
       {total > perPage && (
@@ -183,7 +193,7 @@ export default function TrainerTypes() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Category has been ${messageOperation} successfully`}
+        messageOnSuccess={`Trainer types has been ${messageOperation} successfully`}
         completedAction={completedTrainerTypeOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
@@ -209,7 +219,7 @@ export default function TrainerTypes() {
         formFields={formFields}
         onSubmit={handleEdit}
         initialValues={initialValues}
-        url="admin/training_sessions_type/"
+        url="/api/admin/training_sessions_type/"
       />
       <AlertModal
         open={openDelete}
@@ -218,7 +228,7 @@ export default function TrainerTypes() {
         id={enumId}
         status={status}
         completed={completedTrainerTypeOperation}
-        deleteAction={deleteTrainerType}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this trainer type ?"
       />
       <ShowEnumDetailes

@@ -1,14 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
 import Cookies from "universal-cookie";
-import { Axios } from "@/utils/axios";
 import axios from "axios";
 import Cookie from "universal-cookie";
 
  const cookie = new Cookie();
 
 
-export const loginAdmin = createAsyncThunk(
+ export const loginAdmin = createAsyncThunk(
   "login",
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
@@ -41,14 +40,17 @@ export const loginAdmin = createAsyncThunk(
     }
   }
 );
-
 export const getAdminProfile = createAsyncThunk(
   "getProfile",
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await Axios.get(`admin`);
+      const res = await axios.get(`/api/admin`,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data.data;
       }
@@ -112,7 +114,7 @@ export const adminResetPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await Axios.post(`/api/admin/reset-password`, data,{
+      const res = await axios.post(`/api/admin/reset-password`, data,{
         headers: {
           Authorization: `Bearer ${cookie.get("admin_token")}`, 
         },
@@ -135,11 +137,14 @@ export const adminUpdatePassword = createAsyncThunk(
 
     try {
       // REVIEW
-      const res = await Axios.put(
-        `admin/updatePassword?old_password=${data.old_password}&new_password=${data.new_password}&new_password_confirmation=${data.new_password_confirmation}`,
+      const res = await axios.put(
+        `/api/admin/updatePassword?old_password=${data.old_password}&new_password=${data.new_password}&new_password_confirmation=${data.new_password_confirmation}`,
         {
           old_password: data.old_password,
           new_password: data.new_password,
+          headers: {
+            Authorization: `Bearer ${cookie.get("admin_token")}`, 
+          },
         }
       );
       if (res.status === 200) {
@@ -291,3 +296,5 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+
+

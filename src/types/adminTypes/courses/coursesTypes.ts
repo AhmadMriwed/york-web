@@ -94,6 +94,13 @@ export interface submitCourseState {
 }
 
 // COURSE ADS
+export interface TranslatedText {
+  origin: string;
+  ar: string | null;
+  en: string | null;
+}
+export type FlexibleTranslatedText =  TranslatedText|string ;
+
 export interface courseAdType {
   category: Category;
   change_active_date: string;
@@ -101,17 +108,17 @@ export interface courseAdType {
   count_courses: number;
   count_requests: number;
   count_views: number;
-  description: null | string;
+  description: FlexibleTranslatedText;
   end_date: string;
   fee: string;
   houres: number;
   id: number;
   image: null | string;
   language: string;
-  outlines: string;
+  outlines: FlexibleTranslatedText;
   start_date: string;
-  sub_title: string;
-  title: string;
+  sub_title: FlexibleTranslatedText;
+  title: FlexibleTranslatedText;
   venue: Venue;
 }
 

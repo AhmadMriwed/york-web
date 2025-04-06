@@ -61,7 +61,10 @@ const UpdateCourse = ({ params }: any) => {
       <ErrorMessage msg="Oops! There was an error, please try again later." />
     );
 
+  console.log("hello", courseInfo);
+
   let initialValues;
+  console.log(courseInfo);
   if (courseInfo)
     initialValues = {
       title: courseInfo?.title ? courseInfo?.title : "",
@@ -88,6 +91,7 @@ const UpdateCourse = ({ params }: any) => {
       outlines: courseInfo?.outlines ? courseInfo.outlines : "",
       description: courseInfo?.description ? courseInfo?.description : "",
     };
+  console.log(initialValues);
 
   return (
     <section className="p-3 sm:p-6">

@@ -40,6 +40,8 @@ import OperationAlert from "@/components/Pars/OperationAlert";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import FilteringBar from "@/components/Pars/FilteringBar";
 import BackBtn from "@/components/buttons/BackBtn";
+import { getFlexibleText, getTranslatedText } from "@/lib/utils";
+import CourseInfo from "../../course-info/[id]/page";
 
 const filterData = ["Current", "Upcoming", "Expired"];
 
@@ -73,6 +75,7 @@ const CourseAdInfo = ({ params }: any) => {
 
   useEffect(() => {
     dispatch(getCourseAdInfo(id));
+    console.log("hi");
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -157,14 +160,22 @@ const CourseAdInfo = ({ params }: any) => {
 
       <div className="bg-[var(--dark-bg-color)] w-full p-3 sm:p-7 flex flex-col lg:flex-row justify-evenly items-center gap-7 relative">
         <BackBtn textColor="text-[#FFF] absolute top-4 left-4" />
-        <div className="bg-slate-400 min-w-[275px] h-[175px] rounded-md">
-          {courseAdInfo.image && (
+        <div className=" min-w-[275px] h-[175px] rounded-md">
+          {courseAdInfo.image ? (
             <Image
               src={storageURL + courseAdInfo.image}
               alt="course ad image"
               width={275}
               height={175}
               className="sm:!min-w-[275px] bg-center bg-cover object-fit rounded-md"
+            />
+          ) : (
+            <Image
+              src={"/adminlogin.png"}
+              alt="course ad image"
+              width={275}
+              height={175}
+              className="sm:!min-w-[275px] bg-center bg-cover  rounded-md"
             />
           )}
         </div>
@@ -232,19 +243,18 @@ const CourseAdInfo = ({ params }: any) => {
           </div>
 
           <p className="text-[16px] sm:text-[20px] mt-2 font-bold">
-            {courseAdInfo.title && courseAdInfo.title}
+            {courseAdInfo.title && getTranslatedText(courseAdInfo.title)}
           </p>
           <p className="max-w-md text-[12px]">
-            {courseAdInfo.sub_title && courseAdInfo.sub_title}
+            {courseAdInfo.sub_title &&
+              getTranslatedText(courseAdInfo.sub_title)}
           </p>
 
           <div className="flex justify-between items-center mt-4">
             <div className="bg-black text-white w-fit py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full">
               <CiLocationOn />
               <p className="xs: text-[10px] sm:text-[12px]">
-                {courseAdInfo.venue &&
-                  courseAdInfo.venue.title &&
-                  courseAdInfo.venue.title}
+                {courseAdInfo.venue && courseAdInfo.venue.title}
               </p>
             </div>
             <div className="flex justify-center items-center gap-2">
@@ -341,7 +351,9 @@ const CourseAdInfo = ({ params }: any) => {
 
               <div
                 className="p-1"
-                dangerouslySetInnerHTML={{ __html: courseAdInfo.description }}
+                dangerouslySetInnerHTML={{
+                  __html: getTranslatedText(courseAdInfo.description),
+                }}
               />
             </div>
           )}
@@ -355,7 +367,9 @@ const CourseAdInfo = ({ params }: any) => {
 
               <div
                 className="p-1"
-                dangerouslySetInnerHTML={{ __html: courseAdInfo.outlines }}
+                dangerouslySetInnerHTML={{
+                  __html: getTranslatedText(courseAdInfo.outlines),
+                }}
               />
             </div>
           )}

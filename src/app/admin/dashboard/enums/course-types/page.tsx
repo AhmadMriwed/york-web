@@ -11,6 +11,7 @@ import {
   completedCourseTypeOperation,
   createCourseType,
   deleteCourseType,
+  deleteCourseTypes,
   getCourseTypes,
   updateCourseType,
 } from "@/store/adminstore/slices/enums/courseTypeSlice";
@@ -33,7 +34,7 @@ export default function CourseTypes() {
     (openAdd && "adding") ||
     (openEdit && "updating") ||
     (openDelete && "deleting") ||
-    "";
+    "deleting";
 
   const {
     error,
@@ -114,25 +115,38 @@ export default function CourseTypes() {
       label: "Type",
       type: "text",
       placeholder: "Enter a request type",
-
       validation: yup.string().required("Request Type is Required"),
+    },
+    {
+      name: "image",
+      label: "Image",
+      type: "file",
+      accept: "image/*",
+      validation: yup.mixed(),
     },
   ];
 
   const initialValues = {
     name: "",
     type: "",
+    image: "",
   };
 
   const handleSubmit = (values: any) => {
     console.log("submit", values);
     dispatch(createCourseType(values));
+    dispatch(getCourseTypes({ activePage, term }));
   };
   const handleEdit = (values: any, singleEnum: any) => {
     console.log("submit", values);
     const data = mergeDifferentProperties(singleEnum, values);
-    console.log("data", data);
     dispatch(updateCourseType({ formData: data, enumId }));
+    dispatch(getCourseTypes({ activePage, term }));
+  };
+
+  const handleDelete = async () => {
+    await dispatch(deleteCourseType(enumId));
+    dispatch(getCourseTypes({ activePage, term }));
   };
 
   useEffect(() => {
@@ -156,8 +170,9 @@ export default function CourseTypes() {
           interfaceName="Course Types"
           isThereAdd={true}
           isLoading={isLoading}
-          withImportExport={true}
           setTerm={setTerm}
+          withImportExport={false}
+          action={deleteCourseTypes}
         />
       )}
       {total > perPage && (
@@ -185,7 +200,7 @@ export default function CourseTypes() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Category has been ${messageOperation} successfully`}
+        messageOnSuccess={`Course Type has been ${messageOperation} successfully`}
         completedAction={completedCourseTypeOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
@@ -220,14 +235,14 @@ export default function CourseTypes() {
         id={enumId}
         status={status}
         completed={completedCourseTypeOperation}
-        deleteAction={deleteCourseType}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this course type ?"
       />
       <ShowEnumDetailes
         id={enumId}
         open={openVisible}
         setOpen={setOpenvisible}
-        title="Course Type destailes"
+        title="Course Type details"
         url="admin/course_type/"
       />
     </main>

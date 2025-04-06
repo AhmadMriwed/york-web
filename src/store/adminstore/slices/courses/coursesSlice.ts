@@ -4,6 +4,12 @@ import {
   courseType,
   coursesState,
 } from "@/types/adminTypes/courses/coursesTypes";
+import axios from "axios";
+import Cookie from "universal-cookie";
+import { getAuthHeaders } from "../enums/authHeaders";
+
+ const cookie = new Cookie();
+
 
 // get all courses
 export const getAllCourses = createAsyncThunk(
@@ -11,10 +17,12 @@ export const getAllCourses = createAsyncThunk(
   async (filterValues: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post("admin/course/getAll?page=1", filterValues);
+      const res = await axios.post("/api/admin/course/getAll?page=1", filterValues, getAuthHeaders());
+      
+      console.log(res.data.data);
       if (res.status === 200) {
         return {
-          data: res.data.data,
+          data: res.data.data 
         };
       }
     } catch (error: any) {
@@ -22,16 +30,16 @@ export const getAllCourses = createAsyncThunk(
     }
   }
 );
-
 // get courses by trainer id
 export const getCoursesById = createAsyncThunk(
   "courses/getCoursesById",
   async (params: { id: number; status: string }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(
-        `admin/course/getCoursesById?user_id=${params.id}&status=${params.status}`
+      const res = await axios.get(
+        `/api/admin/course/getCoursesById?user_id=${params.id}&status=${params.status}`,getAuthHeaders()
       );
+      console.log(res.data.data);
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -49,7 +57,7 @@ export const getCourseInfo = createAsyncThunk(
   async (id: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`admin/course/${id}`);
+      const res = await axios.get(`/api/admin/course/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -67,7 +75,7 @@ export const getFilterData = createAsyncThunk(
   async (_, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get("admin/course/getMap/filterCourse");
+      const res = await axios.get("/api/admin/course/getMap/filterCourse",getAuthHeaders());
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -85,7 +93,11 @@ export const createCourse = createAsyncThunk(
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post("admin/course", data);
+      const res = await axios.post("admin/course", data,{
+        headers: {
+          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+        },
+      });
       if (res.status === 200) {
         return res.data.data;
       }
@@ -101,9 +113,10 @@ export const updateCourse = createAsyncThunk(
   async (params: { data: {}; id?: number }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post(
-        `admin/course/update/${params.id}`,
-        params.data
+      const res = await axios.post(
+        `/api/admin/course/update/${params.id}`,
+        params.data,getAuthHeaders()
+        
       );
       if (res.status === 200) {
         return { data: res.data.data, id: params.id };
@@ -120,7 +133,7 @@ export const deleteCourse = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.delete(`admin/course/${id}`);
+      const res = await axios.delete(`/api/admin/course/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return { id };
       }
@@ -136,7 +149,7 @@ export const duplicateCourse = createAsyncThunk(
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.post(`admin/course/replicate/${id}`);
+      const res = await axios.post(`/api/admin/course/replicate/${id}`,getAuthHeaders());
       if (res.status === 200) {
         return res.data.data;
       }

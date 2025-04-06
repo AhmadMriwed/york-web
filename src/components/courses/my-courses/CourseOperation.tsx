@@ -227,6 +227,8 @@ const CourseOperation = ({
 
     const ad = courseads.find((ad: any) => ad.id === selectedAdId);
 
+    console.log(ad);
+
     if (ad) {
       const populatedValues = {
         code: "",
@@ -252,6 +254,8 @@ const CourseOperation = ({
     populateFieldsFromAd();
   }, [selectedAdId]);
 
+  console.log("hello", initialValues);
+  console.log("hello");
   return (
     <Formik
       initialValues={initialValues}

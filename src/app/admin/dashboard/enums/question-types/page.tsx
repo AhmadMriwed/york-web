@@ -11,6 +11,7 @@ import {
   completedQuestionTypeOperation,
   createQuestionType,
   deleteQuestionType,
+  deleteQuestionTypes,
   getQuestionTypes,
   updateQuestionType,
 } from "@/store/adminstore/slices/enums/questionTypesSlice";
@@ -33,7 +34,7 @@ export default function QuestionTypes() {
     (openAdd && "adding") ||
     (openEdit && "updating") ||
     (openDelete && "deleting") ||
-    "";
+    "deleting";
 
   const dispatch: any = useDispatch();
 
@@ -143,12 +144,26 @@ export default function QuestionTypes() {
   const handleSubmit = (values: any) => {
     console.log("submit", values);
     dispatch(createQuestionType(values));
+    dispatch(getQuestionTypes({ activePage, term }));
   };
+
   const handleEdit = (values: any, singleEnum: any) => {
-    console.log("submit", values);
+    if (!singleEnum || typeof singleEnum !== "object") {
+      console.error("Invalid singleEnum:", singleEnum);
+      return;
+    }
+    if (!enumId || isNaN(enumId)) {
+      console.error("Invalid enumId:", enumId);
+      return;
+    }
+
     const data = mergeDifferentProperties(singleEnum, values);
-    console.log("data", data);
     dispatch(updateQuestionType({ formData: data, enumId }));
+    dispatch(getQuestionTypes({ activePage, term }));
+  };
+  const handleDelete = async () => {
+    await dispatch(deleteQuestionType(enumId));
+    dispatch(getQuestionTypes({ activePage, term }));
   };
 
   useEffect(() => {
@@ -173,6 +188,7 @@ export default function QuestionTypes() {
           isThereAdd={true}
           isLoading={isLoading}
           setTerm={setTerm}
+          action={deleteQuestionTypes}
         />
       )}
       {total > perPage && (
@@ -200,7 +216,7 @@ export default function QuestionTypes() {
         status={status}
         error={error}
         messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
-        messageOnSuccess={`Category has been ${messageOperation} successfully`}
+        messageOnSuccess={`Question type has been ${messageOperation} successfully`}
         completedAction={completedQuestionTypeOperation}
         closeAdd={setOpenAdd}
         closeEdit={setOpenEdit}
@@ -235,7 +251,7 @@ export default function QuestionTypes() {
         id={enumId}
         status={status}
         completed={completedQuestionTypeOperation}
-        deleteAction={deleteQuestionType}
+        deleteAction={handleDelete}
         label="Are you sure you want to delete this question type ?"
       />
       <ShowEnumDetailes

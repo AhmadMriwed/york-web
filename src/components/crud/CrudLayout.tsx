@@ -29,8 +29,6 @@ interface CrudLayoutType {
   factor?: "user_id" | "id";
   withImportExport?: boolean;
   totalItems?: number;
-  importUrl?: string;
-  exportUrl?: string;
 }
 
 export default function CrudLayout({
@@ -47,12 +45,9 @@ export default function CrudLayout({
   setTerm,
   withImportExport,
   totalItems,
-  importUrl,
-  exportUrl,
 }: CrudLayoutType) {
   const [selectedRowsIds, setSelectedRowsIds] = useState([]);
   const [toggleCleared, setToggleCleared] = useState(false);
-  console.log(importUrl);
 
   const dispatch: any = useDispatch();
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -73,11 +68,19 @@ export default function CrudLayout({
 
   const contextActions = useMemo(() => {
     const handleDelete = () => {
-      console.log("deleted");
+      if (selectedRowsIds.length > 0) {
+        dispatch(action(selectedRowsIds));
+        setToggleCleared(!toggleCleared);
+      }
     };
+
+
+      
     return (
       <div className="flex items-center gap-3 flex-wrap px-3">
-        {withImportExport && <ExportImportContainer ids={selectedRowsIds} />}
+        {withImportExport && (
+          <ExportImportContainer ids={selectedRowsIds} withImport={false} />
+        )}
         {isThereChangeStatus && (
           <Dropdown
             className="bg-[var(--primary-color1)] [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-[var(--primary-color1)] [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-[var(--primary-color2)] [&>.rs-btn:hover]:!text-white [&>*]:!text-left "

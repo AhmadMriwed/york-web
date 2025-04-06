@@ -36,12 +36,13 @@ export default function ImportFile({ open, setOpen }: ModalType) {
   });
 
   const submitHandler = (values: any, actions: any) => {
-    const formData = new FormData();
+    const formData = new FormData();  
     formData.append("file", values.file);
 
     const endpoint = getImportExportEndpoint(pathname, "import");
 
     dispatch(importFile({ data: formData, url: endpoint }))
+      .unwrap()
       .then(() => {
         setOpen(false);
       })

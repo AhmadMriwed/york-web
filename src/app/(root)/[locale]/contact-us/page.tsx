@@ -77,7 +77,7 @@ const Page = async () => {
               <div className="flex -mt-24 items-center transition-all  duration-200 hover:text-primary-color2 space-x-3">
                 <Phone className="text-gray-300  w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold">
-                  +442032900440
+                  {contactUsData[2]?.content}
                 </p>
               </div>
 
@@ -85,7 +85,7 @@ const Page = async () => {
               <div className="flex items-center space-x-3 transition-all duration-200 hover:text-primary-color2">
                 <Mail className="text-gray-300 w-6 h-6 mx-2" />
                 <p className="cursor-pointer md:text-xl font-semibold ">
-                  Info@yorkacademy.uk
+                  {contactUsData[1]?.content}
                 </p>
               </div>
             </div>

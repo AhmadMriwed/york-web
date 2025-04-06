@@ -1,6 +1,8 @@
 import { Axios } from "@/utils/axios";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { endUserState } from "@/types/endUserTypes/endUserTypes";
+import axios from "axios";
+import { getAuthHeaders } from "../adminstore/slices/enums/authHeaders";
 
 // get venues
 export const getVenues = createAsyncThunk(
@@ -44,7 +46,10 @@ export const getCourseads = createAsyncThunk(
   async (term: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`course_ad?term=${term}`);
+      const res = await axios.get(
+        `/api/course_ad?term=${term}`,
+        getAuthHeaders()
+      );
       if (res.status === 200) {
         return {
           data: res.data.data,

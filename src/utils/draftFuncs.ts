@@ -1,12 +1,23 @@
 import { convertFromHTML, EditorState, ContentState } from "draft-js";
 
-export const convertHTMLtoDraftState = (html: any) => {
-  const blocksFromHTML = convertFromHTML(html);
+export const convertHTMLtoDraftState = (html: string | null | undefined) => {
+  if (!html) {
+    return EditorState.createEmpty();
+  }
 
-  const state = ContentState.createFromBlockArray(
-    blocksFromHTML.contentBlocks,
-    blocksFromHTML.entityMap
-  );
+  const htmlString = String(html);
+  
+  try {
+    const blocksFromHTML = convertFromHTML(htmlString);
+    
+    const state = ContentState.createFromBlockArray(
+      blocksFromHTML.contentBlocks,
+      blocksFromHTML.entityMap
+    );
 
-  return EditorState.createWithContent(state);
+    return EditorState.createWithContent(state);
+  } catch (error) {
+    console.error("Error converting HTML to Draft state:", error);
+    return EditorState.createEmpty();
+  }
 };
