@@ -1,6 +1,7 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import AddSupervisorModal from "@/components/accounts/supervisors/AddSupervisorModal";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
@@ -29,11 +30,12 @@ export default function Supervisors() {
   const [userId, setUserId] = useState<number>(0);
   const dispatch: any = useDispatch();
 
-  const { isLoading, error, supervisors, status, perPage, total } = useSelector(
+  const { isLoading, error, supervisors, status, perPage, total, operationError } = useSelector(
     (state: GlobalState) => state.supervisors
   );
 
   console.log("supervisors", supervisors);
+  console.log(operationError);
 
   const columns = [
     {
@@ -181,6 +183,13 @@ export default function Supervisors() {
         deleteAction={deleteSupervisor}
         label="Are you sure you want to delete the selected supervisor ?"
       />
+      <OperationAlert
+          messageOnSuccess="operation accomplished successfully"
+          messageOnError={`Oops! ${operationError}`}
+          status={status}
+          error={operationError}
+          completedAction={completedSupervisorOperation}
+        />
     </main>
   );
 }

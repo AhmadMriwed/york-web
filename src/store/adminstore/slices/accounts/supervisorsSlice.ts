@@ -13,7 +13,7 @@ export const getSupervisors = createAsyncThunk(
          console.log("try");
 
          const res = await Axios.get(
-            `admin/superviosr?page=${activePage}&term=${term}`
+            `superviosr?page=${activePage}&term=${term}`
          );
          console.log(res, "Supervisors");
 
@@ -36,7 +36,7 @@ export const getSingleSupervisor = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(`admin/superviosr/${id}`);
+         const res = await Axios.get(`superviosr/${id}`);
          console.log(res, "supervisors get single");
          if (res.status === 200) {
             return res.data.data;
@@ -54,11 +54,11 @@ export const createSupervisor = createAsyncThunk(
    async (data: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/superviosr`, data);
+         const res = await Axios.post(`superviosr`, data);
          console.log(res, "supervisors insert");
-         if (res.status === 200) {
+         if (res.status === 201) {
             console.log("added successfully");
-            return data;
+            return res.data.data;
          }
       } catch (error: any) {
          console.error("Error:", error);
@@ -75,7 +75,7 @@ export const updateSupervisor = createAsyncThunk(
       console.log("updateSupervisor", params);
       try {
          const res = await Axios.put(
-            `admin/superviosr/${params.id}`,
+            `superviosr/${params.id}`,
             params.data
          );
          console.log(res, "supervisors edit");
@@ -95,7 +95,7 @@ export const deleteSupervisor = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/superviosr/${id}`);
+         const res = await Axios.delete(`superviosr/${id}`);
          console.log(res, "supervisors delete");
          if (res.status === 200) {
             return { message: "success", id };
@@ -113,7 +113,7 @@ const supervisors = createSlice({
    initialState: {
       isLoading: false,
       operationLoading: false,
-
+      operationError: null,
       error: null,
       perPage: 10,
       total: 1,
@@ -139,6 +139,7 @@ const supervisors = createSlice({
    reducers: {
       completedSupervisorOperation: (state) => {
          state.status = false;
+         state.operationError = null;
       },
    },
 
@@ -182,17 +183,20 @@ const supervisors = createSlice({
       builder.addCase(createSupervisor.pending, (state) => {
          state.error = null;
          state.operationLoading = true;
+         state.operationError = null;
       });
       builder.addCase(createSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
          state.operationLoading = false;
          state.status = true;
+         state.operationError = null;
 
          // state.supervisors.push(action.payload);
       });
       builder.addCase(createSupervisor.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
+         state.operationError = action.payload; // Specific error for alerts
       });
 
       // update a role

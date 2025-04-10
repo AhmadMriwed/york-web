@@ -18,6 +18,7 @@ import Image from "next/image";
 import Loading from "@/components/Pars/Loading";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
 import mergeDifferentProperties from "@/utils/mergeDifferentProperties";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 interface ModalType {
   open: boolean;
@@ -104,7 +105,7 @@ export default function AddSupervisorModal({
     if (open) {
       dispatch(getRolesAsMenue());
       if (requestType === "edit") {
-        dispatch(getSingleUser(`admin/superviosr/${id}`));
+        dispatch(getSingleUser(`superviosr/${id}`));
       }
     }
   }, [open, requestType, dispatch, id]);
@@ -340,8 +341,10 @@ export default function AddSupervisorModal({
                   >
                     {operation}
                   </Button>
+                  
                 </Modal.Footer>
               </Form>
+              
             )}
           </Formik>
         </Modal.Body>

@@ -61,6 +61,7 @@ export interface SupervisorsState {
   isLoading: boolean;
   error: null | any;
   operationLoading: boolean;
+  operationError: null | any;
   total: number;
   perPage: number;
   status: boolean;

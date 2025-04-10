@@ -16,7 +16,7 @@ export const getRoles = createAsyncThunk(
          console.log("try to get all");
 
          const res = await Axios.get(
-            `admin/roles?page=${activePage}&term=${term}`
+            `roles?page=${activePage}&term=${term}`
          );
          console.log(res, "roles");
          if (res.status === 200) {
@@ -38,7 +38,7 @@ export const getRolesAsMenue = createAsyncThunk(
    async (_, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get("admin/roles");
+         const res = await Axios.get("roles");
          if (res.status === 200) {
             return res.data.data;
          }

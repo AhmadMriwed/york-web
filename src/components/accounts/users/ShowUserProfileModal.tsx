@@ -35,7 +35,7 @@ export default function ShowUserProfileModal({
       } else if (userType === "trainer") {
         dispatch(getSingleUser(`admin/trainerAccountRequests/${id}`));
       } else if (userType === "supervisor") {
-        dispatch(getSingleUser(`admin/superviosr/${id}`));
+        dispatch(getSingleUser(`superviosr/${id}`));
       }
     }
   }, [dispatch, id, open, userType]);
