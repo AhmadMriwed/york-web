@@ -10,7 +10,7 @@ export const getTrainees = createAsyncThunk(
          console.log("try");
 
          const res = await Axios.get(
-            "admin/accounts/byType?account_type=Trainee"
+            "/accounts/byType?account_type=Trainee"
          );
          if (res.status === 200) {
             return {

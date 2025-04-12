@@ -19,6 +19,7 @@ import { MdOutlineLightMode } from "react-icons/md";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { CiLogout } from "react-icons/ci";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
+import { usePathname } from "next/navigation";
 
 interface NavLinkProps {
   as: string;
@@ -35,6 +36,8 @@ const NavLink = forwardRef(
 NavLink.displayName = "NavLink";
 
 const Sidebar = () => {
+  const currentPath = usePathname();
+  // ...
   const [expanded, setExpanded] = useState(true);
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
@@ -175,6 +178,15 @@ const Sidebar = () => {
     },
   ];
 
+  const activeGradientStyle = {
+    backgroundImage:
+      "linear-gradient(131deg, rgba(1, 151, 159) 40%, rgba(255, 94, 54) 80%, rgba(204, 76, 76))",
+    color: "white",
+  };
+  const isActivePath = (path: string) => {
+    return currentPath?.startsWith(path);
+  };
+
   return (
     <aside
       className={`${
@@ -214,9 +226,14 @@ const Sidebar = () => {
                   }}
                 />
               }
-              className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
+              className="!py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href="/admin/dashboard"
+              style={
+                currentPath === "/admin/dashboard"
+                  ? activeGradientStyle
+                  : { backgroundColor: "#000000" }
+              }
             >
               Dashboard
             </Nav.Item>
@@ -235,6 +252,11 @@ const Sidebar = () => {
               className="!bg-transparent !py-[10px] !text-[14px] !text-inherit"
               as={NavLink}
               href="/admin/dashboard/mailbox"
+              style={
+                isActivePath("/admin/dashboard/mailbox")
+                  ? activeGradientStyle
+                  : { backgroundColor: "#000000" }
+              }
             >
               Mailbox
             </Nav.Item>
@@ -261,6 +283,11 @@ const Sidebar = () => {
                     className="!py-[5px] transition-all duration-500 !bg-inherit hover:translate-x-2 text-[13px]"
                     as={NavLink}
                     href={`/admin/dashboard/courses/${item.url}`}
+                    style={
+                      isActivePath(`/admin/dashboard/courses/${item.url}`)
+                        ? activeGradientStyle
+                        : { backgroundColor: "#000000" }
+                    }
                   >
                     {item.title}
                   </Nav.Item>
@@ -367,6 +394,11 @@ const Sidebar = () => {
                       className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                       as={NavLink}
                       href={`/admin/dashboard/accounts/${item.url}`}
+                      style={
+                        isActivePath(`/admin/dashboard/accounts/${item.url}`)
+                          ? activeGradientStyle
+                          : { backgroundColor: "#000000" }
+                      }
                     >
                       {item.title}
                     </Nav.Item>
@@ -398,6 +430,11 @@ const Sidebar = () => {
                       className="!py-[5px] transition-all duration-500 hover:translate-x-2 text-[13px] "
                       as={NavLink}
                       href={`/admin/dashboard/enums/${item.url}`}
+                      style={
+                        isActivePath(`/admin/dashboard/enums/${item.url}`)
+                          ? activeGradientStyle
+                          : { backgroundColor: "#000000" }
+                      }
                     >
                       {item.title}
                     </Nav.Item>

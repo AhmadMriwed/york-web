@@ -4,6 +4,7 @@ import { trainingPlanState } from "@/types/adminTypes/courses/coursesTypes";
 import { storageURL } from "@/utils/api";
 import axios from "axios";
 import { getAuthHeaders } from "../../enums/authHeaders";
+import { toast } from "sonner";
 
 // get training plan
 export const getTrainingPlan = createAsyncThunk(
@@ -12,6 +13,7 @@ export const getTrainingPlan = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await axios.get("/api/admin/training_plan/get_last",getAuthHeaders());
+      console.log(res); 
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -30,6 +32,8 @@ export const getPlanInfo = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await axios.get(`/api/admin/training_plan/${id}`,getAuthHeaders());
+      console.log(res); 
+
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -47,8 +51,8 @@ export const updatePlan = createAsyncThunk(
   async (params: { id: number; data: any }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await axios.post(
-        `/api/admin/training_plan/update/${params.id}`,
+      const res = await Axios.post(
+        `/training_plan/update/${params.id}`,
         params.data
       );
       if (res.status === 200) {
@@ -69,6 +73,7 @@ export const addPlan = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
     try {
       const res = await axios.post(`/api/admin/training_plan`, data,getAuthHeaders());
+      console.log(res);   
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -76,6 +81,7 @@ export const addPlan = createAsyncThunk(
       }
     } catch (error: any) {
       return rejectWithValue(error);
+      
     }
   }
 );
@@ -100,6 +106,23 @@ export const downloadTrainingPlan = createAsyncThunk(
       if (link.parentNode) link.parentNode.removeChild(link);
     } catch (error: any) {
       return rejectWithValue(error);
+    }
+  }
+);
+
+// upload training plain file : 
+export const uploadTrainingPlain = createAsyncThunk(
+  "trainingPlan/uploadFile",
+  async (formData: FormData, thunkAPI) => {
+    const { rejectWithValue } = thunkAPI;
+    try {
+      const res = await axios.post(`/api/admin/training_plan/upload_file`, formData, getAuthHeaders());
+      if (res.status === 201) {
+        return { data: res.data.data };
+      }
+      return rejectWithValue("Upload failed");
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || "Upload failed");
     }
   }
 );
@@ -157,6 +180,21 @@ const trainingPlan = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       });
+      //upload file : 
+      builder
+  .addCase(uploadTrainingPlain.pending, (state) => {
+    state.isLoading = true;
+    state.error = null;
+  })
+  .addCase(uploadTrainingPlain.fulfilled, (state, action) => {
+    state.isLoading = false;
+    state.error = null;
+    // You can store the uploaded file info if needed
+  })
+  .addCase(uploadTrainingPlain.rejected, (state, action) => {
+    state.isLoading = false;
+    state.error = action.payload as string;
+  });
 
     // update training plan
     builder
@@ -188,6 +226,7 @@ const trainingPlan = createSlice({
       })
       .addCase(addPlan.rejected, (state, action: any) => {
         state.operationError = false;
+        state.operationLoading = false;
         state.operationError = action.payload;
         state.status = true;
       });

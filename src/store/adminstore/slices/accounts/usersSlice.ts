@@ -14,7 +14,7 @@ export const getUsers = createAsyncThunk(
          const res = await Axios.get(
             `accounts?page=${activePage}&term=${term}`
          );
-         console.log(res, "users");
+         console.log(res);
          if (res.status === 200) {
             return {
                data: [

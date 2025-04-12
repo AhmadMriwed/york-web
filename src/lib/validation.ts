@@ -112,4 +112,5 @@ export const NewItemFormValidation = z.object({
     title_ar: z.string().optional(),
     description_ar: z.string().optional(),
     image: z.any().optional(),
+    image_icon: z.any().optional(),
 }); 

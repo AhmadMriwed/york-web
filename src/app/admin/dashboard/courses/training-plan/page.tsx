@@ -67,6 +67,7 @@ const TrainingPlan = () => {
 
     dispatch(getCourseAds(jsonValues));
   }, [dispatch, edDate, stDate]);
+  console.log(trainingPlan);
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -91,10 +92,10 @@ const TrainingPlan = () => {
     <>
       <section className="p-3 sm:p-6">
         <Header
-          title="Training Plan"
-          btnTitle="Add Course ad"
+          title="Training Plan "
+          btnTitle="Add Training Plan"
           btnAction={() =>
-            router.push("/admin/dashboard/courses/course-ads/add")
+            router.push("/admin/dashboard/courses/training-plan/add")
           }
         />
         <OperationAlert
@@ -159,10 +160,10 @@ const TrainingPlan = () => {
                 </div>
               </div>
               <p className="sm:text-[16px]">
-                {trainingPlan.title && trainingPlan.title}
+                {trainingPlan.title && trainingPlan.title.origin}
               </p>
               <p className="lg:max-w-lg text-[12px] leading-[1.6rem]">
-                {trainingPlan.sub_title && trainingPlan.sub_title}
+                {trainingPlan.sub_title && trainingPlan.sub_title.origin}
               </p>
               {trainingPlan?.file && (
                 <div className="flex justify-between sm:justify-start items-center gap-11 mt-6">

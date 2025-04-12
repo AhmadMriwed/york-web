@@ -10,7 +10,8 @@ export const getVenues = createAsyncThunk(
   async (term: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`venue?term=${term}`);
+      const res = await axios.get(`/api/venue?term=${term}`, getAuthHeaders());
+      console.log(res);
       if (res.status === 200) {
         return {
           data: res.data.data,
@@ -28,7 +29,10 @@ export const getCategories = createAsyncThunk(
   async (term: string, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     try {
-      const res = await Axios.get(`category?term=${term}`);
+      const res = await axios.get(
+        `/api/category?term=${term}`,
+        getAuthHeaders()
+      );
       if (res.status === 200) {
         return {
           data: res.data.data,

@@ -11,29 +11,51 @@ import { getAuthHeaders } from "../../enums/authHeaders";
 
  const cookie = new Cookie();
 
- 
-
-
-
 // get filtered course ads
 export const getCourseAds = createAsyncThunk(
   "courseAds/getCourseAds",
   async (filterValues: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
-
+    console.log(filterValues)
     try {
+
+      console.log("Request Filters:", JSON.stringify(filterValues, null, 2));
+      
+      // Construct the full request details
+      const requestConfig = {
+        method: 'post',
+        url: '/api/admin/course_ads/getAll?page=1',
+        data: filterValues,
+        headers: getAuthHeaders()
+      };
+      
+      console.log("Full Request Details:", {
+        method: requestConfig.method,
+        url: requestConfig.url,
+        headers: requestConfig.headers,
+        data: requestConfig.data
+      });
+
+
+
+      console.log("sending filters", filterValues);
       const res = await axios.post(
-        "/api/admin/course_ads/getAll?page=1",
-        filterValues,getAuthHeaders()
+        "/api/admin/course_ads/getAll",
+        filterValues,
+        getAuthHeaders()
       );
+      console.log("response data", res.data);
+    
       if (res.status === 200) {
         return {
           data: res.data.data,
         };
       }
     } catch (error: any) {
+      console.error("error fetching course ads", error.response?.data || error.message);
       return rejectWithValue(error.message);
     }
+    
   }
 );
 
@@ -83,6 +105,7 @@ export const createCourseAd = createAsyncThunk(
   "courseAds/createCourseAd",
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
+    console.log('hello')
     try {
       const res = await axios.post("/api/admin/course_ads", data,getAuthHeaders());
       if (res.status === 201) {
@@ -104,18 +127,13 @@ if (error.response) {
 );
 
 // update course ad
-export const updateCourseAd = createAsyncThunk(
+export const  updateCourseAd = createAsyncThunk(
   "courseAds/updateCourseAd",
   async (params: { data: FormData; id: number }, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     
     try {
-      // Log the FormData contents for debugging
-      console.log("FormData contents:");
-      for (const [key, value] of (params.data as any).entries()) {
-        console.log(key, value);
-      }
-
+ 
       const res = await axios.post(
         `/api/admin/course_ads/update/${params.id}`,
         params.data,
@@ -167,12 +185,12 @@ export const duplicateCourseAd = createAsyncThunk(
   "courseAds/duplicateCourseAd",
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
-    console.log(cookie.get("admin_token"))
     try {
-      const res = await axios.post(`/api/admin/course_ads/replicate/${id}`,getAuthHeaders());
+      const res = await axios.post(`/api/admin/course_ads/replicate/${id}`,{},getAuthHeaders());
       if (res.status === 200) {
         return res.data.data;
       }
+      console.log(res); 
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -184,21 +202,31 @@ export const changeAdStatus = createAsyncThunk(
   "courseAds/changeAdStatus",
   async (id: number, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
- console.log(cookie.get("admin_token"))
+    const token = cookie.get("admin_token");
+    
+    console.log("Raw token length:", token?.length);
+    console.log("Full header:", `Bearer ${token}`);
 
     try {
-      const res = await axios.post(`/api/admin/course_ads/operation/activity/${id}`,getAuthHeaders);
-      if (res.status === 200) {
-        return {
-          data: res.data.data,
-          id: id,
-        };
-      }
+      const res = await axios.post(
+        `/api/admin/course_ads/operation/activity/${id}`,
+        {},
+      getAuthHeaders()
+      );
+      
+      return { data: res.data.data, id };
+      
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error("Full error:", {
+        message: error.message,
+        response: error.response?.data,
+        config: error.config
+      });
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
+
 
 const filterDeletedCourseAd = (ads: courseAdType[], id: number) => {
   return ads.filter((ad) => ad.id !== id);

@@ -58,7 +58,11 @@ const Filter = ({
         </div>
       </div>
       <div className="flex flex-wrap md:flex-nowrap items-center gap-2 mt-2.5">
-        <div className="flex flex-1 justify-center items-center rounded-full py-2 px-3 bg-white">
+        <div
+          className={
+            "flex flex-1 justify-center items-center rounded-full py-2 px-3 dark:bg-black bg-white"
+          }
+        >
           <input
             type="text"
             placeholder="Search by course name, code or details"
@@ -70,7 +74,7 @@ const Filter = ({
                 title: e.target.value,
               })
             }
-            className="w-full lg:w-[225px] min-w-[100px] text-[#888] text-[12px] border-none outline-none"
+            className="w-full lg:w-[225px] min-w-[100px] text-white text-[12px] border-none outline-none"
           />
           <div className="text-[#00d4d4] text-[20px] font-bold">
             <CiSearch />

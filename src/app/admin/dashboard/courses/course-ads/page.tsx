@@ -235,7 +235,7 @@ const CoursesAds = () => {
         {isLoading ? (
           <Loading />
         ) : courseAds.length > 0 ? (
-          courseAds.map((ad: courseAdType) => <CourseAd ad={ad} key={ad.id} />)
+          courseAds.map((ad: courseAdType) => <CourseAd ad={ad} key={ad?.id} />)
         ) : (
           <EmptyResult />
         )}

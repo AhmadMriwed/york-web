@@ -53,6 +53,7 @@ export function AddNewItem({
       title_ar: "",
       description_ar: "",
       image: null,
+      image_icon: null,
     },
   });
 
@@ -199,6 +200,29 @@ export function AddNewItem({
                 <FormItem>
                   <FormLabel className={mode === "dark" ? "text-white" : ""}>
                     Image
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                      className={
+                        mode === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white file:text-white"
+                          : ""
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image_icon"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className={mode === "dark" ? "text-white" : ""}>
+                    Image Icon
                   </FormLabel>
                   <FormControl>
                     <Input

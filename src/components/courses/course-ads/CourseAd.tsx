@@ -26,7 +26,11 @@ import { Dropdown, IconButton } from "rsuite";
 import AlertModal from "@/components/Pars/AlertModal";
 import { getTranslatedText } from "@/lib/utils";
 
-const CourseAd = ({ ad }: { ad: courseAdType }) => {
+interface CourseAdProps {
+  ad: courseAdType | null;
+}
+
+const CourseAd = ({ ad }: CourseAdProps) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
 
@@ -36,6 +40,10 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
     (state: GlobalState) => state.courseAds
   );
   const dispatch = useDispatch<any>();
+
+  if (!ad) {
+    return <div className=" text-center text-red-500"></div>;
+  }
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -74,11 +82,9 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
     dispatch(changeAdStatus(ad.id));
   };
 
-  console.log(ad);
   return (
     <article
-      className={`p-3 sm:p-6 flex justify-between gap-2
-      rounded-[16px] ${
+      className={`p-3 sm:p-6 flex justify-between gap-2 rounded-[16px] ${
         mode === "dark" ? "bg-[#212A34] text-[#FFF]" : "bg-white text-[#000]"
       }`}
     >
@@ -94,70 +100,64 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
       />
 
       <div className="flex justify-between gap-2">
-        <div className=" min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
-          {ad.image ? (
-            <Image
-              src={ad.image ? storageURL + ad.image : "/background_horse.png"}
-              alt="course ad image"
-              width={400}
-              height={400}
-              className=""
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "8px",
-              }}
-            />
-          ) : (
-            <Image
-              src={"/register.png"}
-              alt="course ad image"
-              width={400}
-              height={400}
-              className="border border-blue-500 relative"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "8px",
-              }}
-            />
-          )}
+        <div className="min-w-[100px] h-[100px] sm:w-[175px] sm:h-[150px] rounded-[8px]">
+          <Image
+            src={ad.image ? storageURL + ad.image : "/register.png"}
+            alt="course ad image"
+            width={400}
+            height={400}
+            className={`${!ad.image ? "border border-blue-500 relative" : ""}`}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: "8px",
+            }}
+          />
         </div>
 
         <div className="flex flex-col justify-between gap-1 max-w-[125px] sm:max-w-xs">
           <p className="m-0 text-[12px] sm:text-[18px] font-bold leading-[1rem] sm:leading-[1.6rem]">
-            {getTranslatedText(ad.title).slice(0, 10) }
+            {getTranslatedText(ad.title)?.slice(0, 10) || "Untitled"}
             <span
               className="w-fit bg-[var(--primary-color1)] text-white text-[10px] sm:text-[12px]
-            text-center rounded-full px-[4px] py-[1px] sm:px-3 sm:py-1"
+              text-center rounded-full px-[4px] py-[1px] sm:px-3 mx-3 sm:py-1"
             >
               {ad.change_active_date ? "Active" : "Inactive"}
             </span>
           </p>
-          <p className="m-0 text-[10px]  sm:text-[16px] text-[#888]">
-            {ad.code && `#${ad.code}`}
-          </p>
-          <div
-            className="w-fit bg-[#00d4d4] text-black text-[10px] sm:text-[12px]
-            text-center rounded-full px-[4px] sm:px-3 py-[1px]"
-          >
-            {ad.category && ad.category.title && ad.category.title}
-          </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <IoLanguage />
-            <p>{ad.language && ad.language}</p>
-          </div>
+          {ad.code && (
+            <p className="m-0 text-[10px] sm:text-[16px] text-[#888]">
+              #{ad.code}
+            </p>
+          )}
+          {ad.category?.title && (
+            <div
+              className="w-fit bg-[#00d4d4] text-black text-[10px] sm:text-[12px]
+              text-center rounded-full px-[4px] sm:px-3 py-[1px]"
+            >
+              {ad.category.title}
+            </div>
+          )}
+          {ad.language && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <IoLanguage />
+              <p>{ad.language}</p>
+            </div>
+          )}
           <div className="flex items-center gap-1">
-            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-              <CiClock1 />
-              <p>{ad.houres && `${ad.houres} hr`}</p>
-            </div>
-            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-              <FaDollarSign />
-              <p>{ad.fee && ad.fee}</p>
-            </div>
+            {ad.houres && (
+              <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+                <CiClock1 />
+                <p>{ad.houres} hr</p>
+              </div>
+            )}
+            {ad.fee && (
+              <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+                <FaDollarSign />
+                <p>{ad.fee}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -188,8 +188,7 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
             </Dropdown.Item>
             <Dropdown.Item
               icon={<HiOutlineDuplicate />}
-              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
-            hover:bg-slate-100"
+              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
               onClick={handleDuplicate}
             >
               Duplicate
@@ -198,8 +197,7 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
               icon={
                 ad.change_active_date ? <PiToggleRightFill /> : <PiToggleLeft />
               }
-              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)]
-            hover:bg-slate-100"
+              className="flex items-center gap-1 text-[var(--primary-color1)] hover:text-[var(--primary-color1)] hover:bg-slate-100"
               onClick={handleActivation}
             >
               {ad.change_active_date ? "Deactivate" : "Activate"}
@@ -208,31 +206,36 @@ const CourseAd = ({ ad }: { ad: courseAdType }) => {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-1 sm:gap-2">
-          <div
-            className={`${
-              mode === "dark"
-                ? "bg-[var(--light-bg-color)] text-[var(--light-text-color)]"
-                : "bg-[var(--dark-bg-color)] text-[var(--dark-text-color)]"
-            } w-fit] py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1
-            rounded-full`}
-          >
-            <CiLocationOn />
-            <p className="xs: text-[10px] sm:text-[12px]">
-              {ad.venue && ad.venue.title && ad.venue.title}
-            </p>
-          </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <MdRequestPage />
-            <p>{ad.count_requests && `${ad.count_requests} requests`}</p>
-          </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <Calendar />
-            <p>{ad.start_date && `${getLocalDate(new Date(ad.start_date))}`}</p>
-          </div>
-          <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
-            <Calendar />
-            <p>{ad.end_date && `${getLocalDate(new Date(ad.end_date))}`}</p>
-          </div>
+          {ad.venue?.title && (
+            <div
+              className={`${
+                mode === "dark"
+                  ? "bg-[var(--light-bg-color)] text-[var(--light-text-color)]"
+                  : "bg-[var(--dark-bg-color)] text-[var(--dark-text-color)]"
+              } w-fit] py-[1.5px] px-[12px] sm:py-[3px] flex justify-center items-center gap-1 rounded-full`}
+            >
+              <CiLocationOn />
+              <p className="xs:text-[10px] sm:text-[12px]">{ad.venue.title}</p>
+            </div>
+          )}
+          {ad.count_requests !== undefined && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <MdRequestPage />
+              <p>{ad.count_requests} requests</p>
+            </div>
+          )}
+          {ad.start_date && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <Calendar />
+              <p>{getLocalDate(new Date(ad.start_date))}</p>
+            </div>
+          )}
+          {ad.end_date && (
+            <div className="text-[10px] sm:text-[14px] flex items-center gap-1">
+              <Calendar />
+              <p>{getLocalDate(new Date(ad.end_date))}</p>
+            </div>
+          )}
         </div>
       </div>
     </article>

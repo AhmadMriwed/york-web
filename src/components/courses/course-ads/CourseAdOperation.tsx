@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
@@ -16,12 +16,23 @@ import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
 import Image from "next/image";
 import TextEditor from "@/components/inputs/editor/Editor";
 import { getFlexibleText, getTranslatedText } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 
 // Types
 interface CourseAdFormValues {
   title: {
     en: string;
-    ar: string;
+    ar: string | null;
   };
   sub_title: {
     en: string;
@@ -30,7 +41,7 @@ interface CourseAdFormValues {
   start_date: Date;
   end_date: Date | null;
   houres: number | null;
-  fee: number | null;
+  fee: string | null | undefined;
   lang: string;
   image: File | null;
   venue_id: number | null;
@@ -39,7 +50,7 @@ interface CourseAdFormValues {
   status: string;
   outlines: {
     en: string;
-    ar: string;
+    ar: string | null;
   };
   description: {
     en: string;
@@ -115,7 +126,8 @@ const CourseAdOperation: React.FC<CourseAdOperationProps> = ({
   const [selectedAd, setSelectedAd] =
     useState<Partial<CourseAdFormValues> | null>(null);
   const [selectedAdId, setSelectedAdId] = useState<number | null>(null);
-  const [currentLang, setCurrentLang] = useState<"en" | "ar">("en");
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const formikRef = useRef<FormikProps<any> | null>(null);
 
   const {
     venues,
@@ -232,8 +244,8 @@ const CourseAdOperation: React.FC<CourseAdOperationProps> = ({
   const populateFieldsFromAd = () => {
     if (!selectedAdId || !courseads) return;
 
+    // Find the selected ad
     const ad = courseads.find((ad: any) => ad.id === selectedAdId);
-
     if (ad) {
       const populatedValues: Partial<CourseAdFormValues> = {
         code: "",
@@ -247,8 +259,7 @@ const CourseAdOperation: React.FC<CourseAdOperationProps> = ({
         },
         start_date: ad.start_date ? new Date(ad.start_date) : new Date(),
         end_date: ad.end_date ? new Date(ad.end_date) : null,
-        //@ts-ignore
-        fee: ad.fee ? ad.fee : null,
+        fee: ad.fee ? ad.fee! : null,
         houres: ad.houres ? ad.houres : null,
         lang: ad.language ? ad.language : "",
         venue_id: ad.venue?.id ? ad.venue.id : null,
@@ -264,13 +275,24 @@ const CourseAdOperation: React.FC<CourseAdOperationProps> = ({
         },
       };
 
+      // Update the selectedAd state
       setSelectedAd(populatedValues);
+
+      // Manually set Formik values using the ref
+      if (formikRef.current) {
+        formikRef.current.setValues({
+          ...formikRef.current.values,
+          ...populatedValues,
+        });
+      }
     }
   };
 
   useEffect(() => {
-    populateFieldsFromAd();
-  }, [selectedAdId]);
+    if (selectedAdId && courseads) {
+      populateFieldsFromAd();
+    }
+  }, [selectedAdId, courseads]);
 
   const defaultValues: CourseAdFormValues = {
     title: { en: "", ar: "" },
@@ -295,194 +317,227 @@ const CourseAdOperation: React.FC<CourseAdOperationProps> = ({
       validationSchema={courseAdSchema}
       onSubmit={submitHandler}
       enableReinitialize
+      innerRef={(instance) => {
+        formikRef.current = instance;
+      }}
     >
       {(props: FormikProps<any>) => (
         <Form>
-          <div className="mt-4 px-2 sm:px-20 lg:px-40 py-11 rounded-sm bg-light">
-            {op === "add" && (
-              <div className="mb-11 flex flex-col justify-center gap-2 ">
-                <p className="font-[500] text-black max-w-lg">
-                  Choose the course ad to fill the fields automatically:
-                </p>
-                <InputPicker
-                  size="lg"
-                  onSearch={(value: string) => setCourseadTerm(value)}
-                  renderMenu={(menu) => {
-                    if (dataLoading) {
-                      return (
-                        <p
-                          style={{
-                            padding: 10,
-                            color: "#999",
-                            textAlign: "center",
-                          }}
-                        >
-                          <Loader />
-                        </p>
-                      );
+          <Tabs defaultValue="English" className="w-full">
+            <div className="mt-4 px-2 sm:px-20 lg:px-40 py-11 rounded-sm bg-light">
+              {op === "add" && (
+                <div className="mb-11 flex flex-col justify-center gap-2 ">
+                  <p className="font-[500] text-black max-w-lg">
+                    Choose the course ad to fill the fields automatically:
+                  </p>
+                  <InputPicker
+                    size="lg"
+                    onSearch={(value: string) => setCourseadTerm(value)}
+                    renderMenu={(menu) => {
+                      if (dataLoading) {
+                        return (
+                          <p
+                            style={{
+                              padding: 10,
+                              color: "#999",
+                              textAlign: "center",
+                            }}
+                          >
+                            <Loader />
+                          </p>
+                        );
+                      }
+                      return menu;
+                    }}
+                    data={
+                      courseads?.map((ad: any) => ({
+                        label: getTranslatedText(ad.title),
+                        value: ad.id,
+                      })) || []
                     }
-                    return menu;
-                  }}
-                  data={
-                    courseads?.map((ad: any) => ({
-                      label: getTranslatedText(ad.title),
-                      value: ad.id,
-                    })) || []
-                  }
-                  onChange={(value: number) => {
-                    setSelectedAdId(value);
-                  }}
-                  placeholder="Course ads"
-                  className="!text-[#000] !w-full"
-                />
-              </div>
-            )}
+                    onChange={(value: number) => {
+                      setSelectedAdId(value);
+                    }}
+                    placeholder="Course ads"
+                    className="!text-[#000] !w-full"
+                  />
+                </div>
+              )}
 
-            <div className="mb-6 flex flex-col gap-2">
-              <span className="text-[#888]  font-medium">Language:</span>
-              <div className="grid grid-cols-2 border border-gray-200 rounded-lg p-1 bg-gray-50 w-52">
-                {["en", "ar"].map((lang) => (
-                  <button
-                    key={lang}
-                    type="button"
-                    className={`px-4 py-1 rounded-md text-sm font-medium transition-colors duration-200 ${
-                      currentLang === lang
-                        ? "bg-primary-color1 text-primary shadow-sm border border-gray-200"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    onClick={() => setCurrentLang(lang as "en" | "ar")}
-                  >
-                    {lang === "en" ? "English" : "العربية"}
-                  </button>
+              <TabsList
+                className={`grid md:w-[40%] my-4 grid-cols-2 ${
+                  mode === "dark" ? "bg-gray-700" : "bg-gray-100"
+                }`}
+              >
+                <TabsTrigger value="English">English</TabsTrigger>
+                <TabsTrigger value="Arabic">Arabic</TabsTrigger>
+              </TabsList>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 sm:gap-y-2">
+                {fields.map((field) => (
+                  <CustomInput
+                    key={field.name}
+                    type={field.type}
+                    name={field.name}
+                    label={field.label}
+                    placeholder={field.placeholder}
+                    optional={field.optional}
+                    required={field.required}
+                    disabled={field.disabled}
+                  />
                 ))}
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 sm:gap-y-2">
-              {fields.map((field) => (
-                <CustomInput
-                  key={field.name}
-                  type={field.type}
-                  name={field.name}
-                  label={field.label}
-                  placeholder={field.placeholder}
-                  optional={field.optional}
-                  required={field.required}
-                  disabled={field.disabled}
-                />
-              ))}
+                <TabsContent value="English" className="-my-[1px]">
+                  <CustomInput
+                    type="text"
+                    name={`title.en`}
+                    label={`Title Englsih`}
+                    placeholder={`Enter title in english`}
+                    required
+                  />
+                </TabsContent>
+                <TabsContent value="English" className="-my-[1px]">
+                  <CustomInput
+                    type="text"
+                    name={`sub_title.en`}
+                    label={`Sub Title English`}
+                    placeholder={`Enter sub title in english`}
+                    optional
+                  />
+                </TabsContent>
 
-              <CustomInput
-                type="text"
-                name={`title.${currentLang}`}
-                label={`Title (${currentLang.toUpperCase()})`}
-                placeholder={`Enter title in ${currentLang}`}
-                required
-              />
-              <CustomInput
-                type="text"
-                name={`sub_title.${currentLang}`}
-                label={`Sub Title (${currentLang.toUpperCase()})`}
-                placeholder={`Enter sub title in ${currentLang}`}
-                optional
-              />
+                <TabsContent value="Arabic" className="-my-[1px]">
+                  <CustomInput
+                    type="text"
+                    name={`title.ar`}
+                    label={`Title Arabic`}
+                    placeholder={`Enter title in arabic`}
+                    required
+                  />
+                </TabsContent>
+                <TabsContent value="Arabic" className="-my-[1px]">
+                  <CustomInput
+                    type="text"
+                    name={`sub_title.ar`}
+                    label={`Sub Title Arabic`}
+                    placeholder={`Enter sub title in arabic`}
+                    optional
+                  />
+                </TabsContent>
 
-              <CustomInput
-                type="select"
-                selectData={statusData}
-                name="status"
-                label="Status"
-                optional
-                placeholder="Status"
-              />
-              <CustomInput
-                type="select"
-                selectData={langs}
-                name="lang"
-                label="Language"
-                required
-                placeholder="Language"
-              />
-
-              <div className="flex justify-start items-center">
                 <CustomInput
                   type="select"
-                  selectData={venuesList}
+                  selectData={statusData}
+                  name="status"
+                  label="Status"
+                  optional
+                  placeholder="Status"
+                />
+                <CustomInput
+                  type="select"
+                  selectData={langs}
+                  name="lang"
+                  label="Language"
+                  required
+                  placeholder="Language"
+                />
+
+                <div className="flex justify-start items-center">
+                  <CustomInput
+                    type="select"
+                    selectData={venuesList}
+                    selectLoading={dataLoading}
+                    selectSearchable={true}
+                    selectOnSearch={(value: string) => setVenueTerm(value)}
+                    name="venue_id"
+                    label="Venue"
+                    required
+                    placeholder="Venue"
+                    disabled={onlineVenueChecked}
+                  />
+                  <Checkbox
+                    className="!text-[#000]"
+                    checked={onlineVenueChecked}
+                    onChange={(value, checked) => {
+                      if (checked) {
+                        const onlineVenue = venues.find(
+                          (venue: Venue) => venue.title === "online"
+                        );
+                        if (onlineVenue) {
+                          props.setFieldValue("venue_id", onlineVenue.id);
+                        } else {
+                          props.setFieldValue("venue_id", -1);
+                        }
+                      } else {
+                        props.setFieldValue("venue_id", null);
+                      }
+                      setOnlineVenueChecked(checked);
+                    }}
+                  >
+                    online
+                  </Checkbox>
+                </div>
+
+                <CustomInput
+                  type="select"
+                  selectData={categoriesList}
                   selectLoading={dataLoading}
                   selectSearchable={true}
-                  selectOnSearch={(value: string) => setVenueTerm(value)}
-                  name="venue_id"
-                  label="Venue"
+                  selectOnSearch={(value: string) => setCategoryTerm(value)}
+                  name="category_id"
+                  label="Category"
                   required
-                  placeholder="Venue"
-                  disabled={onlineVenueChecked}
+                  placeholder="Category"
                 />
-                <Checkbox
-                  className="!text-[#000]"
-                  checked={onlineVenueChecked}
-                  onChange={(value, checked) => {
-                    if (checked) {
-                      const onlineVenue = venues.find(
-                        (venue: Venue) => venue.title === "online"
-                      );
-                      if (onlineVenue) {
-                        props.setFieldValue("venue_id", onlineVenue.id);
-                      } else {
-                        props.setFieldValue("venue_id", -1);
-                      }
-                    } else {
-                      props.setFieldValue("venue_id", null);
-                    }
-                    setOnlineVenueChecked(checked);
-                  }}
-                >
-                  online
-                </Checkbox>
               </div>
 
-              <CustomInput
-                type="select"
-                selectData={categoriesList}
-                selectLoading={dataLoading}
-                selectSearchable={true}
-                selectOnSearch={(value: string) => setCategoryTerm(value)}
-                name="category_id"
-                label="Category"
-                required
-                placeholder="Category"
-              />
-            </div>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
+                <TabsContent value="English" className="space-y-4">
+                  <TextEditor
+                    name={`outlines.en`}
+                    label={`Outlines English`}
+                    required
+                  />
+                  <TextEditor
+                    name={`description.en`}
+                    label={`Description English`}
+                    required
+                  />
+                </TabsContent>
 
-            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
-              <TextEditor
-                name={`outlines.${currentLang}`}
-                label={`Outlines (${currentLang.toUpperCase()})`}
-                required
-              />
-              <TextEditor
-                name={`description.${currentLang}`}
-                label={`Description (${currentLang.toUpperCase()})`}
-                required
-              />
-              <ImageUploader formikProps={props} />
-            </div>
+                <TabsContent value="Arabic" className="space-y-4">
+                  <TextEditor
+                    name={`outlines.ar`}
+                    label={`Outlines Arabic`}
+                    required
+                  />
+                  <TextEditor
+                    name={`description.ar`}
+                    label={`Description Arabic`}
+                    required
+                  />
+                </TabsContent>
 
-            <div className="mt-7">
-              <button
-                type="submit"
-                className="colored-btn !w-full !text-[16px]"
-                disabled={operationLoading}
-              >
-                {operationLoading ? (
-                  <Loader />
-                ) : op === "add" ? (
-                  "Add course ad"
-                ) : (
-                  "Update course ad"
-                )}
-              </button>
+                <ImageUploader formikProps={props} />
+              </div>
+
+              <div className="mt-7">
+                <button
+                  type="submit"
+                  className="colored-btn !w-full !text-[16px]"
+                  disabled={operationLoading}
+                >
+                  {operationLoading ? (
+                    <Loader />
+                  ) : op === "add" ? (
+                    "Add course ad"
+                  ) : (
+                    "Update course ad"
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
+          </Tabs>
         </Form>
       )}
     </Formik>
