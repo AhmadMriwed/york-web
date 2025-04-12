@@ -96,8 +96,8 @@ export interface submitCourseState {
 // COURSE ADS
 export interface TranslatedText {
   origin: string;
-  ar: string | null;
-  en: string | null;
+  ar?: string|null;
+  en?: string  |null;
 }
 export type FlexibleTranslatedText =  TranslatedText|string ;
 
@@ -212,8 +212,16 @@ export interface PDFType {
 
 export interface trainingPlanType {
   id: number;
-  title: string;
-  sub_title: string;
+  title: {
+    en:string|null; 
+    ar:string|null; 
+    origin:string|null; 
+  };
+  sub_title: {
+    en:string|null; 
+    ar:string|null; 
+    origin:string|null; 
+  };
   image: string | null;
   file: null | PDFType;
   year: number;

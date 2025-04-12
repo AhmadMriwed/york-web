@@ -75,7 +75,6 @@ const CourseAdInfo = ({ params }: any) => {
 
   useEffect(() => {
     dispatch(getCourseAdInfo(id));
-    console.log("hi");
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -122,6 +121,7 @@ const CourseAdInfo = ({ params }: any) => {
   };
 
   const handleActivation = () => {
+    console.log("hellllll");
     dispatch(changeAdStatus(courseAdInfo.id));
   };
 

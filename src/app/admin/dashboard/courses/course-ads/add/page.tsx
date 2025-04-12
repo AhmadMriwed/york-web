@@ -57,34 +57,52 @@ const AddCourseAd = () => {
 
   const submitHandler = (values: any, actions: any) => {
     const formData = new FormData();
-    console.log("hello");
 
-    formData.append("title[en]", values.title.en || "");
-    formData.append("title[ar]", values.title.ar || "");
-    formData.append("sub_title[en]", values.sub_title.en || "");
-    formData.append("sub_title[ar]", values.sub_title.ar || "");
-    formData.append("outlines[en]", values.outlines.en || "");
-    formData.append("outlines[ar]", values.outlines.ar || "");
-    formData.append("description[en]", values.description.en || "");
-    formData.append("description[ar]", values.description.ar || "");
+    const requiredFields = {
+      title: {
+        en: values.title.en || "",
+        ar: values.title.ar || null,
+      },
+      outlines: {
+        en: values.outlines.en || "",
+        ar: values.outlines.ar || null,
+      },
+      description: {
+        en: values.description.en || "",
+        ar: values.description.ar || null,
+      },
+      sub_title: {
+        en: values.sub_title.en || "",
+        ar: values.sub_title.ar || null,
+      },
+    };
+
+    Object.entries(requiredFields).forEach(([key, value]) => {
+      formData.append(`${key}[en]`, value.en);
+      formData.append(`${key}[ar]`, value.ar);
+    });
 
     formData.append("start_date", getUTCDate(values.start_date));
     if (values.end_date) {
       formData.append("end_date", getUTCDate(values.end_date));
     }
 
-    if (values.houres) formData.append("houres", values.houres.toString());
-    if (values.fee) formData.append("fee", values.fee.toString());
-    if (values.lang)
-      formData.append("lang", values.lang === "en" ? "English" : "Arabic");
-    if (values.venue_id)
-      formData.append("venue_id", values.venue_id.toString());
-    if (values.category_id)
-      formData.append("category_id", values.category_id.toString());
+    const optionalFields = {
+      houres: values.houres?.toString(),
+      fee: values.fee?.toString(),
+      lang: values.lang === "en" ? "English" : "Arabic",
+      venue_id: values.venue_id?.toString(),
+      category_id: values.category_id?.toString(),
+      code: values.code,
+      status: values.status,
+      image: values.image,
+    };
 
-    if (values.code) formData.append("code", values.code);
-    if (values.status) formData.append("status", values.status);
-    if (values.image) formData.append("image", values.image);
+    Object.entries(optionalFields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
 
     dispatch(createCourseAd(formData));
   };

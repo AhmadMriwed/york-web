@@ -127,9 +127,7 @@ export default function ExportFile({ open, setOpen, selected_ids }: ModalType) {
               </label>
               <Dropdown
                 title={format || "Select The Format"}
-                className={`w-full rounded-[6px] border-[#c1c1c1] mb-[10px] ${
-                  mode === "dark" ? "bg-dark text-light" : "bg-white text-dark"
-                }`}
+                className={`w-full bg-white text-black text-bla rounded-[6px] border-[#c1c1c1] mb-[10px] `}
                 block
               >
                 {formats.map((type) => (
@@ -153,7 +151,7 @@ export default function ExportFile({ open, setOpen, selected_ids }: ModalType) {
               {selected_ids && selected_ids.length > 0 ? (
                 <div className="mt-1 ms-2 mb-4">
                   <p>Exporting {selected_ids.length} selected items</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-700">
                     IDs: [{selected_ids.join(", ")}]
                   </p>
                 </div>
@@ -165,7 +163,7 @@ export default function ExportFile({ open, setOpen, selected_ids }: ModalType) {
                     type="number"
                     min={1}
                     placeholder="Start ID"
-                    className="flex-1 p-2 rounded-md"
+                    className="flex-1 p-2 rounded-md text-gray-700"
                   />
                   <CustomInput
                     label="To ID"
@@ -173,7 +171,7 @@ export default function ExportFile({ open, setOpen, selected_ids }: ModalType) {
                     type="number"
                     min={props.values.from || 1}
                     placeholder="End ID"
-                    className="flex-1 p-2 rounded-md"
+                    className="flex-1 p-2 rounded-md text-gray-700"
                   />
                 </div>
               )}

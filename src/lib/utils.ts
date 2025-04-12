@@ -60,25 +60,26 @@ fire(0.1, {
 }
 
 
-export function extractOrigin(value: string | { origin?: string; ar?: string | null; en?: string | null }): string {
-  if (typeof value === 'string' || typeof value ==='number') {
-    return value;
+export function extractOrigin(value: string | { origin?: string; ar?: string | null; en?: string | null } | undefined): string {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return String(value);
   }
-  
+
   if (value && typeof value === 'object') {
     return value.origin || value.en || value.ar || '';
   }
-  
-  return '';
+
+  return ''; // Default return value if input is undefined or invalid
 }
 
-export function getTranslatedText(text: FlexibleTranslatedText, lang: keyof TranslatedText = 'origin'): string {
+export function getTranslatedText(text: FlexibleTranslatedText | undefined, lang: keyof TranslatedText = 'origin'): string {
+  if (!text) return '';
   if (typeof text === 'string') return text;
-  return text[lang] || text.origin;
+  return text[lang] || text.origin || '';
 }
 
 export function getFlexibleText(text: FlexibleTranslatedText | undefined, lang: keyof TranslatedText): string {
-  if (!text) return "";
+  if (!text) return '';
   if (typeof text === 'string') return text;
-  return text[lang] || "";
+  return text[lang] || '';
 }

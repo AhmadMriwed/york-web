@@ -12,9 +12,9 @@ export const getUsers = createAsyncThunk(
       try {
          console.log("try");
          const res = await Axios.get(
-            `admin/accounts?page=${activePage}&term=${term}`
+            `accounts?page=${activePage}&term=${term}`
          );
-         console.log(res, "users");
+         console.log(res);
          if (res.status === 200) {
             return {
                data: [
