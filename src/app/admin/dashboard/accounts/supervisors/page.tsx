@@ -2,6 +2,7 @@
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import { ErrorToaster } from "@/components/accounts/ErrorToaster";
 import AddSupervisorModal from "@/components/accounts/supervisors/AddSupervisorModal";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
@@ -16,7 +17,8 @@ import { storageURL } from "@/utils/api";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Pagination } from "rsuite";
+import { Pagination,Message, useToaster } from "rsuite";
+
 export default function Supervisors() {
   // pagination config
 
@@ -26,6 +28,7 @@ export default function Supervisors() {
   const [openVisible, setOpenvisible] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [term, setTerm] = useState("");
+  const toaster = useToaster();
 
   const [userId, setUserId] = useState<number>(0);
   const dispatch: any = useDispatch();
@@ -36,6 +39,8 @@ export default function Supervisors() {
 
   console.log("supervisors", supervisors);
   console.log(operationError);
+  console.log(error);
+  console.log(status);
 
   const columns = [
     {
@@ -183,13 +188,17 @@ export default function Supervisors() {
         deleteAction={deleteSupervisor}
         label="Are you sure you want to delete the selected supervisor ?"
       />
-      <OperationAlert
-          messageOnSuccess="operation accomplished successfully"
-          messageOnError={`Oops! ${operationError}`}
-          status={status}
-          error={operationError}
-          completedAction={completedSupervisorOperation}
-        />
+          <OperationAlert
+        messageOnSuccess="The operation was completed successfully"
+        messageOnError={`Oops! ${operationError}`}
+        status={status}
+        error={operationError}
+        completedAction={completedSupervisorOperation}
+      />
+          {status===false &&
+       
+      <ErrorToaster error={operationError} /> 
+      }
     </main>
   );
 }

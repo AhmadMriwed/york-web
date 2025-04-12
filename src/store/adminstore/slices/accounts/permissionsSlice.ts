@@ -7,7 +7,7 @@ export const getPermissions = createAsyncThunk(
    async (_, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get("admin/permissions");
+         const res = await Axios.get("permissions");
          console.log(res);
          if (res.status === 200) {
             return res.data.data;

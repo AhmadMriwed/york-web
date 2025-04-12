@@ -10,7 +10,7 @@ export const getSingleRole = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.get(`admin/roles/${id}`);
+         const res = await Axios.get(`roles/${id}`);
          console.log(res, "roles get single");
          if (res.status === 200) {
             return res.data.data;

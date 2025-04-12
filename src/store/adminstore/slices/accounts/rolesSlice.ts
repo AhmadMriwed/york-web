@@ -54,7 +54,7 @@ export const createRole = createAsyncThunk(
    async (data: { name: string; permissions_ids: any[] }, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.post(`admin/roles`, data);
+         const res = await Axios.post(`roles`, data);
          console.log(res, "roles insert");
          if (res.status === 201) {
             return res.data.data;
@@ -71,7 +71,7 @@ export const updateRole = createAsyncThunk(
    async (params: { data: {}; id?: number }, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.put(`admin/roles/${params.id}`, params.data);
+         const res = await Axios.put(`roles/${params.id}`, params.data);
          console.log(res, "roles insert");
          if (res.status === 200) {
             return { status: true };
@@ -88,14 +88,14 @@ export const deleteRole = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/roles/${id}`);
+         const res = await Axios.delete(`roles/${id}`);
          console.log(res, "roles delete");
          if (res.status === 200) {
             console.log("deleted");
             return { message: "success", id };
          }
       } catch (error: any) {
-         console.error("Error:", error);
+         console.error("Error:", error.response.data.message);
          return rejectWithValue(error.response.data.message || "network error");
       }
    }

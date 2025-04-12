@@ -1,12 +1,15 @@
 "use client";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
+import { completedSingleUserOperation, getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
 import { GlobalState } from "@/types/storeTypes";
 import Image from "next/image";
 import React, { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal } from "rsuite";
+import { ErrorToaster } from "../ErrorToaster";
+import { storageURL } from "@/utils/api";
 
 export default function ShowUserProfileModal({
   open,
@@ -22,7 +25,7 @@ export default function ShowUserProfileModal({
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
   const dispatch: any = useDispatch();
-  const { error, isLoading, singleUser } = useSelector(
+  const { error, isLoading, singleUser, operationError, status } = useSelector(
     (state: GlobalState) => state.singleUser
   );
 
@@ -31,9 +34,9 @@ export default function ShowUserProfileModal({
   useEffect(() => {
     if (open) {
       if (userType === "user") {
-        dispatch(getSingleUser(`admin/accounts/${id}`));
+        dispatch(getSingleUser(`accounts/${id}`));
       } else if (userType === "trainer") {
-        dispatch(getSingleUser(`admin/trainerAccountRequests/${id}`));
+        dispatch(getSingleUser(`trainerAccountRequests/${id}`));
       } else if (userType === "supervisor") {
         dispatch(getSingleUser(`superviosr/${id}`));
       }
@@ -122,7 +125,8 @@ export default function ShowUserProfileModal({
     ],
   ];
 
-  return (
+  return (<>
+  
     <Modal
       backdrop={true}
       open={open}
@@ -150,7 +154,7 @@ export default function ShowUserProfileModal({
           <div className="element-center mb-7">
             {singleUser.image ? (
               <Image
-                src={singleUser.image}
+                  src={singleUser.image && !singleUser.image.startsWith('http') ? storageURL + singleUser.image : singleUser.image}
                 alt="user photo"
                 width={100}
                 height={100}
@@ -178,8 +182,12 @@ export default function ShowUserProfileModal({
               );
             })}
           </div>
+     
         </Modal.Body>
       )}
+
+      {status === false && <ErrorToaster error={operationError}/>}
     </Modal>
+      </>
   );
 }

@@ -62,7 +62,7 @@ export const createSupervisor = createAsyncThunk(
          }
       } catch (error: any) {
          console.error("Error:", error);
-         return rejectWithValue(error.message);
+         return rejectWithValue(error.response.data.message);
       }
    }
 );
@@ -140,6 +140,7 @@ const supervisors = createSlice({
       completedSupervisorOperation: (state) => {
          state.status = false;
          state.operationError = null;
+         state.error= null;
       },
    },
 
@@ -159,23 +160,27 @@ const supervisors = createSlice({
       builder.addCase(getSupervisors.rejected, (state, action: any) => {
          state.isLoading = false;
          state.error = action.payload;
+
       });
 
       // get single supervisors
 
       builder.addCase(getSingleSupervisor.pending, (state) => {
          state.error = null;
+         state.operationError = null;
          state.isLoading = true;
       });
       builder.addCase(getSingleSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
          state.isLoading = false;
+         state.operationError = null;
          console.log(action.payload, "load");
          state.singleSupervisor = action.payload;
       });
       builder.addCase(getSingleSupervisor.rejected, (state, action: any) => {
          state.isLoading = false;
          state.error = action.payload;
+         state.operationError = action.payload;
       });
 
       // create a role
@@ -204,9 +209,11 @@ const supervisors = createSlice({
       builder.addCase(updateSupervisor.pending, (state) => {
          state.error = null;
          state.operationLoading = true;
+         state.operationError = null;
       });
       builder.addCase(updateSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
+         state.operationError = null;
          state.operationLoading = false;
          state.status = true;
 
@@ -215,16 +222,19 @@ const supervisors = createSlice({
       builder.addCase(updateSupervisor.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
+         state.operationError = action.payload;
       });
 
       // delete role
       builder.addCase(deleteSupervisor.pending, (state) => {
          state.error = null;
+         state.operationError = null;
          state.operationLoading = true;
       });
       builder.addCase(deleteSupervisor.fulfilled, (state, action: any) => {
          state.error = null;
          state.operationLoading = false;
+         state.operationError = null;
          state.status = true;
          state.supervisors = state.supervisors.filter(
             (supervisor) => supervisor.id !== action.payload.id
@@ -233,6 +243,7 @@ const supervisors = createSlice({
       builder.addCase(deleteSupervisor.rejected, (state, action: any) => {
          state.operationLoading = false;
          state.error = action.payload;
+         state.operationError = action.payload;
       });
    },
 });

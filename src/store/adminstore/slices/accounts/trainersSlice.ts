@@ -11,9 +11,9 @@ export const getTrainers = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          console.log("try");
-
+         console.log(term);
          const res = await Axios.get(
-            `admin/trainerAccountRequests?page=${activePage}&term=${term}`
+            `trainerAccountRequests?page=${activePage}&term=${term}`
          );
          console.log(res, "trainers");
          if (res.status === 200) {
@@ -21,7 +21,7 @@ export const getTrainers = createAsyncThunk(
                data: res.data.data,
                perPage: res.data.meta.per_page,
                total: res.data.meta.total,
-            };
+         };
          }
       } catch (error: any) {
          console.error("Error:", error);
@@ -37,7 +37,7 @@ export const getTrainersByType = createAsyncThunk(
       try {
          console.log("try");
          const res = await Axios.get(
-            `admin/trainerAccountRequests/byType?trainer_type_id=${type}`
+            `trainerAccountRequests/byType?trainer_type_id=${type}`
          );
          console.log(res, "trainer");
          if (res.status === 200) {
@@ -57,7 +57,7 @@ export const getTrainersByStatus = createAsyncThunk(
       try {
          console.log("try");
          const res = await Axios.get(
-            `admin/trainerAccountRequests/byStatus?status=${status}`
+            `trainerAccountRequests/byStatus?status=${status}`
          );
          console.log(res, "trainer");
          if (res.status === 200) {
@@ -95,7 +95,7 @@ export const deleteTrainer = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`admin/requestType/${id}`);
+         const res = await Axios.delete(`requestType/${id}`);
          console.log(res, "trainers delete");
          if (res.status === 200) {
             return { message: "success", id };
@@ -115,7 +115,7 @@ export const changeTrainerStatus = createAsyncThunk(
       const { rejectWithValue } = thunkAPI;
       try {
          const res = await Axios.post(
-            `admin/trainerAccountRequests/changeStatus`,
+            `trainerAccountRequests/changeStatus`,
             data
          );
          if (res.status === 200) {

@@ -19,6 +19,9 @@ import Loading from "@/components/Pars/Loading";
 import { getSingleUser } from "@/store/adminstore/slices/accounts/singleUserSlice";
 import mergeDifferentProperties from "@/utils/mergeDifferentProperties";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import { storageURL } from "@/utils/api";
+import { FiUpload } from "react-icons/fi";
+import ImageUploadComponent from "./ImageUploadComponent";
 
 interface ModalType {
   open: boolean;
@@ -140,21 +143,24 @@ export default function AddSupervisorModal({
     }
   }, [open, operationStatus, dispatch, setOpen]);
 
+
+
+
+
+
   return (
     <Modal
       backdrop={true}
       open={open}
       onClose={() => setOpen(false)}
-      className={`rounded-[17px]  border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] w-[calc(1000px)] h-auto ${
-        mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
-      }`}
+      className={`rounded-[17px]  border-[2px] border-[#c1c1c1] [&>_.rs-modal-dialog_.rs-modal-content]:!rounded-[15px] w-[calc(1000px)] h-auto ${mode === "dark" ? "[&>div>*]:!bg-dark" : "[&>div>*]:!bg-light"
+        }`}
       size={"md"}
     >
       <Modal.Header closeButton={true}>
         <Modal.Title
-          className={`${
-            mode === "dark" ? "text-white" : "text-dark"
-          } font-bold`}
+          className={`${mode === "dark" ? "text-white" : "text-dark"
+            } font-bold`}
         >
           {label}
         </Modal.Title>
@@ -162,9 +168,8 @@ export default function AddSupervisorModal({
       {isLoading && <Loading />}
       {!isLoading && (
         <Modal.Body
-          className={`${
-            mode === "dark" ? "text-light" : "text-dark"
-          } px-3 mb-3`}
+          className={`${mode === "dark" ? "text-light" : "text-dark"
+            } px-3 mb-3`}
         >
           <Formik
             initialValues={
@@ -283,7 +288,7 @@ export default function AddSupervisorModal({
                   className="mb-[10px]"
                 />
 
-                <label className="block pl-[5px] text-[#888] mb-1">
+                {/* <label className="block pl-[5px] text-[#888] mb-1">
                   Add Photo (Optional)
                 </label>
 
@@ -303,7 +308,7 @@ export default function AddSupervisorModal({
                 {requestType === "edit" && initialValuesEdit.image && (
                   <div className="w-[120px] h-[120px] element-center relative">
                     <Image
-                      src={initialValuesEdit.image}
+                      src={initialValuesEdit.image && !initialValuesEdit.image.startsWith('http') ? storageURL + initialValuesEdit.image : initialValuesEdit.image}
                       alt="supervisor photo"
                       width={80}
                       height={80}
@@ -318,13 +323,20 @@ export default function AddSupervisorModal({
                       onClick={() => inputRef.current.click()}
                     />
                   </div>
-                )}
+                )} */}
 
-                {props.errors.image && props.touched.image && (
-                  <div className="pl-[5px] ml-[10px] mb-[10px] text-red-600">
-                    {props.errors.image}
-                  </div>
-                )}
+
+                <ImageUploadComponent
+                  requestType={requestType}
+                  initialValuesEdit={initialValuesEdit}
+                  storageURL={storageURL}
+                  formikProps={{
+                    setFieldValue: props.setFieldValue,
+                    errors: props.errors,
+                    touched: props.touched,
+                    values: props.values
+                  }}
+                />
 
                 <Modal.Footer className="mt-2 pr-1">
                   <Button
@@ -341,10 +353,10 @@ export default function AddSupervisorModal({
                   >
                     {operation}
                   </Button>
-                  
+
                 </Modal.Footer>
               </Form>
-              
+
             )}
           </Formik>
         </Modal.Body>

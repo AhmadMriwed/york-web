@@ -86,7 +86,7 @@ const OperationContent = ({
                           onChange={(value, checked: boolean) => {
                             handleChecked(value, checked, permission.id);
                           }}
-                          defaultChecked={singleRoleIds.includes(permission.id)}
+                          defaultChecked={requestType === "edit" ?singleRoleIds.includes(permission.id): false}
                         >
                           {" "}
                           {permission.name}

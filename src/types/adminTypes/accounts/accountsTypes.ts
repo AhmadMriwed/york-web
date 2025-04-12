@@ -179,7 +179,7 @@ export interface UsersState {
   isLoading: boolean;
   error: null | any;
   operationLoading: boolean;
-
+  operationError: null | any;
   total: number;
   perPage: number;
   status: boolean;
@@ -191,4 +191,5 @@ export interface SingleUserState {
   error: null | any;
   status: boolean;
   singleUser: UsersType;
+  operationError: null | any;
 }

@@ -1,6 +1,8 @@
 "use client";
 import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
+import OperationAlert from "@/components/Pars/OperationAlert";
+import { ErrorToaster } from "@/components/accounts/ErrorToaster";
 import EditUser from "@/components/accounts/users/EditUser";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
@@ -9,6 +11,7 @@ import {
   completedUserOperation,
   deleteUser,
   getUsers,
+  getUsersByStatus,
   getUsersByType,
 } from "@/store/adminstore/slices/accounts/usersSlice";
 import { GlobalState } from "@/types/storeTypes";
@@ -16,7 +19,7 @@ import { useStaticEnums } from "@/utils/useStaticEnums";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Dropdown, Pagination } from "rsuite";
+import { Dropdown, Message, Pagination, useToaster } from "rsuite";
 
 export default function Users() {
   // pagination config
@@ -33,7 +36,7 @@ export default function Users() {
   const staticEnum = useStaticEnums();
 
   const dispatch: any = useDispatch();
-  const { isLoading, error, users, status, perPage, total } = useSelector(
+  const { isLoading, error, users, status, perPage, total, operationError } = useSelector(
     (state: GlobalState) => state.users
   );
 
@@ -202,7 +205,9 @@ export default function Users() {
                   <Dropdown.Item
                     key={filter.value}
                     className="text-white capitalize"
-                    onClick={() => {}}
+                    onClick={() => {
+                      dispatch(getUsersByStatus(filter.value));
+                    }}
                   >
                     {filter.label}
                   </Dropdown.Item>
@@ -261,6 +266,14 @@ export default function Users() {
         deleteAction={deleteUser}
         label="Are you sure you want to delete the selected user ?"
       />
+             <OperationAlert
+              messageOnSuccess="The operation was completed successfully"
+              messageOnError={`Oops! ${operationError}`}
+              status={status}
+              error={operationError}
+              completedAction={completedUserOperation}
+            />
+            {status === false && <ErrorToaster error={operationError}/>}
     </main>
   );
 }

@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Dropdown, Pagination } from "rsuite";
+import OperationAlert from "@/components/Pars/OperationAlert";
 
 export default function Trainers() {
   const [activePage, setActivePage] = useState(1);
@@ -33,7 +34,11 @@ export default function Trainers() {
   const { isLoading, error, trainers, status, total, perPage } = useSelector(
     (state: GlobalState) => state.trainers
   );
-
+  const messageOperation: string =
+    (openAdd && "adding") ||
+    (openEdit && "updating") ||
+    (openDelete && "deleting") ||
+    "";
   const dispatch: any = useDispatch();
 
   useEffect(() => {
@@ -103,9 +108,8 @@ export default function Trainers() {
 
   return (
     <main
-      className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${
-        total > perPage && "pb-[70px]"
-      }`}
+      className={`pt-0 overflow-x-auto overflow-y-clip max-w-full relative ${total > perPage && "pb-[70px]"
+        }`}
     >
       {isLoading && <Loading />}
       {!isLoading && (
@@ -132,7 +136,7 @@ export default function Trainers() {
                   className="text-white capitalize"
                   onClick={() =>
                     dispatch(
-                      getTrainersByType(filter.value === "certificated" ? 1 : 2)
+                      getTrainersByType(filter.value === "certificated" ? 2 : 1)
                     )
                   }
                 >
@@ -194,6 +198,16 @@ export default function Trainers() {
         completed={completedTrainerOperation}
         deleteAction={deleteTrainer}
         label="Are you sure you want to delete the selected trainer ?"
+      />
+      <OperationAlert
+        status={status}
+        error={error}
+        messageOnError={`An error occurred while ${messageOperation} (${error}) , try again `}
+        messageOnSuccess={`Trainer has been ${messageOperation} successfully`}
+        completedAction={completedTrainerOperation}
+        closeAdd={setOpenAdd}
+        closeEdit={setOpenEdit}
+        closeDelete={setOpenDelete}
       />
 
       {total > perPage && (
