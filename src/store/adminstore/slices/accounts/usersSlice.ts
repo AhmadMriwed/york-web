@@ -40,6 +40,7 @@ export const getUsers = createAsyncThunk(
 );
 
 // get users by type
+// get users by type
 
 export const getUsersByType = createAsyncThunk(
    "users/getUsersByType",
