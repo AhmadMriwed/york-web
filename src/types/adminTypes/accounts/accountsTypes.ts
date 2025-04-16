@@ -173,6 +173,7 @@ export interface UsersType {
   status: null | { status: string; cause: null | string };
   user_id: number;
   user_name: string;
+  trainer_type: string;
 }
 
 export interface UsersState {
@@ -180,6 +181,7 @@ export interface UsersState {
   error: null | any;
   operationLoading: boolean;
   operationError: null | any;
+  operationMessage: null | any;
   total: number;
   perPage: number;
   status: boolean;

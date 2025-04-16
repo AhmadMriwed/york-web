@@ -59,12 +59,16 @@ export const useStaticEnums = (): EnumTypes => {
       ],
       activateAccount: [
          {
-            label: "Active",
-            value: "active",
+            label: "Banned",
+            value: "Banned",
          },
          {
-            label: "Inactive",
-            value: "inactive",
+            label: "Accepted",
+            value: "Accepted",
+         },
+         {
+            label: "Rejected",
+            value: "Rejected",
          },
       ],
    };

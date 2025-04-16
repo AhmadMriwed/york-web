@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Dropdown, Pagination } from "rsuite";
 import OperationAlert from "@/components/Pars/OperationAlert";
+import TrainerProfileModal from "@/components/accounts/trainers/TrainerProfileModal";
+import EditTrainerModal from "@/components/accounts/trainers/EditTrainerModal";
 
 export default function Trainers() {
   const [activePage, setActivePage] = useState(1);
@@ -31,6 +33,8 @@ export default function Trainers() {
   const [term, setTerm] = useState("");
   const [userId, setUserId] = useState<number>(0);
   const staticEnums = useStaticEnums();
+  const [accountStatus, setAccountStatus] = useState('all');
+  const [accountType, setAccountType] = useState('all');
   const { isLoading, error, trainers, status, total, perPage } = useSelector(
     (state: GlobalState) => state.trainers
   );
@@ -105,6 +109,26 @@ export default function Trainers() {
       ),
     },
   ];
+ const accountStatusEnum =  [
+    {
+       label: "Active",
+       value: "active",
+    },
+    {
+       label: "InActive",
+       value: "inActive",
+    }
+ ];
+ const accountTypeEnum =  [
+  {
+     label: "Certificated",
+     value: "certificated",
+  },
+  {
+     label: "Uncertifiated",
+     value: "uncertifiated",
+  },
+];
 
   return (
     <main
@@ -127,17 +151,17 @@ export default function Trainers() {
         >
           <Dropdown
             className="w-[127px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-            title={"Trainer Type"}
+            title={accountType === 'all'? "Trainer Type": accountType}
           >
-            {staticEnums.entityTypesEnum.map((filter) => {
+            {accountTypeEnum.map((filter) => {
               return (
                 <Dropdown.Item
                   key={filter.value}
                   className="text-white capitalize"
-                  onClick={() =>
-                    dispatch(
-                      getTrainersByType(filter.value === "certificated" ? 2 : 1)
-                    )
+                  onClick={() =>{
+                    setAccountType(filter.label);
+                    dispatch(getTrainersByType(filter.value === "certificated" ? 2 : 1))
+                  }
                   }
                 >
                   {filter.label}
@@ -153,14 +177,18 @@ export default function Trainers() {
           </Dropdown>
           <Dropdown
             className="w-[127px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-            title={"Trainer Status"}
+            title={accountStatus === 'all'? "Trainer Status": accountStatus}
           >
-            {staticEnums.statusEnum.map((filter) => {
+            {accountStatusEnum.map((filter) => {
               return (
                 <Dropdown.Item
                   key={filter.value}
                   className="text-white capitalize"
-                  onClick={() => dispatch(getTrainersByStatus(filter.value))}
+                  onClick={() => {
+                    setAccountStatus(filter.label);
+                    dispatch(getTrainersByStatus(filter.value))
+                  }
+                  }
                 >
                   {filter.label}
                 </Dropdown.Item>
@@ -181,13 +209,13 @@ export default function Trainers() {
         setOpen={setOpenAdd}
         requestType="Add Trainer"
         operation="Save"
+      
       />
-      <ModalOperation
+      <EditTrainerModal
         open={openEdit}
         setOpen={setOpenEdit}
-        requestType="edit"
-        operation="Update"
-        label="Trainer Role"
+        trainerId={userId}
+      
       />
       <AlertModal
         open={openDelete}
@@ -231,7 +259,7 @@ export default function Trainers() {
                "
         />
       )}
-      <ShowUserProfileModal
+      <TrainerProfileModal
         open={openVisible}
         setOpen={setOpenvisible}
         id={userId}

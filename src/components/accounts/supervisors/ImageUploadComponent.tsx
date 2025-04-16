@@ -49,13 +49,13 @@ const ImageUploadComponent = ({
 
   return (
     <div className="mb-4 w-full">
-      <label className="block text-sm font-medium text-gray-400 mb-2">
+      <label className="block text-sm font-medium text-gray-500 dark:text-gray-300 mb-2">
         {requestType === "edit" ? "Change Photo" : "Add Photo (Optional)"}
       </label>
 
       <div className="flex items-center gap-4 w-full">
         <div className="w-full">
-          <label className="flex flex-col items-center justify-center w-full min-h-32 border-2 border-dashed border-gray-300 rounded-md cursor-pointer hover:border-blue-400 transition-colors duration-200 relative p-4">
+          <label className="flex flex-col items-center justify-center w-full min-h-32 border-2 border-dashed border-gray-500 dark:border-gray-300 rounded-md cursor-pointer hover:border-blue-400 transition-colors duration-200 relative p-4">
             {/* Show preview or upload prompt */}
             {imagePreview || (requestType === "edit" && initialValuesEdit?.image) ? (
               <div className="flex items-center w-full gap-4">
@@ -76,7 +76,7 @@ const ImageUploadComponent = ({
                 <div className="w-1/2 flex justify-center">
                   <CiEdit
                     className="text-blue-500 text-5xl cursor-pointer p-2  rounded-full transition-colors"
-                    onClick={(e) => {
+                    onClick={(e: any) => {
                       e.preventDefault();
                       inputRef.current?.click();
                     }}
@@ -84,7 +84,7 @@ const ImageUploadComponent = ({
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center text-gray-400 py-8">
+              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-300 py-8">
                 <FiUpload className="text-2xl mb-2" />
                 <span className="text-sm text-center">Click to upload</span>
               </div>

@@ -78,11 +78,32 @@ export const createTrainer = createAsyncThunk(
       console.log("dkjsa");
 
       try {
-         const res = await Axios.post(`trainer/register`, data);
+         const res = await Axios.post(`trainerAccountRequests`, data);
          console.log(res, "trainers insert");
-         // if (res.data.success) {
-         //    return res.data.data.services;
-         // }
+         if (res.status === 201) {
+            // return res.data.data.services;
+            return res.data.message
+         }
+      } catch (error: any) {
+         console.error("Error:", error);
+         return rejectWithValue(error.message);
+      }
+   }
+);
+export const editeTrainer = createAsyncThunk(
+   "trainers/editeTrainer",
+
+   async ({trainerId,formData}: {trainerId: number, formData: any}, thunkAPI) => {
+      const { rejectWithValue } = thunkAPI;
+      console.log("dkjsa");
+
+      try {
+         const res = await Axios.post(`trainerAccountRequests`, formData);
+         console.log(res, "trainers insert");
+         if (res.status === 201) {
+            // return res.data.data.services;
+            return res.data.message
+         }
       } catch (error: any) {
          console.error("Error:", error);
          return rejectWithValue(error.message);
@@ -95,7 +116,7 @@ export const deleteTrainer = createAsyncThunk(
    async (id: any, thunkAPI) => {
       const { rejectWithValue } = thunkAPI;
       try {
-         const res = await Axios.delete(`requestType/${id}`);
+         const res = await Axios.delete(`trainerAccountRequests/${id}`);
          console.log(res, "trainers delete");
          if (res.status === 200) {
             return { message: "success", id };

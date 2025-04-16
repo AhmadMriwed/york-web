@@ -3,11 +3,14 @@ import AlertModal from "@/components/Pars/AlertModal";
 import Loading from "@/components/Pars/Loading";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import { ErrorToaster } from "@/components/accounts/ErrorToaster";
+import CrudLayout from "@/components/accounts/crud/CrudLayout";
+import AddUserModal from "@/components/accounts/users/AddUserModal";
 import EditUser from "@/components/accounts/users/EditUser";
 import ShowUserProfileModal from "@/components/accounts/users/ShowUserProfileModal";
 import Action from "@/components/crud/Action";
-import CrudLayout from "@/components/crud/CrudLayout";
 import {
+  bulkDestroy,
+  changeUserStatus,
   completedUserOperation,
   deleteUser,
   getUsers,
@@ -15,6 +18,7 @@ import {
   getUsersByType,
 } from "@/store/adminstore/slices/accounts/usersSlice";
 import { GlobalState } from "@/types/storeTypes";
+import { storageURL } from "@/utils/api";
 import { useStaticEnums } from "@/utils/useStaticEnums";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -33,10 +37,11 @@ export default function Users() {
   const [filteredUserStatus, setFilteredUserStatus] = useState("all");
   const [term, setTerm] = useState("");
   const [userId, setUserId] = useState<number>(0);
+  const [ isThereChangeStatus, setIsThereChangeStatus] = useState(true);
   const staticEnum = useStaticEnums();
 
   const dispatch: any = useDispatch();
-  const { isLoading, error, users, status, perPage, total, operationError } = useSelector(
+  const { isLoading, error, users, status, perPage,operationMessage, total, operationError } = useSelector(
     (state: GlobalState) => state.users
   );
 
@@ -50,7 +55,8 @@ export default function Users() {
     {
       id: "name",
       name: "Name",
-      selector: (row: any) => row.first_name + " " + row.last_name,
+      // selector: (row: any) => row.first_name + " " + row.last_name,
+      selector: (row: any) => row.user_name? row.user_name : row.first_name + " " + row.last_name,
       sortable: true,
     },
     {
@@ -65,7 +71,7 @@ export default function Users() {
       name: "Photo",
       selector: (row: any) =>
         row.image ? (
-          <Image src={row.image} alt="user photo" width={50} height={50} />
+          <Image src={row.image.startsWith('http')? row.image : storageURL + row.image} alt="user photo" width={50} height={50} />
         ) : (
           "no image available"
         ),
@@ -76,7 +82,7 @@ export default function Users() {
       id: "status",
       name: "Status",
       selector: (row: any) =>
-        row.account_status?.status ? row.account_status?.status : "suspended",
+        row.status?.status ? row.status?.status : "suspended",
       sortable: true,
     },
     {
@@ -94,53 +100,22 @@ export default function Users() {
           id={row.user_id}
           handleEdit={() => {
             setOpenEdit(true);
-            setUserId(row.user_id);
+            setUserId(row.id);
           }}
           handleVisible={() => {
             setOpenvisible(true);
-            setUserId(row.user_id);
+            setUserId(row.id);
           }}
           handleDelete={() => {
             setOpenDelete(true);
-            setUserId(row.user_id);
+            setUserId(row.id);
           }}
         />
       ),
     },
   ];
 
-  const filterUserTypeBy = [
-    {
-      id: 1,
-      title: "client",
-      type: "Client",
-    },
-    {
-      id: 2,
-      title: "trainee",
-      type: "Trainee",
-    },
-    {
-      id: 3,
-      title: "trainer",
-      type: "Trainer",
-    },
-  ];
-  const filterUserStatusBy = [
-    {
-      id: 1,
-      title: "active",
-    },
-    {
-      id: 2,
-      title: "inactive",
-    },
-    {
-      id: 3,
-      title: "all",
-    },
-  ];
-
+  
   useEffect(() => {
     dispatch(getUsers({ activePage, term }));
   }, [dispatch, activePage, term]);
@@ -153,7 +128,7 @@ export default function Users() {
     >
       {isLoading && <Loading />}
 
-      {!isLoading && users.length > 0 && (
+      {!isLoading && users.length >= 0 && (
         <>
           <CrudLayout
             columns={columns}
@@ -161,21 +136,25 @@ export default function Users() {
             openAdd={openAdd}
             setOpenAdd={setOpenAdd}
             interfaceName="Users"
-            isThereAdd={false}
+            isThereAdd={true}
             isLoading={isLoading}
             isThereChangeStatus={true}
             setTerm={setTerm}
+            action={changeUserStatus}
+            actionForDelete={bulkDestroy}
+            status = {status}
           >
             <Dropdown
               className="w-[115px] !bg-btnColor [&>button]:!capitalize [&>button]:!text-white rounded-[6px] border-[#c1c1c1] [&>button.rs-btn:focus]:!bg-btnColor [&>button.rs-btn:focus]:!text-white [&>.rs-btn:hover]:!bg-btnColor [&>.rs-btn:hover]:!text-white [&>*]:!text-left "
-              title={"User Type"}
+              title={filteredUserType === 'all'? "User Type": filteredUserType}
             >
               {staticEnum.accountTypeEnum.map((filter) => {
                 return (
                   <Dropdown.Item
                     key={filter.value}
                     onClick={() => {
-                      dispatch(getUsersByType(filter.value));
+                      setFilteredUserType(filter.value);
+                      dispatch(getUsersByType({ activePage, filteredUserType}));
                     }}
                     className="text-white capitalize"
                   >
@@ -206,6 +185,7 @@ export default function Users() {
                     key={filter.value}
                     className="text-white capitalize"
                     onClick={() => {
+                      setFilteredUserStatus(filter.value);
                       dispatch(getUsersByStatus(filter.value));
                     }}
                   >
@@ -253,6 +233,7 @@ export default function Users() {
         id={userId}
         userType="user"
       />
+      <AddUserModal open={openAdd} setOpen={setOpenAdd} />
 
       <EditUser open={openEdit} setOpen={setOpenEdit} id={userId} />
 
@@ -267,7 +248,7 @@ export default function Users() {
         label="Are you sure you want to delete the selected user ?"
       />
              <OperationAlert
-              messageOnSuccess="The operation was completed successfully"
+              messageOnSuccess={'Operation has been completed successfuly'}
               messageOnError={`Oops! ${operationError}`}
               status={status}
               error={operationError}

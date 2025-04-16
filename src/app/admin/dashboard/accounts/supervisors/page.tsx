@@ -78,7 +78,7 @@ export default function Supervisors() {
     },
     {
       name: "Role",
-      selector: (row: any) => row.role.name,
+      selector: (row: any) => row?.role?.name,
       sortable: true,
     },
     {
