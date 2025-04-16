@@ -9,6 +9,9 @@ import { usePathname } from "next/navigation";
 import CourseSidebar from "@/components/courses/CourseSidebar";
 import Sidebar from "@/components/sidebar/Sidebar";
 // import ReduxProvider from '@/store/provider'
+import Cookie from "universal-cookie";
+
+const cookie = new Cookie();
 
 // interface UserResponse {
 //   user: string | null;
@@ -20,6 +23,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [sidebar, setSidebar] = useState<"sessions" | "courses" | "default">(
     "default"
   );
+
   const pathName: string = usePathname();
   useEffect(() => {
     if (
