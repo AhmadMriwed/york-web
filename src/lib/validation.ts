@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import Cookies from 'js-cookie'
 
-const getMessage = (en: string, ar: string): string => {
+export const getMessage = (en: string, ar: string): string => {
   const language = Cookies.get('language');
   return language === 'ar' ? ar : en;
 };

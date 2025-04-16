@@ -10,8 +10,11 @@ import Cookies from "universal-cookie";
 import { useRouter } from "next/navigation";
 import { GlobalState } from "@/types/storeTypes";
 import { storageURL } from "@/utils/api";
-import { ThunkDispatch } from "@reduxjs/toolkit"; // استيراد ThunkDispatch
+import { ThunkDispatch } from "@reduxjs/toolkit";
 import { AnyAction } from "redux"; // استيراد AnyAction لتحديد نوع الأكشن العام
+import { Button, Drawer } from "antd";
+import { Close, CloseOutline } from "@rsuite/icons";
+import profile from "../../../public/avatar.png";
 
 interface NavLinkProps {
   as: string;
@@ -27,14 +30,12 @@ const NavLink = forwardRef(
 
 NavLink.displayName = "NavLink";
 
-export default function Drawer({
-  expanded,
-  setExpanded,
-  setOpenProfile,
+export default function DrawerComponent({
+  open,
+  onClose,
 }: {
-  expanded: boolean;
-  setExpanded: any;
-  setOpenProfile: any;
+  open: boolean;
+  onClose: any;
 }) {
   const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
     useContext(ThemeContext);
@@ -42,12 +43,11 @@ export default function Drawer({
     (state: GlobalState) => state.authSlice
   );
   const dispatch =
-    useDispatch<ThunkDispatch<GlobalState, unknown, AnyAction>>(); // تحديد النوع هنا
+    useDispatch<ThunkDispatch<GlobalState, unknown, AnyAction>>();
   const router = useRouter();
 
   const HandleLogOut = () => {
     const cookie = new Cookies();
-    const token = cookie.get("admin_token");
 
     try {
       dispatch(adminLogOut()).then((res: any) => {
@@ -58,7 +58,6 @@ export default function Drawer({
         }
       });
     } catch (error) {
-      // التحقق من نوع الخطأ قبل الوصول إلى الخصائص الخاصة به
       if (error instanceof Error) {
         console.log(error.message);
       } else {
@@ -68,21 +67,30 @@ export default function Drawer({
   };
 
   return (
-    <aside
-      className={`${expanded ? "block" : "hidden"} ${
-        mode === "dark" ? "!bg-dark !text-light" : "!bg-light !text-dark"
-      } 
-          absolute right-0 top-0 w-[350px] max-w-full h-screen z-50 transition-all duration-1000`}
+    <Drawer
+      title={
+        <Image
+          src={mode === "dark" ? "/logo.png" : "/logo dark.png"}
+          alt=""
+          width={160}
+          height={8}
+          className={` mx-auto mt-8  `}
+        />
+      }
+      onClose={onClose}
+      open={open}
+      style={{
+        background: `${mode === "dark" ? "black" : ""}`,
+        color: `${mode === "dark" ? "white" : ""}`,
+      }}
+      closeIcon={
+        <Close className={`${mode === "dark" ? "text-white" : "text-black"}`} />
+      }
+      headerStyle={{
+        height: 110,
+      }}
     >
-      <Sidenav
-        className="!bg-inherit !text-inherit !mt-[10px] transition-all duration-500"
-        expanded={expanded}
-      >
-        <Sidenav.Toggle
-          expanded={expanded}
-          onToggle={(expanded) => setExpanded(expanded)}
-          className="[&>.rs-sidenav-toggle-button]:!float-left !bg-inherit [&>*]:!text-inherit !border-none [&>*]:!bg-transparent"
-        ></Sidenav.Toggle>
+      <Sidenav className="!bg-inherit !text-inherit   transition-all duration-500">
         <Sidenav.Body className="!text-inherit">
           {profileLoading ? (
             <div className="h-[100px] element-center">
@@ -92,11 +100,17 @@ export default function Drawer({
             adminProfile && (
               <div>
                 <div className="flex justify-between px-3 gap-2 items-center">
-                  <p className="text-[14px] text-[#bbb] m-0">
-                    Accounts : {adminProfile?.account_type}
+                  <p className="text-[14px] text-gray-600 m-0">
+                    Accounts :
+                    <span className="font-semibold mx-2 text-primary-color1">
+                      {adminProfile?.account_type}
+                    </span>
                   </p>
                   <p className="text-[14px] text-[#777] m-0">
-                    User ID : {adminProfile?.user_id}
+                    User ID :
+                    <span className="font-semibold mx-2 text-primary-color1">
+                      {adminProfile?.user_id}
+                    </span>
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-inherit justify-center mt-[25px]">
@@ -111,7 +125,7 @@ export default function Drawer({
                     />
                   ) : (
                     <Image
-                      src={storageURL + adminProfile?.image}
+                      src={storageURL + adminProfile?.image ? profile : ""}
                       alt="profile image"
                       width={60}
                       height={60}
@@ -119,7 +133,7 @@ export default function Drawer({
                     />
                   )}
                   <div>
-                    <p className="text-[22px] text-[#bbb]">
+                    <p className="text-[22px] text-neutral-500 ">
                       {adminProfile?.first_name + " " + adminProfile?.last_name}
                     </p>
                     <p className="text-[14px] text-[#777] mt-[2px]">
@@ -135,7 +149,7 @@ export default function Drawer({
               eventKey="1"
               className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
               as={NavLink}
-              href="/"
+              href="/admin/dashboard/profile"
             >
               Profile
             </Nav.Item>
@@ -190,6 +204,6 @@ export default function Drawer({
           </Nav>
         </Sidenav.Body>
       </Sidenav>
-    </aside>
+    </Drawer>
   );
 }

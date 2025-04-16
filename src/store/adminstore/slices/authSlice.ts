@@ -3,6 +3,8 @@ import { AdminState } from "@/types/adminTypes/accounts/accountsTypes";
 import Cookies from "universal-cookie";
 import axios from "axios";
 import Cookie from "universal-cookie";
+import { toast } from "sonner";
+import { getAuthHeaders } from "./enums/authHeaders";
 
  const cookie = new Cookie();
 
@@ -25,7 +27,9 @@ import Cookie from "universal-cookie";
         const expiryDate = new Date();
         expiryDate.setFullYear(expiryDate.getFullYear() + 10);
         cookies.set("admin_token", token, {
-          path: "/admin",
+          path: "/",
+          secure: true,
+          sameSite: "strict",
           expires: expiryDate,
         });
 
@@ -157,6 +161,42 @@ export const adminUpdatePassword = createAsyncThunk(
     }
   }
 );
+
+export const editProfile = async (formData: FormData) => {
+  try {
+    const response = await axios.put(
+      "/api/admin/updateProfile",
+      formData,
+      {
+        ...getAuthHeaders('application/json')
+      }
+    );
+
+    console.log("API Response:", response.data);
+
+    if (response.data && response.data.message === "Updated successfully") {
+      toast.success(response.data.message);
+      return response.data.data;
+    }
+
+    throw new Error(response.data?.message || "فشل في تحديث الملف الشخصي");
+  } catch (error: any) {
+    console.error("API Error Details:", error);
+    
+    let errorMessage = "حدث خطأ غير متوقع";
+    
+    if (axios.isAxiosError(error)) {
+      errorMessage = error.response?.data?.message || 
+                   error.response?.data?.error || 
+                   error.message;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+};
 
 export const adminLogOut = createAsyncThunk(
   "adminLogout",

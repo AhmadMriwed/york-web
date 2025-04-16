@@ -9,16 +9,32 @@ export interface UserState {
   status: boolean;
 }
 
-export interface UserType {
-  email: string;
-  first_name: string;
+export interface RoleType {
   id: number;
-  is_verified: boolean;
-  last_name: string;
-  access_token: string;
+  name: string;
+}
+
+export interface UserType {
+  id: number;
   user_id: number;
-  user_type: string;
-  language: string | null;
-  image: null | string;
-  categories: any;
+  first_name: string;
+  last_name: string;
+  email: string;
+  user_name: string | null;
+  phone_number: string;
+  on_notification: boolean | null;
+  image: string | null;
+  birth_date: string | null;
+  about_me: string | null;
+  gender: string | null;
+  url: string | null;
+  is_verified: boolean;
+  language: string;
+  categories:{id:number,title:string}[]
+  job_type: string | null;
+  role: RoleType;
+  account_type: string;
+  account_status: string | null;
+  status: string | null;
+  user_type?:string|null
 }
