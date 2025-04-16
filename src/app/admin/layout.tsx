@@ -4,12 +4,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAdminProfile } from "@/store/adminstore/slices/authSlice";
 import { usePathname, useRouter } from "next/navigation";
 import { GlobalState } from "@/types/storeTypes";
+import Cookie from "universal-cookie";
 
 const AdminLayout = ({ children }: PropsWithChildren) => {
   const dispatch: any = useDispatch();
   const router = useRouter();
   const pathName: string = usePathname();
   const { adminProfile } = useSelector((state: GlobalState) => state.authSlice);
+
+  const cookie = new Cookie();
+
+  useEffect(() => {
+    const token = cookie.get("admin_token");
+    if (token) {
+      dispatch(getAdminProfile());
+    }
+  }, []);
 
   useEffect(() => {
     if (!adminProfile)
