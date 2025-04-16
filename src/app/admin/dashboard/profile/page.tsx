@@ -71,7 +71,7 @@ export default function Profile() {
             </div>
 
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">
+              <h1 className="text-2xl font-bold  w-fit mx-auto md:mx-0">
                 {adminProfile.first_name} {adminProfile.last_name}
               </h1>
 

@@ -27,7 +27,9 @@ import { getAuthHeaders } from "./enums/authHeaders";
         const expiryDate = new Date();
         expiryDate.setFullYear(expiryDate.getFullYear() + 10);
         cookies.set("admin_token", token, {
-          path: "/admin",
+          path: "/",
+          secure: true,
+          sameSite: "strict",
           expires: expiryDate,
         });
 
