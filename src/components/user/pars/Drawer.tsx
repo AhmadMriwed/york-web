@@ -87,7 +87,7 @@ export default function Drawer({
             </div>
           ) : (
             adminProfile && (
-              <div>
+              <div className="bg-red-600">
                 <div className="flex justify-between px-3 gap-2 items-center">
                   <p className="text-[14px] text-[#bbb] m-0">
                     Accounts: {adminProfile.account_type}
@@ -124,7 +124,9 @@ export default function Drawer({
             <Nav.Item
               eventKey="1"
               className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
-              onClick={() => setOpenProfile(true)}
+              onClick={() => {
+                setOpenProfile(true);
+              }}
             >
               Profile
             </Nav.Item>

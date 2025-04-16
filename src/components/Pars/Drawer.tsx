@@ -150,6 +150,7 @@ export default function DrawerComponent({
               className="!bg-transparent text-center !text-inherit !py-[15px] !text-[14px]"
               as={NavLink}
               href="/admin/dashboard/profile"
+              onClick={onClose}
             >
               Profile
             </Nav.Item>
