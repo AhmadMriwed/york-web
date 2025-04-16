@@ -135,6 +135,15 @@ h1,h2,h3 {
 .dark_gradient_background {
   background: linear-gradient(180deg, #212a34 0%, #13181e 100%);
 }
+.custom-scrollbar {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;     
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 
 .adel {
   background-color: #0f0f0f17;

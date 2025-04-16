@@ -93,7 +93,11 @@ export default function Profile({
                 <div className="flex gap-2">
                   {" "}
                   <p className="text-[#777]">Birthday :</p>{" "}
-                  <span>{adminProfile.birth_date}</span>
+                  <span>
+                    {adminProfile.birth_date
+                      ? new Date(adminProfile.birth_date).toLocaleDateString()
+                      : "Not specified"}
+                  </span>
                 </div>
                 <div className="flex gap-2">
                   {" "}

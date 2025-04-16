@@ -156,14 +156,16 @@ export interface UsersType {
   };
   account_type: string;
   job_type: string | null;
-  birth_date: string | null;
+  birth_date: Date | string|null;
   about_me: string | null;
   email: string;
   first_name: string;
   id: number;
+  gender?:string; 
   image: string;
   is_verified: boolean;
   last_name: string;
+  language:string; 
   phone_number: string;
   role: null | {
     id: number;

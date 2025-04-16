@@ -20,6 +20,7 @@ interface User {
   about_me: string;
   gender: string;
   account_type: string;
+  
 }
 
 interface permissionCourses {

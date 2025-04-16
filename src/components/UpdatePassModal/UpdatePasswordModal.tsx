@@ -13,6 +13,7 @@ import { Button, Input, Loader, Modal } from "rsuite";
 import ModalHeader from "rsuite/esm/Modal/ModalHeader";
 import ModalBody from "rsuite/esm/Modal/ModalBody";
 import FormControlLabel from "rsuite/esm/FormControlLabel";
+import Image from "next/image";
 export interface ModalType {
   isOpen: boolean;
   onClose: () => void;
@@ -121,46 +122,74 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
   });
   return (
     <Modal open={isOpen} onClose={onClose} size="md">
-      <ModalHeader>change your password</ModalHeader>
-      <ModalBody>
-        <form onSubmit={formik.handleSubmit}>
-          <FormControlLabel>old password</FormControlLabel>
-          <Input
-            name="old_password"
-            onChange={(value) => (formik.values.old_password = value)}
-            type="password"
-          />
-          {formik.touched.old_password && formik.errors.old_password && (
-            <p className="error-mesage">{formik.errors.old_password}</p>
-          )}
-
-          <FormControlLabel>new password</FormControlLabel>
-          <Input
-            onChange={(value) => (formik.values.new_password = value)}
-            name="new_password"
-            type="password"
-          />
-          {formik.touched.new_password && formik.errors.new_password && (
-            <p className="error-mesage">{formik.errors.new_password}</p>
-          )}
-
-          <FormControlLabel>confirm password</FormControlLabel>
-          <Input
-            onChange={(value) =>
-              (formik.values.new_password_confirmation = value)
-            }
-            name="new_password_confirmation"
-            type="password"
-          />
-          {formik.touched.new_password_confirmation &&
-            formik.errors.new_password_confirmation && (
-              <p className="error-mesage">
-                {formik.errors.new_password_confirmation}
-              </p>
+      <ModalHeader className="font-semibold text-lg">
+        Change your password :
+      </ModalHeader>
+      <ModalBody className="flex items-center  gap-2 flex-col md:flex-row ">
+        <Image
+          src={"/information/reset_password.svg"}
+          height={32}
+          width={32}
+          alt="reset"
+          className="size-80"
+        />
+        <form onSubmit={formik.handleSubmit} className="flex-1 space-y-5">
+          <div>
+            <FormControlLabel className="text-gray-700 mb-2">
+              Old password :{" "}
+            </FormControlLabel>
+            <Input
+              name="old_password"
+              onChange={(value) => (formik.values.old_password = value)}
+              type="password"
+              className="mt-2"
+            />
+            {formik.touched.old_password && formik.errors.old_password && (
+              <p className="error-mesage">{formik.errors.old_password}</p>
             )}
+          </div>
 
+          <div>
+            <FormControlLabel className="text-gray-700 mb-2">
+              new password :
+            </FormControlLabel>
+            <Input
+              onChange={(value) => (formik.values.new_password = value)}
+              name="new_password"
+              type="password"
+              className="mt-2"
+            />
+            {formik.touched.new_password && formik.errors.new_password && (
+              <p className="error-mesage">{formik.errors.new_password}</p>
+            )}
+          </div>
+          <div>
+            <FormControlLabel className="text-gray-700 mb-2">
+              confirm password :
+            </FormControlLabel>
+            <Input
+              onChange={(value) =>
+                (formik.values.new_password_confirmation = value)
+              }
+              name="new_password_confirmation"
+              type="password"
+              className="mt-2"
+            />
+            {formik.touched.new_password_confirmation &&
+              formik.errors.new_password_confirmation && (
+                <p className="error-mesage">
+                  {formik.errors.new_password_confirmation}
+                </p>
+              )}
+          </div>
           <Button type="submit" className="colored-btn w-full">
-            {loading ? <Loader color="red" size={"sm"} /> : "Submit"}
+            {loading ? (
+              <span>
+                <Loader color="red" size={"sm"} /> Submitting
+              </span>
+            ) : (
+              "Submit"
+            )}
           </Button>
         </form>
       </ModalBody>

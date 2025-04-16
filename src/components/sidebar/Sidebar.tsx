@@ -1,29 +1,31 @@
 "use client";
-import Image from "next/image";
 import { Ref, forwardRef, useContext, useEffect, useState } from "react";
+import Image from "next/image";
 import { Sidenav, Nav } from "rsuite";
 import Link from "next/link";
-import { ThemeContext } from "./ThemeContext";
-import { MdOutlineMarkunreadMailbox } from "react-icons/md";
+import { usePathname } from "next/navigation";
+import { ThemeContext } from "../Pars/ThemeContext";
+
+// Icons
 import { RiDashboardLine } from "react-icons/ri";
 import { PiStudentLight } from "react-icons/pi";
-import { MdOutlineModelTraining } from "react-icons/md";
-import { MdOutlineAssignment } from "react-icons/md";
-import { GrAnnounce } from "react-icons/gr";
-import { GrCertificate } from "react-icons/gr";
-import { MdManageAccounts } from "react-icons/md";
+import {
+  MdManageAccounts,
+  MdOutlineModelTraining,
+  MdOutlineAssignment,
+  MdOutlineMarkunreadMailbox,
+  MdLanguage,
+  MdOutlineLightMode,
+  MdOutlineDarkMode,
+} from "react-icons/md";
+import { GrAnnounce, GrCertificate } from "react-icons/gr";
 import { VscSymbolEnum } from "react-icons/vsc";
-import { CiSettings } from "react-icons/ci";
-import { MdLanguage } from "react-icons/md";
-import { MdOutlineLightMode } from "react-icons/md";
-import { MdOutlineDarkMode } from "react-icons/md";
-import { CiLogout } from "react-icons/ci";
-import { IoIosArrowDroprightCircle } from "react-icons/io";
-import { usePathname } from "next/navigation";
+import { CiSettings, CiLogout } from "react-icons/ci";
 
 interface NavLinkProps {
   as: string;
   href: string;
+  children?: React.ReactNode;
 }
 
 const NavLink = forwardRef(
@@ -35,148 +37,61 @@ const NavLink = forwardRef(
 
 NavLink.displayName = "NavLink";
 
+export const menuItems = {
+  courses: [
+    { id: 1, title: "My Courses", url: "my-courses" },
+    { id: 2, title: "Submit Courses", url: "submit-courses" },
+    { id: 3, title: "Course Requests", url: "course-requests" },
+    { id: 4, title: "Course Ads", url: "course-ads" },
+    { id: 5, title: "Training Plan", url: "training-plan" },
+    { id: 6, title: "Training Session", url: "training-session" },
+  ],
+  assignments: [
+    { id: 1, title: "Assignments Session ", url: "assignment-session" },
+    { id: 2, title: "Assignments Course", url: "assignment-course" },
+    {
+      id: 3,
+      title: "Training session ",
+      url: "assignments-training-session",
+    },
+  ],
+  certifications: [
+    { id: 1, title: "Certificate Templates" },
+    { id: 2, title: "Trainer Certificates" },
+    { id: 3, title: "Trainee Certificates" },
+  ],
+  accounts: [
+    { id: 1, title: "Users", url: "users" },
+    { id: 2, title: "Trainers", url: "trainers" },
+    { id: 3, title: "Trainees", url: "trainees" },
+    { id: 4, title: "Supervisors", url: "supervisors" },
+    { id: 5, title: "Roles", url: "roles" },
+  ],
+  enums: [
+    { id: 1, title: "Categories", url: "categories" },
+    { id: 2, title: "Venues", url: "venues" },
+    { id: 3, title: "Trainer Types", url: "trainer-types" },
+    { id: 4, title: "Request Types", url: "request-types" },
+    { id: 5, title: "Exam Types", url: "exam-types" },
+    { id: 6, title: "Question Types", url: "question-types" },
+    { id: 7, title: "Course Types", url: "course-types" },
+  ],
+};
+
 const Sidebar = () => {
+  return (
+    <aside
+      className={`  md:w-[230px] dark_gradient_background hidden md:block sidebar-text-color min-h-screen h-fit pb-32 ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
+    >
+      <SidebarBody />
+    </aside>
+  );
+};
+export default Sidebar;
+
+export const SidebarBody = () => {
   const currentPath = usePathname();
-  // ...
-  const [expanded, setExpanded] = useState(true);
-  const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
-    useContext(ThemeContext);
-
   const accountType = "Admin";
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const handleResize = () => {
-        if (window.innerWidth < 786) {
-          setExpanded(false);
-        } else {
-          setExpanded(true);
-        }
-      };
-
-      window.addEventListener("resize", handleResize);
-
-      handleResize();
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, []);
-
-  const coursesMenue = [
-    {
-      id: 1,
-      title: "My Courses",
-      url: "my-courses",
-    },
-    {
-      id: 2,
-      title: "Submit Courses",
-      url: "submit-courses",
-    },
-    {
-      id: 3,
-      title: "Course Requests",
-      url: "course-requests",
-    },
-    {
-      id: 4,
-      title: "Course Ads",
-      url: "course-ads",
-    },
-    {
-      id: 5,
-      title: "Training Plan",
-      url: "training-plan",
-    },
-    {
-      id: 6,
-      title: "Training Session",
-      url: "training-session",
-    },
-  ];
-
-  const certificationsMenue = [
-    {
-      id: 1,
-      title: "Certificate Templates",
-    },
-    {
-      id: 2,
-      title: "Trainer Certificates",
-    },
-    {
-      id: 3,
-      title: "Trainee Certificates",
-    },
-  ];
-
-  const accountsMenue = [
-    {
-      id: 1,
-      title: "Users",
-      url: "users",
-    },
-    {
-      id: 2,
-      title: "Trainers",
-      url: "trainers",
-    },
-    {
-      id: 3,
-      title: "Trainees",
-      url: "trainees",
-    },
-    {
-      id: 4,
-      title: "Supervisors",
-      url: "supervisors",
-    },
-    {
-      id: 5,
-      title: "Roles",
-      url: "roles",
-    },
-  ];
-
-  const enumsMenue = [
-    {
-      id: 1,
-      title: "Categories",
-      url: "categories",
-    },
-    {
-      id: 2,
-      title: "Venues",
-      url: "venues",
-    },
-    {
-      id: 3,
-      title: "Trainer Types",
-      url: "trainer-types",
-    },
-    {
-      id: 4,
-      title: "Request Types",
-      url: "request-types",
-    },
-    {
-      id: 5,
-      title: "Exam Types",
-      url: "exam-types",
-    },
-    {
-      id: 6,
-      title: "Question Types",
-      url: "question-types",
-    },
-    {
-      id: 7,
-      title: "Course Types",
-      url: "course-types",
-    },
-  ];
 
   const activeGradientStyle = {
     backgroundImage:
@@ -186,31 +101,27 @@ const Sidebar = () => {
   const isActivePath = (path: string) => {
     return currentPath?.startsWith(path);
   };
+  const { mode, toggle }: { mode: "dark" | "light"; toggle: any } =
+    useContext(ThemeContext);
 
   return (
-    <aside
-      className={`${
-        expanded ? "w-[200px]" : "w-fit"
-      } dark_gradient_background sidebar-text-color min-h-screen h-fit ${"sticky"} top-0 left-0 col-start-1 row-span-2 `}
-    >
+    <div className="-mt-8 md:mt-0">
       <Image
         src={"/logo.png"}
         alt=""
-        width={expanded ? 90 : 50}
-        height={expanded ? 90 : 50}
-        className={`max-w-[130px] mx-auto mt-2 `}
+        width={120}
+        height={50}
+        className={`max-w-[150px] -my-14 mx-auto mt-2 `}
       />
-
-      {expanded && (
-        <p className="px-2 mx-3 my-4 text-center">
-          Welcome To {accountType} Dashboard
-        </p>
-      )}
+      <p className="px-2 mx-3 text-gray-500 tracking-wide my-4 text-center ">
+        Welcome To
+        <span className="block font-semibold mt-1 text-white pb-2 border-b-1 border-primary-color1 w-fit mx-auto mb-4">
+          {accountType} Dashboard
+        </span>
+      </p>
 
       <Sidenav
-        className={`!bg-inherit !mt-[10px] transition-all duration-500 !text-inherit`}
-        expanded={expanded}
-        // appearance="subtle"
+        className={`!bg-inherit !mt-[10px] transition-all min-h-full h-fit duration-500 !text-inherit custom-scrollbar `}
       >
         <Sidenav.Body className="bg-inherit">
           <Nav activeKey="1" className="bg-inherit">
@@ -260,6 +171,7 @@ const Sidebar = () => {
             >
               Mailbox
             </Nav.Item>
+
             <Nav.Menu
               eventKey="3"
               title="Courses"
@@ -275,7 +187,7 @@ const Sidebar = () => {
               }
               className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
             >
-              {coursesMenue.map((item) => {
+              {menuItems.courses.map((item) => {
                 return (
                   <Nav.Item
                     key={item.id}
@@ -294,6 +206,7 @@ const Sidebar = () => {
                 );
               })}
             </Nav.Menu>
+
             <Nav.Item
               eventKey="4"
               className=" !py-[10px] !text-[14px] !bg-transparent !text-inherit"
@@ -310,9 +223,10 @@ const Sidebar = () => {
             >
               Training Session
             </Nav.Item>
-            <Nav.Item
-              eventKey="5"
-              className=" !py-[10px] !text-[14px] !bg-transparent !text-inherit"
+
+            <Nav.Menu
+              eventKey="7"
+              title="Assignments"
               icon={
                 <MdOutlineAssignment
                   style={{
@@ -323,9 +237,28 @@ const Sidebar = () => {
                   }}
                 />
               }
+              className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
             >
-              Assignments
-            </Nav.Item>
+              {menuItems.assignments.map((item) => {
+                return (
+                  <Nav.Item
+                    key={item.id}
+                    eventKey={`3-${item.id}`}
+                    className="!py-[5px] transition-all duration-500 !bg-inherit hover:translate-x-2 text-[13px]"
+                    as={NavLink}
+                    href={`/admin/dashboard/assignments/${item.url}`}
+                    style={
+                      isActivePath(`/admin/dashboard/assignments/${item.url}`)
+                        ? activeGradientStyle
+                        : { backgroundColor: "#000000" }
+                    }
+                  >
+                    {item.title}
+                  </Nav.Item>
+                );
+              })}
+            </Nav.Menu>
+
             <Nav.Item
               eventKey="6"
               className=" !py-[10px] !text-[14px] !bg-transparent !text-inherit"
@@ -358,7 +291,7 @@ const Sidebar = () => {
               }
               className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
             >
-              {certificationsMenue.map((item) => {
+              {menuItems.certifications.map((item) => {
                 return (
                   <Nav.Item
                     key={item.id}
@@ -386,7 +319,7 @@ const Sidebar = () => {
                 }
                 className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
               >
-                {accountsMenue.map((item) => {
+                {menuItems.accounts.map((item) => {
                   return (
                     <Nav.Item
                       key={item.id}
@@ -422,7 +355,7 @@ const Sidebar = () => {
                 }
                 className=" !text-inherit [&>.rs-dropdown-menu]:!sticky !bg-inherit [&>a]:!bg-transparent [&>ul]:!bg-[#13181e] [&>*]:!text-[14px] [&>*]:!text-inherit"
               >
-                {enumsMenue.map((item) => {
+                {menuItems.enums.map((item) => {
                   return (
                     <Nav.Item
                       key={item.id}
@@ -467,7 +400,6 @@ const Sidebar = () => {
                       top: "8px",
                       left: "33px",
                       fontSize: "16px",
-                      display: expanded ? "block" : "none",
                     }}
                   />
                 }
@@ -485,7 +417,6 @@ const Sidebar = () => {
                         top: "8px",
                         left: "33px",
                         fontSize: "16px",
-                        display: expanded ? "block" : "none",
                       }}
                     />
                   ) : (
@@ -495,7 +426,6 @@ const Sidebar = () => {
                         top: "8px",
                         left: "33px",
                         fontSize: "16px",
-                        display: expanded ? "block" : "none",
                       }}
                     />
                   )
@@ -514,7 +444,6 @@ const Sidebar = () => {
                       top: "8px",
                       left: "33px",
                       fontSize: "16px",
-                      display: expanded ? "block" : "none",
                     }}
                   />
                 }
@@ -524,14 +453,7 @@ const Sidebar = () => {
             </Nav.Menu>
           </Nav>
         </Sidenav.Body>
-        <Sidenav.Toggle
-          expanded={expanded}
-          onToggle={(expanded) => setExpanded(expanded)}
-          className="!bg-inherit [&>*]:!text-inherit !border-none [&>*]:!bg-inherit"
-        />
       </Sidenav>
-    </aside>
+    </div>
   );
 };
-
-export default Sidebar;

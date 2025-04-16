@@ -1,13 +1,15 @@
-'use client'
-import { useRouter } from 'next/navigation';
+"use client";
+import { useRouter } from "next/navigation";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import React from 'react'
+import React from "react";
 
-const BackBtn = ({textColor}:{textColor: string}) => {
+const BackBtn = ({ textColor }: { textColor: string }) => {
   const router = useRouter();
   return (
-    <button onClick={() => router.back()} className={textColor} ><FaArrowLeftLong  className='text-xl'/></button>
-  )
-}
+    <button onClick={() => router.back()} className={textColor}>
+      <FaArrowLeftLong className="text-xl" />
+    </button>
+  );
+};
 
-export default BackBtn
+export default BackBtn;

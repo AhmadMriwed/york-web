@@ -6,7 +6,7 @@ type PropsType = {
   type: string;
   name: string;
   label: string;
-  placeholder: string;
+  placeholder?: string;
   optional?: boolean;
   required?: boolean;
   disabled?: boolean;

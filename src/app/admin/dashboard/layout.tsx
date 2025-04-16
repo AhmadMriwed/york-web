@@ -1,6 +1,5 @@
 "use client";
 
-import Sidebar from "@/components/Pars/Sidebar";
 import Topbar from "@/components/Pars/Topbar";
 import { ThemeProvider } from "@/components/Pars/ThemeContext";
 import Profile from "@/components/profile/Profile";
@@ -8,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import SessionSidebar from "@/components/sessions/SessionSidebar";
 import { usePathname } from "next/navigation";
 import CourseSidebar from "@/components/courses/CourseSidebar";
+import Sidebar from "@/components/sidebar/Sidebar";
 // import ReduxProvider from '@/store/provider'
 
 // interface UserResponse {
@@ -58,7 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <ThemeProvider>
-        <section className="grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+        <section className=" flex flex-col  md:grid  md:grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
           {sidebar === "default" ? (
             <Sidebar />
           ) : sidebar === "sessions" ? (

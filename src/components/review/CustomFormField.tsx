@@ -78,7 +78,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
       return (
         <div
           className={cn(
-            "flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1"
+            "flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 dark:text-white focus-within:border focus-within:border-primary-color1"
           )}
           tabIndex={0}
         >
@@ -96,7 +96,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               {...field}
               placeholder={placeholder}
               className={cn(
-                " border-0 focus:ring-0 focus:outline-none text-gray-700 "
+                " border-0 focus:ring-0 focus:outline-none text-gray-700 dark:text-white "
               )}
             />
           </FormControl>
@@ -190,10 +190,34 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
           <Textarea
             placeholder={placeholder}
             {...field}
-            className={cn("shad-textArea bg-gray-200 text-black")}
+            className={cn(
+              "shad-textArea bg-gray-100  dark:bg-gray-700 dark:text-white focus:outline-primary-color1 focus:ring-primary-color1"
+            )}
             disabled={props.disabled}
           />
         </FormControl>
+      );
+    case FormFieldType.DATE_PICKER:
+      return (
+        <div className="flex rounded-md border border-dark-500 bg-dark-400">
+          <Image
+            src="/assets/icons/calendar.svg"
+            height={24}
+            width={24}
+            className="ml-2"
+            alt="calendar"
+          />
+          <FormControl>
+            <DatePicker
+              selected={field.value}
+              onChange={(date) => field.onChange(date)}
+              dateFormat={dateFormat ?? "MM/dd/yyyy"}
+              showTimeSelect={showTimeSelect ?? false}
+              timeInputLabel="Time:"
+              wrapperClassName="date-picker"
+            />
+          </FormControl>
+        </div>
       );
     case FormFieldType.CHECKBOX:
       return (
