@@ -78,7 +78,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
       return (
         <div
           className={cn(
-            "flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 dark:text-white focus-within:border focus-within:border-primary-color1"
+            "flex rounded-md border border-dark-500  bg-gray-100 dark:bg-gray-700 dark:text-white focus-within:border focus-within:border-primary-color1"
           )}
           tabIndex={0}
         >
@@ -191,7 +191,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             placeholder={placeholder}
             {...field}
             className={cn(
-              "shad-textArea bg-gray-100  dark:bg-gray-700 dark:text-white focus:outline-primary-color1 focus:ring-primary-color1"
+              "shad-textArea bg-gray-100 min-h-32  dark:bg-gray-700 dark:text-white focus:outline-primary-color1 focus:ring-primary-color1"
             )}
             disabled={props.disabled}
           />
