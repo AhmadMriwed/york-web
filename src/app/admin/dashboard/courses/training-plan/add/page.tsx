@@ -16,7 +16,7 @@ import ImageUploader from "@/components/inputs/image-uploader/ImageUploader";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import { Loader } from "rsuite";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FileUploader from "@/components/courses/FileUploader";
+import FileUploader from "@/components/upload/FileUploader";
 import { toast } from "sonner";
 
 const planSchema = yup.object().shape({

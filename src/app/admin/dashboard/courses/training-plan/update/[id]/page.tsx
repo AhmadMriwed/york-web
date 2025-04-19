@@ -19,7 +19,7 @@ import ErrorMessage from "@/components/error-message/ErrorMessage";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import { Loader } from "rsuite";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FileUploader from "@/components/courses/FileUploader";
+import FileUploader from "@/components/upload/FileUploader";
 
 const planSchema = yup.object().shape({
   image: yup.mixed().nullable(),

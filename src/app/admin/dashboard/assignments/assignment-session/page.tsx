@@ -1,24 +1,273 @@
+"use client";
+import AssignmentCard from "@/components/assignments/AssignmentCard";
+import AssignmentFilter from "@/components/assignments/AssignmentFilter";
+import ExportAssignment from "@/components/assignments/ExportAssignment";
+import ExportAssignments from "@/components/assignments/ExportAssignments";
 import AssignmentHeader from "@/components/assignments/HeaderAssignment";
+import EmptyResult from "@/components/empty-result/EmptyResult";
+import Loading from "@/components/Pars/Loading";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { GlobalState } from "@/types/storeTypes";
+import { Button, Select } from "antd";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useContext, useState } from "react";
+import { CiExport } from "react-icons/ci";
+import { IoArrowBackSharp } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
-type Props = {};
+export type AssignmentSession = {
+  id: string;
+  image: string;
+  code: string;
+  title: string;
+  category: {
+    id: string;
+    title: string;
+  };
+  start_date: string;
+  end_date: string;
+  students_count: string;
+  percentage: number;
+  status: string;
+};
 
-const page = (props: Props) => {
+// Move the assignments array inside the component
+const assignments: AssignmentSession[] = [
+  {
+    id: "1",
+    image: "https://example.com/image1.jpg",
+    code: "MATH101",
+    title: "Algebra Basics",
+    category: {
+      id: "cat1",
+      title: "Mathematics",
+    },
+    start_date: "2024-01-10",
+    end_date: "2024-02-20",
+    students_count: "25",
+    percentage: 75,
+    status: "Active",
+  },
+  {
+    id: "2",
+    image: "https://example.com/image2.jpg",
+    code: "ENG202",
+    title: "Advanced Writing",
+    category: {
+      id: "cat2",
+      title: "English",
+    },
+    start_date: "2025-02-01",
+    end_date: "2025-03-15",
+    students_count: "30",
+    percentage: 90,
+    status: "inActive",
+  },
+  {
+    id: "3",
+    image: "https://example.com/image3.jpg",
+    code: "SCI105",
+    title: "Introduction to Biology",
+    category: {
+      id: "cat3",
+      title: "Science",
+    },
+    start_date: "2023-03-05",
+    end_date: "2023-04-30",
+    students_count: "20",
+    percentage: 60,
+    status: "inActive",
+  },
+  {
+    id: "4",
+    image: "https://example.com/image4.jpg",
+    code: "CUR101",
+    title: "Current Course",
+    category: {
+      id: "cat4",
+      title: "Current",
+    },
+    start_date: new Date(Date.now() - 86400000).toISOString().split("T")[0],
+    end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+    students_count: "15",
+    percentage: 50,
+    status: "Active",
+  },
+];
+
+const AssignmentSessionPage = () => {
+  const { filterData, isLoading } = useSelector(
+    (state: GlobalState) => state.courseAds
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
+  const [filterValues, setFilterValues] = useState({
+    code: "",
+    title: "",
+    start_date: null,
+    end_date: null,
+    category_ids: [],
+    status: null as string | null,
+  });
+
+  const resetFilterValues = () => {
+    setFilterValues({
+      code: "",
+      title: "",
+      start_date: null,
+      end_date: null,
+      category_ids: [],
+      status: null,
+    });
+  };
+
+  // Filter assignments based on status
+  const filterAssignments = (assignments: AssignmentSession[]) => {
+    const now = new Date();
+    let filtered = [...assignments];
+
+    if (filterValues.status) {
+      filtered = filtered.filter((item) => {
+        if (filterValues.status === "current") {
+          return (
+            new Date(item.start_date) <= now && new Date(item.end_date) >= now
+          );
+        } else if (filterValues.status === "upcoming") {
+          return new Date(item.start_date) > now;
+        } else if (filterValues.status === "expired") {
+          return new Date(item.end_date) < now;
+        }
+        return true;
+      });
+    }
+
+    return filtered;
+  };
+
+  const filteredAssignments = filterAssignments(assignments);
+
+  let categories;
+  if (filterData.categories) {
+    categories = filterData.categories.map((item: any) => ({
+      label: item.title,
+      value: item.id,
+    }));
+  }
+
+  const statusOptions = [
+    { label: "All", value: null },
+    { label: "Current", value: "current" },
+    { label: "Upcoming", value: "upcoming" },
+    { label: "Expired", value: "expired" },
+  ];
+
+  const filterFields = [
+    {
+      type: "date",
+      name: "start_date",
+      value: filterValues.start_date,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, start_date: value }),
+      placeholder: "Start date",
+    },
+    {
+      type: "date",
+      name: "end_date",
+      value: filterValues.end_date,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, end_date: value }),
+      placeholder: "End date",
+    },
+    {
+      type: "check",
+      data: categories,
+      value: filterValues.category_ids,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, category_ids: value }),
+      placeholder: "Category",
+    },
+    {
+      type: "select",
+      name: "status",
+      value: filterValues.status,
+      onChange: (value: any) =>
+        setFilterValues({ ...filterValues, status: value }),
+      placeholder: "Status",
+      options: statusOptions,
+    },
+  ];
+
   return (
     <main className="py-8 px-5 sm:px-8 overflow-x-auto max-w-full">
-      <header className="flex justify-between items-center flex-wrap gap-2">
-        <AssignmentHeader title="Assignment">
-          <Link
-            href={"/admin/dashboard/assignments/assignment-session/add"}
-            className="flex items-center justify-center hover:no-underline h-10 px-5 rounded-[4px]  text-white hover:!text-white bg-[var(--primary-color1)]"
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 w-full sm:w-auto">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <IoArrowBackSharp
+              className="text-2xl sm:text-[28px] text-[var(--primary-color1)] cursor-pointer mt-1 sm:mt-0"
+              onClick={() => router.back()}
+            />
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-[28px] font-bold text-[var(--primary-color1)]">
+                Assignment Sessions
+              </h1>
+              <p className="m-0 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                Schedule all your exams, tests and Certifications
+              </p>
+            </div>
+          </div>
+
+          <Button
+            type="primary"
+            onClick={showModal}
+            className="flex items-center justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
           >
-            <span className="text-sm md:text-base ">+ Create New </span>
-          </Link>
-        </AssignmentHeader>
+            <CiExport className="mr-2 text-lg sm:text-xl" />
+            Export
+          </Button>
+        </div>
+
+        <Link
+          href={"/admin/dashboard/assignments/assignment-session/add"}
+          className="flex items-center justify-center h-10 px-4 sm:px-5 rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
+        >
+          + Create New Assignment
+        </Link>
       </header>
+      <div className="flex justify-center mt-4">
+        <AssignmentFilter
+          filterValues={filterValues}
+          setFilterValues={setFilterValues}
+          resetFilterValues={resetFilterValues}
+          filterFields={filterFields}
+        />
+      </div>
+      <ExportAssignments
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
+      <div className="my-7">
+        {isLoading ? (
+          <Loading />
+        ) : filteredAssignments.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredAssignments.map((item) => (
+              <AssignmentCard key={item.id} assignment={item} />
+            ))}
+          </div>
+        ) : (
+          <EmptyResult />
+        )}
+      </div>
     </main>
   );
 };
 
-export default page;
+export default AssignmentSessionPage;
