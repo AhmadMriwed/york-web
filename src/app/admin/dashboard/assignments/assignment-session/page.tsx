@@ -32,7 +32,6 @@ export type AssignmentSession = {
   status: string;
 };
 
-// Move the assignments array inside the component
 const assignments: AssignmentSession[] = [
   {
     id: "1",
@@ -102,10 +101,7 @@ const AssignmentSessionPage = () => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  const [selectedAssignments, setSelectedAssignments] = useState<string[]>([]);
 
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
 
@@ -129,7 +125,6 @@ const AssignmentSessionPage = () => {
     });
   };
 
-  // Filter assignments based on status
   const filterAssignments = (assignments: AssignmentSession[]) => {
     const now = new Date();
     let filtered = [...assignments];
@@ -153,6 +148,20 @@ const AssignmentSessionPage = () => {
   };
 
   const filteredAssignments = filterAssignments(assignments);
+
+  const toggleAssignmentSelection = (id: string) => {
+    setSelectedAssignments((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllAssignments = () => {
+    if (selectedAssignments.length === filteredAssignments.length) {
+      setSelectedAssignments([]);
+    } else {
+      setSelectedAssignments(filteredAssignments.map((item) => item.id));
+    }
+  };
 
   let categories;
   if (filterData.categories) {
@@ -226,17 +235,20 @@ const AssignmentSessionPage = () => {
 
           <Button
             type="primary"
-            onClick={showModal}
+            onClick={() => setIsModalOpen(true)}
             className="flex items-center justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
           >
             <CiExport className="mr-2 text-lg sm:text-xl" />
-            Export
+            Export{" "}
+            {selectAllAssignments.length > 0
+              ? `(${selectAllAssignments.length})`
+              : ""}
           </Button>
         </div>
 
         <Link
           href={"/admin/dashboard/assignments/assignment-session/add"}
-          className="flex items-center justify-center h-10 px-4 sm:px-5 rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
+          className="flex items-center justify-center h-10 px-4 sm:px-5 hover:no-underline rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
         >
           + Create New Assignment
         </Link>
@@ -252,14 +264,36 @@ const AssignmentSessionPage = () => {
       <ExportAssignments
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
+        selectedAssignments={selectedAssignments}
+        assignments={filteredAssignments}
       />
       <div className="my-7">
         {isLoading ? (
           <Loading />
         ) : filteredAssignments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-full flex items-center gap-3 mb-2">
+              <input
+                type="checkbox"
+                checked={
+                  selectedAssignments.length === filteredAssignments.length &&
+                  filteredAssignments.length > 0
+                }
+                onChange={selectAllAssignments}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Select all ({selectedAssignments.length} selected)
+              </span>
+            </div>
+
             {filteredAssignments.map((item) => (
-              <AssignmentCard key={item.id} assignment={item} />
+              <AssignmentCard
+                key={item.id}
+                assignment={item}
+                isSelected={selectedAssignments.includes(item.id)}
+                onToggleSelect={toggleAssignmentSelection}
+              />
             ))}
           </div>
         ) : (

@@ -2,19 +2,26 @@ import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { AssignmentSession } from "@/app/admin/dashboard/assignments/assignment-session/page";
-/* icons */
 import { Calendar, More, Edit, Trash, Paragraph } from "@rsuite/icons";
 import { PiToggleRightFill, PiToggleLeft } from "react-icons/pi";
-/* components */
 import Image from "next/image";
 import { Dropdown, IconButton, Progress } from "rsuite";
-import { User, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import DeleteModal from "./DeleteModal";
 
-const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
+interface AssignmentCardProps {
+  assignment: AssignmentSession;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
+}
+
+const AssignmentCard = ({
+  assignment,
+  isSelected,
+  onToggleSelect,
+}: AssignmentCardProps) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
-  const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [showDeleteAssignmentSession, setShowDeleteAssignmentSession] =
     useState<boolean>(false);
 
@@ -43,7 +50,7 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
 
   const handleEdit = () => {
     router.push(
-      `/admin/dashboard/assignments/assignment-session/${assignment.id}/update    `
+      `/admin/dashboard/assignments/assignment-session/${assignment.id}/update`
     );
   };
 
@@ -51,11 +58,16 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
     <article
       className={`p-4 flex flex-col rounded-lg ${
         mode === "dark" ? "bg-[#212A34] text-[#FFF]" : "bg-white text-[#000]"
-      } shadow-sm hover:shadow-md transition-all duration-200`}
+      } shadow-sm hover:shadow-md transition-all duration-200 relative`}
     >
-      {/* Mobile Layout (matches your image) */}
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => onToggleSelect(assignment.id)}
+        className="absolute left-2 top-2 h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+      />
+
       <div className="flex flex-col sm:hidden gap-4">
-        {/* Header Row */}
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-base font-bold">
@@ -94,7 +106,6 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
           </Dropdown>
         </div>
 
-        {/* Progress and Info Row */}
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -134,11 +145,8 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
         </div>
       </div>
 
-      {/* Desktop Layout (your existing layout) */}
       <div className="hidden sm:flex flex-col sm:flex-row justify-between gap-4 w-full">
-        {/* ... rest of your existing desktop layout ... */}
         <div className="flex flex-col sm:flex-row gap-4 w-full">
-          {/* Image Section */}
           <div className="w-full sm:w-[120px] lg:w-[150px] h-[100px] sm:h-auto flex-shrink-0">
             <Image
               src={"/register.png"}
@@ -149,7 +157,6 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
             />
           </div>
 
-          {/* Content Section */}
           <div className="flex-1 flex flex-col gap-2 min-w-0">
             <div className="flex flex-row flex-1 sm:items-center gap-2">
               <div className="flex-1 flex gap-2">
@@ -170,7 +177,6 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
                   </span>
                 )}
               </div>
-              {/* Actions Section */}
               <div className="">
                 <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
                   <Dropdown.Item
@@ -216,7 +222,6 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
                   </span>
                 )}
 
-                {/* Dates - Stack on mobile, inline on larger screens */}
                 <div className="flex flex-row gap-4 mt-2 text-xs sm:text-sm">
                   {assignment.start_date && (
                     <div className="flex items-center gap-1 text-gray-600">
@@ -232,7 +237,6 @@ const AssignmentCard = ({ assignment }: { assignment: AssignmentSession }) => {
                   )}
                 </div>
 
-                {/* Additional stats can go here */}
                 {assignment.students_count && (
                   <div className="text-gray-500 mt-2">
                     <Users className="text-primary-color1 text-xs h-5 mr-2 inline-block" />

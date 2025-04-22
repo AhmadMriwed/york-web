@@ -1,3 +1,4 @@
+"use client";
 import { Modal } from "antd";
 import React, { useState } from "react";
 import { z } from "zod";
@@ -12,12 +13,6 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -25,36 +20,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "../ui/button";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { CalendarIcon, Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
 import CustomFormField, { FormFieldType } from "../review/CustomFormField";
+import { AssignmentSession } from "@/app/admin/dashboard/assignments/assignment-session/page";
+import { Loader2 } from "lucide-react";
 
-// Validation schema
 export const ExportExamStatsValidation = z.object({
   reportType: z.enum(["word", "excel"]),
   title: z.string(),
-  from: z.number(),
-  to: z.number(),
+  from: z.number().optional(),
+  to: z.number().optional(),
 });
 
 type Props = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
-  examSections?: Array<{
-    id: string;
-    name: string;
-    code: string;
-  }>;
-  trainers?: Array<{
-    id: string;
-    name: string;
-  }>;
+  selectedAssignments: string[];
+  assignments: AssignmentSession[];
 };
 
-const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
+const ExportAssignments = ({
+  isModalOpen,
+  setIsModalOpen,
+  selectedAssignments,
+  assignments,
+}: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [exportMode, setExportMode] = useState<"range" | "selection">("range");
 
   type FormValues = z.infer<typeof ExportExamStatsValidation>;
 
@@ -63,30 +55,27 @@ const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
     defaultValues: {
       reportType: "word",
       title: "",
-      from: undefined,
-      to: undefined,
     },
   });
 
   const handleCancel = () => {
     form.reset();
     setIsModalOpen(false);
+    setExportMode("range");
   };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      // API call to generate the report
-      console.log("Exporting exam statistics:", values);
+      const exportData = {
+        ...values,
+        mode: exportMode,
+        ...(exportMode === "selection" ? { selectedAssignments } : {}),
+      };
 
-      // Simulate API call
+      console.log("Exporting assignments:", exportData);
+
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // In a real app, you would likely:
-      // 1. Call your API endpoint
-      // 2. Get back the file (Word/Excel)
-      // 3. Trigger download
-
       handleCancel();
     } catch (error) {
       console.error("Export failed:", error);
@@ -96,9 +85,13 @@ const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
     }
   };
 
+  const selectedAssignmentDetails = assignments.filter((assignment) =>
+    selectedAssignments.includes(assignment.id)
+  );
+
   return (
     <Modal
-      title="Export Assignments : "
+      title={`Export Assignments`}
       open={isModalOpen}
       onCancel={handleCancel}
       footer={null}
@@ -106,24 +99,38 @@ const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Title  */}
+          {selectedAssignments.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium mb-2">
+                Selected Assignments:
+              </h4>
+              <div className="max-h-40 overflow-y-auto border rounded p-2">
+                {selectedAssignmentDetails.map((assignment) => (
+                  <div key={assignment.id} className="flex items-center py-1">
+                    <span className="text-sm">
+                      {assignment.title} ({assignment.code})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <CustomFormField
               fieldType={FormFieldType.INPUT}
               control={form.control}
-              label="Title :"
+              label="Title:"
               name="title"
               placeholder="Enter title"
             />
 
-            {/* Report Type */}
             <FormField
               control={form.control}
               name="reportType"
               render={({ field }) => (
                 <FormItem className="grid-cols-1" style={{ zIndex: 1000 }}>
-                  <FormLabel>Report Type :</FormLabel>
+                  <FormLabel>Report Type:</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger
@@ -134,28 +141,32 @@ const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent style={{ zIndex: 1000 }}>
-                      <SelectItem value="Word">Word</SelectItem>
-                      <SelectItem value="Excel">Excel</SelectItem>
+                      <SelectItem value="word">Word</SelectItem>
+                      <SelectItem value="excel">Excel</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
               )}
             />
 
-            {/* from  */}
-
-            <CustomFormField
-              fieldType={FormFieldType.NUMBER}
-              control={form.control}
-              label="From :"
-              name="from"
-            />
-            <CustomFormField
-              fieldType={FormFieldType.NUMBER}
-              control={form.control}
-              label="To :"
-              name="to"
-            />
+            {selectedAssignments.length === 0 && (
+              <>
+                <CustomFormField
+                  fieldType={FormFieldType.NUMBER}
+                  control={form.control}
+                  label="From:"
+                  name="from"
+                  required
+                />
+                <CustomFormField
+                  fieldType={FormFieldType.NUMBER}
+                  control={form.control}
+                  label="To:"
+                  name="to"
+                  required
+                />
+              </>
+            )}
           </div>
 
           <div className="flex justify-end gap-4 pt-4">
@@ -178,7 +189,7 @@ const ExportAssignments = ({ isModalOpen, setIsModalOpen }: Props) => {
                   Exporting...
                 </>
               ) : (
-                "Export Assignments "
+                "Export Assignments"
               )}
             </Button>
           </div>

@@ -48,7 +48,7 @@ const AssignmentFilter = ({
       <div className="flex flex-wrap md:flex-nowrap items-center gap-2 mt-2.5">
         <div
           className={
-            "flex flex-1 justify-center items-center rounded-full py-2 px-3 dark:bg-black bg-white"
+            "flex flex-1 justify-center items-center rounded-full py-2 px-3 dark:bg-gray-700 bg-white"
           }
         >
           <input
@@ -62,7 +62,7 @@ const AssignmentFilter = ({
                 title: e.target.value,
               })
             }
-            className="w-full lg:w-[225px] min-w-[100px] text-white text-[12px] border-none outline-none"
+            className="w-full lg:w-[225px] min-w-[100px] text-white dark:bg-gray-700 text-[12px] border-none outline-none"
           />
           <div className="text-[#00d4d4] text-[20px] font-bold">
             <CiSearch />
@@ -87,7 +87,7 @@ const AssignmentFilter = ({
         </div>
       </div>
       <div className="w-full flex flex-wrap gap-1 element-center mt-4">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {filterFields.map((field: any, index: number) => {
             if (field.type === "date") {
               return (
