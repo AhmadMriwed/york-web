@@ -189,7 +189,7 @@ const ExportAssignments = ({
                   Exporting...
                 </>
               ) : (
-                "Export Assignments"
+                "Export "
               )}
             </Button>
           </div>

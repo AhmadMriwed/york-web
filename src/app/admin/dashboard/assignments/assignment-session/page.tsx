@@ -7,8 +7,9 @@ import AssignmentHeader from "@/components/assignments/HeaderAssignment";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import Loading from "@/components/Pars/Loading";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { Button } from "@/components/ui/button";
 import { GlobalState } from "@/types/storeTypes";
-import { Button, Select } from "antd";
+import { Select } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useContext, useState } from "react";
@@ -234,9 +235,8 @@ const AssignmentSessionPage = () => {
           </div>
 
           <Button
-            type="primary"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
+            className="flex items-center hover:bg-primary-color2  justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)]  w-full sm:w-auto"
           >
             <CiExport className="mr-2 text-lg sm:text-xl" />
             Export{" "}
@@ -250,7 +250,7 @@ const AssignmentSessionPage = () => {
           href={"/admin/dashboard/assignments/assignment-session/add"}
           className="flex items-center justify-center h-10 px-4 sm:px-5 hover:no-underline rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
         >
-          + Create New Assignment
+          + Create New
         </Link>
       </header>
       <div className="flex justify-center mt-4">

@@ -62,7 +62,7 @@ const AssignmentFilter = ({
                 title: e.target.value,
               })
             }
-            className="w-full lg:w-[225px] min-w-[100px] text-white dark:bg-gray-700 text-[12px] border-none outline-none"
+            className="w-full lg:w-[225px] min-w-[100px] dark:text-white dark:bg-gray-700 text-[12px] border-none outline-none"
           />
           <div className="text-[#00d4d4] text-[20px] font-bold">
             <CiSearch />

@@ -1,7 +1,11 @@
 "use client";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import dynamic from "next/dynamic";
 import React from "react";
+
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+});
 
 const toolbarOptions = [
   [{ header: "1" }, { header: "2" }, { font: [] }],
@@ -29,6 +33,7 @@ function MyEditor({ value, onChange }: MyEditorProps) {
         value={value}
         onChange={handleChange}
         modules={{ toolbar: toolbarOptions }}
+        theme="snow"
       />
     </div>
   );
