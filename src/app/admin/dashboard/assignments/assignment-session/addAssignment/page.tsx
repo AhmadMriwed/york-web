@@ -58,6 +58,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import InterfaceModal from "@/components/assignments/interfaceCard";
+import Image from "next/image";
 
 const addExamValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -70,6 +71,7 @@ const addExamValidationSchema = z.object({
   examCode: z.string(),
   startDate: z.date(),
   endDate: z.date(),
+  status: z.string(),
   examLanguage: z.string(),
   resultsDisplay: z.string().min(1, "Results display status is required"),
   examDate: z.string().optional(),
@@ -86,12 +88,23 @@ const addExamValidationSchema = z.object({
     condition3: z.boolean().default(false),
     condition4: z.boolean().default(false),
   }),
+  requirements: z
+    .object({
+      requireId: z.boolean().default(false),
+      requireFirstName: z.boolean().default(false),
+      requireLastName: z.boolean().default(false),
+      requireEmail: z.boolean().default(false),
+    })
+    .optional(),
 });
 
 const CreateAssignmentPage = () => {
   const [showStartingInterfaceModal, setShowStartingInterfaceModal] =
     useState<boolean>(false);
   const [showEndingInterfaceModal, setShowEndingInterfaceModal] =
+    useState<boolean>(false);
+
+  const [showRequirementDailog, setShowRequirementDailog] =
     useState<boolean>(false);
 
   const mockModalData = {
@@ -164,6 +177,12 @@ const CreateAssignmentPage = () => {
       examRepeatCount: "",
       examLanguage: "",
       displayCorrectionLadder: "Manual",
+      requirements: {
+        requireId: false,
+        requireFirstName: false,
+        requireLastName: false,
+        requireEmail: false,
+      },
     },
   });
 
@@ -322,7 +341,7 @@ const CreateAssignmentPage = () => {
                       {/* assignment language  */}
                       <FormField
                         control={form.control}
-                        name="examLanguage"
+                        name="status"
                         render={({ field }) => (
                           <FormItem className="col-span-1">
                             <FormLabel className="mb-1">Status :</FormLabel>
@@ -545,16 +564,16 @@ const CreateAssignmentPage = () => {
               <Accordion
                 type="single"
                 collapsible
-                className="w-full space-y-4 sm:space-y-6"
+                className="w-full space-y-4 sm:space-y-4"
               >
                 <AccordionItem
                   value="item-1"
-                  className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  className="bg-white dark:bg-gray-900 p-2 sm:p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
                 >
-                  <AccordionTrigger className="h-16 p-1">
-                    <div className="flex items-center h-16 gap-2 sm:gap-4">
-                      <Settings className="text-xl sm:text-2xl text-primary-color1" />
-                      <p className="text-sm sm:text-base">
+                  <AccordionTrigger className=" h-11  p-1">
+                    <div className="flex items-center  h-16 gap-2 sm:gap-4">
+                      <Settings className="text-xl  text-primary-color1" />
+                      <p className="text-sm  px-0.5 sm:text-base">
                         Assignment Settings
                       </p>
                     </div>
@@ -777,17 +796,17 @@ const CreateAssignmentPage = () => {
 
                 <AccordionItem
                   value="item-2"
-                  className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
                 >
-                  <AccordionTrigger className="h-16 p-1">
-                    <div className="flex items-center  gap-2 sm:gap-4">
-                      <MdAssignment className="text-xl sm:text-2xl text-primary-color1" />
-                      <p className="text-sm sm:text-base">
-                        Assignment conditions
+                  <AccordionTrigger className=" h-11  p-1">
+                    <div className="flex items-center  h-16 gap-2 sm:gap-4">
+                      <MdAssignment className="text-xl  text-primary-color1" />
+                      <p className="text-sm  px-0.5 sm:text-base">
+                        Assignment Condations
                       </p>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent>
+                  <AccordionContent className="mt-2">
                     <div className="space-y-4">
                       {/* Condition 1 */}
                       <FormField
@@ -864,21 +883,135 @@ const CreateAssignmentPage = () => {
                           </FormItem>
                         )}
                       />
-
-                      <Button
-                        type="button"
-                        onClick={() =>
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/addQuestion"
-                          )
-                        }
-                        className="bg-primary-color1 w-full px-2 py-1.5 sm:py-2 rounded-md"
-                      >
-                        Add Questions
-                      </Button>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
+
+                <AccordionItem
+                  value="item-3"
+                  className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                >
+                  <AccordionTrigger className="h-11 p-1">
+                    <div className="flex items-center h-16 gap-2 sm:gap-4">
+                      <Image
+                        src={"/icons/form.svg"}
+                        className="w-6 h-6 "
+                        alt="form"
+                        width={4}
+                        height={4}
+                      />
+                      <p className="text-sm px-0.5 sm:text-base">
+                        Start Form Requirements
+                      </p>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="mt-2">
+                    <div className="space-y-4">
+                      {/* ID Requirement */}
+                      <div className="flex items-center space-x-2">
+                        <FormField
+                          control={form.control}
+                          name="requirements.requireId"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-5 w-5 mr-2 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                ID
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* First Name Requirement */}
+                      <div className="flex items-center space-x-2">
+                        <FormField
+                          control={form.control}
+                          name="requirements.requireFirstName"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-5 w-5 mr-2 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                First Name
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Last Name Requirement */}
+                      <div className="flex items-center space-x-2">
+                        <FormField
+                          control={form.control}
+                          name="requirements.requireLastName"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-5 w-5 mr-2 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Last Name
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      {/* Email Requirement */}
+                      <div className="flex items-center space-x-2">
+                        <FormField
+                          control={form.control}
+                          name="requirements.requireEmail"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  className="h-5 w-5 mr-2 rounded border-gray-300 data-[state=checked]:bg-primary-color1 data-[state=checked]:text-white focus:ring-primary-color1"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Email
+                              </FormLabel>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <div
+                  className={cn(
+                    "border flex border-gray-200 cursor-pointer gap-6 p-6 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden"
+                  )}
+                  onClick={() => router.push("/")}
+                >
+                  <Image
+                    src={"/icons/question-mark.svg"}
+                    width={24}
+                    height={24}
+                    className=""
+                    alt="quetion mark"
+                  />
+                  <h1 className="text-medium">Questions Page</h1>
+                </div>
               </Accordion>
             </div>
           </div>
@@ -890,6 +1023,8 @@ const CreateAssignmentPage = () => {
         open={showStartingInterfaceModal}
         onCancel={() => setShowStartingInterfaceModal(false)}
         {...mockModalData}
+        mode="exam"
+        type="starting"
       />
       <InterfaceModal
         open={showEndingInterfaceModal}

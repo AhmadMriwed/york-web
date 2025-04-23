@@ -52,6 +52,10 @@ const nextConfig = {
         source: "/api/:path*", 
         destination: "https://cms.yorkacademy.uk/api/:path*", 
       },
+      {
+        source: "/assignment/:path*", 
+        destination: `${process.env.NEXT_PUBLIC_ASSIGNMENT_URL}/:path*`, 
+      },
     ];
   },
   reactStrictMode: false,
@@ -63,6 +67,7 @@ const nextConfig = {
       "yorkbritishacademy.uk",
       "review-main.yorkacademy.uk",
       "picsum.photos",
+      "assignment.yorkacademy.uk",
     ],
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

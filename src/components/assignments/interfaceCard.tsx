@@ -29,6 +29,8 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import ImageUploader from "../upload/ImageUploader";
 import CustomFormField, { FormFieldType } from "../review/CustomFormField";
+import { cn } from "@/lib/utils";
+import { Checkbox } from "rsuite";
 
 // Updated validation schema
 export const EditValidation = z.object({
@@ -40,23 +42,26 @@ export const EditValidation = z.object({
   files: z.array(z.any()).optional(),
 });
 
-// Enhanced Edit Component with file management
+interface EditFormProps {
+  initialValues: any;
+  onSave: (values: any) => void;
+  onCancel: () => void;
+  allowFiles?: boolean;
+}
+
 const EditForm = ({
   initialValues,
   onSave,
   onCancel,
-}: {
-  initialValues: any;
-  onSave: (values: any) => void;
-  onCancel: () => void;
-}) => {
+  allowFiles = true,
+}: EditFormProps) => {
   type FormValues = z.infer<typeof EditValidation>;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(EditValidation),
     defaultValues: {
       ...initialValues,
-      files: initialValues.files || [],
+      files: allowFiles ? initialValues.files || [] : undefined,
     },
   });
 
@@ -71,13 +76,14 @@ const EditForm = ({
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+    if (e.target.files && allowFiles) {
       const newFiles = Array.from(e.target.files);
       setValue("files", [...(currentFiles || []), ...newFiles]);
     }
   };
 
   const removeFile = (index: number) => {
+    if (!allowFiles) return;
     const updatedFiles = [...(currentFiles || [])];
     updatedFiles.splice(index, 1);
     setValue("files", updatedFiles);
@@ -171,63 +177,65 @@ const EditForm = ({
               </div>
             </FormItem>
 
-            {/* Files management */}
-            <FormItem>
-              <FormLabel className="flex my-3 justify-between items-center text-gray-900 dark:text-gray-100">
-                <p>Files: </p>
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors duration-200 text-sm md:text-base"
-                  >
-                    Add Files
-                  </Button>
-                </label>
-              </FormLabel>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {currentFiles?.length! > 0 ? (
-                  currentFiles?.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
+            {/* Files management - only show in exam mode */}
+            {allowFiles && (
+              <FormItem>
+                <FormLabel className="flex my-3 justify-between items-center text-gray-900 dark:text-gray-100">
+                  <p>Files: </p>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      className="bg-primary-color1 hover:bg-primary-color2 transition-colors duration-200 text-sm md:text-base"
                     >
-                      <div className="flex items-center truncate">
-                        <File className="w-5 h-5 mr-3 text-primary-color1 flex-shrink-0" />
-                        <div className="truncate">
-                          <p className="font-medium truncate text-gray-900 dark:text-gray-100">
-                            {file.name || `File ${index + 1}`}
-                          </p>
-                          {file.size && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {(file.size / 1024).toFixed(2)} KB
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={"ghost"}
-                        onClick={() => removeFile(index)}
-                        className="flex-shrink-0"
+                      Add Files
+                    </Button>
+                  </label>
+                </FormLabel>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {currentFiles?.length! > 0 ? (
+                    currentFiles?.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
                       >
-                        <Trash className="text-xl text-red-600 dark:text-red-400" />
-                      </Button>
+                        <div className="flex items-center truncate">
+                          <File className="w-5 h-5 mr-3 text-primary-color1 flex-shrink-0" />
+                          <div className="truncate">
+                            <p className="font-medium truncate text-gray-900 dark:text-gray-100">
+                              {file.name || `File ${index + 1}`}
+                            </p>
+                            {file.size && (
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {(file.size / 1024).toFixed(2)} KB
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={"ghost"}
+                          onClick={() => removeFile(index)}
+                          className="flex-shrink-0"
+                        >
+                          <Trash className="text-xl text-red-600 dark:text-red-400" />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                      No files added
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4 text-gray-500 dark:text-gray-400">
-                    No files added
-                  </div>
-                )}
-              </div>
-            </FormItem>
+                  )}
+                </div>
+              </FormItem>
+            )}
           </div>
         </div>
 
@@ -252,6 +260,19 @@ const EditForm = ({
   );
 };
 
+interface InterfaceModalProps {
+  open: boolean;
+  onCancel: () => void;
+  title?: string;
+  subTitle?: string;
+  description: string;
+  image: string;
+  files?: any[];
+  link?: string;
+  mode?: "exam" | "evaluation";
+  type?: "starting" | "ending";
+}
+
 const InterfaceModal = ({
   open,
   onCancel,
@@ -259,18 +280,11 @@ const InterfaceModal = ({
   subTitle,
   description,
   image,
-  files,
+  files = [],
   link,
-}: {
-  open: boolean;
-  onCancel: () => void;
-  title?: string;
-  subTitle?: string;
-  description: string;
-  image: string;
-  files: any;
-  link?: string;
-}) => {
+  mode = "exam",
+  type,
+}: InterfaceModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = (values: any) => {
@@ -280,7 +294,12 @@ const InterfaceModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="max-w-[70%] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+      <DialogContent
+        className={cn(
+          "w-full custom-scrollbar md:max-w-[70%] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700",
+          mode === "evaluation" ? "md:max-w-[60%]" : ""
+        )}
+      >
         <DialogHeader>
           <DialogTitle className="text-primary-color1 font-semibold dark:text-primary-color2">
             {title}
@@ -297,6 +316,7 @@ const InterfaceModal = ({
             initialValues={{ title, subTitle, description, link, image, files }}
             onSave={handleSave}
             onCancel={() => setIsEditing(false)}
+            allowFiles={mode === "exam"}
           />
         ) : (
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
@@ -313,7 +333,6 @@ const InterfaceModal = ({
               </div>
             )}
 
-            {/* Right side - content */}
             <div
               className={`flex flex-col ${
                 image ? "w-full lg:w-2/3 xl:w-3/4" : "w-full"
@@ -333,7 +352,8 @@ const InterfaceModal = ({
                 </p>
               </div>
 
-              {(files?.length > 0 || link) && (
+              {/* Only show files section in exam mode */}
+              {mode === "exam" && (files?.length > 0 || link) && (
                 <>
                   <div className="h-px w-full bg-gray-200 dark:bg-gray-700 my-3" />
                   <div className="space-y-2">
@@ -378,6 +398,16 @@ const InterfaceModal = ({
                     )}
                   </div>
                 </>
+              )}
+              {mode === "exam" && type === "starting" && (
+                <div className="mt-4 space-y-2 flex items-center gap-4 ">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox>Show conditions</Checkbox>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox>Show settings</Checkbox>
+                  </div>
+                </div>
               )}
 
               <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">

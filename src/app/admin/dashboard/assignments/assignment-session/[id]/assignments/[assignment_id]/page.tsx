@@ -82,7 +82,7 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
 };
 
 const Page = () => {
-  const { assignment_id } = useParams();
+  const { id, assignment_id } = useParams();
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
 
@@ -275,12 +275,13 @@ const Page = () => {
           <div className=" px-6 grid grid-cols-1 sm:grid-cols-7 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
 
             <div className="sm:col-span-3 ">
-              <img
+              <Image
                 src={exam.image}
                 alt="Exam Image"
                 width={600}
                 height={600}
                 className="object-cover rounded-lg"
+                priority
               />
             </div>
 
@@ -367,7 +368,7 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`${assignment_id}/start-interface`) },
+                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
                     { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit",    action: () => {/* Edit logic */} },
                     { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",    action: () => {/* Delete logic */} },
 
@@ -386,7 +387,7 @@ const Page = () => {
 
 
               <div className="w-full ">
-                <img
+                <Image
                   src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
                   alt={'START INTERFACE'}
                   className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
@@ -420,7 +421,7 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`${assignment_id}/end-interface`) },
+                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
                     { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {} },
                     { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {} },
 
@@ -438,7 +439,7 @@ const Page = () => {
               </div>
 
               <div className="w-full ">
-                <img
+                <Image
                   src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
                   alt={'START INTERFACE'}
                   className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
@@ -829,11 +830,11 @@ const Page = () => {
             <div
               className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
             >
-              <button onClick={() => {router.push(`${assignment_id}/questions`)}} className="h-14 p-1">
+              <button  onClick={() => {router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`)}} className="h-14 p-1">
                 <div className="flex items-center  gap-2 sm:gap-4">
                   <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                   <p className="text-sm sm:text-base">
-                    Exam's Questions
+                  Exam&apos;s Questions
                   </p>
                 </div>
               </button>
