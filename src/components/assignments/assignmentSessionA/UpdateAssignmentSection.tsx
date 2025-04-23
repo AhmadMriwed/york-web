@@ -4,49 +4,42 @@ import { useDispatch, useSelector } from "react-redux";
 import { Form, Formik, FormikProps } from "formik";
 import * as yup from "yup";
 import { GlobalState } from "@/types/storeTypes";
-import { Checkbox, InputPicker, Loader } from "rsuite";
+import { Button, Loader } from "rsuite";
 import Image from "next/image";
 import TextEditor from "@/components/inputs/editor/Editor";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { getCategories } from "@/store/endUser/endUserSlice";
-import CustomInputField from "@/components/assignments/assignmentSessionA/CustomInputField";
-import ImageUploader from "./ImageUploader";
+import { updateExamSection } from "@/lib/action/assignment_action";
+import { getLocalISODate } from "@/utils/dateFuncs";
 
-// Types
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import ImageUploader from "./ImageUploader";
+import CustomInputField from "./CustomInputField";
+
 interface ExamSectionFormValues {
-  title: {
-    en: string;
-    ar: string | null;
-  };
+  title: string;
   trainer_name: string | null;
   start_date: Date;
   end_date: Date | null;
   category_id: number | null;
   code: string;
   status: string;
-  description: {
-    en: string;
-    ar: string;
-  };
+  description: string;
+  type_id: number | null;
   image: File | null;
-  organization_name: string | null; // Added organization_name field
+  organization: string | null; // Added organization_name field
+}
+interface ExamSectionOperationProps {
+  typeData?: Partial<any[]>;
+  assignmentsSection?: Partial<any>;
+  id: number;
 }
 
-interface ExamSectionUpdateProps {
-  initialValues: Partial<ExamSectionFormValues>; // Initial values are required for update
-  submitHandler: (values: any, actions: any) => void;
-  operationLoading?: boolean;
-}
-
-// Validation Schema
 const examSectionSchema = yup.object().shape({
-  title: yup.object().shape({
-    en: yup.string().required("English title is required"),
-    ar: yup.string(),
-  }),
-  start_date: yup.date().required("Start date is required"),
+  title: yup.string().required(" title is required"),
+  image: yup.mixed().nullable(), 
+  start_date: yup.date().nullable(),
   end_date: yup
     .date()
     .nullable()
@@ -59,7 +52,8 @@ const examSectionSchema = yup.object().shape({
         return true;
       }
     ),
-  category_id: yup.number().required("Category is required"),
+  category_id: yup.number().nullable(),
+  type_id: yup.number().nullable(),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -68,20 +62,23 @@ const examSectionSchema = yup.object().shape({
       }
       return true;
     }),
-  status: yup.string(),
-  description: yup.object().shape({
-    en: yup.string().required("English description is required"),
-    ar: yup.string(),
-  }),
-  organization_name: yup.string(), // Validation for organization_name
+  status: yup.string().nullable(),
+  description: yup.string(),
+
+  organization: yup.string(), 
 });
 
-const UpdateAssignmentSection: React.FC<ExamSectionUpdateProps> = ({
-  initialValues,
-  submitHandler,
-  operationLoading,
+
+const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
+  assignmentsSection,
+  typeData,
+  id
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+
+  
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
   const {
@@ -90,9 +87,58 @@ const UpdateAssignmentSection: React.FC<ExamSectionUpdateProps> = ({
   } = useSelector((state: GlobalState) => state.endUser);
   const dispatch = useDispatch<any>();
 
+
+
+
+
+
+  const submitHandler = async (values: any, actions: any) => {  
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+  
+      console.log(values);
+      formData.append("title", values.title);
+    
+      if (values.category_id) formData.append("category_id", values.category_id);
+      if (values.description) formData.append("description", values.description);
+      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date));
+      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date));
+      if (values.trainer) formData.append("trainer", values.trainer);
+      if (values.code) formData.append("code", values.code);
+      if (values.status) formData.append("status", values.status);
+      if (values.image instanceof File) formData.append("image", values.image);
+      if (values.organization) formData.append("organization", values.organization);
+      if (values.type_id) formData.append("type_id", values.type_id.toString());
+      console.log(formData);
+  
+      const response = await updateExamSection(formData, id);
+      console.log("API Response:", response);
+   
+      toast.success("Exam section updated successfully", {
+        description: "The exam section has been updated successfully.",
+        duration: 4000,
+       
+      });
+      actions.resetForm();
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+      });
+    }finally {
+      setLoading(false);
+      actions.setSubmitting(false);
+    }
+  };
+
+
   const statusData = [
-    { label: "Active", value: "active" },
-    { label: "Inactive", value: "inactive" },
+    { label: "Active", value: "Active", id: 1 },
+    { label: "Inactive", value: "Inactive", id: 2 },
   ];
 
   const categoriesList = categories?.map((category: any) => ({
@@ -108,29 +154,58 @@ const UpdateAssignmentSection: React.FC<ExamSectionUpdateProps> = ({
             />
           )}
         </div>
-        <p className="m-0 text-[18px]">{category?.title}</p>
+        <p className="m-0 text-[16px]">{category?.title}</p>
       </div>
     ),
     value: category.id,
   }));
-
-
   const statusList = statusData?.map((status: any) => ({
     label: (
       <div key={status.id} className="flex items-center gap-2">
-        <p className="m-0 text-[18px] py-[3px]">{status.label}</p>
+        <p className="m-0 text-[16px] ">{status.label}</p>
       </div>
     ),
     value: status.value,
   }));
+  const typeList = typeData?.map((type: any) => ({
+    label: (
+      <div key={type.id} className="flex items-center gap-2">
+        <p className="m-0 text-[16px] ">{type.type}</p>
+      </div>
+    ),
+    value: type.id,
+  }));
+  
 
+
+  const defaultValues: ExamSectionFormValues = {
+    title: "",
+    trainer_name: null,
+    start_date: new Date(),
+    end_date: new Date(),
+    category_id: null,
+    code: "",
+    status: "",
+    description: "",
+    type_id: null,
+    image: null,
+    organization: "", 
+  };
   useEffect(() => {
     dispatch(getCategories(""));
   }, [dispatch]);
 
+  const initialValues = assignmentsSection ? {
+    ...assignmentsSection,
+    category_id: assignmentsSection.category ?assignmentsSection.category.id : null,
+    type_id: assignmentsSection.type ? assignmentsSection.type.id : null,
+    description: assignmentsSection ? assignmentsSection.description: null
+  } : defaultValues;
   return (
+    <>
+   
     <Formik
-      initialValues={initialValues}
+      initialValues={initialValues }
       validationSchema={examSectionSchema}
       onSubmit={submitHandler}
       enableReinitialize
@@ -140,144 +215,127 @@ const UpdateAssignmentSection: React.FC<ExamSectionUpdateProps> = ({
     >
       {(props: FormikProps<any>) => (
         <Form
-          className={`relative p-4 sm:p-6 rounded-lg ${
-            mode === "dark" ? " text-white" : " text-black"
-          }`}
-        >
-          <div className="absolute w-full h-full dark:bg-gray-900 opacity-60" />
-          <Tabs
-            defaultValue="English"
-            className={`w-full relative ${
-              mode === "dark" ? "text-white" : "text-black"
+          className={`relative py-2  sm:p-6 rounded-lg ${mode === "dark" ? " text-white" : " text-black"
             }`}
-          >
-            <div
-              className={`mt-4 px-2 sm:px-20 lg:px-40 py-11 rounded-sm ${
-                mode === "dark" ? "" : "bg-light"
-              }`}
-            >
-                    <TabsList
-                         className={`grid md:w-[40%] my-6 h-12  grid-cols-2 ${
-                           mode === "dark"
-                             ? "bg-gray-700 text-white"
-                             : "bg-gray-100 text-black"
-                         }`}
-                       >
-                         <TabsTrigger className="h-full"  value="English">English</TabsTrigger>
-                         <TabsTrigger className="h-full" value="Arabic">Arabic</TabsTrigger>
-                       </TabsList>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 sm:gap-y-2">
-                <TabsContent value="English" className="-my-[1px]">
-                  <CustomInputField
-                    type="text"
-                    name="title.en"
-                    label="Title (English)"
-                    placeholder="Enter title in English"
-                    required
-                  />
-                </TabsContent>
-                <TabsContent value="Arabic" className="-my-[1px]">
-                  <CustomInputField
-                    type="text"
-                    name="title.ar"
-                    label="Title (Arabic)"
-                    placeholder="Enter title in Arabic"
-                    required
-                  />
-                </TabsContent>
-                <CustomInputField
-                  type="date"
-                  name="start_date"
-                  label="Start Date"
-                  placeholder="Start Date"
-                  required
-                  theme={mode}
+        >
 
-                />
-                <CustomInputField
-                  type="date"
-                  name="end_date"
-                  label="End Date"
-                  placeholder="End Date"
-                  theme={mode}
-                />
-                {/* Organization Name Field */}
-                <CustomInputField
-                  type="text"
-                  name="organization_name"
-                  label="Organization Name"
-                  placeholder="Enter organization name"
-                //   optional
-                />
-                <CustomInputField
-                  type="select"
-                  selectData={categoriesList}
-                  name="category_id"
-                  label="Category"
-                  required
-                  placeholder="Category"
-                />
-                <CustomInputField
-                  type="text"
-                  name="code"
-                  label="Code (6 characters)"
-                  placeholder="Enter code"
-                //   optional
-                />
-                <CustomInputField
-                  type="select"
-                  selectData={statusList}
-                  name="status"
-                  label="Status"
-                //   optional
-                  placeholder="Status"
-                />
-                <CustomInputField
-                  type="text"
-                  name="trainer_name"
-                  label="Trainer Name"
-                  placeholder="Enter trainer name"
-                //   optional
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6">
-                <TabsContent value="English" className="space-y-4">
-                  <TextEditor
-                    name="description.en"
-                    label="Description (English)"
-                    // optional
-                  />
-                </TabsContent>
-                <TabsContent value="Arabic" className="space-y-4">
-                  <TextEditor
-                    name="description.ar"
-                    label="Description (Arabic)"
-                    // optional
-                  />
-                </TabsContent>
-                <ImageUploader formikProps={props} />
-              </div>
-              <div className="mt-7">
-                <button
-                  type="submit"
-                  className={`colored-btn !w-full !py-3 !text-[18px] ${
-                    mode === "dark" ? "bg-blue-600" : "bg-blue-500"
-                  }`}
-                  disabled={operationLoading}
-                >
-                  {operationLoading ? (
-                    <Loader />
-                  ) : (
-                    "Update Exam Section"
-                  )}
-                </button>
-              </div>
+          <div
+            className={`mt-4 px-5 sm:px-10 xl:px-20 py-5 md:py-11 rounded-lg ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
+              }`}
+          >
+          
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+
+              <CustomInputField
+                type="text"
+                name="title"
+                label="Title "
+                placeholder="Enter title in English"
+                required
+              />
+
+
+              <CustomInputField
+                type="date"
+                name="start_date"
+                label="Start Date"
+                placeholder="Start Date"
+    
+                theme={mode}
+              />
+              <CustomInputField
+                type="date"
+                name="end_date"
+                label="End Date"
+                placeholder="End Date"
+                theme={mode}
+              />
+
+              <CustomInputField
+                type="text"
+                name="organization"
+                label="Organization Name"
+                placeholder="Enter organization name"
+              // optional
+              />
+              <CustomInputField
+                type="select"
+                selectData={typeList}
+                name="type_id"
+                label="Type"
+ 
+                placeholder="type"
+              />
+              <CustomInputField
+                type="select"
+                selectData={categoriesList}
+                name="category_id"
+                label="Category"
+
+                placeholder="Category"
+              />
+              <CustomInputField
+                type="text"
+                name="code"
+                label="Code (6 characters)"
+                placeholder="Enter code"
+              // optional
+              />
+              <CustomInputField
+                type="select"
+                selectData={statusList}
+                name="status"
+                label="Status"
+                // optional
+                placeholder="Status"
+              />
+              <CustomInputField
+                type="text"
+                name="trainer"
+                label="Trainer Name"
+                placeholder="Enter trainer name"
+              // optional
+              />
             </div>
-          </Tabs>
+            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
+              <div className="space-y-4">
+                <TextEditor
+                  name="description"
+                  label="Description "
+                  value={initialValues?.description}
+                // optional
+                />
+              </div>
+
+              <ImageUploader formikProps={props} />
+            </div>
+            <div className="mt-7 flex justify-end">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="!bg-primary-color1 py-[9px] sm:py-3 sm:px-9  max-sm:!w-full"
+              >
+                {loading ? (<div className="flex justify-center items-center gap-4">
+
+                  <Loader />
+                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Update </h3>
+                </div>
+                ) : (
+                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Update </h3>
+                )}
+              </Button>
+            </div>
+          </div>
+
         </Form>
       )}
     </Formik>
+  
+    <Toaster position="top-right" richColors />
+
+
+     </>
   );
 };
-
 export default UpdateAssignmentSection;

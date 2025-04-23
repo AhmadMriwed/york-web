@@ -96,7 +96,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
               {...field}
               placeholder={placeholder}
               className={cn(
-                " border-0 focus:ring-0 focus:outline-none text-gray-700 dark:text-white "
+                " border-0 max-sm:text-sm focus:ring-0 focus:outline-none text-gray-700 dark:text-white "
               )}
             />
           </FormControl>
@@ -191,7 +191,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
             placeholder={placeholder}
             {...field}
             className={cn(
-              "shad-textArea bg-gray-100 min-h-32  dark:bg-gray-700 dark:text-white focus:outline-primary-color1 focus:ring-primary-color1"
+              "shad-textArea max-sm:text-sm bg-gray-100 min-h-32  dark:bg-gray-700 dark:text-white focus:outline-primary-color1 focus:ring-primary-color1"
             )}
             disabled={props.disabled}
           />

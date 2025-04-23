@@ -1,121 +1,127 @@
 
+// "use client";
+// import React, { useEffect, useState } from "react";
+// import { useDispatch } from "react-redux";
+// import { fetchAssignmentSessions, fetchSectionTypes } from "@/lib/action/assignment_action";
+// import { Header } from "rsuite";
+// import UpdateAssignmentSection from "@/components/assignments/assignmentSessionA/UpdateAssignmentSection";
+
+
+
+
+// const UpdateExamSection = () => {
+//   const dispatch = useDispatch<any>();
+//   const [assignmentSession, setAssignmentSession] = useState<any>(null);
+//   const [assignmentTypesData, setAssignmentTypesData] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     const loadData = async () => {
+//       try {
+//         const data = await fetchAssignmentSessions();
+//         const typeData = await fetchSectionTypes();
+//         setAssignmentSession(data);
+//         setAssignmentTypesData(typeData);
+//       } catch (err) {
+//         setError(err instanceof Error ? err.message : "Failed to fetch sessions");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     loadData();
+//   }, []);
+
+
+//   if (loading) return <div>Loading sessions...</div>;
+//   if (error) return <div>Error: {error}</div>;
+
+//   return (
+//     <section className="py-3 sm:p-6">
+//       <Header className="max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+//         <h1 className="text-[22px] lg:text-3xl font-semibold">Update Exam Section</h1>
+//       </Header>
+//       <UpdateAssignmentSection
+//         assignmentsSection={assignmentSession}
+//         typeData={assignmentTypesData}
+//         op="add"
+//       />
+//     </section>
+//   );
+// };
+
+// export default UpdateExamSection;
+
+
+
+
+
 "use client";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { GlobalState } from "@/types/storeTypes";
-import { getUTCDate } from "@/utils/dateFuncs";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation"; // أضفنا استيراد useParams
+import { useDispatch } from "react-redux";
+import { 
+  fetchAssignmentSessions, 
+  fetchSectionTypes,
+  fetchAssignmentSessionById // نفترض وجود هذه الدالة في API
+} from "@/lib/action/assignment_action";
+import { Header } from "rsuite";
+import UpdateAssignmentSection from "@/components/assignments/assignmentSessionA/UpdateAssignmentSection";
 
-import Header from "@/components/Pars/Header";
-import OperationAlert from "@/components/Pars/OperationAlert";
+const UpdateExamSection = () => {
+  const { id } = useParams(); 
+  const router = useRouter();
+  const dispatch = useDispatch<any>();
+  const [assignmentSession, setAssignmentSession] = useState<any>(null);
+  const [assignmentTypesData, setAssignmentTypesData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-import dynamic from "next/dynamic";
-const UpdateAssignmentSection = dynamic(
-  () => import("@/components/assignments/assignmentSessionA/UpdateAssignmentSection"),
-  {
-    ssr: false,
-  }
-);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        if (!id) {
+          throw new Error("Missing session ID in URL");
+        }
 
-const updateAssignmentSection = () => {
-  // const dispatch = useDispatch<any>();
+        console.log(id)
+        const session = await fetchAssignmentSessionById(Number(id));
+        const typeData = await fetchSectionTypes();
+        
+        if (!session) {
+          throw new Error("Session not found");
+        }
 
-  // const { operationLoading, operationError, status } = useSelector(
-  //   (state: GlobalState) => state.examSections
-  // );
+        setAssignmentSession(session);
+        setAssignmentTypesData(typeData);
+        console.log(assignmentSession);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch session");
+        router.push("/assignments"); // إعادة التوجيه في حالة خطأ
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  let initialValues = {
-    title: {
-      en: "",
-      ar: "",
-    },
-    trainer_name: null,
-    start_date: new Date(),
-    end_date: new Date(),
-    category_id: null,
-    code: "",
-    status: "",
-    description: {
-      en: "",
-      ar: "",
-    },
-    image: null,
-    organization_name: null, // New field for "جهة"
-  };
+    loadData();
+  }, [id, router]); // أضفنا id كتبعية
 
-  const fakeData = {
-    title: { en: "Introduction to React", ar: "مقدمة في React" },
-    trainer_name: "John Doe",
-    start_date: new Date("2023-11-01T09:00:00Z"),
-    end_date: new Date("2023-11-15T17:00:00Z"),
-    category_id: 2,
-    code: "REACT101",
-    status: "active",
-    description: {
-      en: "This course will teach you the basics of React.",
-      ar: "ستتعلم في هذه الدورة الأساسيات في React.",
-    },
-    organization_name: "Online Platform", // Example value for "جهة"
-    image: null,
-  };
+  if (loading) return <div>Loading session...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-  const submitHandler = (values: any, actions: any) => {
-    console.log("Form Submitted Data:", values);
-  
-    const formData = new FormData();
-  
-    // Append fields manually
-    formData.append("title[en]", values.title.en || "");
-    formData.append("title[ar]", values.title.ar || "");
-    formData.append("description[en]", values.description.en || "");
-    formData.append("description[ar]", values.description.ar || "");
-    formData.append("start_date", getUTCDate(values.start_date));
-    if (values.end_date) {
-      formData.append("end_date", getUTCDate(values.end_date));
-    }
-    if (values.trainer_name) {
-      formData.append("trainer_name", values.trainer_name);
-    }
-    if (values.category_id) {
-      formData.append("category_id", values.category_id.toString());
-    }
-    if (values.code) {
-      formData.append("code", values.code);
-    }
-    if (values.status) {
-      formData.append("status", values.status);
-    }
-    if (values.image) {
-      formData.append("image", values.image);
-    }
-    if (values.venue) {
-      formData.append("organization_name", values.organization_name);
-    }
-  
-    // Log FormData contents
-    Array.from(formData.entries()).forEach(([key, value]) => {
-      console.log(`${key}: ${value}`);
-    });
-  
-    // dispatch(createExamSection(formData));
-  };
   return (
-    <section className="p-3 sm:p-6">
-      <Header title="Update Exam Section" />
+    <section className="py-3 sm:p-6">
+      <Header className="max-sm:pt-1 max-sm:px-5 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+        <h1 className="text-[22px] lg:text-3xl font-semibold">Update Exam Section</h1>
+      </Header>
       <UpdateAssignmentSection
-        initialValues={fakeData}
-        submitHandler={submitHandler}
-        // operationLoading={operationLoading}
-   
+        assignmentsSection={assignmentSession}
+        typeData={assignmentTypesData}
+        id={Number(id)}
       />
-      {/* <OperationAlert
-        messageOnSuccess="Exam section added successfully"
-        messageOnError={`Oops! ${operationError}`}
-        status={status}
-        error={operationError}
-        completedAction={examSectionOperationCompleted}
-      /> */}
     </section>
   );
 };
 
-export default updateAssignmentSection;
+export default UpdateExamSection;

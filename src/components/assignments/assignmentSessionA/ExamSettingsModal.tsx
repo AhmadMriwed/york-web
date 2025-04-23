@@ -45,9 +45,9 @@ const ExamSettingsModal = ({
         setExamSettingsModalOpen(false);
     };
 
-    const iconStyle = "w-6 h-6 mr-3 text-primary-color1";
-    const formLabelStyle = "text-xl font-semibold text-gray-800 dark:text-gray-300";
-    const inputStyle = "text-lg p-4 rounded-xl border-2 border-gray-200  hover:border-blue-400 focus:border-blue-500";
+    const iconStyle = "w-4 h-4 mr-3  text-primary-color1";
+    const formLabelStyle = "text- sm:text-lg font-medium text-gray-800 dark:text-gray-300";
+    const inputStyle = "text-sm sm:text-[16px] p-3 rounded-xl border-2 border-gray-200  hover:border-blue-400 focus:border-blue-500";
     const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
     return (
         <Modal
@@ -59,16 +59,16 @@ const ExamSettingsModal = ({
         >
             <Modal.Header >
                 <div className="flex items-center space-x-4">
-                    <GearIcon className="w-8 h-8 animate-spin-slow" />
-                    <h2 className="text-3xl font-bold tracking-tight">
+                    <GearIcon className="w-5 h-5 animate-spin-slow" />
+                    <h2 className="text-lg sm:text-xl font-bold tracking-tight">
                         Exam Configuration Center
                     </h2>
                 </div>
             </Modal.Header>
 
-            <Modal.Body className="p-8  ">
-                <Form fluid formValue={formValue} onChange={() => {setFormValue}}>
-                    <div className="grid grid-cols-1  md:grid-cols-2 gap-8">
+            <Modal.Body className="sm:p-4 !overflow-y-auto">
+                <Form fluid formValue={formValue} onChange={() => { setFormValue }}>
+                    <div className="grid grid-cols-2  md:grid-cols-2 gap-3">
                         {/* Exam Duration */}
                         <FormGroup>
                             <FormControlLabel className={formLabelStyle}>
@@ -80,8 +80,7 @@ const ExamSettingsModal = ({
                             <Input
                                 name="examTime"
                                 type="time"
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl [&>input]:bg-gray-700`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -96,8 +95,7 @@ const ExamSettingsModal = ({
                             <Input
                                 name="language"
                                 placeholder="Select language"
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl [&>input]:bg-gray-700`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -112,8 +110,7 @@ const ExamSettingsModal = ({
                             <Input
                                 name="examDate"
                                 type="date"
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -129,8 +126,7 @@ const ExamSettingsModal = ({
                                 name="questionsPerPage"
                                 type="number"
                                 min={1}
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -148,7 +144,7 @@ const ExamSettingsModal = ({
                                     (opt) => opt.value === formValue.resultVisibility
                                 )?.label}
                                 block
-                                size="lg"
+                                size="md"
                                 className="w-full "
                             >
                                 {resultVisibilityOptions.map((opt) => (
@@ -176,8 +172,7 @@ const ExamSettingsModal = ({
                             <Input
                                 name="estimatedTime"
                                 type="time"
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -193,8 +188,7 @@ const ExamSettingsModal = ({
                                 name="attempts"
                                 type="number"
                                 min={1}
-                                size="lg"
-                                className={`${inputStyle} [&>input]:text-xl`}
+                                size="md"
                             />
                         </FormGroup>
 
@@ -212,7 +206,7 @@ const ExamSettingsModal = ({
                                     (opt) => opt.value === formValue.correctionVisibility
                                 )?.label}
                                 block
-                                size="lg"
+                                size="md"
                                 className="w-full  "
                             >
                                 {correctionVisibilityOptions.map((opt) => (
@@ -229,17 +223,17 @@ const ExamSettingsModal = ({
                             </Dropdown>
                         </FormGroup>
                     </div>
-                    <div className="flex items-center justify-end gap-5">
+                    <div className="flex items-center justify-end gap-4 sm:gap-5 pt-5 sm:pt-4">
 
-                        {/* <button
-                        onClick={() => setExamSettingsModalOpen(false)}
-                        className="mt-8 px-8 py-3  text-xl text-white rounded-[8px] bg-red-600 hover:bg-red-700 transition-all transform hover:scale-[1.01] shadow-lg"
+                        <button
+                            onClick={() => setExamSettingsModalOpen(false)}
+                            className="px-5 sm:px-7 text-[16px] sm:text-lg  py-2 text-primary-color1 dark:text-gray-300    border border-primary-color1 rounded-[8px]  transition-all transform hover:scale-[1.01] shadow-lg"
                         >
-                        cancel 
-                    </button> */}
+                            Cancel
+                        </button>
                         <button
                             onClick={handleSubmit}
-                            className="mt-8 px-8 w-40 text-center  py-3 text-xl rounded-[8px] text-white bg-primary-color1  transition-all transform hover:scale-[1.01] shadow-lg"
+                            className=" px-8 sm:px-10 text-[16px] sm:text-lg  py-2  rounded-[8px] text-white bg-primary-color1  transition-all transform hover:scale-[1.01] shadow-lg"
                         >
                             Save
                         </button>
@@ -276,6 +270,7 @@ const ExamSettingsModal = ({
       .rs-btn {
         background-color: #374151 !important;
         color: #fff !important;
+        font-size: 13px;
       }
 
       .rs-dropdown-menu {
@@ -284,6 +279,7 @@ const ExamSettingsModal = ({
       
       .rs-dropdown-item {
         color: #fff !important;
+        font-size : 14px;
       }
 
       .rs-input::placeholder {
@@ -305,17 +301,35 @@ const ExamSettingsModal = ({
             <style>
                 {
                     `
+
+                    .rs-input{
+                         font-size: 13px;
+                    }
            .rs-btn {
         border-width: 1px;
           border: 1px solid var(--primary-color1) !important ;  
         display: flex !important;
+      
+        font-size: 13px;
+      
         
   justify-content: start !important;
   align-items: center !important;        
       }
+    .rs-dropdown-item {
+        font-size : 14px;
+      }
+     
         `
                 }
             </style>
+            {mode === 'light' && <style>
+                
+                {`
+                .rs-btn {
+                  background-color: #fff !important;}
+                `}
+                    </style>}
         </Modal>
     );
 };

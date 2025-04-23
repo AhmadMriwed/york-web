@@ -59,62 +59,54 @@ const StudentResultsTable = () => {
       default: return 'bg-red-100 text-red-800';
     }
   };
-  const tableStyle = {
-    backgroundColor: mode === 'dark' ? '#1f2937' : '#f9fafb',
-    color: mode === 'dark' ? 'white' : '#374151',
-    fontSize: '1.25rem', // Base font size
-    '@media (max-width: 640px)': { // Mobile styles
-      fontSize: '0.875rem'
-    }
-  };
+  // const tableStyle = {
+  //   backgroundColor: mode === 'dark' ? '#1f2937' : '#f9fafb',
+  //   color: mode === 'dark' ? 'white' : '#374151',
+  //   fontSize: '1.25rem', // Base font size
+  //   '@media (max-width: 640px)': { // Mobile styles
+  //     fontSize: '0.875rem'
+  //   }
+  // };
 
-  const headerStyle = {
-    backgroundColor: mode === 'dark' ? '#374151' : '#e5e7eb',
-    color: mode === 'dark' ? 'white' : '#1f2937',
-    fontWeight: '600',
-    fontSize: "20px",
-    padding: '20px 20px',
-    '@media (max-width: 640px)': {
-      fontSize: '14px',
-      padding: '12px 12px'
-    }
-  };
-
-  const cellStyle = {
-    padding: '20px 20px',
-    '@media (max-width: 640px)': {
-      padding: '12px 12px'
-    }
-  };
+  // const headerStyle = {
+  //   backgroundColor: mode === 'dark' ? '#374151' : '#e5e7eb',
+  //   color: mode === 'dark' ? 'white' : '#1f2937',
+  //   fontWeight: '600',
+  //   fontSize: "18px",
+  //   padding: '20px 20px',
+  //   '@media (max-width: 640px)': {
+  //     fontSize: '14px',
+  //     padding: '12px 12px'
+  //   }
+  // };
 
   return (
     <div className="max-sm:text-sm">
       <Table
         data={fakeStudents}
         rowClassName={`${mode === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}
-        style={tableStyle}
         headerHeight={70}
-        rowHeight={65}
+        rowHeight={60}
         autoHeight
         className="custom-scrollbar-table"
       >
-        {/* Checkbox Column */}
-        <Column width={80} fixed>
-          <HeaderCell style={headerStyle}>
+    
+        <Column width={55} fixed>
+          <HeaderCell className='pt-2 '>
             <input
               type="checkbox"
               checked={checkAll}
               onChange={handleCheckAll}
-              className="w-6 h-6 accent-[var(--primary-color1)] max-sm:w-4 max-sm:h-4"
+              className="w-4 h-4 accent-[var(--primary-color1)] sm:w-5 sm:h-5 "
             />
           </HeaderCell>
-          <Cell style={cellStyle}>
+          <Cell className='dark:text-gray-200 text-gray-700'>
             {rowData => (
               <input
                 type="checkbox"
                 checked={selectedIds.includes(rowData.id)}
                 onChange={() => handleCheck(rowData.id)}
-                className="w-6 h-6 accent-[var(--primary-color1)] max-sm:w-4 max-sm:h-4"
+                className="w-4 h-4 accent-[var(--primary-color1)] sm:w-5 sm:h-5 "
               />
             )}
           </Cell>
@@ -123,19 +115,19 @@ const StudentResultsTable = () => {
         {/* Columns mapping */}
         {[
           // Reduced widths for mobile
-          { label: 'Student Name', dataKey: 'name', width: 220 },
-          { label: 'Student ID', dataKey: 'id', width: 170 },
-          { label: 'Email', dataKey: 'email', width: 260 },
-          { label: 'Submission Time', dataKey: 'submissionTime', width: 200 },
-          { label: 'Duration', dataKey: 'duration', width: 140 },
-          { label: 'Score', dataKey: 'score', width: 140 },
-          { label: 'Correct Answers', dataKey: 'correct', width: 170 },
-          { label: 'Wrong Answers', dataKey: 'incorrect', width: 170 },
-          { label: 'Status', dataKey: 'status', width: 170 }
+          { label: 'Student Name', dataKey: 'name', width: 160 },
+          { label: 'Student ID', dataKey: 'id', width: 110 },
+          { label: 'Email', dataKey: 'email', width: 230 },
+          { label: 'Submission Time', dataKey: 'submissionTime', width: 190 },
+          { label: 'Duration', dataKey: 'duration', width: 110 },
+          { label: 'Score', dataKey: 'score', width: 110 },
+          { label: 'Correct Answers', dataKey: 'correct', width: 160 },
+          { label: 'Wrong Answers', dataKey: 'incorrect', width: 160 },
+          { label: 'Status', dataKey: 'status', width: 160 }
         ].map((column, index) => (
           <Column key={index} width={column.width}>
-            <HeaderCell style={headerStyle}>{column.label}</HeaderCell>
-            <Cell style={cellStyle}>
+            <HeaderCell className='text-[15px] lg:text-[16px] dark:bg-[#374151] bg-[#e5e7eb] text-[#1f2937] dark:text-white'>{column.label}</HeaderCell>
+            <Cell className='text-[13px] md:text-[15px] dark:text-gray-200 text-gray-700'>
               {rowData => {
                 if (column.dataKey === 'score') return `${rowData[column.dataKey]}%`;
                 if (column.dataKey === 'status') return (
