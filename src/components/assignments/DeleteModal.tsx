@@ -1,5 +1,6 @@
 import { Button, Modal, Space, Typography } from "antd";
 import { ExclamationCircleFilled, DeleteOutlined } from "@ant-design/icons";
+import { Loader2 } from "lucide-react";
 
 const DeleteModal = ({
   open,
@@ -7,10 +8,12 @@ const DeleteModal = ({
   onConfirm,
   title,
   note,
+  isDeleting = false,
 }: {
   open: boolean;
   title?: string;
   note?: string;
+  isDeleting?: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) => {
@@ -28,14 +31,17 @@ const DeleteModal = ({
       onCancel={onCancel}
       footer={
         <Space>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button onClick={onCancel} disabled={isDeleting}>
+            Cancel
+          </Button>
           <Button
             type="primary"
             danger
-            icon={<DeleteOutlined />}
+            icon={isDeleting ? null : <DeleteOutlined />}
             onClick={onConfirm}
+            loading={isDeleting}
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </Space>
       }

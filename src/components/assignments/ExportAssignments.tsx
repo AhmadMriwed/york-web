@@ -22,8 +22,8 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import CustomFormField, { FormFieldType } from "../review/CustomFormField";
-import { AssignmentSession } from "@/app/admin/dashboard/assignments/assignment-session/page";
 import { Loader2 } from "lucide-react";
+import { AssignmentSession } from "@/types/adminTypes/assignments/assignmentsTypes";
 
 export const ExportExamStatsValidation = z.object({
   reportType: z.enum(["word", "excel"]),
@@ -86,7 +86,7 @@ const ExportAssignments = ({
   };
 
   const selectedAssignmentDetails = assignments.filter((assignment) =>
-    selectedAssignments.includes(assignment.id)
+    selectedAssignments.includes(String(assignment.id))
   );
 
   return (

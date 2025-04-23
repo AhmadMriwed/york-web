@@ -7,111 +7,65 @@ import AssignmentHeader from "@/components/assignments/HeaderAssignment";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import Loading from "@/components/Pars/Loading";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { Button } from "@/components/ui/button";
+import useFetch from "@/hooks/useFetch";
+import {
+  fetchAssignmentSessions,
+  fetchCategories,
+  fetchSectionTypes,
+  filterAssignmentSessions,
+} from "@/lib/action/assignment_action";
+import {
+  AssignmentSession,
+  Category,
+  SectionType,
+} from "@/types/adminTypes/assignments/assignmentsTypes";
+
 import { GlobalState } from "@/types/storeTypes";
-import { Select } from "antd";
+import { Button, Select } from "antd";
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CiExport } from "react-icons/ci";
 import { IoArrowBackSharp } from "react-icons/io5";
-import { useSelector } from "react-redux";
-
-export type AssignmentSession = {
-  id: string;
-  image: string;
-  code: string;
-  title: string;
-  category: {
-    id: string;
-    title: string;
-  };
-  start_date: string;
-  end_date: string;
-  students_count: string;
-  percentage: number;
-  status: string;
-};
-
-const assignments: AssignmentSession[] = [
-  {
-    id: "1",
-    image: "https://example.com/image1.jpg",
-    code: "MATH101",
-    title: "Algebra Basics",
-    category: {
-      id: "cat1",
-      title: "Mathematics",
-    },
-    start_date: "2024-01-10",
-    end_date: "2024-02-20",
-    students_count: "25",
-    percentage: 75,
-    status: "Active",
-  },
-  {
-    id: "2",
-    image: "https://example.com/image2.jpg",
-    code: "ENG202",
-    title: "Advanced Writing",
-    category: {
-      id: "cat2",
-      title: "English",
-    },
-    start_date: "2025-02-01",
-    end_date: "2025-03-15",
-    students_count: "30",
-    percentage: 90,
-    status: "inActive",
-  },
-  {
-    id: "3",
-    image: "https://example.com/image3.jpg",
-    code: "SCI105",
-    title: "Introduction to Biology",
-    category: {
-      id: "cat3",
-      title: "Science",
-    },
-    start_date: "2023-03-05",
-    end_date: "2023-04-30",
-    students_count: "20",
-    percentage: 60,
-    status: "inActive",
-  },
-  {
-    id: "4",
-    image: "https://example.com/image4.jpg",
-    code: "CUR101",
-    title: "Current Course",
-    category: {
-      id: "cat4",
-      title: "Current",
-    },
-    start_date: new Date(Date.now() - 86400000).toISOString().split("T")[0],
-    end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-    students_count: "15",
-    percentage: 50,
-    status: "Active",
-  },
-];
 
 const AssignmentSessionPage = () => {
-  const { filterData, isLoading } = useSelector(
-    (state: GlobalState) => state.courseAds
-  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const [selectedAssignments, setSelectedAssignments] = useState<string[]>([]);
+  const [filteredAssignments, setFilteredAssignments] = useState<
+    AssignmentSession[]
+  >([]);
 
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+
+  const {
+    data: assignmentSessions,
+    isLoading: assignmentLoading,
+    error,
+    refetch,
+  } = useFetch<AssignmentSession[]>(fetchAssignmentSessions);
+
+  const { data: types, isLoading: typesLoading } =
+    useFetch<SectionType[]>(fetchSectionTypes);
+
+  console.log(types);
+
+  const { data: categories, isLoading: categoriesLoading } =
+    useFetch<Category[]>(fetchCategories);
+
+  useEffect(() => {
+    if (assignmentSessions) {
+      setFilteredAssignments(assignmentSessions);
+    }
+  }, [assignmentSessions]);
 
   const [filterValues, setFilterValues] = useState({
     code: "",
     title: "",
-    start_date: null,
-    end_date: null,
-    category_ids: [],
+    start_date: null as Date | null,
+    end_date: null as Date | null,
+    category_ids: [] as number[],
     status: null as string | null,
   });
 
@@ -126,29 +80,27 @@ const AssignmentSessionPage = () => {
     });
   };
 
-  const filterAssignments = (assignments: AssignmentSession[]) => {
-    const now = new Date();
-    let filtered = [...assignments];
+  const handleFilter = async () => {
+    try {
+      const fromDate = filterValues.start_date
+        ? format(filterValues.start_date, "yyyy-MM-dd")
+        : undefined;
+      const toDate = filterValues.end_date
+        ? format(filterValues.end_date, "yyyy-MM-dd")
+        : undefined;
 
-    if (filterValues.status) {
-      filtered = filtered.filter((item) => {
-        if (filterValues.status === "current") {
-          return (
-            new Date(item.start_date) <= now && new Date(item.end_date) >= now
-          );
-        } else if (filterValues.status === "upcoming") {
-          return new Date(item.start_date) > now;
-        } else if (filterValues.status === "expired") {
-          return new Date(item.end_date) < now;
-        }
-        return true;
+      const filtered = await filterAssignmentSessions({
+        search: filterValues.code || filterValues.title,
+        from_date: fromDate,
+        to_date: toDate,
+        categories: filterValues.category_ids,
       });
+
+      setFilteredAssignments(filtered);
+    } catch (error) {
+      console.error(error);
     }
-
-    return filtered;
   };
-
-  const filteredAssignments = filterAssignments(assignments);
 
   const toggleAssignmentSelection = (id: string) => {
     setSelectedAssignments((prev) =>
@@ -160,31 +112,35 @@ const AssignmentSessionPage = () => {
     if (selectedAssignments.length === filteredAssignments.length) {
       setSelectedAssignments([]);
     } else {
+      //@ts-ignore
       setSelectedAssignments(filteredAssignments.map((item) => item.id));
     }
   };
 
-  let categories;
-  if (filterData.categories) {
-    categories = filterData.categories.map((item: any) => ({
-      label: item.title,
-      value: item.id,
-    }));
-  }
-
-  const statusOptions = [
-    { label: "All", value: null },
-    { label: "Current", value: "current" },
-    { label: "Upcoming", value: "upcoming" },
-    { label: "Expired", value: "expired" },
-  ];
+  console.log(categories);
 
   const filterFields = [
+    {
+      type: "input",
+      name: "code",
+      value: filterValues.code,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setFilterValues({ ...filterValues, code: e.target.value }),
+      placeholder: "Code",
+    },
+    {
+      type: "input",
+      name: "title",
+      value: filterValues.title,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setFilterValues({ ...filterValues, title: e.target.value }),
+      placeholder: "Title",
+    },
     {
       type: "date",
       name: "start_date",
       value: filterValues.start_date,
-      onChange: (value: any) =>
+      onChange: (value: Date | null) =>
         setFilterValues({ ...filterValues, start_date: value }),
       placeholder: "Start date",
     },
@@ -192,7 +148,7 @@ const AssignmentSessionPage = () => {
       type: "date",
       name: "end_date",
       value: filterValues.end_date,
-      onChange: (value: any) =>
+      onChange: (value: Date | null) =>
         setFilterValues({ ...filterValues, end_date: value }),
       placeholder: "End date",
     },
@@ -200,20 +156,26 @@ const AssignmentSessionPage = () => {
       type: "check",
       data: categories,
       value: filterValues.category_ids,
-      onChange: (value: any) =>
+      onChange: (value: number[]) =>
         setFilterValues({ ...filterValues, category_ids: value }),
       placeholder: "Category",
     },
     {
-      type: "select",
+      type: "status",
       name: "status",
       value: filterValues.status,
-      onChange: (value: any) =>
+      onChange: (value: string | null) =>
         setFilterValues({ ...filterValues, status: value }),
       placeholder: "Status",
-      options: statusOptions,
+      options: types,
     },
   ];
+
+  if (error) {
+    return <div>Error loading assignments: {error}</div>;
+  }
+
+  const isLoading = assignmentLoading || typesLoading;
 
   return (
     <main className="py-8 px-5 sm:px-8 overflow-x-auto max-w-full">
@@ -235,13 +197,15 @@ const AssignmentSessionPage = () => {
           </div>
 
           <Button
+            type="primary"
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center hover:bg-primary-color2  justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)]  w-full sm:w-auto"
+            className="flex items-center justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
+            disabled={isLoading}
           >
             <CiExport className="mr-2 text-lg sm:text-xl" />
             Export{" "}
-            {selectAllAssignments.length > 0
-              ? `(${selectAllAssignments.length})`
+            {selectedAssignments.length > 0
+              ? `(${selectedAssignments.length})`
               : ""}
           </Button>
         </div>
@@ -250,7 +214,7 @@ const AssignmentSessionPage = () => {
           href={"/admin/dashboard/assignments/assignment-session/add"}
           className="flex items-center justify-center h-10 px-4 sm:px-5 hover:no-underline rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
         >
-          + Create New
+          + Create New Assignment
         </Link>
       </header>
       <div className="flex justify-center mt-4">
@@ -259,6 +223,8 @@ const AssignmentSessionPage = () => {
           setFilterValues={setFilterValues}
           resetFilterValues={resetFilterValues}
           filterFields={filterFields}
+          disabled={isLoading}
+          onApplyFilter={handleFilter}
         />
       </div>
       <ExportAssignments
@@ -281,6 +247,7 @@ const AssignmentSessionPage = () => {
                 }
                 onChange={selectAllAssignments}
                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                disabled={isLoading}
               />
               <span className="text-sm text-gray-600 dark:text-gray-300">
                 Select all ({selectedAssignments.length} selected)
@@ -290,9 +257,10 @@ const AssignmentSessionPage = () => {
             {filteredAssignments.map((item) => (
               <AssignmentCard
                 key={item.id}
-                assignment={item}
-                isSelected={selectedAssignments.includes(item.id)}
+                assignmentSession={item}
+                isSelected={selectedAssignments.includes(String(item.id))}
                 onToggleSelect={toggleAssignmentSelection}
+                refetch={refetch}
               />
             ))}
           </div>

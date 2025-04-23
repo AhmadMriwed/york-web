@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { getCourseAds } from "@/store/adminstore/slices/courses/course-ads/courseAdsSlice";
 import { getAllCourses } from "@/store/adminstore/slices/courses/coursesSlice";
@@ -13,30 +13,34 @@ const AssignmentFilter = ({
   resetFilterValues,
   filterFields,
   styles,
+  disabled,
+  onApplyFilter,
 }: any) => {
   const dispatch = useDispatch<any>();
 
   const handleApplyFilter = () => {
-    const updatedFilterValues: any = { ...filterValues };
+    onApplyFilter();
+  };
 
-    Object.keys(updatedFilterValues).forEach((key) => {
-      if (
-        updatedFilterValues[key] === null ||
-        updatedFilterValues[key] === "" ||
-        (Array.isArray(updatedFilterValues[key]) &&
-          updatedFilterValues[key].length === 0)
-      ) {
-        delete updatedFilterValues[key];
-      }
-    });
-
-    const updatedFilterValuesJson = JSON.stringify(updatedFilterValues);
-
-    if (role === "course_ads") {
-      dispatch(getCourseAds(updatedFilterValuesJson));
-    } else {
-      dispatch(getAllCourses(updatedFilterValuesJson));
+  // Format data for RSuite pickers
+  const formatPickerData = (field: any) => {
+    if (field.type === "select") {
+      return field.options.map((option: any) => ({
+        label: option.label,
+        value: option.value,
+      }));
+    } else if (field.type === "check") {
+      return field.data?.map((item: any) => ({
+        label: item.title,
+        value: item.id,
+      }));
+    } else if (field.name === "status") {
+      return field.options?.map((option: any) => ({
+        label: option.type,
+        value: option.type,
+      }));
     }
+    return [];
   };
 
   return (
@@ -63,6 +67,7 @@ const AssignmentFilter = ({
               })
             }
             className="w-full lg:w-[225px] min-w-[100px] dark:text-white dark:bg-gray-700 text-[12px] border-none outline-none"
+            disabled={disabled}
           />
           <div className="text-[#00d4d4] text-[20px] font-bold">
             <CiSearch />
@@ -73,6 +78,7 @@ const AssignmentFilter = ({
             className="flex justify-center items-center gap-1 text-white bg-gradient-to-tl from-[#01395F] to-[#02B5A0] py-2 px-4 rounded-full
             text-[12px] hover:translate-y-[-2px] transition-all duration-200"
             onClick={handleApplyFilter}
+            disabled={disabled}
           >
             <CiFilter />
             <p className="m-0">Apply</p>
@@ -81,6 +87,7 @@ const AssignmentFilter = ({
             className="text-black bg-white py-2 px-4 rounded-full
             text-[12px] hover:translate-y-[-2px] transition-all duration-200"
             onClick={resetFilterValues}
+            disabled={disabled}
           >
             <p className="m-0">Clear all</p>
           </button>
@@ -98,33 +105,37 @@ const AssignmentFilter = ({
                   placeholder={field.placeholder}
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={disabled}
                 />
               );
-            } else if (field.type === "select") {
+            } else if (field.type === "select" || field.name === "status") {
               return (
                 <SelectPicker
                   searchable={false}
-                  data={field.data}
+                  data={formatPickerData(field)}
                   key={index}
                   size="xs"
                   placeholder={field.placeholder}
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={disabled}
                 />
               );
-            } else {
+            } else if (field.type === "check") {
               return (
                 <CheckPicker
                   searchable={false}
-                  data={field.data}
+                  data={formatPickerData(field)}
                   key={index}
                   size="xs"
                   placeholder={field.placeholder}
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={disabled}
                 />
               );
             }
+            return null;
           })}
         </div>
       </div>
