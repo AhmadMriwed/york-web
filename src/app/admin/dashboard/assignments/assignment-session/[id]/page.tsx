@@ -30,6 +30,8 @@ import Loading from "@/components/Pars/Loading";
 import { BsType } from "react-icons/bs";
 import { toast } from "sonner";
 import { Image } from "antd";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/headers/header";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -145,13 +147,7 @@ const Page = () => {
             mode === "dark" ? " text-white" : " text-dark"
           }`}
         >
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-2 mb-6 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]"
-          >
-            <IoArrowBackSharp className="text-xl" />
-            <p className="text-lg font-semibold">Assignments Session</p>
-          </button>
+          <Header title={"Assignment Session"} />
 
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Main Content */}
@@ -217,14 +213,14 @@ const Page = () => {
                         onClick={changeSessionStatus}
                       >
                         {assignmentSession?.status === "Active"
-                          ? "Active"
-                          : "Deactive"}
+                          ? "Deactivate"
+                          : "Activate"}
                       </Dropdown.Item>
                       <Dropdown.Item
                         icon={<FaPlus />}
                         onClick={() =>
                           router.push(
-                            "/admin/dashboard/assignments/assignment-session/addAssignment"
+                            `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
                           )
                         }
                         className="text-xs flex gap-2"
@@ -444,7 +440,7 @@ const Page = () => {
                           icon="exam"
                           onClick={() =>
                             router.push(
-                              "/admin/dashboard/assignments/assignment-session/addAssignment"
+                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
                             )
                           }
                           color="purple"
@@ -484,7 +480,7 @@ const Page = () => {
                           icon="exam"
                           onClick={() =>
                             router.push(
-                              "/admin/dashboard/assignments/assignment-session/addAssignment"
+                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
                             )
                           }
                           color="orange"
