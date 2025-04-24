@@ -146,19 +146,19 @@ const QuestionCreator: React.FC = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
           <div className="px-6 py-8">
-         <div className="flex">
-         <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => router.back()}
-                      className="rounded-full hover:bg-gray-100 inline-block dark:hover:bg-gray-800 h-10 w-10"
-                    >
-                      <IoArrowBackSharp className="h-8 w-8 text-primary-color1" />
-                    </Button>
-            <h1 className="text-2xl md:text-3xl text-primary-color1 dark:text-primary-color1-light font-bold">
-              Create New Question
-            </h1>
-         </div>
+            <div className="flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.back()}
+                className="rounded-full hover:bg-gray-100 inline-block dark:hover:bg-gray-800 h-10 w-10"
+              >
+                <IoArrowBackSharp className="h-8 w-8 text-primary-color1" />
+              </Button>
+              <h1 className="text-2xl md:text-3xl text-primary-color1 dark:text-primary-color1-light font-bold">
+                Create New Question
+              </h1>
+            </div>
             <p className="mt-2 text-gray-500 dark:text-gray-400 opacity-90">
               Design your perfect question with our intuitive builder
             </p>
@@ -563,7 +563,7 @@ const QuestionCreator: React.FC = () => {
                 <Button
                   type="button"
                   onClick={() => router.back()}
-                  className="items-center px-4 py-1 border-2 font-semibold text-xs mt-4 bg-red-500 text-white hover:bg-white hover:text-red-500 transition-all duration-200 hover:border-red-500 "
+                  className="items-center px-4 py-1 border-2 font-semibold text-xs mt-4 bg-red-500 text-white hover:bg-white hover:bg-transparent hover:text-red-500 transition-all duration-200 hover:border-red-500 "
                 >
                   Cancel
                 </Button>
