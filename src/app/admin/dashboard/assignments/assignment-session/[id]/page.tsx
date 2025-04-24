@@ -423,9 +423,15 @@ const Page = () => {
                         endDate="2024-01-15"
                         ratedStudents={18}
                         onViewDetails={() =>
-                          console.log("View Pre-Exam Details")
+                          router.push(
+                            "/admin/dashboard/assignments/assignment-session/21/assignments/4"
+                          )
                         }
-                        onEdit={() => console.log("Edit Pre-Exam")}
+                        onEdit={() => {
+                          router.push(
+                            "/admin/dashboard/assignments/assignment-session/21/assignments/4/updateAssignment"
+                          );
+                        }}
                         onDelete={() => console.log("Delete Pre-Exam")}
                         onToggleStatus={() =>
                           console.log("Toggle Pre-Exam Status")
@@ -463,9 +469,15 @@ const Page = () => {
                         endDate="2024-02-15"
                         ratedStudents={22}
                         onViewDetails={() =>
-                          console.log("View Post-Exam Details")
+                          router.push(
+                            "/admin/dashboard/assignments/assignment-session/21/assignments/4"
+                          )
                         }
-                        onEdit={() => console.log("Edit Post-Exam")}
+                        onEdit={() => {
+                          router.push(
+                            "/admin/dashboard/assignments/assignment-session/21/assignments/4/updateAssignment"
+                          );
+                        }}
                         onDelete={() => console.log("Delete Post-Exam")}
                         onToggleStatus={() =>
                           console.log("Toggle Post-Exam Status")
