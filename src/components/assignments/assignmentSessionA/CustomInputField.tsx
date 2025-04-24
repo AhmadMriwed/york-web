@@ -170,8 +170,8 @@ const CustomInput = ({
         }
        
 .rs-picker.rs-picker-select .rs-picker-toggle {
-  outline: none !important;
-  border: none !important
+  border-color: #4b5563 !important;
+  color: #ffff !important;
 
 }
 
@@ -220,13 +220,14 @@ const CustomInput = ({
             return menu;
           }}
          size="md"
-          className={`!w-full  dark:!bg-gray-800  ${meta.error && meta.touched
+          className={`!w-full !border-none dark:!bg-gray-800  ${meta.error && meta.touched
               ? "!border-[1px] !border-red-600 rounded-lg"
               : `!border-[1px] rounded-lg ${currentTheme.border}`
             } ${currentTheme.input}`}
           id={name}
           name={name}
           placeholder={placeholder}
+          menuClassName="dark:!bg-gray-800"
           value={field.value}
           onChange={(value) => field.onChange({ target: { name, value } })}
         />

@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Header } from "rsuite";
 import { EditValidation } from "@/schemas/interface";
 import { z } from "zod";
+import { IoArrowBackSharp } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 const EditForm = ({
   initialValues,
   onSave,
@@ -257,19 +259,23 @@ export const InterfaceModal = ({
       console.log("Saved values:", values);
       setIsEditing(false);
     };
+    const router = useRouter();
   
     return (
-      <div>
+      <div className=" px-1 sm:px-4 pt-3 sm:pt-5 ">
         <div className="flex justify-between items-start mb-5 pt-2">
-          <Header className="flex items-center px-5 sm:px-5 py-2 gap-2 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+        <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+      <IoArrowBackSharp className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+                  onClick={() => router.back()}
+                />
             <h3 className="text-[22px]  sm:text-2xl lg:text-3xl font-semibold tracking-wider"> {header}</h3>
           </Header>
         </div>
-        <div className=" bg-white dark:bg-gray-900 px-4 py-6 pb-8 sm:px-10  sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
+        <div className=" bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10  sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
           <div className="pb-5 sm:pb-8">
-            <h1 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
+            <h2 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
               {title}
-            </h1>
+            </h2>
             {subTitle && (
               <p className="text-gray-600 text-[15px] sm:text-[17px]  dark:text-gray-400">
                 {subTitle}
@@ -322,11 +328,11 @@ export const InterfaceModal = ({
                     <div className="h-px w-full bg-gray-200 dark:bg-gray-700 my-3" />
                     <div className="space-y-2">
                       {files?.length > 0 && (
-                        <div className="space-y-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="  grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {files.map((file: any, index: number) => (
                             <div
                               key={index}
-                              className="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                              className="flex max-h-16 mb-2 items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                             >
                               <div className="mr-4 p-2 bg-[#037f85]/20 dark:bg-blue-900/50 rounded-full">
                                 <File className="w-5 h-5 text-primary-color1 dark:text-primary-color2" />

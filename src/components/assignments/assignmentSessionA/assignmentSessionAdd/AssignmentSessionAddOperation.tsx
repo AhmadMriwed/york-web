@@ -222,7 +222,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
         >
 
           <div
-            className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-sm ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
+            className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-md ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
               }`}
           >
            

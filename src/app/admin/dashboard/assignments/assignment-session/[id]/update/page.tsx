@@ -12,6 +12,8 @@ import {
 } from "@/lib/action/assignment_action";
 import { Header } from "rsuite";
 import dynamic from "next/dynamic";
+import { IoArrowBackSharp } from "react-icons/io5";
+import Loading from "@/components/Pars/Loading";
 
 const UpdateAssignmentSection = dynamic(
   () => import("@/components/assignments/assignmentSessionA/UpdateAssignmentSection"),
@@ -46,7 +48,7 @@ const UpdateExamSection = () => {
         console.log(assignmentSession);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch session");
-        router.push("/assignments"); // إعادة التوجيه في حالة خطأ
+        // router.push("/assignments"); // إعادة التوجيه في حالة خطأ
       } finally {
         setLoading(false);
       }
@@ -54,13 +56,17 @@ const UpdateExamSection = () => {
 
     loadData();
   }, [id, router]); // أضفنا id كتبعية
-
-  if (loading) return <div>Loading session...</div>;
+  if (loading) return <div className="flex justify-center items-center"><Loading /></div>;
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <section className="py-3 sm:p-6">
-      <Header className="max-sm:pt-1 max-sm:px-5 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+    <section className="py-3 sm:p-4 px-1">
+     <Header className="flex justify-start items-center gap-2 max-sm:pt-1 px-3  text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+      <IoArrowBackSharp
+                       className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+
+                  onClick={() => router.back()}
+                />
         <h1 className="text-[22px] lg:text-3xl font-semibold">Update Exam Section</h1>
       </Header>
       <UpdateAssignmentSection

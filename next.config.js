@@ -68,6 +68,7 @@ const nextConfig = {
       "review-main.yorkacademy.uk",
       "picsum.photos",
       "assignment.yorkacademy.uk",
+      "images.unsplash.com"
     ],
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {

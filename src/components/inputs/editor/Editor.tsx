@@ -57,14 +57,14 @@ const TextEditor = ({
 
       <Editor
         editorState={editorState}
-        toolbarClassName="text-black dark:bg-gray-700 dark:text-gray-200"
-        editorClassName={`px-1 bg-slate-100 dark:bg-gray-700 dark:text-gray-200 text-black ${meta.error && meta.touched ? "border-[1px] border-red-600" : ""
+        toolbarClassName="text-black dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600"
+        editorClassName={`px-1 bg-slate-100 dark:bg-gray-800 dark:text-gray-200 text-black ${meta.error && meta.touched ? "border-[1px] border-red-600" : ""
           }`}
         // wrapperClassName="editor-wrapper"
         onEditorStateChange={handleEditorStateChange}
         onContentStateChange={handleContentStateChange}
         spellCheck
-        wrapperClassName="dark:bg-gray-700"
+        wrapperClassName="dark:bg-gray-800"
       />
 
       {/* Add dark mode styles for toolbar elements */}

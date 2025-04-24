@@ -48,6 +48,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay } from "react-icons/fi";
+import { IoArrowBackSharp } from "react-icons/io5";
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   return (
@@ -201,14 +202,19 @@ const Page = () => {
   };
   const [previewOpen, setPreviewOpen] = useState(false);
   return (
-    <div className={`relative sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
+    <div className={`relative px-1 sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
       <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark "/>
       <div className="flex justify-between items-start mb-5 pt-2">
-        <Header className="flex items-center px-5 sm:px-2 py-2 gap-2 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+      <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+      <IoArrowBackSharp
+                         className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+
+                  onClick={() => router.back()}
+                />
           <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Exam Details</h3>
         </Header>
       </div>
-      <div className="grid grid-cols-4 gap-5 ">
+      <div className="flex flex-col  gap-5 lg:grid lg:grid-cols-4  ">
 
 
         <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
