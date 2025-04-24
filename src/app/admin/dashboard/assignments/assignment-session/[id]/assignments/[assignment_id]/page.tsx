@@ -260,16 +260,16 @@ const Page = () => {
               className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
             >
               {[
-                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit" },
-                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete" },
-                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel" },
-                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate" },
-                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam" }
+                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit" ,  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`)  },
+                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",action: () =>{} },
+                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel",action: () =>{} },
+                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate",action: () =>{} },
+                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam",action: () =>{} }
               ].map((item, index) => (
                 <Dropdown.Item
                   key={index}
                   className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                  onClick={() => { }}
+                  onClick={item.action}
                 >
                   {item.icon}
                   <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>

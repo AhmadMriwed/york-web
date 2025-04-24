@@ -184,7 +184,7 @@ const AssignmentSessionPage = () => {
           <div className="flex items-center gap-3 sm:gap-5">
             <IoArrowBackSharp
               className="text-2xl sm:text-[28px] text-[var(--primary-color1)] cursor-pointer mt-1 sm:mt-0"
-              onClick={() => router.back()}
+              onClick={() => router.push("/admin/dashboard")}
             />
             <div>
               <h1 className="text-xl sm:text-2xl md:text-[28px] font-bold text-[var(--primary-color1)]">
@@ -214,7 +214,7 @@ const AssignmentSessionPage = () => {
           href={"/admin/dashboard/assignments/assignment-session/add"}
           className="flex items-center justify-center h-10 px-4 sm:px-5 hover:no-underline rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
         >
-          + Create New Assignment
+          + Create New Session
         </Link>
       </header>
       <div className="flex justify-center mt-4">

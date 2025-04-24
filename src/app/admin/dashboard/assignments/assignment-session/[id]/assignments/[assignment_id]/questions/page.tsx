@@ -2,7 +2,11 @@
 
 
 'use client';
+import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { IoArrowBackSharp } from 'react-icons/io5';
 
 interface SubQuestion {
   title: string;
@@ -21,6 +25,8 @@ interface Question {
 }
 
 export default function AssignmentPage() {
+  const {id , assignment_id} = useParams();
+  const router = useRouter();
   const [isInViewWatcher, setIsInViewWatcher] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([
     {
@@ -99,8 +105,15 @@ export default function AssignmentPage() {
         {/* Header Section */}
         <div className="flex justify-between items-start max-sm:gap-3">
           <div>
-            <h1 className="text-xl max-sm:text-lg font-bold text-gray-800 dark:text-gray-200">Assignment Title</h1>
-            <h5 className="text-[16px] text-gray-600 max-sm:text-sm dark:text-gray-200">Sub Title</h5>
+            <div className="flex gap-1 items-center">       <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => router.back()}
+                                  className="rounded-full hover:bg-gray-100 inline-block dark:hover:bg-gray-800 h-10 w-10"
+                                >
+                                  <IoArrowBackSharp className="h-10 w-10 text-primary-color1" />
+                                </Button><h1 className="text-xl max-sm:text-lg font-bold text-gray-800 dark:text-gray-200">Assignment Title</h1></div>
+            <h5 className="text-[16px] text-gray-600 mt-3 max-sm:text-sm dark:text-gray-200">Sub Title</h5>
           </div>
           <div className="bg-white dark:bg-dark opacity-100 px-8 max-sm:px-5 rounded-lg shadow-sm">
             <div className="text-2xl max-sm:text-lg font-mono text-gray-800 dark:text-white">02 : 00 : 00</div>
@@ -203,11 +216,27 @@ export default function AssignmentPage() {
             </div>
           ))}
         </div>
-        <div className='flex items-center justify-end pt-3 sm:p-10 max-sm:w-full '>
-          <button className='bg-primary-color1 rounded-[8px] py-2 sm:py-3 sm:px-14 max-sm:w-full '>
-            <h3 className='text-white tracking-wider text-lg sm:text-xl'>View As Watcher</h3>
-          </button>
-        </div></>
+        <div className="flex items-center justify-end gap-4">
+
+        
+          
+        
+          <Button
+          onClick={() => {router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion`) }}
+           className='border-3 font-semibold   border-primary-color1 text-primary-color1 hover:bg-primary-color1 hover:dark:bg-primary-color1 hover:text-white bg-transparent'>
+          Add question
+
+          </Button>
+          <Button
+            className='bg-primary-color1 hover:bg-primary-color2 text-white'
+          >
+            <Eye className='text-lg ' />
+            View As Watcher
+
+          </Button>
+
+        </div>
+        </>
         )
        }
         

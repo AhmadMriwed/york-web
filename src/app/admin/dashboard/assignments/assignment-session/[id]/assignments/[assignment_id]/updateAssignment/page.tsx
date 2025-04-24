@@ -59,6 +59,7 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import InterfaceModal from "@/components/assignments/interfaceCard";
 import Image from "next/image";
+import Header from "@/components/headers/header";
 
 const addExamValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -98,7 +99,7 @@ const addExamValidationSchema = z.object({
     .optional(),
 });
 
-const CreateAssignmentPage = () => {
+const UpdateAssignmentPage = () => {
   const [showStartingInterfaceModal, setShowStartingInterfaceModal] =
     useState<boolean>(false);
   const [showEndingInterfaceModal, setShowEndingInterfaceModal] =
@@ -212,37 +213,7 @@ const CreateAssignmentPage = () => {
     <div className="mx-auto p-4 sm:p-6 max-w-7xl">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Header with back button and title */}
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.back()}
-                className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10"
-              >
-                <IoArrowBackSharp className="h-6 w-6 text-primary-color1" />
-              </Button>
-              <h1 className="text-xl sm:text-2xl font-bold text-primary-color1">
-                Create New Assignment
-              </h1>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-primary-color1 hover:bg-primary-color2 text-white w-full sm:w-auto"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </header>
+          <Header title="Update  Assignment" />
 
           {/* Main content grid */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -1001,7 +972,7 @@ const CreateAssignmentPage = () => {
                   className={cn(
                     "border flex border-gray-200 cursor-pointer gap-6 p-6 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden"
                   )}
-                  onClick={() => router.push("/")}
+                  onClick={() => router.push("/admin/dashboard/assignments/assignment-session/23/assignments/2/questions")}
                 >
                   <Image
                     src={"/icons/question-mark.svg"}
@@ -1035,4 +1006,4 @@ const CreateAssignmentPage = () => {
   );
 };
 
-export default CreateAssignmentPage;
+export default UpdateAssignmentPage;
