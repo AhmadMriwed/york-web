@@ -272,7 +272,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
       /* Dropdown menu container */
       .dark-dropdown {
         background-color: #374151 !important;
-        border: 1px solid #4b5563 !important;
+        
       }
 
       /* Menu items */

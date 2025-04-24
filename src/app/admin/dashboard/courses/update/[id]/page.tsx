@@ -13,7 +13,12 @@ import Header from "@/components/Pars/Header";
 import OperationAlert from "@/components/Pars/OperationAlert";
 import Loading from "@/components/Pars/Loading";
 import ErrorMessage from "@/components/error-message/ErrorMessage";
-import CourseOperation from "@/components/courses/my-courses/CourseOperation";
+import dynamic from "next/dynamic";
+
+const CourseOperation = dynamic(
+  () => import("@/components/courses/my-courses/CourseOperation"),
+  { ssr: false }
+);
 
 const UpdateCourse = ({ params }: any) => {
   const { id } = params;

@@ -161,10 +161,19 @@ const CustomInput = ({
         color: #ffffff !important;
         font-size: 1rem !important;
       }
+
+
         .rs-input {
           background-color: #1f2937 !important;
           color: #ffff;
+          border-color: #4b5563 !important;
         }
+       
+.rs-picker.rs-picker-select .rs-picker-toggle {
+  outline: none !important;
+  border: none !important
+
+}
 
       .dark-date-picker .rs-picker-date-menu,
       .dark-date-picker .rs-calendar {

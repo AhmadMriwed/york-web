@@ -7,8 +7,11 @@ import dynamic from "next/dynamic";
 
 import { fetchAssignmentSessions, fetchSectionTypes } from "@/lib/action/assignment_action";
 import { Header } from "rsuite";
-import AssignmentSessionAddOperation from "@/components/assignments/assignmentSessionA/assignmentSessionAdd/AssignmentSessionAddOperation";
 
+const AssignmentSessionAddOperation = dynamic(
+  () => import("@/components/assignments/assignmentSessionA/assignmentSessionAdd/AssignmentSessionAddOperation"),
+  { ssr: false }
+);
 
 
 

@@ -211,7 +211,7 @@
           0 4px 4px 3px rgba(0, 0, 0, 0.24);
         --rs-menuitem-active-bg: var(--rs-gray-600);
         --rs-menuitem-active-text: currentColor;
-        --rs-steps-border: var(--rs-gray-200);
+        --rs-steps-border: var(--rs-gray-700);
         --rs-steps-state-finish: var(--rs-primary-500);
         --rs-steps-border-state-finish: var(--rs-primary-500);
         --rs-steps-state-wait: var(--rs-gray-200);
@@ -277,7 +277,7 @@
         --rs-radio-border: var(--rs-gray-400);
         --rs-radio-checked-bg: var(--rs-primary-500);
         --rs-radio-disabled-bg: var(--rs-gray-500);
-        --rs-radio-tile-border: var(--rs-gray-300);
+        --rs-radio-tile-border: var(--rs-gray-500);
         --rs-radio-tile-bg: var(--rs-gray-0);
         --rs-radio-tile-checked-color: var(--rs-primary-500);
         --rs-radio-tile-checked-mark-color: var(--rs-gray-800);
