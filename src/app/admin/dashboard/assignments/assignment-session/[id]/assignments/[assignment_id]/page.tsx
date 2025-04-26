@@ -29,8 +29,9 @@ import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
 import { More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
-import { CiExport } from "react-icons/ci";
+import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
+import { BiSelectMultiple } from "react-icons/bi";
 
 
 import { MdTitle, MdSubtitles, MdCategory, MdVisibility, MdVisibilityOff, MdOutlineAppSettingsAlt } from "react-icons/md";
@@ -49,6 +50,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
+import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
+import { RiSlideshowLine } from "react-icons/ri";
+import { AiOutlineFieldTime } from "react-icons/ai";
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   return (
@@ -88,9 +92,29 @@ const Page = () => {
   const router = useRouter();
 
 
-  const [isSubmittingExamConditions, setIsSubmittingExamConditions] = useState(false);
-  const [isSubmittingExamSettings, setIsSubmittingExamSettings] = useState(false);
+  const fakeExamData =
+  {
+    id: 1,
+    examTime: "2 Hours",
+    resultsDisplay: "Manual",
+    examDate: "2023-06-15",
+    examType: "Multiple Choice",
+    questionsPerPage: "5 Questions",
+    timePerPage: "10 Minutes",
+    requireAnswerBeforeNext: true,
+    examRepeatCount: "3 Attempts",
+    examLanguage: "English",
+    displayCorrectionLadder: "Manual"
+  };
 
+
+  const [isSubmittingExamConditions, setIsSubmittingExamConditions] = useState(false);
+  const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] = useState(false);
+  const [isSubmittingExamSettings, setIsSubmittingExamSettings] = useState(false);
+  const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
+  const [isEdittingExamConditions, setIsEdittingExamConditions] = useState(false);
+  const [isEdittingExamRequirments, setIsEdittingExamRequirments] = useState(false);
+  const [isThereAddFieldForExamRequirments, setIsThereAddFieldForExamRequirments] = useState(false);
 
   const editExamSettingsSchema = z.object({
     examTime: z.string().min(1, "Exam time is required"),
@@ -108,6 +132,21 @@ const Page = () => {
       .string()
       .min(1, "Correction ladder status is required"),
   });
+
+  const editExamRequirmentsSchema = z.object({
+    label: z.string().min(1, 'Label is required'),
+    type: z.string().min(1, 'Type is required')
+  })
+  type RequirmentsFormValue = z.infer<typeof editExamRequirmentsSchema>;
+
+  const formForRequirments = useForm<RequirmentsFormValue>({
+    resolver: zodResolver(editExamRequirmentsSchema),
+    defaultValues: {
+      label: "",
+      type: ""
+    }
+  });
+
   type FormValues = z.infer<typeof editExamSettingsSchema>;
 
   const form = useForm<FormValues>({
@@ -165,6 +204,26 @@ const Page = () => {
     }
 
   };
+  const onSubmitExamRequirments = async (values: RequirmentsFormValue) => {
+    setIsSubmittingExamRequirments(true);
+    try {
+      const submissionData = {
+        ...values,
+      };
+
+      console.log("Form submitted:", submissionData);
+      formForRequirments.reset();
+
+    } catch (error) {
+      console.error("Failed to create assignment:", error);
+    } finally {
+      setIsSubmittingExamRequirments(false);
+      setIsThereAddFieldForExamRequirments(false);
+    }
+
+  };
+
+
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
     try {
@@ -203,18 +262,18 @@ const Page = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   return (
     <div className={`relative px-1 sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
-      <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark "/>
+      <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark " />
       <div className="flex justify-between items-start mb-5 pt-2">
-      <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
-      <IoArrowBackSharp
-                         className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+        <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+          <IoArrowBackSharp
+            className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
 
-                  onClick={() => router.back()}
-                />
+            onClick={() => router.back()}
+          />
           <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Exam Details</h3>
         </Header>
       </div>
-      <div className="flex flex-col  gap-5 lg:grid lg:grid-cols-4  ">
+      <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
 
 
         <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
@@ -260,11 +319,11 @@ const Page = () => {
               className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
             >
               {[
-                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit" ,  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`)  },
-                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",action: () =>{} },
-                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel",action: () =>{} },
-                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate",action: () =>{} },
-                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam",action: () =>{} }
+                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
+                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
+                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate", action: () => { } },
+                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
               ].map((item, index) => (
                 <Dropdown.Item
                   key={index}
@@ -374,9 +433,9 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit",    action: () => {/* Edit logic */} },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",    action: () => {/* Delete logic */} },
+                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
+                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {/* Edit logic */ } },
+                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
 
                   ].map((item, index) => (
                     <Dropdown.Item
@@ -427,9 +486,9 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {} },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {} },
+                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
+                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => { } },
+                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
 
                   ].map((item, index) => (
                     <Dropdown.Item
@@ -456,16 +515,17 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <div className="lg:col-span-1 space-y-2 sm:space-y-4">
+
+        <div className="xl:col-span-1 ">
           <Accordion
             type="single"
             collapsible
-            className="w-full space-y-2 sm:space-y-4"
+            className="w-full  space-x-2 max-xl:grid max-xl:grid-cols-2 max-lg:grid-cols-1"
           >
 
             <AccordionItem
               value="item-1"
-              className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+              className="bg-white mt-4 xl:mt-0 sm:mx-1  dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
             >
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center h-14 gap-2 sm:gap-4">
@@ -476,242 +536,362 @@ const Page = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
-                    <div className="space-y-4 sm:space-y-6 dark:text-white">
-                      {/* Exam Time */}
-                      <FormField
-                        control={form.control}
-                        name="examTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Exam Time : </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="dark:bg-gray-800">
-                                  <SelectValue placeholder="Select time" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="30 Minutes">
-                                  30 Minutes
-                                </SelectItem>
-                                <SelectItem value="1 Hour">1 Hour</SelectItem>
-                                <SelectItem value="2 Hours">2 Hours</SelectItem>
-                                <SelectItem value="3 Hours">3 Hours</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Exam Language */}
-                      <FormField
-                        control={form.control}
-                        name="examLanguage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Exam Language : </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="dark:bg-gray-800">
-                                  <SelectValue placeholder="Select language" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="english">English</SelectItem>
-                                <SelectItem value="arabic">العربية</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Exam Date */}
-                      <FormField
-                        control={form.control}
-                        name="examDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Exam Date :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                                className="dark:bg-gray-800"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Questions Per Page */}
-                      <FormField
-                        control={form.control}
-                        name="questionsPerPage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Questions Per Page : </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue="5 Questions"
-                            >
-                              <FormControl>
-                                <SelectTrigger className="dark:bg-gray-800">
-                                  <SelectValue placeholder="Select number" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="dark:bg-gray-800">
-                                {[1, 2, 3, 5, 10].map((num) => (
-                                  <SelectItem
-                                    key={num}
-                                    value={`${num} Questions`}
-                                  >
-                                    {num} {num === 1 ? "Question" : "Questions"}
+                {isEdittingExamSettings ? (
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6 dark:text-white">
+                        {/* Exam Time */}
+                        <FormField
+                          control={form.control}
+                          name="examTime"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exam Time : </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="dark:bg-gray-800">
+                                    <SelectValue placeholder="Select time" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="dark:bg-gray-800">
+                                  <SelectItem value="30 Minutes">
+                                    30 Minutes
                                   </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                                  <SelectItem value="1 Hour">1 Hour</SelectItem>
+                                  <SelectItem value="2 Hours">2 Hours</SelectItem>
+                                  <SelectItem value="3 Hours">3 Hours</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      {/* Results Display */}
-                      <FormField
-                        control={form.control}
-                        name="resultsDisplay"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Results Display :</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue="Manual"
-                            >
+                        {/* Exam Language */}
+                        <FormField
+                          control={form.control}
+                          name="examLanguage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exam Language : </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="dark:bg-gray-800">
+                                    <SelectValue placeholder="Select language" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="dark:bg-gray-800">
+                                  <SelectItem value="english">English</SelectItem>
+                                  <SelectItem value="arabic">العربية</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Exam Date */}
+                        <FormField
+                          control={form.control}
+                          name="examDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exam Date :</FormLabel>
                               <FormControl>
-                                <SelectTrigger className="dark:bg-gray-800">
-                                  <SelectValue placeholder="Select option" />
-                                </SelectTrigger>
+                                <Input
+                                  type="date"
+                                  {...field}
+                                  className="dark:bg-gray-800"
+                                />
                               </FormControl>
-                              <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="AfterFinish">
-                                  After Finish
-                                </SelectItem>
-                                <SelectItem value="Manual">Manual</SelectItem>
-                                <SelectItem value="PerAnswer">
-                                  Per Answer
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      {/* Time Per Page */}
-                      <FormField
-                        control={form.control}
-                        name="timePerPage"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Time Per Page :</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g. 15 minutes"
-                                {...field}
-                                className="dark:bg-gray-800"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        {/* Questions Per Page */}
+                        <FormField
+                          control={form.control}
+                          name="questionsPerPage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Questions Per Page : </FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                defaultValue="5 Questions"
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="dark:bg-gray-800">
+                                    <SelectValue placeholder="Select number" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="dark:bg-gray-800">
+                                  {[1, 2, 3, 5, 10].map((num) => (
+                                    <SelectItem
+                                      key={num}
+                                      value={`${num} Questions`}
+                                    >
+                                      {num} {num === 1 ? "Question" : "Questions"}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      {/* Exam Repeat Count */}
-                      <FormField
-                        control={form.control}
-                        name="examRepeatCount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Exam Repeat Count :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="e.g. 3"
-                                {...field}
-                                className="dark:bg-gray-800"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                        {/* Results Display */}
+                        <FormField
+                          control={form.control}
+                          name="resultsDisplay"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Results Display :</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                defaultValue="Manual"
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="dark:bg-gray-800">
+                                    <SelectValue placeholder="Select option" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="dark:bg-gray-800">
+                                  <SelectItem value="AfterFinish">
+                                    After Finish
+                                  </SelectItem>
+                                  <SelectItem value="Manual">Manual</SelectItem>
+                                  <SelectItem value="PerAnswer">
+                                    Per Answer
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-
-                      <FormField
-                        control={form.control}
-                        name="displayCorrectionLadder"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Display Correction Ladder :</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                              defaultValue="Manual"
-                            >
+                        {/* Time Per Page */}
+                        <FormField
+                          control={form.control}
+                          name="timePerPage"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Time Per Page :</FormLabel>
                               <FormControl>
-                                <SelectTrigger className="dark:bg-gray-800">
-                                  <SelectValue placeholder="Select option" />
-                                </SelectTrigger>
+                                <Input
+                                  placeholder="e.g. 15 minutes"
+                                  {...field}
+                                  className="dark:bg-gray-800"
+                                />
                               </FormControl>
-                              <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="AfterFinish">
-                                  After Finish
-                                </SelectItem>
-                                <SelectItem value="Manual">Manual</SelectItem>
-                                <SelectItem value="PerAnswer">
-                                  Per Answer
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Exam Repeat Count */}
+                        <FormField
+                          control={form.control}
+                          name="examRepeatCount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Exam Repeat Count :</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="e.g. 3"
+                                  {...field}
+                                  className="dark:bg-gray-800"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+
+                        <FormField
+                          control={form.control}
+                          name="displayCorrectionLadder"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Display Correction Ladder :</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                defaultValue="Manual"
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="dark:bg-gray-800">
+                                    <SelectValue placeholder="Select option" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent className="dark:bg-gray-800">
+                                  <SelectItem value="AfterFinish">
+                                    After Finish
+                                  </SelectItem>
+                                  <SelectItem value="Manual">Manual</SelectItem>
+                                  <SelectItem value="PerAnswer">
+                                    Per Answer
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="flex items-center justify-end mt-3">
+
+
+
+                          <Button
+                            type="submit"
+                            appearance="primary"
+                            className="py-0 !bg-primary-color1 !px-4"
+                          >
+                            {isSubmittingExamSettings ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <h4 className="tracking-wide py-0 my-0">Saving...</h4>
+                              </>
+                            ) : (
+                              <h4 className="tracking-wide py-0 my-0">Save</h4>
+                            )}
+                          </Button></div>
+                      </div>
+                    </form>
+                  </Form>
+                ) : (
+
+                  <div className="grid grid-cols-1 gap-6 pt-4">
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <CiTimer className="text-lg " />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Time</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examTime}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <RiSlideshowLine className="text-lg " />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.resultsDisplay}</p>
+                      </div>
+                    </div>
+
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <CiCalendarDate className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examDate}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <BiSelectMultiple className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Type</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examType}</p>
+                      </div>
+                    </div>
+
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <FaRegNewspaper className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.questionsPerPage}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <AiOutlineFieldTime className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.timePerPage}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <FaRedo className="text-lg " />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Repeat Count</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examRepeatCount}</p>
+                      </div>
+                    </div>
+
+                    {/* Exam Language */}
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <FaLanguage className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Language</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examLanguage}</p>
+                      </div>
+                    </div>
+
+                    {/* Display Correction Ladder */}
+                    <div className="flex items-center space-x-4">
+                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <FaCheckCircle className="text-lg" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
+                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.displayCorrectionLadder}</p>
+                      </div>
+                    </div>
+
+
+                    <div className="flex justify-end mt-3">
                       <Button
-                        type="submit"
-                        disabled={isSubmittingExamSettings}
-                        className="bg-primary-color1 hover:bg-primary-color2 text-white w-full py-3"
+                        appearance="primary"
+                        className="py-0 !bg-primary-color1 !px-4"
+                        onClick={() => setIsEdittingExamSettings(true)}
                       >
-                        {isSubmittingExamSettings ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          "Save"
-                        )}
+                        <h4 className="tracking-wide py-0 my-0">Edit</h4>
+
                       </Button>
                     </div>
-                  </form>
-                </Form>
+                  </div>
+
+
+                )}
+
+
 
               </AccordionContent>
             </AccordionItem>
             <AccordionItem
               value="item-2"
-              className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
             >
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center h-14 gap-2 sm:gap-4">
@@ -722,104 +902,127 @@ const Page = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <Form {...formForConditions}>
-                  <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6">
-                    <FormField
-                      control={formForConditions.control}
-                      name="conditions.condition1"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              color="primary"
-                            />
-                          </FormControl>
-                          <FormLabel className="space-y-1 leading-none">
-                            Item Name 1
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={formForConditions.control}
-                      name="conditions.condition2"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              color="primary"
-                            />
-                          </FormControl>
-                          <FormLabel className="space-y-1 leading-none">
-                            Item Name 1
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
+                {isEdittingExamConditions ? (
+                  <Form {...formForConditions}>
+                    <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6 mt-2">
+                      <FormField
+                        control={formForConditions.control}
+                        name="conditions.condition1"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                color="primary"
+                              />
+                            </FormControl>
+                            <FormLabel className="space-y-1 leading-none">
+                              Item Name 1
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={formForConditions.control}
+                        name="conditions.condition2"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                color="primary"
+                              />
+                            </FormControl>
+                            <FormLabel className="space-y-1 leading-none">
+                              Item Name 1
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={formForConditions.control}
-                      name="conditions.condition3"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              color="primary"
-                            />
-                          </FormControl>
-                          <FormLabel className="space-y-1 leading-none">
-                            Item Name 1
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
+                      <FormField
+                        control={formForConditions.control}
+                        name="conditions.condition3"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                color="primary"
+                              />
+                            </FormControl>
+                            <FormLabel className="space-y-1 leading-none">
+                              Item Name 1
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={formForConditions.control}
-                      name="conditions.condition4"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              color="primary"
-                            />
-                          </FormControl>
-                          <FormLabel className="space-y-1 leading-none">
-                            Item Name 1
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                    <Button
-                      type="submit"
-                      disabled={isSubmittingExamConditions}
-                      className="bg-primary-color1 hover:bg-primary-color2 text-white w-full py-3"
-                    >
-                      {isSubmittingExamConditions ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save"
-                      )}
-                    </Button>
-                  </form>
-                </Form>
+                      <FormField
+                        control={formForConditions.control}
+                        name="conditions.condition4"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                color="primary"
+                              />
+                            </FormControl>
+                            <FormLabel className="space-y-1 leading-none">
+                              Item Name 1
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center justify-end mt-3">
+
+                        <Button
+                          type="submit"
+                          appearance="primary"
+                          className="py-0 !bg-primary-color1 !px-4"
+                        >
+                          {isSubmittingExamConditions ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              <h4 className="">Saving...</h4>
+                            </>
+                          ) : (
+                            <h4 className="">Save</h4>
+                          )}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                ) : (
+                  <div className="mt-2 flex flex-col gap-y-1">
+                    <p>exam condition 1</p>
+                    <p>exam condition 1</p>
+                    <p>exam condition 1</p>
+                    <div className="flex items-center justify-end mt-3">
+
+                      <Button
+                        appearance="primary"
+                        className="py-0 !bg-primary-color1 !px-4"
+                        onClick={() => setIsEdittingExamConditions(true)}
+                      >
+                        <h4 className="tracking-wide py-0 my-0">Edit</h4>
+
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem
               value="item-3"
-              className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
             >
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center  gap-2 sm:gap-4">
@@ -830,21 +1033,194 @@ const Page = () => {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
+                {
+                  isEdittingExamRequirments ? (<div>
 
+                    <div className="">
+
+                      <table className="w-[400px] xl:w-full border-none">
+                        <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
+
+                          <tr className="">
+                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Id</th>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">number</td>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+                          </tr>
+
+                          <tr className="">
+                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">First Name</th>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+
+                          </tr>
+
+                          <tr className="">
+                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Last Name</th>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+
+                          </tr>
+
+                          <tr className="">
+                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Email</th>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+
+                          </tr>
+                        </tbody>
+                      </table>
+
+                      {isThereAddFieldForExamRequirments &&
+                        <Form {...formForRequirments}>
+                          <form onSubmit={formForRequirments.handleSubmit(onSubmitExamRequirments)} className="space-y-4 mt-3">
+                            <FormField
+                              control={formForRequirments.control}
+                              name="label"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      type="text"
+                                      placeholder="Label"
+                                      {...field}
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={formForRequirments.control}
+                              name="type"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="text field"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-800">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:!bg-gray-800">
+                                      <SelectItem value="text field" className="dark:!bg-gray-800">
+                                        text field
+                                      </SelectItem>
+
+                                      <SelectItem value="text area">
+                                        text area
+                                      </SelectItem>
+                                      <SelectItem value="drop-down list">
+                                        drop-down list
+                                      </SelectItem>
+                                      <SelectItem value="number">number</SelectItem>
+                                      <SelectItem value="email address">email address</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex items-center justify-end mt-3">
+                              <Button
+                                type="submit"
+                                appearance="primary"
+                                className="py-0 !bg-primary-color1 !px-4"
+                              >
+                                <h4 className="tracking-wide py-0 my-0">Add</h4>
+
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>} {!isThereAddFieldForExamRequirments &&
+                      <div className="w-full flex items-center justify-end mt-4 gap-3">
+                       
+                          <Button
+
+                            onClick={() => { isThereAddFieldForExamRequirments ? setIsThereAddFieldForExamRequirments(false) : setIsThereAddFieldForExamRequirments(true) }}
+                            appearance="primary"
+                            className="py-0 !bg-primary-color1 !px-4"
+                          >
+                            <h4 className="tracking-wide py-0 my-0">Add Field</h4>
+
+                          </Button>
+
+
+                        <Button
+                          appearance="primary"
+                          className="py-0 !bg-primary-color1 !px-4"
+                          onClick={() => { setIsEdittingExamRequirments(false); setIsThereAddFieldForExamRequirments(false) }}
+
+                        >
+                          <h4 className="tracking-wide py-0 my-0">Done</h4>
+
+                        </Button>
+
+                      </div>
+                        }
+                    </div>
+                  </div>) : (
+                    <div>
+                      <div className="pr-5">
+
+                        <table className="w-[300px] xl:w-full border-none">
+                          <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
+
+                            <tr className="">
+                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Id</th>
+                              <td className="px-3 py-3 xl:px-2 text-right  border-none">number</td>
+                            </tr>
+
+                            <tr className="">
+                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">First Name</th>
+                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                            </tr>
+
+                            <tr className="">
+                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Last Name</th>
+                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                            </tr>
+
+                            <tr className="">
+                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Email</th>
+                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                      </div>
+                      <div className="flex items-center justify-end mt-3">
+
+                        <Button
+                          appearance="primary"
+                          className="py-0 !bg-primary-color1 !px-4"
+                          onClick={() => setIsEdittingExamRequirments(true)}
+                        >
+                          <h4 className="tracking-wide py-0 my-0">Edit</h4>
+
+                        </Button>
+                      </div>
+                    </div>
+
+                  )
+                }
               </AccordionContent>
             </AccordionItem>
             <div
-              className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
             >
-              <button  onClick={() => {router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`)}} className="h-14 p-1">
+              <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`) }} className="h-14 p-1">
                 <div className="flex items-center  gap-2 sm:gap-4">
                   <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                   <p className="text-sm sm:text-base">
-                  Exam&apos;s Questions
+                    Exam&apos;s Questions
                   </p>
                 </div>
               </button>
-             
+
             </div>
           </Accordion>
         </div>
@@ -852,42 +1228,12 @@ const Page = () => {
 
 
 
-      <div className="mt-8 px-3 sm:px-6">
+      <div className="mt-8 ">
         <h2 className="text-xl md:text-2xl font-bold mb-4">Student Results</h2>
         <StudentResultsTable />
       </div>
 
 
-      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} className="">
-        <Modal.Header className="">
-          <Modal.Title className="text-2xl font-bold">Exam Preview</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4">
-              <h3 className="text-xl font-semibold mb-2">Sample Question</h3>
-              <p className="mb-4">What is the square root of 144?</p>
-              <div className="space-y-2">
-                <InputGroup>
-                  <InputGroup.Addon>A</InputGroup.Addon>
-                  <Input value="12" disabled />
-                </InputGroup>
-                <InputGroup>
-                  <InputGroup.Addon>B</InputGroup.Addon>
-                  <Input value="14" disabled />
-                </InputGroup>
-              </div>
-            </div>
-            <Button
-              appearance="primary"
-              block
-              className="bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)]"
-            >
-              Submit Answer
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
 
       {mode === "dark" && (
         <style>
@@ -938,3 +1284,12 @@ const InfoItem = ({
     </div>
   </div>
 );
+
+
+const CustomButton = ({ title }: { title: string }) => {
+  return (
+    <Button appearance="subtle" className="">
+      <h3>{title}</h3>
+    </Button>
+  )
+}

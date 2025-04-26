@@ -24,7 +24,9 @@ const config: Config = {
 		  },
    		screens: {
    			crudCustom1: '1020px',
-   			crudCustom2: '860px'
+   			crudCustom2: '860px',
+			xs: "465px",
+			xxs: "680px"
    		},
    		backgroundImage: {
    			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -1,248 +1,475 @@
 
 
 
+
+
+
 'use client';
-import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { IoArrowBackSharp } from 'react-icons/io5';
 
-interface SubQuestion {
-  title: string;
-}
-
-interface Question {
-  id: number;
-  title: string;
-  type: string;
-  required: boolean;
-  marks: number;
-  answersCount: number;
-  content?: string[];
-  subQuestion?: SubQuestion[];
-  correctAnswer: number[] | boolean[]; // Added correct answer field
-}
-
-export default function AssignmentPage() {
-  const {id , assignment_id} = useParams();
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
+import { EditIcon, Trash } from 'lucide-react'; // Added Star icon
+import { useParams, useRouter } from 'next/navigation'
+import React, { useState } from 'react'
+import { IoArrowBackSharp, IoSearch, IoClose } from 'react-icons/io5'
+import { TfiMoreAlt } from 'react-icons/tfi';
+import { Button, Header } from 'rsuite';
+import { Star, ChevronDown } from 'lucide-react';
+const QuestitonManager = () => {
   const router = useRouter();
-  const [isInViewWatcher, setIsInViewWatcher] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>([
+  const { id, assignment_id } = useParams();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [markForAll, setMarkForAll] = useState(0);
+  const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [showMarkDialog, setShowMarkDialog] = useState(false);
+  const [questions, setQuestions] = useState([
+
+
     {
       id: 1,
-      title: "Question text",
-      type: "Multiple Choice",
+      questionText: "What are the dimensions of the KT-123 engine expressed in millimeters including the engine cover?",
+      options: [
+        { id: 1, text: "500 × 200 × 300", isCorrect: false },
+        { id: 2, text: "450 × 220 × 320", isCorrect: true },
+        { id: 3, text: "600 × 100 × 320", isCorrect: false }
+      ],
+      type: "Single choice",
+      category: "CONSTRUCTION",
+      points: 1,
+      hasImage: false,
       required: true,
-      marks: 2,
-      answersCount: 4,
-      content: ["Choose One", "Choose Two", "Choose Three", "Choose Four"],
-      correctAnswer: [0] // Index of correct answer
     },
     {
       id: 2,
-      title: "Question text",
-      type: "Multiple Select",
+      questionText: "Which material is primarily used in the KT-123 engine's combustion chamber?",
+      options: [
+        { id: 1, text: "Aluminum alloy", isCorrect: true },
+        { id: 2, text: "Stainless steel", isCorrect: false },
+        { id: 3, text: "Titanium", isCorrect: false }
+      ],
+      type: "Single choice",
+      category: "MATERIALS",
+      points: 1,
+      hasImage: false,
       required: true,
-      marks: 2,
-      answersCount: 4,
-      content: ["Choose One", "Choose Two", "Choose Three", "Choose Four"],
-      correctAnswer: [0, 1] // Indexes of correct answers
     },
     {
       id: 3,
-      title: "Question text",
-      type: "True/False",
-      required: false,
-      marks: 12,
-      answersCount: 6,
-      subQuestion: [
-        { title: "Question 1" },
-        { title: "Question 2" },
-        { title: "Question 3" },
-        { title: "Question 4" },
-        { title: "Question 5" },
+      questionText: "What is the maximum torque output (in Nm) of the KT-123 engine at 4000 RPM?",
+      options: [
+        { id: 1, text: "220 Nm", isCorrect: false },
+        { id: 2, text: "185 Nm", isCorrect: true },
+        { id: 3, text: "210 Nm", isCorrect: false }
       ],
-      correctAnswer: [true, false, true, false, true] // Array of booleans for subquestions
-    },
+      type: "Single choice",
+      category: "PERFORMANCE",
+      points: 2,
+      hasImage: false,
+      required: false,
+    }
   ]);
 
-  const [userAnswers, setUserAnswers] = useState<Record<number, any>>(() => {
-    const initialState: Record<number, any> = {};
-    questions.forEach(question => {
-      initialState[question.id] = question.correctAnswer;
-    });
-    return initialState;
-  });
 
-  // Handlers for different question types
-  const handleSingleSelect = (questionId: number, answerIndex: number) => {
-    setUserAnswers(prev => ({ ...prev, [questionId]: [answerIndex] }));
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedQuestions(questions.map(q => q.id));
+    } else {
+      setSelectedQuestions([]);
+    }
   };
 
-  const handleMultipleSelect = (questionId: number, answerIndex: number) => {
-    setUserAnswers(prev => {
-      const current = prev[questionId] as number[];
-      const newAnswers = current.includes(answerIndex)
-        ? current.filter(i => i !== answerIndex)
-        : [...current, answerIndex];
-      return { ...prev, [questionId]: newAnswers };
-    });
+
+  const handleQuestionSelect = (questionId: number) => {
+    setSelectedQuestions(prev =>
+      prev.includes(questionId)
+        ? prev.filter(id => id !== questionId)
+        : [...prev, questionId]
+    );
   };
 
-  const handleTrueFalse = (questionId: number, subIndex: number, value: boolean) => {
-    setUserAnswers(prev => {
-      const current = [...prev[questionId] as boolean[]];
-      current[subIndex] = value;
-      return { ...prev, [questionId]: current };
-    });
+  const handleMarkForAllChange = () => {
+
+    setQuestions(prev => prev.map(q => ({ ...q, points: markForAll })));
   };
+
+  const filteredQuestions = questions.filter(q =>
+    q.questionText.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDeleteSelected = () => {
+    setQuestions(prev => prev.filter(q => !selectedQuestions.includes(q.id)));
+    setSelectedQuestions([]);
+  };
+
+  const totalMarks = questions.reduce((sum, q) => sum + q.points, 0);
 
   return (
-    <div className="relative min-h-screen">
-      <div className="h-full w-full absolute bg-white dark:bg-gray-800 opacity-50 dark:opacity-70" />
-      <div className="relative mx-auto px-12 max-sm:px-5 py-2">
-        {/* Header Section */}
-        <div className="flex justify-between items-start max-sm:gap-3">
-          <div>
-            <div className="flex gap-1 items-center">       <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => router.back()}
-                                  className="rounded-full hover:bg-gray-100 inline-block dark:hover:bg-gray-800 h-10 w-10"
-                                >
-                                  <IoArrowBackSharp className="h-10 w-10 text-primary-color1" />
-                                </Button><h1 className="text-xl max-sm:text-lg font-bold text-gray-800 dark:text-gray-200">Assignment Title</h1></div>
-            <h5 className="text-[16px] text-gray-600 mt-3 max-sm:text-sm dark:text-gray-200">Sub Title</h5>
-          </div>
-          <div className="bg-white dark:bg-dark opacity-100 px-8 max-sm:px-5 rounded-lg shadow-sm">
-            <div className="text-2xl max-sm:text-lg font-mono text-gray-800 dark:text-white">02 : 00 : 00</div>
-            <div className="flex gap-5 text-[12px] max-sm:text-[10px] text-gray-500 dark:text-gray-300">
-              <h6>Home</h6>
-              <h6>Minutes</h6>
-              <h6>Seconds</h6>
-            </div>
-          </div>
-        </div>
+    <div className={`bg-gray-100 dark:bg-gray-900  my-3 mx-1 sm:mx-2 rounded-lg  px-1 sm:px-4 py-2  min-h-screen `}>
+      <div className="flex justify-between items-start pb-5 pt-1 max-sm:px-1">
+        <Header className="flex mt-1 justify-start items-center gap-2 max-sm:pt-1  text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+          <IoArrowBackSharp
+            className="text-primary-color1 text-lg sm:text-xl cursor-pointer"
 
-        <div className='max-h-[160px] pt-5 sm:pt-8  flex justify-center items-center'>
-          <img
-            src='/quastionImage.png'
-            alt='quastionImage'
-            width={2000}
-            height={100}
-            className='max-h-full'
+            onClick={() => router.back()}
           />
-        </div>
-       {
-        isInViewWatcher ? (<div></div>) : (
-          <>
-          <div className="pt-5 sm:pt-8">
-          {questions.map((question, index) => (
-            <div key={question.id} className=" py-2 rounded-lg">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex gap-4 items-center">
-                  <span className="text-[17px] sm:text-lg font-semibold text-gray-700 dark:text-gray-200">{index + 1}.</span>
-                  <h3 className="text-[17px] sm:text-xl tracking-wider font-semibold text-gray-800 dark:text-gray-200">
-                    {question.title}
-                    {question.required && <span className="text-red-500 ml-1">*</span>}
-                  </h3>
-                  <h6 className="text-primary-color1 mt-2 -ml-2">{`(${question.marks} marks)`}</h6>
-                </div>
-              </div>
-
-              {question.type === "True/False" ? (
-                question.subQuestion?.map((subquestion, subIndex) => (
-                  <div key={subIndex} className="pl-2 sm:pl-10 flex py-1 items-center justify-between sm:max-w-[400px]">
-                    <div className='max-sm:text-[14px] text-gray-600 dark:text-gray-300'>{subquestion.title}</div>
-                    <div className='flex justify-center items-center gap-5'>
-                      <div className='flex items-center justify-center gap-3'>
-                        <input
-                          type="radio"
-                          name={`question-${question.id}-${subIndex}`}
-                          checked={(userAnswers[question.id] as boolean[])[subIndex] === true}
-                          onChange={() => handleTrueFalse(question.id, subIndex, true)}
-                          className="w-5 h-5 rounded-full appearance-none border-2 flex justify-center items-center border-gray-500
-          checked:border-gray-500 checked:bg-white  checked:dark:bg-gray-700
-          dark:border-gray-500 dark:checked:border-gray-400 dark:checked:bg-gray-400
-          relative after:absolute after:inset-0 after:rounded-full after:m-[2px] after:bg-primary-color1
-          after:opacity-0 checked:after:opacity-100"
-                        />
-                        <label className="max-sm:text-[13px] cursor-pointer">True</label>
-                      </div>
-                      <div className='flex items-center justify-center gap-3'>
-                        <input
-                          type="radio"
-                          name={`question-${question.id}-${subIndex}`}
-                          checked={(userAnswers[question.id] as boolean[])[subIndex] === false}
-                          onChange={() => handleTrueFalse(question.id, subIndex, false)}
-                          className="w-5 h-5 rounded-full appearance-none border-2 flex justify-center items-center border-gray-500
-          checked:border-gray-500 checked:bg-white  checked:dark:bg-gray-700
-          dark:border-gray-500 dark:checked:border-gray-400 dark:checked:bg-gray-400
-          relative after:absolute after:inset-0 after:rounded-full after:m-[2px] after:bg-primary-color1
-          after:opacity-0 checked:after:opacity-100"
-                        />
-                        <label className="cursor-pointer max-sm:text-[13px]">False</label>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="pl-2 sm:pl-10 py-1 space-y-2">
-                  {question.content?.map((item, i) => (
-                    <div key={i} className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                      <input
-                        type={question.type === "Multiple Select" ? "checkbox" : "radio"}
-                        name={`question-${question.id}`}
-                        checked={
-                          question.type === "Multiple Select"
-                            ? (userAnswers[question.id] as number[]).includes(i)
-                            : (userAnswers[question.id] as number[]).includes(i)
-                        }
-                        onChange={() => {
-                          if (question.type === "Multiple Select") {
-                            handleMultipleSelect(question.id, i);
-                          } else {
-                            handleSingleSelect(question.id, i);
-                          }
-                        }}
-                        className={`${question.type === "Multiple Select" ? "w-5 h-5 rounded-full accent-primary-color1 bg-gray-600" : "w-5 h-5 rounded-full appearance-none border-2 flex justify-center items-center border-gray-500 checked:border-gray-500 checked:bg-white  checked:dark:bg-gray-700 dark:border-gray-500 dark:checked:border-gray-400 dark:checked:bg-gray-400 relative after:absolute after:inset-0 after:rounded-full after:m-[2px] after:bg-primary-color1 after:opacity-0 checked:after:opacity-100"}`}
-                      />
-                      <label className="cursor-pointer max-sm:text-[14px]">{item}</label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center justify-end gap-4">
-
-        
-          
-        
-          <Button
-          onClick={() => {router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion`) }}
-           className='border-3 font-semibold   border-primary-color1 text-primary-color1 hover:bg-primary-color1 hover:dark:bg-primary-color1 hover:text-white bg-transparent'>
-          Add question
-
-          </Button>
-          <Button
-            className='bg-primary-color1 hover:bg-primary-color2 text-white'
-          >
-            <Eye className='text-lg ' />
-            View As Watcher
-
-          </Button>
-
-        </div>
-        </>
-        )
-       }
-        
-
+          <h3 className="text-lg sm:text-xl xl:text-2xl font-semibold tracking-wide">Questions Manager</h3>
+        </Header>
+        <Button
+          onClick={() => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion`)}
+          className='px-6 max-sm:px-3 py-0    !bg-primary-color1 active:!bg-primary-color1
+      !text-white'>
+          <h3 className='sm:tracking-wide max-sm:text-[15px] '>Add Question</h3>
+        </Button>
       </div>
 
+      <div className='flex justify-between items-center bg-white mx-1 mb-4 dark:bg-gray-800 py-3 px-3 rounded-sm gap-5'>
+        <div className='flex items-center gap-3'>
+          <label className="relative flex items-center cursor-pointer">
+            <input
+              type='checkbox'
+              checked={selectedQuestions.length === questions.length && questions.length > 0}
+              onChange={handleSelectAll}
+              className="appearance-none h-5 w-5 max-sm:w-[18px] max-sm:h-[18px] border-2 border-gray-300 rounded-sm 
+                       checked:bg-primary-color1 checked:border-0 dark:checked:bg-primary-color1
+                       transition-colors duration-200 peer"
+            />
+            <div className="absolute left-0 top-0 pointer-events-none flex items-center justify-center 
+                   text-white h-5 w-5 max-sm:w-[18px] max-sm:h-[18px] opacity-0 peer-checked:opacity-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </label>
+          {selectedQuestions.length > 0 ? (
+            <div className='flex items-center gap-4'>
+              <p className='text-sm sm:text-lg text-gray-800 dark:text-gray-200'>
+                {selectedQuestions.length} selected
+              </p>
+              <Button
+                appearance="ghost"
+                color="red"
+                size='sm'
+                className='!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-900/20 hover:!border-transparent !border-[1px]  hover:!outline-transparent          
+                focus:!outline-transparent
+                focus:!border-transparent
+            active:!border-transparent
+            active:!outline-transparent '
+                onClick={handleDeleteSelected}
+              >
+                <Trash className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            </div>
+          ) : (
+            <div className='flex justify-center items-center gap-2'>
+              <p className="text-lg text-gray-800 dark:text-gray-200">
+                {questions.length}
+              </p>
+              <span className='text-sm text-gray-600 dark:text-gray-300'>Questions</span>
+            </div>
+          )}
+        </div>
+
+
+        <div className={` ${selectedQuestions.length > 0 ? "max-xxs:hidden xxs:flex" : "flex"} items-center gap-4 max-sm:gap-2`}>
+          <div className={`${isSearchExpanded ? 'hidden sm:flex' : 'flex'}  justify-center items-center gap-1`}>
+            <p className='text-gray-600 dark:text-gray-300 text-sm'>
+              Total  Marks :
+            </p>   <span className='text-[16px]'>{totalMarks}
+            </span>
+            <span className='h-5 w-[1px] bg-gray-300 dark:bg-gray-500 ml-2' />
+
+          </div>
+
+
+
+          <div className={`${isSearchExpanded ? 'hidden xxs:flex' : 'flex'}`}>
+            {/* Mobile - Compact Icon Button */}
+            <div className="lg:hidden flex items-center">
+              <button
+                onClick={() => setShowMarkDialog(true)}
+                className="flex items-center gap-1 sm:p-2 text-primary-color1 hover:bg-primary-color1/10 rounded-md"
+                aria-label="Mark all questions"
+              >
+                <Star className="w-4 h-4" />
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Desktop - Original Controls */}
+            <div className="hidden lg:flex items-center gap-2">
+              <label className='text-sm text-gray-600 dark:text-gray-300'>
+                Mark all:
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={markForAll}
+                onChange={(e) => setMarkForAll(Number(e.target.value))}
+                className="w-16 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color1"
+              />
+            <Button
+  appearance="ghost"
+  className="!text-primary-color1 !border-[1px] hover:!border-primary-color1
+            hover:!bg-primary-color1 
+            hover:!text-white
+             !border-primary-color1
+            focus:!shadow-none
+            focus:!outline-none
+            active:!outline-none
+            active:!border-primary-color1"
+  onClick={handleMarkForAllChange}
+>
+  Save
+</Button>
+            </div>
+
+            {/* Mobile Dialog */}
+            {showMarkDialog && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 lg:hidden">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[90%] max-w-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Set Marks for All</h3>
+                    <button
+                      onClick={() => setShowMarkDialog(false)}
+                      className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      <IoClose className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                        Points per question
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={markForAll}
+                        onChange={(e) => setMarkForAll(Number(e.target.value))}
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        appearance="ghost"
+                        className="flex-1 border border-primary-color1 hover:dark:border-gray-600 hover:border-gray-300 hover:bg-primary-color1 hover:text-white text-primary-color1  hover:!border-none !outline-none !ring-transparent"
+                        onClick={() => setShowMarkDialog(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        appearance="primary"
+                        className="flex-1 !bg-primary-color1"
+                        onClick={() => {
+                          handleMarkForAllChange();
+                          setShowMarkDialog(false);
+                        }}
+                      >
+                        Apply to All
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+
+
+          <div className={`${isSearchExpanded ? 'block' : 'hidden'} flex justify-center items-center gap-2  flex-grow`}>
+            <IoSearch className="h-5 w-5 sm:w-6 sm:h-6  text-primary-color1  " />
+            <input
+              type="text"
+              placeholder="Search questions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full border-none bg-transparent outline-none "
+            />
+          </div>
+
+
+
+          {!isSearchExpanded && (
+            <button
+              onClick={() => setIsSearchExpanded(true)}
+              className=" text-gray-600 dark:text-gray-300"
+            >
+              <IoSearch className="h-5 w-5 text-primary-color1 sm:w-6 sm:h-6 " />
+            </button>
+          )}
+
+
+          {isSearchExpanded && (
+            <button
+              onClick={() => setIsSearchExpanded(false)}
+              className=" text-gray-600 dark:text-gray-300"
+            >
+              <IoClose className="h-5 w-5 text-red-500" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className='grid grid-cols-1 xl:grid-cols-2 gap-x-3 py-3 px-1 rounded-sm'>
+        {filteredQuestions.map((q) => (
+          <div key={q.id} className="bg-white dark:bg-gray-800 rounded-sm p-2 px-3 mb-5">
+            <div className="flex justify-between items-center">
+              <div className='flex items-center gap-3'>
+                <label className="relative flex items-center cursor-pointer">
+                  <input
+                    type='checkbox'
+                    checked={selectedQuestions.includes(q.id)}
+                    onChange={() => handleQuestionSelect(q.id)}
+                    className="appearance-none h-5 w-5 max-sm:w-[18px] max-sm:h-[18px] border-2 border-gray-300 rounded-sm checked:bg-primary-color1 checked:border-0 dark:checked:bg-primary-color1 
+                    transition-colors duration-200 peer"
+                  />
+
+                  <div className="absolute left-0 top-0 pointer-events-none flex items-center justify-center text-white h-5 w-5 max-sm:w-[18px] max-sm:h-[18px] opacity-0 peer-checked:opacity-100">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </label>
+
+                <p className='text-lg text-gray-800 dark:text-gray-200'>
+                  Q.{q.id}
+                </p>
+                <span className='text-red-500 mt-1'>{q.required ? "require" : ""}</span>
+              </div>
+              <div className='flex justify-center max-sm:justify-between items-center gap-5'>
+                <div className='max-sm:hidden flex justify-center items-center gap-3 '>
+
+                  <h3 className='text-gray-500 dark:text-gray-300 text-[15px]'>Type</h3>
+                  <p className='text-[15px] text-gray-800 dark:text-white'>
+                    {q.type}
+                  </p>
+                  <span className='h-6 w-[1px] bg-gray-300 dark:bg-gray-500 ml-2' />
+                </div>
+                <div className='flex max-sm:hidden justify-center items-center gap-3'>
+
+
+                  <h3 className='text-gray-500 dark:text-gray-300 text-[15px]'>Marks</h3>
+                  <p className='text-[15px] text-gray-800 dark:text-white'>
+                    {q.points}
+                  </p>
+
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="focus:outline-none">
+                      <TfiMoreAlt className='size-5 text-gray-500 dark:text-gray-300' />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className={cn(`w-40 h-40 py-1 dark:!bg-gray-800 border border-gray-200 dark:!border-gray-700`)} >
+                    {[
+                      { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+                      { icon: <Trash className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+
+
+                    ].map((item, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={item.action}
+                        className='!py-[1px] flex items-center  justify-start gap-3'
+                      >
+                        {item.icon}
+                        <h3 className="max-sm:text-[15px] text-[16px] text-gray-800">{item.text}</h3>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+
+              </div>
+
+            </div>
+            <div className='flex items-center gap-5 sm:hidden py-2'>
+              <div className=' flex justify-center items-center gap-3 '>
+
+                <h3 className='text-gray-500 dark:text-gray-300 text-[15px]'>Type</h3>
+                <p className='text-[15px] text-gray-800 dark:text-white'>
+                  {q.type}
+                </p>
+                <span className='h-6 w-[1px] bg-gray-300 dark:bg-gray-500 ml-2' />
+              </div>
+              <div className='flex  justify-center items-center gap-3'>
+
+
+                <h3 className='text-gray-500 dark:text-gray-300 text-[15px]'>Marks</h3>
+                <p className='text-[15px] text-gray-800 dark:text-white'>
+                  {q.points}
+                </p>
+
+              </div>
+            </div>
+            <div className='pb-3  px-2 sm:pt-3 pr-4 flex flex-col gap-y-3'>
+              <p>
+                {q.questionText}
+              </p>
+              <div className='flex flex-col gap-y-2 items-start justify-start'>
+                {q.options.map((option) => (
+                  <div key={option.id} className={`w-full flex justify-start rounded-[5px] p-2 items-center gap-3 ${option.isCorrect ? "w-full   bg-[#f0fdf8] dark:bg-[#102b27]/70" : ""}`}>
+                    <label className="relative flex items-center cursor-pointer">
+                      <input
+                        type='checkbox'
+                        readOnly
+                        checked={option.isCorrect}
+                        className="appearance-none peer h-4 w-4 border-2 border-gray-300 rounded-sm 
+                                 checked:bg-primary-color1 checked:border-0 dark:checked:bg-primary-color1
+                                 transition-colors duration-200"
+
+                      />
+                      <div className="absolute pointer-events-none flex items-center justify-center 
+                                     text-white h-4 w-4 left-0 top-0 opacity-0 peer-checked:opacity-100">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    </label>
+                    <p className='text-gray-700 dark:text-gray-300'>{option.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+
+          </div>
+        ))}
+      </div>
     </div>
-  );
+  )
 }
+
+export default QuestitonManager
+
