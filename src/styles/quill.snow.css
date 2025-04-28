@@ -1,0 +1,76 @@
+:root {
+    --ql-toolbar-color: #444;
+    --ql-toolbar-bg: #f3f3f3;
+    --ql-editor-color: #000;
+    --ql-editor-bg: #fff;
+    --ql-border-color: #ccc;
+  }
+  
+  .dark {
+    --ql-toolbar-color: #e5e7eb;
+    --ql-toolbar-bg: #1f2937;
+    --ql-editor-color: #e5e7eb;
+    --ql-editor-bg: #111827;
+    --ql-border-color: #374151;
+  }
+  
+  .ql-snow .ql-picker {
+    color: var(--ql-toolbar-color);
+  }
+  
+  .ql-snow .ql-stroke {
+    stroke: var(--ql-toolbar-color);
+  }
+  
+  .ql-snow .ql-fill {
+    fill: var(--ql-toolbar-color);
+  }
+  
+  .ql-toolbar.ql-snow {
+    border: 1px solid var(--ql-border-color);
+    background-color: var(--ql-toolbar-bg);
+  }
+  
+  .ql-container.ql-snow {
+    border: 1px solid var(--ql-border-color);
+    background-color: var(--ql-editor-bg);
+  }
+  
+  .ql-editor {
+    color: var(--ql-editor-color);
+  }
+
+.ql-snow .ql-picker {
+    color: #fff;
+  }
+  
+  .ql-snow .ql-stroke {
+    stroke: #fff;
+  }
+  
+  .ql-snow .ql-fill {
+    fill: #fff;
+  }
+  
+  .ql-toolbar.ql-snow {
+    border: 1px solid #374151;
+    background-color: #1f2937;
+  }
+  
+  .ql-container.ql-snow {
+    border: 1px solid #374151;
+    background-color: #1f2937;
+  }
+  
+  .ql-editor {
+    color: #fff;
+  }
+  
+  .ql-snow .ql-picker-options {
+    background-color: #1f2937;
+    border: 1px solid #374151;
+  }
+  
+  .ql-snow .ql-picker-label {
+    color: #fff;
+  }

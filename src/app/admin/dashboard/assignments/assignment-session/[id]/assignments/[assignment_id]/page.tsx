@@ -3,7 +3,7 @@
 
 "use client";
 import { useParams } from "next/navigation";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import "@/components/assignments/assignmentSessionA/assignmentSessionAdd/style.css";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ import { More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { BiSelectMultiple } from "react-icons/bi";
+
 
 
 import { MdTitle, MdSubtitles, MdCategory, MdVisibility, MdVisibilityOff, MdOutlineAppSettingsAlt } from "react-icons/md";
@@ -53,6 +53,12 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
+import { fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
+import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+import Loading from "@/components/Pars/Loading";
+import { toast } from "sonner";
+
+
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   return (
@@ -88,24 +94,38 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
 
 const Page = () => {
   const { id, assignment_id } = useParams();
+  const [assignmentData, setAssignmentData] = useState<Assignment | null>(null);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
 
-  const fakeExamData =
-  {
-    id: 1,
-    examTime: "2 Hours",
-    resultsDisplay: "Manual",
-    examDate: "2023-06-15",
-    examType: "Multiple Choice",
-    questionsPerPage: "5 Questions",
-    timePerPage: "10 Minutes",
-    requireAnswerBeforeNext: true,
-    examRepeatCount: "3 Attempts",
-    examLanguage: "English",
-    displayCorrectionLadder: "Manual"
-  };
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        if (!id) {
+          throw new Error("Missing session ID in URL");
+        }
+        console.log("try to fetch data");
+        const data = await fetchAssignmentById(Number(assignment_id));
+        if (!data) {
+          throw new Error("no data")
+        }
+        setAssignmentData(data?.data);
+        console.log(assignmentData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch session");
+      }
+      finally {
+        setLoading(false);
+      }
+    }
+    fetch();
+
+  }, []);
+
+
 
 
   const [isSubmittingExamConditions, setIsSubmittingExamConditions] = useState(false);
@@ -117,21 +137,62 @@ const Page = () => {
   const [isThereAddFieldForExamRequirments, setIsThereAddFieldForExamRequirments] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    examTime: z.string().min(1, "Exam time is required"),
-    examType: z.string(),
-    startDate: z.date(),
-    endDate: z.date(),
-    examLanguage: z.string(),
-    resultsDisplay: z.string().min(1, "Results display status is required"),
-    examDate: z.string().optional(),
-    questionsPerPage: z.string().min(1, "Questions per page is required"),
-    timePerPage: z.string().optional(),
-    requireAnswerBeforeNext: z.boolean().default(true),
-    examRepeatCount: z.string().optional(),
-    displayCorrectionLadder: z
-      .string()
-      .min(1, "Correction ladder status is required"),
+    time_exam: z.string()
+      .refine(v => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
+        message: "Invalid time format (HH:MM or HH:MM:SS required)"
+      }),
+    language: z.enum(["en", "ar", "fn"]),
+    date_view: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+      message: "Date must be in YYYY-MM-DD format",
+    }),
+    count_questions_page: z.number().min(1),
+    time_questions_page: z.string()
+      .refine(v => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
+        message: "Invalid time format (HH:MM or HH:MM:SS required)"
+      }),
+    view_results: z.enum(["after_completion", "manually", "per_answer"]),
+    count_return_exam: z.number().min(0),
+    view_answer: z.enum(["after_completion", "manually", "per_answer"]),
   });
+
+  type FormValues = z.infer<typeof editExamSettingsSchema>;
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(editExamSettingsSchema),
+    defaultValues: {
+      time_exam: "00:00:00",
+      language: "en",
+      date_view: "",
+      count_questions_page: 1,
+      time_questions_page: "00:00:00",
+      view_results: "manually",
+      count_return_exam: 0,
+      view_answer: "manually",
+    }
+  });
+
+
+  useEffect(() => {
+    if (assignmentData) {
+      const { exam_config } = assignmentData;
+      form.reset({
+        time_exam: exam_config.time_exam,
+        language: exam_config.language as "en" | "ar" | "fn",
+        date_view: exam_config.date_view,
+        count_questions_page: exam_config.count_questions_page,
+        time_questions_page: exam_config.time_questions_page,
+        view_results: exam_config.view_results as "after_completion" | "manually" | "per_answer",
+        count_return_exam: exam_config.count_return_exam,
+        view_answer: exam_config.view_answer as "after_completion" | "manually" | "per_answer",
+      });
+    }
+  }, [assignmentData, form]);
+
+
+  const formatDateForInput = (date: Date) => {
+    return date.toISOString().split('T')[0];
+  };
+
 
   const editExamRequirmentsSchema = z.object({
     label: z.string().min(1, 'Label is required'),
@@ -146,25 +207,6 @@ const Page = () => {
       type: ""
     }
   });
-
-  type FormValues = z.infer<typeof editExamSettingsSchema>;
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(editExamSettingsSchema),
-    defaultValues: {
-      examTime: "2 Hours",
-      resultsDisplay: "Manual",
-      examDate: "",
-      examType: "",
-      questionsPerPage: "5 Questions",
-      timePerPage: "",
-      requireAnswerBeforeNext: true,
-      examRepeatCount: "",
-      examLanguage: "",
-      displayCorrectionLadder: "Manual",
-    },
-  });
-
 
 
   const editExamConditionsSchema = z.object({
@@ -227,39 +269,30 @@ const Page = () => {
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
     try {
-      const submissionData = {
-        ...values,
-      };
 
-      console.log("Form submitted:", submissionData);
+      const response = await updateExamSettings(values, Number(assignment_id));
+      console.log("API Response:", response);
 
-    } catch (error) {
-      console.error("Failed to create assignment:", error);
+      toast.success("Exam section added successfully", {
+        description: "The exam section has been created successfully.",
+        duration: 4000,
+
+      });
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+      });
     } finally {
+
       setIsSubmittingExamSettings(false);
     }
 
   };
 
 
-  // Exam Data
-  const exam = {
-    image: "/register.png",
-    subtitle: "Mid-term Examination",
-    title: "Advanced Mathematics",
-    language: "English",
-    percentage: 40,
-    numberOfQuestions: 50,
-    numberOfStudents: 120,
-    durationMinutes: 90,
-    type: "Multiple Choice",
-    code: "MATH202",
-    status: "Active",
-    startDate: "2024-03-15",
-    endDate: "2024-03-17",
-    showAnswers: true,
-  };
-  const [previewOpen, setPreviewOpen] = useState(false);
   return (
     <div className={`relative px-1 sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
       <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark " />
@@ -273,983 +306,967 @@ const Page = () => {
           <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Exam Details</h3>
         </Header>
       </div>
-      <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
+
+      {
+        loading ? (
+          <Loading />
+        ) :
+          (<>
+            <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
 
 
-        <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
-          <div className="flex justify-between items-start">
-            <div className="flex flex-col items-start justify-start  pb-3 sm:py-2 px-5 max-sm:px-2">
-              <div className="flex items-center gap-3">
 
-                <div className="flex items-center justify-start gap-2">
-                  <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                  <h1 className="text-[15px] sm:text-[22px] font-bold">
-                    {exam.title}
-                  </h1>
+              <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col items-start justify-start  pb-3 sm:py-2 px-5 max-sm:px-2">
+                    <div className="flex items-center gap-3">
+
+                      <div className="flex items-center justify-start gap-2">
+                        <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
+                        <h1 className="text-[17px] sm:text-[22px] font-bold">
+                          {assignmentData?.title}
+                        </h1>
+                      </div>
+
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentData?.status === "Active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {assignmentData?.status}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-5 sm:-mt-3 sm:gap-1">
+
+
+                      <div className="flex items-center justify-center gap-2">
+                        <MdSubtitles className="w-5 h-5 text-primary-color1 max-sm:w-4 max-sm:h-4" />
+                        <h4 className="text-[15px] sm:text-[17px] font-medium text-gray-700 dark:text-gray-300 ">
+                          {assignmentData?.sub_title}
+                        </h4>
+                      </div>
+                      {assignmentData?.code && <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
+                        <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
+                        <p className="text-[12px] sm:text-sm text-gray-500">{assignmentData?.code}</p>
+                      </div>}
+                    </div>
+
+                  </div>
+                  <Dropdown
+                    renderToggle={RenderIconButton}
+                    placement="bottomEnd"
+                    className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                  >
+                    {[
+                      { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+                      { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
+                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.exam_config.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
+                      { icon: <CiExport className=" size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
+                      { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { } },
+                      { icon: <MdVisibility className=" size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
+                    ].map((item, index) => (
+                      <Dropdown.Item
+                        key={index}
+                        className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                        onClick={item.action}
+                      >
+                        {item.icon}
+                        <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown>
                 </div>
 
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${exam.status === "Active"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                    }`}
-                >
-                  {exam.status}
-                </span>
-              </div>
-              <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-6 sm:-mt-3 sm:gap-1">
+                <div className=" px-6 grid grid-cols-1 sm:grid-cols-7 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
 
-
-                <div className="flex items-center justify-center gap-2">
-                  <MdSubtitles className="w-5 h-5 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                  <h1 className="text-[15px] sm:text-xl font-medium text-gray-700 dark:text-gray-300 ">
-                    {exam.subtitle}
-                  </h1>
-                </div>
-                <div className="flex items-center justify-center gap-2 -mt-3 sm:-mt-1">
-                  <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                  <p className="text-sm text-gray-500">{exam.code}</p>
-                </div>
-              </div>
-
-            </div>
-            <Dropdown
-              renderToggle={RenderIconButton}
-              placement="bottomEnd"
-              className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-            >
-              {[
-                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
-                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
-                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
-                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate", action: () => { } },
-                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
-              ].map((item, index) => (
-                <Dropdown.Item
-                  key={index}
-                  className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                  onClick={item.action}
-                >
-                  {item.icon}
-                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                </Dropdown.Item>
-              ))}
-            </Dropdown>
-          </div>
-
-          <div className=" px-6 grid grid-cols-1 sm:grid-cols-7 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
-
-            <div className="sm:col-span-3 ">
-              <Image
-                src={exam.image}
-                alt="Exam Image"
-                width={600}
-                height={600}
-                className="object-cover rounded-lg"
-                priority
-              />
-            </div>
-
-
-            <div className=" sm:col-span-4   space-y-6  max-sm:space-y-4 ">
-
-
-              <div className="flex items-center gap-3 md:gap-5">
-                <InfoItem
-                  icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                  label="Language"
-                  value={exam.language}
-                />
-                <InfoItem
-                  icon={<Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                  label="Passing %"
-                  value={`${exam.percentage}%`}
-                />
-              </div>
-              <InfoItem
-                icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                label="Exam Period"
-                value={`${exam.startDate} - ${exam.endDate}`}
-              />
-              <div className="flex items-center gap-3 md:gap-5">
-                <InfoItem
-                  icon={<Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                  label="Duration"
-                  value={`${exam.durationMinutes} mins`}
-                />
-                <InfoItem
-                  icon={<ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                  label="Questions"
-                  value={exam.numberOfQuestions}
-                />
-              </div>
-              <InfoItem
-                icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                label="Exam Type"
-                value={exam.type}
-              />
-              <div className="flex items-center gap-3 md:gap-5">
-                <InfoItem
-                  icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                  label="Registered Students"
-                  value={exam.numberOfStudents}
-                />
-                {exam.showAnswers ? (
-                  <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
-                    <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
-                    <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
+                  <div className="sm:col-span-3 ">
+                    <Image
+                      src={assignmentData?.image ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.image}` : "/register.png"}
+                      alt="Exam Image"
+                      width={600}
+                      height={600}
+                      className="object-cover rounded-lg"
+                      priority
+                    />
                   </div>
-                ) : (
-                  <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
 
-                    <MdVisibilityOff className="w-5 h-5 text-red-500 max-sm:w-4 max-sm:h-4" />
-                    <span className="text-lg max-sm:text-sm">Answers Hidden</span>
-                  </div>
-                )}
 
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 p-1.5 mt-8 sm:mt-16">
-            {/* Starting Interface Card */}
-            <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center mb-4 sm:mb-6">
-                  <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
-                    <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                      Starting Interface
-                    </h3>
-                    <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
-                      Sub title
-                    </p>
+                  <div className=" sm:col-span-4   space-y-1 sm:space-y-4  ">
+
+
+                    <div className="flex items-center gap-3 md:gap-5">
+                      {assignmentData?.exam_config.language && <InfoItem
+                        icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Language"
+                        value={assignmentData?.exam_config.language}
+                      />}
+                      {assignmentData?.exam_type.type && <InfoItem
+                        icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Exam Type"
+                        value={assignmentData?.exam_type.type}
+                      />}
+
+
+                    </div>
+                    <InfoItem
+                      icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Start Date"
+                      value={`${assignmentData?.exam_config.start_date}`}
+                    />
+                    <InfoItem
+                      icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="End Date"
+                      value={`${assignmentData?.exam_config.end_date}`}
+                    />
+                    <div className="flex items-center gap-3 md:gap-5">
+                      {assignmentData?.duration_in_minutes !== null && <InfoItem
+                        icon={<Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Duration"
+                        value={`${assignmentData?.duration_in_minutes} mins`}
+                      />}
+
+
+                      {assignmentData?.number_of_questions !== null && <InfoItem
+                        icon={<ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Questions"
+                        value={`${assignmentData?.number_of_questions}.`}
+                      />}
+                    </div>
+
+
+                    <div className="flex items-center gap-3 md:gap-4">
+                      {assignmentData?.number_of_students !== null && <InfoItem
+                        icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Students"
+                        value={`${assignmentData?.number_of_students}.`}
+                      />}
+                      {assignmentData?.percentage !== null && <InfoItem
+                        icon={<Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Passing "
+                        value={`${assignmentData?.percentage}%`}
+                      />}
+
+                    </div>
+                    {assignmentData?.exam_config.view_answer === "manually" ? (
+                      <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
+                        <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
+                        <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
+
+                        <MdVisibilityOff className="w-5 h-5 text-red-500 max-sm:w-4 max-sm:h-4" />
+                        <span className="text-lg max-sm:text-sm">Answers Hidden</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <Dropdown
-                  renderToggle={VerticalRenderIconButton}
-                  placement="bottomEnd"
-                  className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                >
-                  {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {/* Edit logic */ } },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
+                <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 p-1.5 mt-8 sm:mt-16">
 
-                  ].map((item, index) => (
-                    <Dropdown.Item
-                      key={index}
-                      className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                      onClick={item.action}
-                    >
-                      {item.icon}
-                      <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
-              </div>
+                  <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center mb-4 sm:mb-6">
+                        <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
+                          <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                            Starting Interface
+                          </h3>
+                          <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
+                            Sub title
+                          </p>
+                        </div>
+                      </div>
+                      <Dropdown
+                        renderToggle={VerticalRenderIconButton}
+                        placement="bottomEnd"
+                        className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                      >
+                        {[
+                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
+                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {/* Edit logic */ } },
+                          { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
 
-
-              <div className="w-full ">
-                <Image
-                  src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
-                  alt={'START INTERFACE'}
-                  className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
-                  width={500}
-                  height={500}
-                />
-              </div>
-
-            </div>
-
-            {/* Ending Interface Card */}
-            <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-              <div className="flex justify-between items-start">
-
-                <div className="flex items-center mb-4 sm:mb-6">
-                  <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
-                    <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                      Ending Interface
-                    </h3>
-                    <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
-                      Sub title
-                    </p>
-                  </div>
-                </div>
-                <Dropdown
-                  renderToggle={VerticalRenderIconButton}
-                  placement="bottomEnd"
-                  className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                >
-                  {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => { } },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
-
-                  ].map((item, index) => (
-                    <Dropdown.Item
-                      key={index}
-                      className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                      onClick={item.action}
-                    >
-                      {item.icon}
-                      <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
-              </div>
-
-              <div className="w-full ">
-                <Image
-                  src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
-                  alt={'START INTERFACE'}
-                  className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
-                  width={500}
-                  height={500}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="xl:col-span-1 ">
-          <Accordion
-            type="single"
-            collapsible
-            className="w-full  space-x-2 max-xl:grid max-xl:grid-cols-2 max-lg:grid-cols-1"
-          >
-
-            <AccordionItem
-              value="item-1"
-              className="bg-white mt-4 xl:mt-0 sm:mx-1  dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-            >
-              <AccordionTrigger className="h-14 p-1">
-                <div className="flex items-center h-14 gap-2 sm:gap-4">
-                  <Settings className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Settings
-                  </p>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {isEdittingExamSettings ? (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
-                      <div className="space-y-4 sm:space-y-6 dark:text-white">
-                        {/* Exam Time */}
-                        <FormField
-                          control={form.control}
-                          name="examTime"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Exam Time : </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="dark:bg-gray-800">
-                                    <SelectValue placeholder="Select time" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="dark:bg-gray-800">
-                                  <SelectItem value="30 Minutes">
-                                    30 Minutes
-                                  </SelectItem>
-                                  <SelectItem value="1 Hour">1 Hour</SelectItem>
-                                  <SelectItem value="2 Hours">2 Hours</SelectItem>
-                                  <SelectItem value="3 Hours">3 Hours</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Exam Language */}
-                        <FormField
-                          control={form.control}
-                          name="examLanguage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Exam Language : </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="dark:bg-gray-800">
-                                    <SelectValue placeholder="Select language" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="dark:bg-gray-800">
-                                  <SelectItem value="english">English</SelectItem>
-                                  <SelectItem value="arabic">العربية</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Exam Date */}
-                        <FormField
-                          control={form.control}
-                          name="examDate"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Exam Date :</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="date"
-                                  {...field}
-                                  className="dark:bg-gray-800"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Questions Per Page */}
-                        <FormField
-                          control={form.control}
-                          name="questionsPerPage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Questions Per Page : </FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                defaultValue="5 Questions"
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="dark:bg-gray-800">
-                                    <SelectValue placeholder="Select number" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="dark:bg-gray-800">
-                                  {[1, 2, 3, 5, 10].map((num) => (
-                                    <SelectItem
-                                      key={num}
-                                      value={`${num} Questions`}
-                                    >
-                                      {num} {num === 1 ? "Question" : "Questions"}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Results Display */}
-                        <FormField
-                          control={form.control}
-                          name="resultsDisplay"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Results Display :</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                defaultValue="Manual"
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="dark:bg-gray-800">
-                                    <SelectValue placeholder="Select option" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="dark:bg-gray-800">
-                                  <SelectItem value="AfterFinish">
-                                    After Finish
-                                  </SelectItem>
-                                  <SelectItem value="Manual">Manual</SelectItem>
-                                  <SelectItem value="PerAnswer">
-                                    Per Answer
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Time Per Page */}
-                        <FormField
-                          control={form.control}
-                          name="timePerPage"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Time Per Page :</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. 15 minutes"
-                                  {...field}
-                                  className="dark:bg-gray-800"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* Exam Repeat Count */}
-                        <FormField
-                          control={form.control}
-                          name="examRepeatCount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Exam Repeat Count :</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g. 3"
-                                  {...field}
-                                  className="dark:bg-gray-800"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-
-                        <FormField
-                          control={form.control}
-                          name="displayCorrectionLadder"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Display Correction Ladder :</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                defaultValue="Manual"
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="dark:bg-gray-800">
-                                    <SelectValue placeholder="Select option" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="dark:bg-gray-800">
-                                  <SelectItem value="AfterFinish">
-                                    After Finish
-                                  </SelectItem>
-                                  <SelectItem value="Manual">Manual</SelectItem>
-                                  <SelectItem value="PerAnswer">
-                                    Per Answer
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="flex items-center justify-end mt-3">
-
-
-
-                          <Button
-                            type="submit"
-                            appearance="primary"
-                            className="py-0 !bg-primary-color1 !px-4"
+                        ].map((item, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                            onClick={item.action}
                           >
-                            {isSubmittingExamSettings ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                <h4 className="tracking-wide py-0 my-0">Saving...</h4>
-                              </>
-                            ) : (
-                              <h4 className="tracking-wide py-0 my-0">Save</h4>
-                            )}
-                          </Button></div>
-                      </div>
-                    </form>
-                  </Form>
-                ) : (
-
-                  <div className="grid grid-cols-1 gap-6 pt-4">
-
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <CiTimer className="text-lg " />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Time</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examTime}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <RiSlideshowLine className="text-lg " />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.resultsDisplay}</p>
-                      </div>
+                            {item.icon}
+                            <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
                     </div>
 
 
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <CiCalendarDate className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examDate}</p>
-                      </div>
+                    <div className="w-full ">
+                      <Image
+                        src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
+                        alt={'START INTERFACE'}
+                        className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
+                        width={500}
+                        height={500}
+                      />
                     </div>
 
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <BiSelectMultiple className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Type</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examType}</p>
-                      </div>
-                    </div>
-
-
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <FaRegNewspaper className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.questionsPerPage}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <AiOutlineFieldTime className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.timePerPage}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <FaRedo className="text-lg " />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Repeat Count</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examRepeatCount}</p>
-                      </div>
-                    </div>
-
-                    {/* Exam Language */}
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <FaLanguage className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Language</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.examLanguage}</p>
-                      </div>
-                    </div>
-
-                    {/* Display Correction Ladder */}
-                    <div className="flex items-center space-x-4">
-                      <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                        <FaCheckCircle className="text-lg" />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
-                        <p className="text-gray-900 font-medium dark:text-gray-100">{fakeExamData.displayCorrectionLadder}</p>
-                      </div>
-                    </div>
-
-
-                    <div className="flex justify-end mt-3">
-                      <Button
-                        appearance="primary"
-                        className="py-0 !bg-primary-color1 !px-4"
-                        onClick={() => setIsEdittingExamSettings(true)}
-                      >
-                        <h4 className="tracking-wide py-0 my-0">Edit</h4>
-
-                      </Button>
-                    </div>
                   </div>
 
+                  {/* Ending Interface Card */}
+                  <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div className="flex justify-between items-start">
 
-                )}
-
-
-
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem
-              value="item-2"
-              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-            >
-              <AccordionTrigger className="h-14 p-1">
-                <div className="flex items-center h-14 gap-2 sm:gap-4">
-                  <MdOutlineAppSettingsAlt className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Conditions
-                  </p>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {isEdittingExamConditions ? (
-                  <Form {...formForConditions}>
-                    <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6 mt-2">
-                      <FormField
-                        control={formForConditions.control}
-                        name="conditions.condition1"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                color="primary"
-                              />
-                            </FormControl>
-                            <FormLabel className="space-y-1 leading-none">
-                              Item Name 1
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={formForConditions.control}
-                        name="conditions.condition2"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                color="primary"
-                              />
-                            </FormControl>
-                            <FormLabel className="space-y-1 leading-none">
-                              Item Name 1
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={formForConditions.control}
-                        name="conditions.condition3"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                color="primary"
-                              />
-                            </FormControl>
-                            <FormLabel className="space-y-1 leading-none">
-                              Item Name 1
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={formForConditions.control}
-                        name="conditions.condition4"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                color="primary"
-                              />
-                            </FormControl>
-                            <FormLabel className="space-y-1 leading-none">
-                              Item Name 1
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex items-center justify-end mt-3">
-
-                        <Button
-                          type="submit"
-                          appearance="primary"
-                          className="py-0 !bg-primary-color1 !px-4"
-                        >
-                          {isSubmittingExamConditions ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              <h4 className="">Saving...</h4>
-                            </>
-                          ) : (
-                            <h4 className="">Save</h4>
-                          )}
-                        </Button>
+                      <div className="flex items-center mb-4 sm:mb-6">
+                        <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
+                          <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                            Ending Interface
+                          </h3>
+                          <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
+                            Sub title
+                          </p>
+                        </div>
                       </div>
-                    </form>
-                  </Form>
-                ) : (
-                  <div className="mt-2 flex flex-col gap-y-1">
-                    <p>exam condition 1</p>
-                    <p>exam condition 1</p>
-                    <p>exam condition 1</p>
-                    <div className="flex items-center justify-end mt-3">
-
-                      <Button
-                        appearance="primary"
-                        className="py-0 !bg-primary-color1 !px-4"
-                        onClick={() => setIsEdittingExamConditions(true)}
+                      <Dropdown
+                        renderToggle={VerticalRenderIconButton}
+                        placement="bottomEnd"
+                        className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                       >
-                        <h4 className="tracking-wide py-0 my-0">Edit</h4>
+                        {[
+                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
+                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => { } },
+                          { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
 
-                      </Button>
+                        ].map((item, index) => (
+                          <Dropdown.Item
+                            key={index}
+                            className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                            onClick={item.action}
+                          >
+                            {item.icon}
+                            <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                          </Dropdown.Item>
+                        ))}
+                      </Dropdown>
+                    </div>
+
+                    <div className="w-full ">
+                      <Image
+                        src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
+                        alt={'START INTERFACE'}
+                        className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
+                        width={500}
+                        height={500}
+                      />
                     </div>
                   </div>
-                )}
-
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem
-              value="item-3"
-              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-            >
-              <AccordionTrigger className="h-14 p-1">
-                <div className="flex items-center  gap-2 sm:gap-4">
-                  <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Requirments
-                  </p>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {
-                  isEdittingExamRequirments ? (<div>
+              </div>
 
-                    <div className="">
 
-                      <table className="w-[400px] xl:w-full border-none">
-                        <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
+              <div className="xl:col-span-1 ">
+                <Accordion
+                  type="single"
+                  collapsible
+                  className="w-full  space-x-2 max-xl:grid max-xl:grid-cols-2 max-lg:grid-cols-1"
+                >
 
-                          <tr className="">
-                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Id</th>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">number</td>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
-                          </tr>
+                  <AccordionItem
+                    value="item-1"
+                    className="bg-white mt-4 xl:mt-0 sm:mx-1  dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <AccordionTrigger className="h-14 p-1">
+                      <div className="flex items-center h-14 gap-2 sm:gap-4">
+                        <Settings className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Exam Settings
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {isEdittingExamSettings ? (
+                        <Form {...form}>
+                          <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
+                            <div className="space-y-4 sm:space-y-6 dark:text-white">
 
-                          <tr className="">
-                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">First Name</th>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+                              <FormField
+                                control={form.control}
+                                name="time_exam"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Exam Time :</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        placeholder="HH:MM"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
 
-                          </tr>
 
-                          <tr className="">
-                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Last Name</th>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+                              <FormField
+                                control={form.control}
+                                name="language"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Exam Language : </FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="dark:bg-gray-800">
+                                          <SelectValue placeholder="Select language" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="dark:bg-gray-800">
+                                        <SelectItem value="en">English</SelectItem>
+                                        <SelectItem value="ar">العربية</SelectItem>
+                                        <SelectItem value="fn">Fransh</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="date_view"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Exam Date :</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="date"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
 
-                          </tr>
+                              <FormField
+                                control={form.control}
+                                name="count_questions_page"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Questions Per Page : </FormLabel>
 
-                          <tr className="">
-                            <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Email</th>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
-                            <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
 
-                          </tr>
-                        </tbody>
-                      </table>
 
-                      {isThereAddFieldForExamRequirments &&
-                        <Form {...formForRequirments}>
-                          <form onSubmit={formForRequirments.handleSubmit(onSubmitExamRequirments)} className="space-y-4 mt-3">
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              {/* Results Display */}
+                              <FormField
+                                control={form.control}
+                                name="view_results"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Results Display :</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                      defaultValue="Manual"
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="dark:bg-gray-800">
+                                          <SelectValue placeholder="Select option" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="dark:bg-gray-800">
+                                        <SelectItem value="after_completion">
+                                          After Finish
+                                        </SelectItem>
+                                        <SelectItem value="manually">Manually</SelectItem>
+                                        <SelectItem value="per_answer">
+                                          Per Answer
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+
+                              <FormField
+                                control={form.control}
+                                name="time_questions_page"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Exam Time :</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        placeholder="HH:MM"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+
+                              <FormField
+                                control={form.control}
+                                name="count_return_exam"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Exam Repeat Count :</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        placeholder="e.g. 3"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+
+                              <FormField
+                                control={form.control}
+                                name="view_answer"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Display Correction Ladder :</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                      defaultValue="Manual"
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="dark:bg-gray-800">
+                                          <SelectValue placeholder="Select option" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="dark:bg-gray-800">
+                                        <SelectItem value="after_completion">
+                                          After Finish
+                                        </SelectItem>
+                                        <SelectItem value="manually">Manually</SelectItem>
+                                        <SelectItem value="per_answer">
+                                          Per Answer
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <div className="flex items-center justify-end mt-3">
+
+
+
+                                <Button
+                                  type="submit"
+                                  appearance="primary"
+                                  className="py-0 !bg-primary-color1 !px-4"
+                                >
+                                  {isSubmittingExamSettings ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      <h4 className="tracking-wide py-0 my-0">Saving...</h4>
+                                    </>
+                                  ) : (
+                                    <h4 className="tracking-wide py-0 my-0">Save</h4>
+                                  )}
+                                </Button></div>
+                            </div>
+                          </form>
+                        </Form>
+                      ) : (
+
+                        <div className="grid grid-cols-1 gap-6 pt-4">
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <CiTimer className="text-lg " />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Time</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.time_exam}</p>
+                            </div>
+                          </div>
+                          {/* Exam Language */}
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <FaLanguage className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Language</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.language}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <CiCalendarDate className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.date_view}</p>
+                            </div>
+                          </div>
+
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <FaRegNewspaper className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.count_questions_page}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <RiSlideshowLine className="text-lg " />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.view_results}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <AiOutlineFieldTime className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.time_questions_page}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <FaRedo className="text-lg " />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Repeat Count</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.count_return_exam}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <FaCheckCircle className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.view_answer}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end mt-3">
+                            <Button
+                              appearance="primary"
+                              className="py-0 !bg-primary-color1 !px-4"
+                              onClick={() => setIsEdittingExamSettings(true)}
+                            >
+                              <h4 className="tracking-wide py-0 my-0">Edit</h4>
+
+                            </Button>
+                          </div>
+                        </div>
+
+
+                      )}
+
+
+
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem
+                    value="item-2"
+                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <AccordionTrigger className="h-14 p-1">
+                      <div className="flex items-center h-14 gap-2 sm:gap-4">
+                        <MdOutlineAppSettingsAlt className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Exam Conditions
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {isEdittingExamConditions ? (
+                        <Form {...formForConditions}>
+                          <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6 mt-2">
                             <FormField
-                              control={formForRequirments.control}
-                              name="label"
+                              control={formForConditions.control}
+                              name="conditions.condition1"
                               render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                   <FormControl>
-                                    <Input
-                                      type="text"
-                                      placeholder="Label"
-                                      {...field}
-                                      className="dark:bg-gray-800"
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      color="primary"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormLabel className="space-y-1 leading-none">
+                                    Item Name 1
+                                  </FormLabel>
                                 </FormItem>
                               )}
                             />
                             <FormField
-                              control={formForRequirments.control}
-                              name="type"
+                              control={formForConditions.control}
+                              name="conditions.condition2"
                               render={({ field }) => (
-                                <FormItem>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    defaultValue="text field"
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
-                                        <SelectValue placeholder="Select option" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="dark:!bg-gray-800">
-                                      <SelectItem value="text field" className="dark:!bg-gray-800">
-                                        text field
-                                      </SelectItem>
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      color="primary"
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="space-y-1 leading-none">
+                                    Item Name 1
+                                  </FormLabel>
+                                </FormItem>
+                              )}
+                            />
 
-                                      <SelectItem value="text area">
-                                        text area
-                                      </SelectItem>
-                                      <SelectItem value="drop-down list">
-                                        drop-down list
-                                      </SelectItem>
-                                      <SelectItem value="number">number</SelectItem>
-                                      <SelectItem value="email address">email address</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
+                            <FormField
+                              control={formForConditions.control}
+                              name="conditions.condition3"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      color="primary"
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="space-y-1 leading-none">
+                                    Item Name 1
+                                  </FormLabel>
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={formForConditions.control}
+                              name="conditions.condition4"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                      color="primary"
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="space-y-1 leading-none">
+                                    Item Name 1
+                                  </FormLabel>
                                 </FormItem>
                               )}
                             />
                             <div className="flex items-center justify-end mt-3">
+
                               <Button
                                 type="submit"
                                 appearance="primary"
                                 className="py-0 !bg-primary-color1 !px-4"
                               >
-                                <h4 className="tracking-wide py-0 my-0">Add</h4>
-
+                                {isSubmittingExamConditions ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <h4 className="">Saving...</h4>
+                                  </>
+                                ) : (
+                                  <h4 className="">Save</h4>
+                                )}
                               </Button>
                             </div>
                           </form>
-                        </Form>} {!isThereAddFieldForExamRequirments &&
-                      <div className="w-full flex items-center justify-end mt-4 gap-3">
-                       
-                          <Button
+                        </Form>
+                      ) : (
+                        <div className="mt-2 flex flex-col gap-y-1">
+                          <p>exam condition 1</p>
+                          <p>exam condition 1</p>
+                          <p>exam condition 1</p>
+                          <div className="flex items-center justify-end mt-3">
 
-                            onClick={() => { isThereAddFieldForExamRequirments ? setIsThereAddFieldForExamRequirments(false) : setIsThereAddFieldForExamRequirments(true) }}
-                            appearance="primary"
-                            className="py-0 !bg-primary-color1 !px-4"
-                          >
-                            <h4 className="tracking-wide py-0 my-0">Add Field</h4>
+                            <Button
+                              appearance="primary"
+                              className="py-0 !bg-primary-color1 !px-4"
+                              onClick={() => setIsEdittingExamConditions(true)}
+                            >
+                              <h4 className="tracking-wide py-0 my-0">Edit</h4>
 
-                          </Button>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
 
+                    </AccordionContent>
+                  </AccordionItem>
 
-                        <Button
-                          appearance="primary"
-                          className="py-0 !bg-primary-color1 !px-4"
-                          onClick={() => { setIsEdittingExamRequirments(false); setIsThereAddFieldForExamRequirments(false) }}
-
-                        >
-                          <h4 className="tracking-wide py-0 my-0">Done</h4>
-
-                        </Button>
-
+                  <AccordionItem
+                    value="item-3"
+                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <AccordionTrigger className="h-14 p-1">
+                      <div className="flex items-center  gap-2 sm:gap-4">
+                        <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Exam Requirments
+                        </p>
                       </div>
-                        }
-                    </div>
-                  </div>) : (
-                    <div>
-                      <div className="pr-5">
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      {
+                        isEdittingExamRequirments ? (<div>
 
-                        <table className="w-[300px] xl:w-full border-none">
-                          <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
+                          <div className="">
 
-                            <tr className="">
-                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Id</th>
-                              <td className="px-3 py-3 xl:px-2 text-right  border-none">number</td>
-                            </tr>
+                            <table className="w-[400px] xl:w-full border-none">
+                              <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
 
-                            <tr className="">
-                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">First Name</th>
-                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
-                            </tr>
+                                <tr className="">
+                                  <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Id</th>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">number</td>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+                                </tr>
 
-                            <tr className="">
-                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Last Name</th>
-                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
-                            </tr>
+                                <tr className="">
+                                  <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">First Name</th>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
 
-                            <tr className="">
-                              <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Email</th>
-                              <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
-                            </tr>
-                          </tbody>
-                        </table>
+                                </tr>
 
+                                <tr className="">
+                                  <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Last Name</th>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+
+                                </tr>
+
+                                <tr className="">
+                                  <th className="px-3 py-3 xl:px-2  text-left font-medium  border-none">Email</th>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">text field</td>
+                                  <td className="px-3 py-3 xl:px-2  text-left  border-none">    <TrashIcon className="size-4 text-red-500" /></td>
+
+                                </tr>
+                              </tbody>
+                            </table>
+
+                            {isThereAddFieldForExamRequirments &&
+                              <Form {...formForRequirments}>
+                                <form onSubmit={formForRequirments.handleSubmit(onSubmitExamRequirments)} className="space-y-4 mt-3">
+                                  <FormField
+                                    control={formForRequirments.control}
+                                    name="label"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormControl>
+                                          <Input
+                                            type="text"
+                                            placeholder="Label"
+                                            {...field}
+                                            className="dark:bg-gray-800"
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={formForRequirments.control}
+                                    name="type"
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <Select
+                                          onValueChange={field.onChange}
+                                          value={field.value}
+                                          defaultValue="text field"
+                                        >
+                                          <FormControl>
+                                            <SelectTrigger className="dark:bg-gray-800">
+                                              <SelectValue placeholder="Select option" />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent className="dark:!bg-gray-800">
+                                            <SelectItem value="text field" className="dark:!bg-gray-800">
+                                              text field
+                                            </SelectItem>
+
+                                            <SelectItem value="text area">
+                                              text area
+                                            </SelectItem>
+                                            <SelectItem value="drop-down list">
+                                              drop-down list
+                                            </SelectItem>
+                                            <SelectItem value="number">number</SelectItem>
+                                            <SelectItem value="email address">email address</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <div className="flex items-center justify-end mt-3">
+                                    <Button
+                                      type="submit"
+                                      appearance="primary"
+                                      className="py-0 !bg-primary-color1 !px-4"
+                                    >
+                                      <h4 className="tracking-wide py-0 my-0">Add</h4>
+
+                                    </Button>
+                                  </div>
+                                </form>
+                              </Form>} {!isThereAddFieldForExamRequirments &&
+                                <div className="w-full flex items-center justify-end mt-4 gap-3">
+
+                                  <Button
+
+                                    onClick={() => { isThereAddFieldForExamRequirments ? setIsThereAddFieldForExamRequirments(false) : setIsThereAddFieldForExamRequirments(true) }}
+                                    appearance="primary"
+                                    className="py-0 !bg-primary-color1 !px-4"
+                                  >
+                                    <h4 className="tracking-wide py-0 my-0">Add Field</h4>
+
+                                  </Button>
+
+
+                                  <Button
+                                    appearance="primary"
+                                    className="py-0 !bg-primary-color1 !px-4"
+                                    onClick={() => { setIsEdittingExamRequirments(false); setIsThereAddFieldForExamRequirments(false) }}
+
+                                  >
+                                    <h4 className="tracking-wide py-0 my-0">Done</h4>
+
+                                  </Button>
+
+                                </div>
+                            }
+                          </div>
+                        </div>) : (
+                          <div>
+                            <div className="pr-5">
+
+                              <table className="w-[300px] xl:w-full border-none">
+                                <tbody className="divide-y divide-gray-300  dark:divide-gray-600">
+
+                                  <tr className="">
+                                    <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Id</th>
+                                    <td className="px-3 py-3 xl:px-2 text-right  border-none">number</td>
+                                  </tr>
+
+                                  <tr className="">
+                                    <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">First Name</th>
+                                    <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                                  </tr>
+
+                                  <tr className="">
+                                    <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Last Name</th>
+                                    <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                                  </tr>
+
+                                  <tr className="">
+                                    <th className="px-3 py-3 xl:px-2 text-left font-medium  border-none">Email</th>
+                                    <td className="px-3 py-3 xl:px-2 text-right  border-none">text field</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+
+                            </div>
+                            <div className="flex items-center justify-end mt-3">
+
+                              <Button
+                                appearance="primary"
+                                className="py-0 !bg-primary-color1 !px-4"
+                                onClick={() => setIsEdittingExamRequirments(true)}
+                              >
+                                <h4 className="tracking-wide py-0 my-0">Edit</h4>
+
+                              </Button>
+                            </div>
+                          </div>
+
+                        )
+                      }
+                    </AccordionContent>
+                  </AccordionItem>
+                  <div
+                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`) }} className="h-14 p-1">
+                      <div className="flex items-center  gap-2 sm:gap-4">
+                        <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Exam&apos;s Questions
+                        </p>
                       </div>
-                      <div className="flex items-center justify-end mt-3">
+                    </button>
 
-                        <Button
-                          appearance="primary"
-                          className="py-0 !bg-primary-color1 !px-4"
-                          onClick={() => setIsEdittingExamRequirments(true)}
-                        >
-                          <h4 className="tracking-wide py-0 my-0">Edit</h4>
-
-                        </Button>
-                      </div>
-                    </div>
-
-                  )
-                }
-              </AccordionContent>
-            </AccordionItem>
-            <div
-              className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-            >
-              <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`) }} className="h-14 p-1">
-                <div className="flex items-center  gap-2 sm:gap-4">
-                  <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam&apos;s Questions
-                  </p>
-                </div>
-              </button>
-
+                  </div>
+                </Accordion>
+              </div>
             </div>
-          </Accordion>
-        </div>
-      </div>
 
 
 
-      <div className="mt-8 ">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Student Results</h2>
-        <StudentResultsTable />
-      </div>
-
+            <div className="mt-8 ">
+              <h2 className="text-xl md:text-2xl font-bold mb-4">Student Results</h2>
+              <StudentResultsTable />
+            </div>
+          </>
+          )}
 
 
       {mode === "dark" && (
         <style>
           {`
-.rs-modal-title{
-  color: white !important
-}
-.rs-modal-header-close {
-  color: white !important
-}
-.rs-modal-content {
-  color: white !important;
-}
-.rs-modal-content {
-  background-color: #374151 !important;
-}
+            .rs-modal-title{
+              color: white !important
+            }
+            .rs-modal-header-close {
+              color: white !important
+            }
+            .rs-modal-content {
+              color: white !important;
+            }
+            .rs-modal-content {
+              background-color: #374151 !important;
+            }
           `}
         </style>
       )}
@@ -1275,11 +1292,11 @@ const InfoItem = ({
           {icon}
         </span>
       )}
-      <div className="text-[15px] font-medium text-gray-600 dark:text-gray-400 max-sm:text-[13px]">
+      <div className="text-[14px] font-medium text-gray-600 dark:text-gray-400 max-sm:text-[13px]">
         {label}
       </div>
     </div>
-    <div className="text-[16px] text-gray-600 dark:text-gray-200 font-semibold  max-sm:text-[12px]">
+    <div className="text-[15px] text-gray-600 dark:text-gray-200 font-semibold  max-sm:text-[12px]">
       {value}
     </div>
   </div>

@@ -166,6 +166,15 @@ const QuestitonManager = () => {
             active:!outline-transparent '
                 onClick={handleDeleteSelected}
               >
+                <style>
+                  {
+                    `
+                      .rs-btn-red {
+                          --rs-btn-ghost-hover-border: var(--rs-red-500);
+                      }
+                    `
+                  }
+                </style>
                 <Trash className="w-4 h-4 mr-2" />
                 Delete
               </Button>
@@ -218,9 +227,9 @@ const QuestitonManager = () => {
                 onChange={(e) => setMarkForAll(Number(e.target.value))}
                 className="w-16 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color1"
               />
-            <Button
-  appearance="ghost"
-  className="!text-primary-color1 !border-[1px] hover:!border-primary-color1
+              <Button
+                appearance="ghost"
+                className="!text-primary-color1 !border-[1px] hover:!border-primary-color1
             hover:!bg-primary-color1 
             hover:!text-white
              !border-primary-color1
@@ -228,10 +237,19 @@ const QuestitonManager = () => {
             focus:!outline-none
             active:!outline-none
             active:!border-primary-color1"
-  onClick={handleMarkForAllChange}
->
-  Save
-</Button>
+                onClick={handleMarkForAllChange}
+              >
+                <style>
+                  {
+                    `
+                      .rs-btn-ghost {
+                          --rs-btn-ghost-hover-border: var(--primary-color1);
+                      }
+                    `
+                  }
+                </style>
+                Save
+              </Button>
             </div>
 
             {/* Mobile Dialog */}
@@ -384,7 +402,7 @@ const QuestitonManager = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className={cn(`w-40 h-40 py-1 dark:!bg-gray-800 border border-gray-200 dark:!border-gray-700`)} >
                     {[
-                      { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+                      { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions/${q.id}/update`) },
                       { icon: <Trash className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
 
 
