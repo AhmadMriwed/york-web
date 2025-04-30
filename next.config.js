@@ -56,6 +56,10 @@ const nextConfig = {
         source: "/assignment/:path*", 
         destination: `${process.env.NEXT_PUBLIC_ASSIGNMENT_URL}/:path*`, 
       },
+      {
+        source: "/evaluation/:path*", 
+        destination: `${process.env.NEXT_PUBLIC_ASSIGNMENT_URL}/:path*`, 
+      },
     ];
   },
   reactStrictMode: false,

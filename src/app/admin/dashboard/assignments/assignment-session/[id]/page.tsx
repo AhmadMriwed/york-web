@@ -18,12 +18,18 @@ import DeleteModal from "@/components/assignments/DeleteModal";
 import ExportAssignment from "@/components/assignments/ExportAssignment";
 import { CiExport } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
-import { AssignmentSession } from "@/types/adminTypes/assignments/assignmentsTypes";
 import {
+  Assignment,
+  AssignmentSession,
+  Evaluation,
+} from "@/types/adminTypes/assignments/assignmentsTypes";
+import {
+  changeEvaluationStatus,
   changeStatus,
   deleteAssignmentSession,
   fetchAssignmentSessionById,
   fetchAssignmentSessions,
+  fetchEvaluationById,
 } from "@/lib/action/assignment_action";
 import Loader from "@/components/loading/Loader";
 import Loading from "@/components/Pars/Loading";
@@ -32,6 +38,7 @@ import { toast } from "sonner";
 import { Image } from "antd";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/headers/header";
+import { useFetchWithId } from "@/hooks/useFetch";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -40,7 +47,7 @@ const RenderIconButton = (props: any, ref: any) => {
       {...props}
       ref={ref}
       icon={<More />}
-      size="md"
+      size="lg"
       circle
       className={`${
         mode === "dark"
@@ -55,8 +62,7 @@ const Page = () => {
   const { id } = useParams();
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
-  const [assignmentSession, setAssignmentSession] =
-    useState<AssignmentSession>();
+
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   // delete assignment :
   const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
@@ -89,51 +95,20 @@ const Page = () => {
     await changeStatus(Number(id));
   };
 
-  useEffect(() => {
-    const fetch = async () => {
-      const data = await fetchAssignmentSessionById(Number(id));
-      setAssignmentSession(data);
-    };
-    fetch();
-  }, [id, changeSessionStatus]);
+  const {
+    data: assignmentSession,
+    isLoading,
+    error,
+    refetch: refetchData,
+  } = useFetchWithId<AssignmentSession>(fetchAssignmentSessionById, Number(id));
 
-  const there_is_trainer = false;
-  const there_is_trainee = true;
-  const there_is_preExam = true;
-  const there_is_postExam = false;
+  const trainerEvaluationId = assignmentSession?.evaluations?.find(
+    (e) => e.evaluation_type_id === 1
+  )?.id;
 
-  const assignment = {
-    id: id as string,
-    image: "https://example.com/image1.jpg",
-    code: "MATH101",
-    title: "Algebra Basics",
-    category: {
-      id: "cat1",
-      title: "Mathematics",
-    },
-    start_date: "2024-01-10",
-    end_date: "2024-02-20",
-    students_count: "25",
-    percentage: 75,
-    status: "Active",
-    trainer: "Dr. Ahmad Mohamed",
-    organization: "University of Science",
-    description:
-      "This course covers fundamental algebraic concepts including linear equations, polynomials, and quadratic functions. Students will learn problem-solving techniques and apply them to real-world scenarios.",
-    trainer_evaluation: {
-      trainer_evaluation_rate: 30,
-      trainer_evaluation_status: "Active",
-      trainer_evaluation_students: "18",
-      trainer_evaluation_start: "2024-01-10",
-      trainer_evaluation_end: "2024-02-20",
-    },
-    trainees_evaluation: {
-      trainees_evaluation_rate: 70,
-      trainees_evaluation_status: "Active",
-      trainees_evaluation_start: "2024-01-10",
-      trainees_evaluation_end: "2024-02-20",
-    },
-  };
+  const traineeEvaluationId = assignmentSession?.evaluations?.find(
+    (e) => e.evaluation_type_id === 2
+  )?.id;
 
   return (
     <>
@@ -159,76 +134,89 @@ const Page = () => {
               >
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <h1 className="text-xl sm:text-2xl font-bold">
-                        {assignmentSession?.title}
-                      </h1>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          assignmentSession?.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {assignmentSession?.status}
-                      </span>
+                  <div className="w-full">
+                    <div className="flex items-start  w-full gap-1 justify-between">
+                      <div>
+                        <h1 className="text-xl sm:text-2xl font-bold">
+                          {assignmentSession?.title}
+                        </h1>
+                        <p
+                          className={`px-3 py-1 w-fit mt-4 rounded-full text-sm font-medium ${
+                            assignmentSession?.status === "Active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {assignmentSession?.status}
+                        </p>
+                      </div>
+                      {/* Actions Section */}
+                      <div className="">
+                        <Dropdown
+                          renderToggle={RenderIconButton}
+                          placement="bottomEnd"
+                        >
+                          <Dropdown.Item
+                            icon={<CiExport />}
+                            onClick={() => setShowAssignmentExportModal(true)}
+                            className="flex items-center gap-2"
+                          >
+                            Export
+                          </Dropdown.Item>
+                          <Dropdown.Item icon={<Edit />} onClick={handleEdit}>
+                            Edit
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            icon={<Trash />}
+                            onClick={() => setShowDeleteAssignmentModal(true)}
+                          >
+                            Delete
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            className="flex items-center gap-2"
+                            icon={
+                              assignmentSession?.status === "Active" ? (
+                                <PiToggleRightFill />
+                              ) : (
+                                <PiToggleLeft />
+                              )
+                            }
+                            onClick={changeSessionStatus}
+                          >
+                            {assignmentSession?.status === "Active"
+                              ? "Deactivate"
+                              : "Activate"}
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            icon={<FaPlus />}
+                            onClick={() =>
+                              router.push(
+                                `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
+                              )
+                            }
+                            className="text-xs flex gap-2"
+                          >
+                            Add Assignment
+                          </Dropdown.Item>
+                          <Dropdown.Item
+                            icon={<FaPlus />}
+                            onClick={() =>
+                              router.push(
+                                `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
+                              )
+                            }
+                            className="text-xs flex gap-2"
+                          >
+                            Add Evaluation
+                          </Dropdown.Item>
+                        </Dropdown>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 mt-2">
                       #{assignmentSession?.code}
                     </p>
                   </div>
 
-                  {/* Actions Section */}
-                  <div className="">
-                    <Dropdown
-                      renderToggle={RenderIconButton}
-                      placement="bottomEnd"
-                    >
-                      <Dropdown.Item
-                        icon={<CiExport />}
-                        onClick={() => setShowAssignmentExportModal(true)}
-                        className="flex items-center gap-2"
-                      >
-                        Export
-                      </Dropdown.Item>
-                      <Dropdown.Item icon={<Edit />} onClick={handleEdit}>
-                        Edit
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        icon={<Trash />}
-                        onClick={() => setShowDeleteAssignmentModal(true)}
-                      >
-                        Delete
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        className="flex items-center gap-2"
-                        icon={
-                          assignmentSession?.status === "Active" ? (
-                            <PiToggleRightFill />
-                          ) : (
-                            <PiToggleLeft />
-                          )
-                        }
-                        onClick={changeSessionStatus}
-                      >
-                        {assignmentSession?.status === "Active"
-                          ? "Deactivate"
-                          : "Activate"}
-                      </Dropdown.Item>
-                      <Dropdown.Item
-                        icon={<FaPlus />}
-                        onClick={() =>
-                          router.push(
-                            `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
-                          )
-                        }
-                        className="text-xs flex gap-2"
-                      >
-                        Add Assignment
-                      </Dropdown.Item>
-                    </Dropdown>
-                  </div>
                   <ExportAssignment
                     isModalOpen={showAssignmentExportModal}
                     setIsModalOpen={setShowAssignmentExportModal}
@@ -249,7 +237,7 @@ const Page = () => {
                   <div className="w-full md:w-1/3 lg:w-1/4 h-48 relative rounded-lg overflow-hidden">
                     <Image
                       src={
-                        assignment.image
+                        assignmentSession.image
                           ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentSession?.image}`
                           : "/register.png"
                       }
@@ -306,100 +294,45 @@ const Page = () => {
                   <h2 className="text-lg font-semibold mb-4">Evaluation :</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Trainer Evaluation Card */}
-                    {there_is_trainer ? (
+                    {trainerEvaluationId ? (
                       <EvaluationCard
-                        title="Trainer Evaluation"
-                        rate={
-                          assignment.trainer_evaluation.trainer_evaluation_rate
-                        }
+                        evaluationId={trainerEvaluationId!}
+                        key={trainerEvaluationId!}
                         color="blue"
-                        status={
-                          assignment.trainer_evaluation
-                            .trainer_evaluation_status
-                        }
-                        studentsRated={
-                          assignment.trainer_evaluation
-                            .trainer_evaluation_students
-                        }
-                        period={{
-                          start:
-                            assignment.trainer_evaluation
-                              .trainer_evaluation_start,
-                          end: assignment.trainer_evaluation
-                            .trainer_evaluation_end,
-                        }}
                         showActions={true}
-                        onDetailsClick={() =>
-                          console.log("Trainer details clicked")
-                        }
-                        onExportClick={() =>
-                          console.log("Trainer export clicked")
-                        }
-                        onToggleStatus={() =>
-                          console.log("Trainer status toggled")
-                        }
-                        onEditClick={() =>
-                          console.log("Trainees status toggled")
-                        }
+                        refetch={refetchData}
                       />
                     ) : (
-                      <>
-                        <AddNewItem
-                          onClick={() =>
-                            router.push(
-                              "/admin/dashboard/assignments/assignment-session/addEvaluation"
-                            )
-                          }
-                          color="blue"
-                          title="Add trainer Evaluation"
-                        />
-                      </>
+                      <AddNewItem
+                        onClick={() =>
+                          router.push(
+                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
+                          )
+                        }
+                        color="blue"
+                        title="Add trainer Evaluation"
+                      />
                     )}
 
                     {/* Trainees Evaluation Card */}
-                    {there_is_trainee ? (
+                    {traineeEvaluationId ? (
                       <EvaluationCard
-                        title="Trainees Evaluation"
-                        rate={
-                          assignment.trainees_evaluation
-                            .trainees_evaluation_rate
-                        }
+                        evaluationId={traineeEvaluationId!}
+                        key={traineeEvaluationId!}
                         color="green"
-                        status={
-                          assignment.trainees_evaluation
-                            .trainees_evaluation_status
-                        }
-                        period={{
-                          start:
-                            assignment.trainees_evaluation
-                              .trainees_evaluation_start,
-                          end: assignment.trainees_evaluation
-                            .trainees_evaluation_end,
-                        }}
                         showActions={true}
-                        onDetailsClick={() =>
-                          console.log("Trainees details clicked")
-                        }
-                        onExportClick={() =>
-                          console.log("Trainees export clicked")
-                        }
-                        onToggleStatus={() =>
-                          console.log("Trainees status toggled")
-                        }
-                        onEditClick={() =>
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/addEvaluation"
-                          )
-                        }
+                        refetch={refetchData}
                       />
                     ) : (
-                      <>
-                        <AddNewItem
-                          onClick={() => {}}
-                          color="green"
-                          title="Add trainee Evaluation"
-                        />
-                      </>
+                      <AddNewItem
+                        onClick={() =>
+                          router.push(
+                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
+                          )
+                        }
+                        color="green"
+                        title="Add trainee Evaluation"
+                      />
                     )}
                   </div>
                 </div>
@@ -408,36 +341,14 @@ const Page = () => {
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold mb-4">Exams :</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Prost-Exam Card */}
-                    {there_is_preExam ? (
+                    {/* pre-Exam Card */}
+                    {assignmentSession.pre_exams.length > 0 ? (
                       <ExamCard
-                        type="pre-exam"
-                        language="English"
-                        rate={75}
-                        questions_number={20}
-                        students_number={25}
-                        hours={2}
-                        code="PRE-001"
-                        status="active"
-                        startDate="2024-01-10"
-                        endDate="2024-01-15"
-                        ratedStudents={18}
-                        onViewDetails={() =>
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/21/assignments/4"
-                          )
-                        }
-                        onEdit={() => {
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/21/assignments/4/updateAssignment"
-                          );
-                        }}
-                        onDelete={() => console.log("Delete Pre-Exam")}
-                        onToggleStatus={() =>
-                          console.log("Toggle Pre-Exam Status")
-                        }
-                        onExport={() => console.log("Export Pre-Exam")}
-                        onCopyLink={() => console.log("Copy Pre-Exam Link")}
+                        examId={assignmentSession?.pre_exams[0].id!}
+                        key={assignmentSession?.pre_exams[0].id!}
+                        color="purple"
+                        showActions={true}
+                        refetch={refetchData}
                       />
                     ) : (
                       <>
@@ -455,35 +366,13 @@ const Page = () => {
                     )}
 
                     {/* Post-Exam Card */}
-                    {there_is_postExam ? (
+                    {assignmentSession.post_exams.length > 0 ? (
                       <ExamCard
-                        type="post-exam"
-                        language="English"
-                        rate={85}
-                        questions_number={25}
-                        students_number={25}
-                        hours={3}
-                        code="POST-001"
-                        status="active"
-                        startDate="2024-02-10"
-                        endDate="2024-02-15"
-                        ratedStudents={22}
-                        onViewDetails={() =>
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/21/assignments/4"
-                          )
-                        }
-                        onEdit={() => {
-                          router.push(
-                            "/admin/dashboard/assignments/assignment-session/21/assignments/4/updateAssignment"
-                          );
-                        }}
-                        onDelete={() => console.log("Delete Post-Exam")}
-                        onToggleStatus={() =>
-                          console.log("Toggle Post-Exam Status")
-                        }
-                        onExport={() => console.log("Export Post-Exam")}
-                        onCopyLink={() => console.log("Copy Post-Exam Link")}
+                        examId={assignmentSession?.post_exams[0].id!}
+                        key={assignmentSession?.post_exams[0].id!}
+                        color="orange"
+                        showActions={true}
+                        refetch={refetchData}
                       />
                     ) : (
                       <>

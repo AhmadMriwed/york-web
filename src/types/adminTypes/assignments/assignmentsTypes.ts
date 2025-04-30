@@ -8,9 +8,104 @@ export interface Category {
   updated_at: string;
 }
 
-interface Type {
+
+export interface Type {
   id: number;
   type: string;
+  hint?: string | null;
+  description?: string | null;
+}
+
+export interface Condition {
+  id: number;
+  name: string;
+  type: string;
+}
+export interface Requirement {
+  id: number;
+  name?: string;
+  form_id?: number;
+  field_requirement_id:number;
+}
+
+export interface  ExamConfig {
+  id: number;
+  exam_id?: number;
+  evaluation_id?: number;
+  time_exam: string;
+  start_date: string;
+  end_date: string;
+  view_results: string;
+  view_answer: string;
+  date_view: string | null;
+  count_questions_page: number;
+  time_questions_page: string;
+  required_page_next: boolean;
+  count_return_exam: number;
+  language: string;
+  created_at: string;
+  updated_at: string;
+  condition_exams?: Condition[];
+
+}
+
+export interface Forms {
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StartFormType {
+  id: number;
+  form_id: number;
+  title: string;
+  sub_title: string;
+  description: string;
+  show_configration: number;
+  show_condition: number ;
+  image: string | null;
+  created_at: string;
+  updated_at: string;
+  files:any[]
+}
+
+export interface EndFormType {
+  id: number;
+  form_id: number;
+  title: string;
+  sub_title: string;
+  description: string;
+  url: string;
+  image: string | null;
+  created_at: string;
+  updated_at: string;
+  files:any[];
+}
+
+export interface Assignment {
+  id: number;
+  code: string;
+  title: string;
+  sub_title: string;
+  status: string;
+  image: string | null;
+  number_of_questions: number;
+  duration_in_minutes: number;
+  exam_type: Type;
+  exam_section_id: number;
+  exam_type_id: number;
+  created_at: string;
+  updated_at: string;
+  exam_config: ExamConfig;
+  forms: Forms[];
+  start_forms: StartFormType[];
+  start_form_image:string|null ;
+  end_forms: EndFormType[];
+  end_form_image:string|null ;
+  field_requirements: Requirement[];
+  condition_exams?: Condition[];
+  grade_percentage?:number; 
+  
 }
 
 export interface AssignmentSession {
@@ -28,6 +123,9 @@ export interface AssignmentSession {
   category: Category;
   created_at: string;
   updated_at: string;
+  evaluations:Evaluation[]
+  post_exams:Assignment[];
+  pre_exams:Assignment[];
 }
 
 export interface SectionType {
@@ -43,146 +141,7 @@ export interface FilterAssignmentSessionsParams {
   categories?: number[];
   per_page?: number;
 }
-
-
-type ConditionExam = {
-  id: number;
-  name: string;
-  type: string; // You can make this a literal type if needed
-};
-
-interface ExamType {
-  id: number;
-  type: string;
-  hint: string | null;
-  description: string;
+export interface Evaluation extends Assignment {
+  evaluation_type_id:number;
+  evaluation_config:ExamConfig; 
 }
-
-export interface ExamConfig {
-  id: number;
-  exam_id: number;
-  condition_exam_id: number | null;
-  time_exam: string;
-  start_date: string;
-  end_date: string;
-  view_results: "manually" | "per_answer" | "after_finish"; // Update with possible values
-  view_answer: "manually" | "per_answer" | "after_finish"; // Update with possible values
-  date_view: string;
-  count_questions_page: number;
-  time_questions_page: string;
-  required_page_next: boolean;
-  count_return_exam: number;
-  language: "en" | "fn"| 'ar' | string; // Update with possible language codes
-  created_at: string;
-  updated_at: string;
-  condition_exams: ConditionExam[]
-}
-
-interface StartForm {
-  id: number;
-  form_id: number;
-  title: string;
-  sub_title: string;
-  description: string;
-  show_configration: number; // likely a boolean-like number (0 or 1)
-  show_condition: number;    // likely a boolean-like number (0 or 1)
-  image: string;             // URL or file path
-  created_at: string;        // ISO date string
-  updated_at: string;        // ISO date string
-}
-
-interface EndForm {
-  id: number;
-  form_id: number;
-  title: string;
-  sub_title: string;
-  description: string;
-  show_configration: number; // likely a boolean-like number (0 or 1)
-  show_condition: number;    // likely a boolean-like number (0 or 1)
-  image: string;             // URL or file path
-  created_at: string;        // ISO date string
-  updated_at: string;
-  link: string;
-  url : string;        // ISO date string
-}
-
-
-type Form = {
-  id: number;
-  created_at: string;
-  updated_at: string;
-}
-export interface Assignment {
-  start_forms: StartForm[];
-  end_forms: EndForm[];
-  id: number;
-  code: string;
-  forms: Form[];
-  title: string;
-  sub_title: string;
-  status: "Active" | "Inactive" | "Draft"; // Update with possible statuses
-  image: string | null;
-  number_of_questions: number;
-  number_of_students: number;
-  percentage: number;
-  duration_in_minutes: number;
-  exam_type: ExamType;
-  exam_section_id: number | null;
-  exam_type_id: number;
-  created_at: string;
-  updated_at: string;
-  exam_config: ExamConfig;
-}
-
-
-interface EvaluationType {
-  id: number;
-  type: string;
-  hint: string | null;
-  description: string;
-}
-
-
-export interface EvaluationConfig {
-  id: number;
-  exam_id: number;
-  evaluation_id: number;
-  condition_exam_id: number | null;
-  time_exam: string;
-  start_date: string;
-  end_date: string;
-  view_results: "manually" | "per_answer" | "after_finish"; // Update with possible values
-  view_answer: "manually" | "per_answer" | "after_finish"; // Update with possible values
-  date_view: string;
-  count_questions_page: number;
-  time_questions_page: string;
-  required_page_next: boolean;
-  count_return_exam: number;
-  language: "en" | "fn"| 'ar' | string; // Update with possible language codes
-  created_at: string;
-  updated_at: string;
-  condition_exams: ConditionExam[]
-}
-
-export interface Evaluation {
-  start_forms: StartForm[];
-  end_forms: EndForm[];
-  id: number;
-  code: string;
-  forms: Form[];
-  title: string;
-  sub_title: string;
-  status: "Active" | "Inactive" | "Draft"; // Update with possible statuses
-  image: string | null;
-  number_of_questions: number;
-  number_of_students: number;
-  grade_percentage: number;
-  duration_in_minutes: number;
-  evaluation_type: EvaluationType;
-  exam_section_id: number | null;
-  exam_type_id: number;
-  created_at: string;
-  updated_at: string;
-  evaluation_config: EvaluationConfig;
-}
-

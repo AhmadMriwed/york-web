@@ -1,6 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import React from "react";
+import "react-quill/dist/quill.snow.css"; // Add this import
 
 const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
@@ -29,7 +30,8 @@ function MyEditor({ value, onChange }: MyEditorProps) {
   return (
     <div className="quill-editor">
       <ReactQuill
-        className="border-none bg-white"
+        style={{ height: "100%" }}
+        className="border-none bg-white h-44"
         value={value}
         onChange={handleChange}
         modules={{ toolbar: toolbarOptions }}

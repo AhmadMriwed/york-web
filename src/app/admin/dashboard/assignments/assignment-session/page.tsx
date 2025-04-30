@@ -7,7 +7,7 @@ import AssignmentHeader from "@/components/assignments/HeaderAssignment";
 import EmptyResult from "@/components/empty-result/EmptyResult";
 import Loading from "@/components/Pars/Loading";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import useFetch from "@/hooks/useFetch";
+import { useFetch } from "@/hooks/useFetch";
 import {
   fetchAssignmentSessions,
   fetchCategories,

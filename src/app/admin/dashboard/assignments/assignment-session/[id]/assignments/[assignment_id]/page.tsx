@@ -1,6 +1,3 @@
-
-
-
 "use client";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
@@ -16,14 +13,12 @@ import {
   Languages,
   Percent,
   ListOrdered,
-
   EditIcon,
   TrashIcon,
   Hash,
   Settings,
   Loader2,
   View,
-
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
@@ -45,8 +40,21 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
@@ -54,9 +62,9 @@ import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQues
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
 import { changeExamStatus, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
+import { Assignment } from "@/types/adminTypes/assignments/assignExamTypes";
 
 
 const RenderIconButton = (props: any, ref: any) => {
@@ -68,10 +76,11 @@ const RenderIconButton = (props: any, ref: any) => {
       icon={<More className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -84,10 +93,11 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
       icon={<IoMdMore className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -243,13 +253,11 @@ const Page = () => {
       };
 
       console.log("Form submitted:", submissionData);
-
     } catch (error) {
       console.error("Failed to create assignment:", error);
     } finally {
       setIsSubmittingExamConditions(false);
     }
-
   };
   const onSubmitExamRequirments = async (values: RequirmentsFormValue) => {
     setIsSubmittingExamRequirments(true);
@@ -267,7 +275,6 @@ const Page = () => {
       setIsSubmittingExamRequirments(false);
       setIsThereAddFieldForExamRequirments(false);
     }
-
   };
 
 

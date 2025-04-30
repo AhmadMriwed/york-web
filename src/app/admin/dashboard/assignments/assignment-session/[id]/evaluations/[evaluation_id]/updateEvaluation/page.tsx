@@ -40,32 +40,29 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { cn, formatDateForMySQL } from "@/lib/utils";
+import { cn, convertToHHMM, formatDateForMySQL } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import Image from "next/image";
 import Header from "@/components/headers/header";
-import { updateExamValidationSchema } from "@/lib/admin/assignmentValidation";
 import {
-  Assignment,
   StartFormType,
   EndFormType,
   Type,
   Requirement,
   Condition,
+  Evaluation,
 } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { useFetch, useFetchWithId } from "@/hooks/useFetch";
 import {
-  fetchAssignmentById,
   fetchStartFormById,
-  fetchExamCondations,
-  fetchExamTypes,
   fetchEndFormById,
   fetchExamRequirementFields,
+  fetchEvaluationById,
+  fetchEvaluationTypes,
 } from "@/lib/action/assignment_action";
-import { updateExam } from "@/lib/action/assignment_action";
 import { toast } from "sonner";
-import { Checkbox, Modal } from "antd";
+import { Modal } from "antd";
 import { icons } from "@/constants/icons";
 import axios from "axios";
 import { TimePicker } from "antd";
@@ -73,10 +70,12 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import StartInterfaceModal from "@/components/assignments/StartInterfaceModal";
 import EndInterfaceModal from "@/components/assignments/EndInterfaceModal";
+import { updateEvaluationValidationSchema } from "@/lib/admin/evaluationValidation";
+import { Checkbox } from "@/components/ui/checkbox";
 
 dayjs.extend(customParseFormat);
 
-const UpdateAssignmentPage = () => {
+const UpdateEvaluationPage = () => {
   const [showStartingInterfaceModal, setShowStartingInterfaceModal] =
     useState<boolean>(false);
 
@@ -90,196 +89,174 @@ const UpdateAssignmentPage = () => {
     useState<boolean>(false);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { id, assignment_id } = useParams();
+  const { id, evaluation_id } = useParams();
 
-  const convertToHHMM = (time: string): string => {
-    if (time.includes("Hour")) {
-      const hours = parseInt(time.replace(/\D/g, ""), 10);
-      return `${hours < 10 ? "0" + hours : hours}:00`;
-    }
-    if (time.includes("Minutes")) {
-      const minutes = parseInt(time.replace(/\D/g, ""), 10);
-      return `00:${minutes < 10 ? "0" + minutes : minutes}`;
-    }
-    return time;
-  };
-
-  const { data: examTypes, isLoading: typeLoading } =
-    useFetch<Type[]>(fetchExamTypes);
-
-  const { data: examCondations, isLoading: condationLoading } =
-    useFetch<Condition[]>(fetchExamCondations);
+  const { data: evaluationTypes, isLoading: typeLoading } =
+    useFetch<Type[]>(fetchEvaluationTypes);
 
   const { data: requirementsField, isLoading: requiredLoading } = useFetch<
     Requirement[]
   >(fetchExamRequirementFields);
 
   const {
-    data: assignment,
+    data: evaluation,
     isLoading,
     error,
-    refetch: refetchAssignment,
-  } = useFetchWithId<Assignment>(fetchAssignmentById, Number(assignment_id));
+    refetch,
+  } = useFetchWithId<Evaluation>(fetchEvaluationById, Number(evaluation_id!));
 
   const startFormId =
-    assignment?.start_forms?.length! > 0 ? assignment?.start_forms[0].id : null;
+    evaluation?.start_forms?.length! > 0 ? evaluation?.start_forms[0].id : null;
   const endFormId =
-    assignment?.end_forms?.length! > 0 ? assignment?.end_forms[0].id : null;
+    evaluation?.end_forms?.length! > 0 ? evaluation?.end_forms[0].id : null;
 
   const {
     data: startForm,
     isLoading: startFormLoading,
     error: startFormError,
     refetch: refetchStartForm,
-  } = useFetchWithId<StartFormType>(fetchStartFormById, endFormId!);
+  } = useFetchWithId<StartFormType>(fetchStartFormById, startFormId!);
 
   const {
     data: endForm,
     isLoading: endFormLoading,
     error: endFormError,
     refetch: refetchEndForm,
-  } = useFetchWithId<EndFormType>(fetchEndFormById, startFormId!);
+  } = useFetchWithId<EndFormType>(fetchEndFormById, endFormId!);
 
-  type FormValues = z.infer<typeof updateExamValidationSchema>;
+  type FormValues = z.infer<typeof updateEvaluationValidationSchema>;
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(updateExamValidationSchema),
+    resolver: zodResolver(updateEvaluationValidationSchema),
     defaultValues: {
-      form_id: assignment?.forms[0].id,
-      code: assignment?.code || "",
-      title: assignment?.title || "",
-      sub_title: assignment?.sub_title || "",
-      status: assignment?.status || "",
-      exam_type_id: assignment?.exam_type_id || undefined,
-      number_of_questions: assignment?.number_of_questions || undefined,
-      duration_in_minutes: assignment?.duration_in_minutes || undefined,
+      form_id: Number(evaluation_id),
+      code: evaluation?.code || "",
+      title: evaluation?.title || "",
+      sub_title: evaluation?.sub_title || "",
+      status: evaluation?.status || "",
+      evaluation_type_id: evaluation?.evaluation_type_id || undefined,
+      number_of_questions: evaluation?.number_of_questions || undefined,
+      duration_in_minutes: evaluation?.duration_in_minutes || undefined,
       exam_section_id: Number(id),
-      image: assignment?.image || "",
-      exam_config: assignment?.exam_config
+      image: evaluation?.image,
+      evaluation_config: evaluation?.evaluation_config
         ? {
-            condition_exams_id: assignment.exam_config.id?.toString() || "",
-            date_view: assignment.exam_config.date_view || undefined,
-            view_answer: assignment.exam_config.view_answer || "manually",
-            view_results: assignment.exam_config.view_results || "",
+            date_view: evaluation.evaluation_config.date_view || undefined,
+            view_answer: evaluation.evaluation_config.view_answer || "manually",
+            view_results: evaluation.evaluation_config.view_results || "",
             count_return_exam:
-              assignment.exam_config.count_return_exam || undefined,
+              evaluation.evaluation_config.count_return_exam || undefined,
             count_questions_page:
-              assignment.exam_config.count_questions_page || undefined,
+              evaluation.evaluation_config.count_questions_page || undefined,
             time_questions_page:
-              assignment.exam_config.time_questions_page || "",
-            language: assignment.exam_config.language || "",
-            time_exam: assignment.exam_config.time_exam || "",
-            start_date: assignment.exam_config.start_date
-              ? new Date(assignment.exam_config.start_date)
+              evaluation.evaluation_config.time_questions_page || "",
+            language: evaluation.evaluation_config.language || "",
+            time_exam: evaluation.evaluation_config.time_exam || "",
+            start_date: evaluation.evaluation_config.start_date
+              ? new Date(evaluation.evaluation_config.start_date)
               : undefined,
-            end_date: assignment.exam_config.end_date
-              ? new Date(assignment.exam_config.end_date)
+            end_date: evaluation.evaluation_config.end_date
+              ? new Date(evaluation.evaluation_config.end_date)
               : undefined,
           }
         : undefined,
-      start_form: assignment?.start_forms?.[0]
+      start_form: evaluation?.start_forms?.[0]
         ? {
-            title: assignment.start_forms[0].title || "",
-            sub_title: assignment.start_forms[0].sub_title || "",
-            description: assignment.start_forms[0].description || "",
-            image: assignment.start_forms[0].image || "",
-            show_configration: assignment.start_forms[0].show_configration || 0,
-            show_condition: assignment.start_forms[0].show_condition || 0,
+            title: evaluation.start_forms[0].title || "",
+            sub_title: evaluation.start_forms[0].sub_title || "",
+            description: evaluation.start_forms[0].description || "",
+            image: evaluation.start_forms[0].image || "",
+            show_configration: evaluation.start_forms[0].show_configration || 0,
+            show_condition: evaluation.start_forms[0].show_condition || 0,
           }
         : undefined,
-      start_form_image: assignment?.start_forms[0]?.image!,
-      end_form: assignment?.end_forms?.[0]
+      start_form_image: evaluation?.start_forms[0]?.image!,
+      end_form: evaluation?.end_forms?.[0]
         ? {
-            title: assignment.end_forms[0].title || "",
-            sub_title: assignment.end_forms[0].sub_title || "",
-            description: assignment.end_forms[0].description || "",
-            url: assignment.end_forms[0].url || "",
+            title: evaluation.end_forms[0].title || "",
+            sub_title: evaluation.end_forms[0].sub_title || "",
+            description: evaluation.end_forms[0].description || "",
+            url: evaluation.end_forms[0].url || "",
+            image: evaluation.end_forms[0].image || "",
           }
         : undefined,
-      end_form_image: assignment?.end_forms[0]?.image!,
-
-      exam_condition: {
-        condition_exams_id:
-          assignment?.exam_config?.condition_exams?.map((c) => c.id) || [],
-      },
+      end_form_image: evaluation?.end_forms[0]?.image!,
       field_requirement: {
         field_requirement_id:
-          assignment?.field_requirements?.map((f) => f.field_requirement_id) ||
+          evaluation?.field_requirements?.map((f) => f.field_requirement_id) ||
           [],
       },
     },
   });
 
   useEffect(() => {
-    if (assignment) {
+    if (evaluation) {
       form.reset({
-        form_id: Number(assignment_id),
-        code: assignment?.code || "",
-        title: assignment?.title || "",
-        sub_title: assignment?.sub_title || "",
-        status: assignment?.status || "",
-        exam_type_id: assignment?.exam_type_id || undefined,
-        number_of_questions: assignment?.number_of_questions || undefined,
-        duration_in_minutes: assignment?.duration_in_minutes || undefined,
+        form_id: Number(evaluation_id),
+        code: evaluation?.code || "",
+        title: evaluation?.title || "",
+        sub_title: evaluation?.sub_title || "",
+        status: evaluation?.status || "",
+        evaluation_type_id: evaluation?.evaluation_type_id || undefined,
+        number_of_questions: evaluation?.number_of_questions || undefined,
+        duration_in_minutes: evaluation?.duration_in_minutes || undefined,
         exam_section_id: Number(id),
-        image: assignment?.image || "",
-        exam_config: assignment?.exam_config
+        image: evaluation?.image || "",
+        evaluation_config: evaluation?.evaluation_config
           ? {
-              date_view: assignment.exam_config.date_view || undefined,
-              view_answer: assignment.exam_config.view_answer || "manually",
-              view_results: assignment.exam_config.view_results || "",
+              date_view: evaluation?.evaluation_config.date_view || undefined,
+              view_answer:
+                evaluation?.evaluation_config.view_answer || "manually",
+              view_results: evaluation?.evaluation_config.view_results || "",
               count_return_exam:
-                assignment.exam_config.count_return_exam || undefined,
+                evaluation?.evaluation_config?.count_return_exam || undefined,
               count_questions_page:
-                assignment.exam_config.count_questions_page || undefined,
+                evaluation?.evaluation_config?.count_questions_page ||
+                undefined,
               time_questions_page:
-                assignment.exam_config.time_questions_page || "",
-              language: assignment.exam_config.language || "",
-              time_exam: assignment.exam_config.time_exam || "",
-              start_date: assignment.exam_config.start_date
-                ? new Date(assignment.exam_config.start_date)
+                evaluation?.evaluation_config?.time_questions_page || "",
+              language: evaluation?.evaluation_config?.language || "",
+              time_exam: evaluation?.evaluation_config?.time_exam || "",
+              start_date: evaluation?.evaluation_config?.start_date
+                ? new Date(evaluation?.evaluation_config?.start_date)
                 : undefined,
-              end_date: assignment.exam_config.end_date
-                ? new Date(assignment.exam_config.end_date)
+              end_date: evaluation?.evaluation_config?.end_date
+                ? new Date(evaluation?.evaluation_config?.end_date)
                 : undefined,
             }
           : undefined,
         start_form: startForm
           ? {
-              title: startForm.title || "",
-              sub_title: startForm.sub_title || "",
-              description: startForm.description || "",
-              image: startForm.image || "",
-              show_configration: startForm.show_configration || 1,
-              show_condition: startForm.show_condition || 1,
+              title: startForm?.title || "",
+              sub_title: startForm?.sub_title || "",
+              description: startForm?.description || "",
+              image: startForm?.image || "",
+              show_configration: startForm?.show_configration || 1,
+              show_condition: startForm?.show_condition || 1,
             }
           : undefined,
         start_form_image: startForm?.image!,
         end_form: endForm
           ? {
-              title: endForm.title || "",
-              sub_title: endForm.sub_title || "",
-              description: endForm.description || "",
-              url: endForm.url || "",
-              image: endForm.image || "",
+              title: endForm?.title || "",
+              sub_title: endForm?.sub_title || "",
+              description: endForm?.description || "",
+              url: endForm?.url || "",
+              image: endForm?.image || "",
             }
           : undefined,
         end_form_image: endForm?.image!,
-        exam_condition: {
-          condition_exams_id:
-            assignment?.exam_config?.condition_exams?.map((c) => c.id) || [],
-        },
       });
     }
-  }, [assignment, assignment_id, id, form]);
+  }, [evaluation, evaluation_id, id, form]);
 
   const onSubmit = async (values: FormValues) => {
-    console.log(values);
     setIsSubmitting(true);
 
     try {
+      console.log("enter try block");
       const formData = new FormData();
-      formData.append("form_id", assignment?.forms[0].id.toString()!);
+      formData.append("form_id", evaluation?.forms[0].id.toString()!);
       formData.append("code", values.code || "");
       formData.append("title", values.title);
       formData.append("sub_title", values.sub_title || "");
@@ -292,35 +269,37 @@ const UpdateAssignmentPage = () => {
         "duration_in_minutes",
         values.duration_in_minutes?.toString() || ""
       );
-      formData.append("exam_type_id", values.exam_type_id?.toString() || "");
       formData.append(
-        "exam_section_id",
-        values.exam_section_id?.toString() || ""
+        "evaluation_type_id",
+        values.evaluation_type_id?.toString() || ""
       );
 
       if (values.image) {
-        console.log("Image:", values.image);
         if (values.image instanceof File) {
           formData.append("image", values.image);
         } else if (typeof values.image === "string") {
           formData.append("image", values.image);
         }
+      } else if (evaluation?.image) {
+        console.log("Using existing evaluation image");
+        formData.append("image", evaluation.image);
       }
-      if (values.exam_config) {
-        Object.entries(values.exam_config).forEach(([key, value]) => {
+
+      if (values.evaluation_config) {
+        Object.entries(values.evaluation_config).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
             if (key === "start_date" || key === "end_date") {
               if (value) {
                 formData.append(
-                  `exam_config[${key}]`,
+                  `evaluation_config[${key}]`,
                   formatDateForMySQL(value as Date)
                 );
               }
             } else if (key === "time_exam") {
               const timeExam = convertToHHMM((value as string) || "");
-              formData.append(`exam_config[${key}]`, timeExam);
+              formData.append(`evaluation_config[${key}]`, timeExam);
             } else {
-              formData.append(`exam_config[${key}]`, String(value));
+              formData.append(`evaluation_config[${key}]`, String(value));
             }
           }
         });
@@ -331,8 +310,13 @@ const UpdateAssignmentPage = () => {
         Object.entries(values.start_form).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
             if (key === "image") {
-              if (value instanceof File || typeof value === "string") {
-                formData.append(`start_form[${key}]`, value);
+              if (value instanceof File) {
+                formData.append("start_form[image]", value);
+              } else if (
+                typeof value === "string" &&
+                !value.startsWith("http")
+              ) {
+                formData.append("start_form[image]", value);
               }
             } else {
               formData.append(`start_form[${key}]`, String(value));
@@ -367,6 +351,11 @@ const UpdateAssignmentPage = () => {
             }
           }
         });
+        if (values.end_form.image instanceof File) {
+          formData.append("end_form[image]", values?.end_form?.image!);
+        } else if (typeof values.image === "string") {
+          formData.append("end_form[image]", values?.end_form?.image!);
+        }
       }
 
       if (values.end_form_image) {
@@ -376,15 +365,6 @@ const UpdateAssignmentPage = () => {
         } else if (typeof values.end_form_image === "string") {
           formData.append("end_form_image", values.end_form_image);
         }
-      }
-
-      if (values.exam_condition?.condition_exams_id?.length) {
-        values.exam_condition.condition_exams_id.forEach((id, index) => {
-          formData.append(
-            `exam_condition[condition_exams_id][${index}]`,
-            String(id)
-          );
-        });
       }
 
       if (values.field_requirement?.field_requirement_id?.length) {
@@ -401,7 +381,7 @@ const UpdateAssignmentPage = () => {
       }
 
       const response = await axios.post(
-        `/assignment/exams/update-all`,
+        `/evaluation/evaluations/update-all`,
         formData,
         {
           headers: {
@@ -409,10 +389,11 @@ const UpdateAssignmentPage = () => {
           },
         }
       );
+      console.log(response);
 
       if (response.status === 200) {
-        toast.success("Exam updated successfully");
-        refetchAssignment(); // Refresh the data
+        toast.success("evaluation updated successfully");
+        refetch();
         return response.data;
       }
       throw new Error(response.data?.message || "Failed to update exam");
@@ -425,9 +406,11 @@ const UpdateAssignmentPage = () => {
     }
   };
 
+  console.log(evaluation);
+
   const navigateToQuestionsPage = () => {
     router.push(
-      `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`
+      `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions`
     );
   };
 
@@ -435,7 +418,7 @@ const UpdateAssignmentPage = () => {
     <div className="mx-auto p-4 sm:p-6 max-w-7xl">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Header title="Update Assignment" />
+          <Header title="Update Evaluation" />
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
             <div className="lg:col-span-3 space-y-4 sm:space-y-6">
               <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -460,10 +443,10 @@ const UpdateAssignmentPage = () => {
                     <div className="grid grid-cols-1 mt-4 gap-2 sm:gap-3 md:grid-cols-2">
                       <FormField
                         control={form.control}
-                        name="exam_type_id"
+                        name="evaluation_type_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Exam Type : </FormLabel>
+                            <FormLabel>Evaluation Type : </FormLabel>
                             <Select
                               onValueChange={(value) =>
                                 field.onChange(Number(value))
@@ -476,7 +459,7 @@ const UpdateAssignmentPage = () => {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {examTypes?.map((type: Type) => (
+                                {evaluationTypes?.map((type: Type) => (
                                   <SelectItem
                                     key={type.id}
                                     value={type.id.toString()}
@@ -502,7 +485,7 @@ const UpdateAssignmentPage = () => {
                             >
                               <FormControl>
                                 <SelectTrigger className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none">
-                                  <SelectValue placeholder="Select exam status" />
+                                  <SelectValue placeholder="Select evaluation status" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -527,7 +510,7 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.language"
+                        name="evaluation_config.language"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Exam Language : </FormLabel>
@@ -597,7 +580,7 @@ const UpdateAssignmentPage = () => {
                     <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
-                        name="exam_config.start_date"
+                        name="evaluation_config.start_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>Start Date</FormLabel>
@@ -643,7 +626,7 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.end_date"
+                        name="evaluation_config.end_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>End Date</FormLabel>
@@ -694,7 +677,7 @@ const UpdateAssignmentPage = () => {
                       fieldType={FormFieldType.SKELETON}
                       control={form.control}
                       name="image"
-                      label="Assignment Image"
+                      label="Evaluation Image"
                       renderSkeleton={(field) => (
                         <FormControl>
                           <ImageUploader
@@ -878,7 +861,7 @@ const UpdateAssignmentPage = () => {
                     <div className="flex items-center h-16 gap-2 sm:gap-4">
                       <Settings className="text-xl text-primary-color1" />
                       <p className="text-sm px-0.5 sm:text-base">
-                        Assignment Settings
+                        Evaluation Settings
                       </p>
                     </div>
                   </AccordionTrigger>
@@ -886,10 +869,10 @@ const UpdateAssignmentPage = () => {
                     <div className="space-y-4 sm:space-y-6 dark:text-white">
                       <FormField
                         control={form.control}
-                        name="exam_config.time_exam"
+                        name="evaluation_config.time_exam"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Exam Time : </FormLabel>
+                            <FormLabel>Evaluation Time : </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
@@ -914,7 +897,7 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.count_questions_page"
+                        name="evaluation_config.count_questions_page"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Questions Per Page :</FormLabel>
@@ -935,7 +918,7 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.view_results"
+                        name="evaluation_config.view_results"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Results Display :</FormLabel>
@@ -965,7 +948,7 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.time_questions_page"
+                        name="evaluation_config.time_questions_page"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Time per Page :</FormLabel>
@@ -985,10 +968,10 @@ const UpdateAssignmentPage = () => {
                       />
                       <FormField
                         control={form.control}
-                        name="exam_config.count_return_exam"
+                        name="evaluation_config.count_return_exam"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Exam Repeat Count :</FormLabel>
+                            <FormLabel>Evaluation Repeat Count :</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -1003,80 +986,6 @@ const UpdateAssignmentPage = () => {
                             <FormMessage />
                           </FormItem>
                         )}
-                      />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem
-                  value="item-2"
-                  className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                >
-                  <AccordionTrigger className="h-11 p-1">
-                    <div className="flex items-center h-16 gap-2 sm:gap-4">
-                      <MdAssignment className="text-3xl text-primary-color1" />
-                      <p className="text-sm px-0.5 sm:text-base">
-                        Assignment Conditions
-                      </p>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="mt-2">
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="exam_condition.condition_exams_id"
-                        render={({ field }) => {
-                          const currentValues = field.value || [];
-                          const existingConditions =
-                            assignment?.exam_config?.condition_exams || [];
-
-                          return (
-                            <FormItem className="space-y-3">
-                              <div className="flex flex-col space-y-2">
-                                {examCondations?.map((condition: Condition) => (
-                                  <FormItem
-                                    key={condition.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={
-                                          currentValues.includes(
-                                            condition.id
-                                          ) ||
-                                          existingConditions.some(
-                                            (c) => c.id === condition.id
-                                          )
-                                        }
-                                        onChange={(checked) => {
-                                          const newValue = [...currentValues];
-                                          if (checked) {
-                                            if (
-                                              !newValue.includes(condition.id)
-                                            ) {
-                                              newValue.push(condition.id);
-                                            }
-                                          } else {
-                                            const index = newValue.indexOf(
-                                              condition.id
-                                            );
-                                            if (index > -1) {
-                                              newValue.splice(index, 1);
-                                            }
-                                          }
-                                          field.onChange(newValue);
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {condition.name}
-                                    </FormLabel>
-                                  </FormItem>
-                                ))}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
                       />
                     </div>
                   </AccordionContent>
@@ -1096,7 +1005,7 @@ const UpdateAssignmentPage = () => {
                         className="size-6"
                       />
                       <p className="text-sm px-0.5 sm:text-base">
-                        Assignment Requirements
+                        Evaluation Requirements
                       </p>
                     </div>
                   </AccordionTrigger>
@@ -1106,9 +1015,11 @@ const UpdateAssignmentPage = () => {
                         control={form.control}
                         name="field_requirement.field_requirement_id"
                         render={({ field }) => {
+                          // Get current selected values from form
                           const currentValues = field.value || [];
+                          // Get existing field requirements from evaluation data
                           const existingRequirements =
-                            assignment?.field_requirements || [];
+                            evaluation?.field_requirements || [];
 
                           return (
                             <FormItem className="space-y-3">
@@ -1161,7 +1072,6 @@ const UpdateAssignmentPage = () => {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-
                 <button type="submit" className="w-full">
                   <div
                     className="border flex border-gray-200 cursor-pointer gap-6 p-6 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden"
@@ -1188,25 +1098,23 @@ const UpdateAssignmentPage = () => {
         onCancel={() => {
           setShowStartingInterfaceModal(false);
         }}
-        startFormId={assignment?.start_forms[0]?.id!}
-        type="assignment"
+        startFormId={evaluation?.start_forms[0]?.id!}
+        type="evaluation"
         refetchStartForm={refetchStartForm}
       />
 
       <EndInterfaceModal
         open={showEndingInterfaceModal}
-        onCancel={() => {
-          setShowEndingInterfaceModal(false);
-        }}
-        endFormId={assignment?.end_forms[0]?.id!}
-        type="assignment"
+        onCancel={() => setShowEndingInterfaceModal(false)}
+        endFormId={evaluation?.end_forms[0]?.id!}
+        type="evaluation"
         refetchEndForm={refetchEndForm}
       />
     </div>
   );
 };
 
-export default UpdateAssignmentPage;
+export default UpdateEvaluationPage;
 
 type Props = {
   isModalOpen: boolean;

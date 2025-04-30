@@ -1,3 +1,5 @@
+
+
 import { Modal, Button, Dropdown, CheckPicker, Input } from "rsuite";
 import { ThemeContext } from "../../Pars/ThemeContext";
 import { useContext, useEffect, useState } from "react";
@@ -13,7 +15,7 @@ import dynamic from "next/dynamic";
 import SignaturePad from "react-signature-pad-wrapper";
 
 const LocationModal = dynamic(() => import("./LocationModal"), {
-  ssr: false,
+  ssr: false
 });
 
 interface ModalType {
@@ -92,6 +94,7 @@ export default function AddTrainerModal({
   const [position, setPosition] = useState<{
     lat: number;
     lng: number;
+    
   }>({
     lat: 0,
     lng: 0,
@@ -117,19 +120,14 @@ export default function AddTrainerModal({
         if (key === "location") {
           // Append latitude and longitude with corrected keys
           if (values.location.lat) {
-            formData.append(
-              "location[latitude]",
-              values.location.lat.toString()
-            );
+            formData.append("location[latitude]", values.location.lat.toString());
           }
           if (values.location.lng) {
-            formData.append(
-              "location[longitude]",
-              values.location.lng.toString()
-            );
-            formData.append("location[address]", "address");
+            formData.append("location[longitude]", values.location.lng.toString());
+            formData.append("location[address]","address");
+
           }
-        } else if (key === "categories") {
+        }else if (key === "categories") {
           // Append categories array
           values.categories.forEach((category: any, index: number) => {
             formData.append("categories[]", category);

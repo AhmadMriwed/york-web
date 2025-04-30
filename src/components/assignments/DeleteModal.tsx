@@ -40,6 +40,7 @@ const DeleteModal = ({
             icon={isDeleting ? null : <DeleteOutlined />}
             onClick={onConfirm}
             loading={isDeleting}
+            className="pb-1"
           >
             {isDeleting ? "Deleting..." : "Delete"}
           </Button>

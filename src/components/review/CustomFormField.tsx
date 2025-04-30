@@ -105,7 +105,7 @@ const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
     case FormFieldType.NUMBER:
       return (
         <div
-          className={`flex rounded-md border border-dark-500 bg-gray-200 focus-within:border focus-within:border-primary-color1 `}
+          className={`flex rounded-md border border-dark-500 bg-gray-200 dark:bg-gray-600 focus-within:border focus-within:border-primary-color1 `}
           tabIndex={0}
         >
           {iconSrc && (
@@ -271,8 +271,10 @@ const CustomFormField = (props: CustomProps) => {
             label &&
             (required ? (
               <p className={cn(" w-full gap-2 flex ")}>
-                <FormLabel>{label}</FormLabel>
-                <span className="text-red-400 text-2xl -mt-1 ">*</span>
+                <FormLabel className="text-gray-700 dark:text-white">
+                  {label}
+                </FormLabel>
+                <span className="text-red-400 text-2xl -mt-2 ">*</span>
               </p>
             ) : (
               <FormLabel className="mb-2">{label}</FormLabel>

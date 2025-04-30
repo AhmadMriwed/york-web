@@ -54,9 +54,9 @@ import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQues
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
 import { deleteEndForm, deleteEvaluation, deleteStartForm, changeEvaluationStatus, fetchEvaluationById, updateEvaluationSettings } from "@/lib/action/evaluation_action";
-import { Assignment, Evaluation } from "@/types/adminTypes/assignments/assignmentsTypes";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 
 
 
