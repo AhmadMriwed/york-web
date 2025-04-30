@@ -35,12 +35,12 @@ interface ExamSectionFormValues {
 interface ExamSectionOperationProps {
   typeData?: Partial<any[]>;
   assignmentsSections?: Partial<any[]>;
-
+  categoriesData?: Partial<any[]>;
 }
 
 const examSectionSchema = yup.object().shape({
   title: yup.string().required(" title is required"),
-  image: yup.mixed().nullable(), 
+  image: yup.mixed().nullable(),
   start_date: yup.date().nullable(),
   end_date: yup
     .date()
@@ -67,81 +67,78 @@ const examSectionSchema = yup.object().shape({
   status: yup.string().nullable(),
   description: yup.string(),
 
-  organization: yup.string(), 
+  organization: yup.string(),
 });
-
 
 const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
   assignmentsSections,
   typeData,
+  categoriesData,
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-
-  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
+    null
+  );
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
-  const {
-    categories,
-    isLoading: dataLoading,
-  } = useSelector((state: GlobalState) => state.endUser);
+  // const { categories, isLoading: dataLoading } = useSelector(
+  //   (state: GlobalState) => state.endUser
+  // );
   const dispatch = useDispatch<any>();
 
-
-
-
-
-
-  const submitHandler = async (values: any, actions: any) => {  
+  const submitHandler = async (values: any, actions: any) => {
     try {
       setLoading(true);
 
       const formData = new FormData();
-  
+
       console.log(values);
       formData.append("title", values.title);
-    
-      if (values.category_id) formData.append("category_id", values.category_id);
-      if (values.description) formData.append("description", values.description);
-      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date));
-      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date));
+
+      if (values.category_id)
+        formData.append("category_id", values.category_id);
+      if (values.description)
+        formData.append("description", values.description);
+      if (values.start_date)
+        formData.append("start_date", getLocalISODate(values.start_date));
+      if (values.end_date)
+        formData.append("end_date", getLocalISODate(values.end_date));
       if (values.trainer) formData.append("trainer", values.trainer);
       if (values.code) formData.append("code", values.code);
       if (values.status) formData.append("status", values.status);
       if (values.image instanceof File) formData.append("image", values.image);
-      if (values.organization) formData.append("organization", values.organization);
+      if (values.organization)
+        formData.append("organization", values.organization);
       if (values.type_id) formData.append("type_id", values.type_id.toString());
       console.log(formData);
-  
+
       const response = await addExamSection(formData);
       console.log("API Response:", response);
 
       toast.success("Exam section added successfully", {
         description: "The exam section has been created successfully.",
         duration: 4000,
-       
       });
       actions.resetForm();
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
       });
-    }finally {
+    } finally {
       setLoading(false);
       actions.setSubmitting(false);
     }
   };
 
-
   const statusData = [
     { label: "Active", value: "Active", id: 1 },
     { label: "Inactive", value: "Inactive", id: 2 },
   ];
-  const categoriesList = categories?.map((category: any) => ({
+  const categoriesList = categoriesData?.map((category: any) => ({
     label: (
       <div key={category.id} className="flex items-center gap-2">
         <div className="w-[25px] h-[25px] rounded-full overflow-hidden bg-slate-400">
@@ -175,8 +172,6 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
     ),
     value: type.id,
   }));
-  
-
 
   const defaultValues: ExamSectionFormValues = {
     title: "",
@@ -189,68 +184,64 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
     description: "",
     type_id: null,
     image: null,
-    organization: "", 
+    organization: "",
   };
   useEffect(() => {
     dispatch(getCategories(""));
   }, [dispatch]);
 
-  const initialValues = assignmentsSections?.find((section) => section.id === selectedSectionId) 
-  ? {
-      ...assignmentsSections.find((section) => section.id === selectedSectionId),
-      category_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.category?.id || null,
-      type_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.type?.id || null
-    }
-  : defaultValues;
+  const initialValues = assignmentsSections?.find(
+    (section) => section.id === selectedSectionId
+  )
+    ? {
+        ...assignmentsSections.find(
+          (section) => section.id === selectedSectionId
+        ),
+        category_id:
+          assignmentsSections.find(
+            (section) => section.id === selectedSectionId
+          )?.category?.id || null,
+        type_id:
+          assignmentsSections.find(
+            (section) => section.id === selectedSectionId
+          )?.type?.id || null,
+      }
+    : defaultValues;
 
   return (
     <>
-   
-    <Formik
-      initialValues={initialValues }
-      validationSchema={examSectionSchema}
-      onSubmit={submitHandler}
-      enableReinitialize
-      innerRef={(instance) => {
-        formikRef.current = instance;
-      }}
-    >
-      {(props: FormikProps<any>) => (
-        <Form
-          className={`relative py-2 max-sm:mt-1 sm:p-6 rounded-lg ${mode === "dark" ? " text-white" : " text-black"
+      <Formik
+        initialValues={initialValues}
+        validationSchema={examSectionSchema}
+        onSubmit={submitHandler}
+        enableReinitialize
+        innerRef={(instance) => {
+          formikRef.current = instance;
+        }}
+      >
+        {(props: FormikProps<any>) => (
+          <Form
+            className={`relative py-2 max-sm:mt-1 sm:p-6 rounded-lg ${
+              mode === "dark" ? " text-white" : " text-black"
             }`}
-        >
-
-          <div
-            className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-md ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
-              }`}
           >
-           
+            <div
+              className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-md ${
+                mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
+              }`}
+            >
               <div className="mb-8 flex flex-col justify-center gap-2">
                 <p
-                  className={`font-medium text-[16px] max-sm:text-[15px] px-2 ${mode === "dark" ? "text-gray-100" : "text-gray-700"
-                    }`}
+                  className={`font-medium text-[16px] max-sm:text-[15px] px-2 ${
+                    mode === "dark" ? "text-gray-100" : "text-gray-700"
+                  }`}
                 >
                   Choose an exam section to fill the fields automatically:
                 </p>
                 <InputPicker
                   size="lg"
-
                   onSearch={(value: string) => setSectionTerm(value)}
                   renderMenu={(menu) => {
-                    if (dataLoading) {
-                      return (
-                        <p
-                          style={{
-                            padding: 10,
-                            color: "#999",
-                            textAlign: "center",
-                          }}
-                        >
-                          <Loader />
-                        </p>
-                      );
-                    }
                     return menu;
                   }}
                   data={
@@ -306,119 +297,115 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
                   </style>
                 )}
               </div>
-           
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+                <CustomInputField
+                  type="text"
+                  name="title"
+                  label="Title (English)"
+                  placeholder="Enter title in English"
+                  required
+                />
 
-              <CustomInputField
-                type="text"
-                name="title"
-                label="Title (English)"
-                placeholder="Enter title in English"
-                required
-              />
-
-
-              <CustomInputField
-                type="date"
-                name="start_date"
-                label="Start Date"
-                placeholder="Start Date"
-    
-                theme={mode}
-              />
-              <CustomInputField
-                type="date"
-                name="end_date"
-                label="End Date"
-                placeholder="End Date"
-                theme={mode}
-              />
-              {/* Replaced Venue with Organization Name */}
-              <CustomInputField
-                type="text"
-                name="organization"
-                label="Organization Name"
-                placeholder="Enter organization name"
-              // optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={typeList}
-                name="type_id"
-                label="Type"
- 
-                placeholder="type"
-              />
-              <CustomInputField
-                type="select"
-                selectData={categoriesList}
-                name="category_id"
-                label="Category"
-
-                placeholder="Category"
-              />
-              <CustomInputField
-                type="text"
-                name="code"
-                label="Code (6 characters)"
-                placeholder="Enter code"
-              // optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={statusList}
-                name="status"
-                label="Status"
-                // optional
-                placeholder="Status"
-              />
-              <CustomInputField
-                type="text"
-                name="trainer"
-                label="Trainer Name"
-                placeholder="Enter trainer name"
-              // optional
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
-              <div className="space-y-4">
-                <TextEditor
-                  name="description"
-                  label="Description "
-                  value={initialValues?.description}
-                // optional
+                <CustomInputField
+                  type="date"
+                  name="start_date"
+                  label="Start Date"
+                  placeholder="Start Date"
+                  theme={mode}
+                />
+                <CustomInputField
+                  type="date"
+                  name="end_date"
+                  label="End Date"
+                  placeholder="End Date"
+                  theme={mode}
+                />
+                {/* Replaced Venue with Organization Name */}
+                <CustomInputField
+                  type="text"
+                  name="organization"
+                  label="Organization Name"
+                  placeholder="Enter organization name"
+                  // optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={typeList}
+                  name="type_id"
+                  label="Type"
+                  placeholder="type"
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={categoriesList}
+                  name="category_id"
+                  label="Category"
+                  placeholder="Category"
+                />
+                <CustomInputField
+                  type="text"
+                  name="code"
+                  label="Code (6 characters)"
+                  placeholder="Enter code"
+                  // optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={statusList}
+                  name="status"
+                  label="Status"
+                  // optional
+                  placeholder="Status"
+                />
+                <CustomInputField
+                  type="text"
+                  name="trainer"
+                  label="Trainer Name"
+                  placeholder="Enter trainer name"
+                  // optional
                 />
               </div>
-
-              <ImageUploader formikProps={props} />
-            </div>
-            <div className="mt-7 flex justify-end">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="!bg-primary-color1 py-[9px] sm:py-3 sm:px-9  max-sm:!w-full"
-              >
-                {loading ? (<div className="flex justify-center items-center gap-4">
-
-                  <Loader />
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Add </h3>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
+                <div className="space-y-4">
+                  <TextEditor
+                    name="description"
+                    label="Description "
+                    value={initialValues?.description}
+                    // optional
+                  />
                 </div>
-                ) : (
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Add </h3>
-                )}
-              </Button>
+
+                <ImageUploader formikProps={props} />
+              </div>
+              <div className="mt-7 flex justify-end">
+                <Button
+                  type="submit"
+                  appearance="primary"
+                  disabled={loading}
+                  className="!bg-primary-color1 py-[5px] sm:py-2 sm:px-7  max-sm:!w-full"
+                >
+                  {loading ? (
+                    <div className="flex justify-center items-center gap-4">
+                      <Loader />
+                      <h6 className="text-lg tracking-widest sm:text-xl text-white">
+                        Add{" "}
+                      </h6>
+                    </div>
+                  ) : (
+                    <h6 className="text-lg tracking-widest sm:text-xl text-white">
+                      Add{" "}
+                    </h6>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
+          </Form>
+        )}
+      </Formik>
 
-        </Form>
-      )}
-    </Formik>
-  
-    <Toaster position="top-right" richColors />
-
-
-     </>
+      <Toaster position="top-right" richColors />
+    </>
   );
 };
 export default AssignmentSessionAddOperation;

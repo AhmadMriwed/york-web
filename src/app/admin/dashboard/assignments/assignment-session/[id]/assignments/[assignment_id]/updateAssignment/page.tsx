@@ -412,7 +412,7 @@ const UpdateAssignmentPage = () => {
 
       if (response.status === 200) {
         toast.success("Exam updated successfully");
-        refetchAssignment(); // Refresh the data
+        refetchAssignment();
         return response.data;
       }
       throw new Error(response.data?.message || "Failed to update exam");

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GlobalState } from "@/types/storeTypes";
 import { getUTCDate } from "@/utils/dateFuncs";
@@ -8,6 +8,12 @@ import Header from "@/components/Pars/Header";
 import OperationAlert from "@/components/Pars/OperationAlert";
 
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import {
+  fetchAssignmentSessions,
+  fetchCategories,
+  fetchSectionTypes,
+} from "@/lib/action/assignment_action";
 const UpdateAssignmentSection = dynamic(
   () =>
     import(
@@ -19,11 +25,30 @@ const UpdateAssignmentSection = dynamic(
 );
 
 const updateAssignmentSection = () => {
-  // const dispatch = useDispatch<any>();
+  const [assignmentTypesData, setAssignmentTypesData] = useState<any[]>([]);
+  const [categoriesData, setCategoriesData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const typeData = await fetchSectionTypes();
+        const categories = await fetchCategories();
 
-  // const { operationLoading, operationError, status } = useSelector(
-  //   (state: GlobalState) => state.examSections
-  // );
+        setAssignmentTypesData(typeData);
+        setCategoriesData(categories);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch sessions"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   let initialValues = {
     title: {
@@ -42,22 +67,6 @@ const updateAssignmentSection = () => {
     },
     image: null,
     organization_name: null, // New field for "جهة"
-  };
-
-  const fakeData = {
-    title: { en: "Introduction to React", ar: "مقدمة في React" },
-    trainer_name: "John Doe",
-    start_date: new Date("2023-11-01T09:00:00Z"),
-    end_date: new Date("2023-11-15T17:00:00Z"),
-    category_id: 2,
-    code: "REACT101",
-    status: "active",
-    description: {
-      en: "This course will teach you the basics of React.",
-      ar: "ستتعلم في هذه الدورة الأساسيات في React.",
-    },
-    organization_name: "Online Platform", // Example value for "جهة"
-    image: null,
   };
 
   const submitHandler = (values: any, actions: any) => {
