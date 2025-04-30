@@ -45,6 +45,12 @@ export interface FilterAssignmentSessionsParams {
 }
 
 
+type ConditionExam = {
+  id: number;
+  name: string;
+  type: string; // You can make this a literal type if needed
+};
+
 interface ExamType {
   id: number;
   type: string;
@@ -69,11 +75,49 @@ export interface ExamConfig {
   language: "en" | "fn"| 'ar' | string; // Update with possible language codes
   created_at: string;
   updated_at: string;
+  condition_exams: ConditionExam[]
 }
 
+interface StartForm {
+  id: number;
+  form_id: number;
+  title: string;
+  sub_title: string;
+  description: string;
+  show_configration: number; // likely a boolean-like number (0 or 1)
+  show_condition: number;    // likely a boolean-like number (0 or 1)
+  image: string;             // URL or file path
+  created_at: string;        // ISO date string
+  updated_at: string;        // ISO date string
+}
+
+interface EndForm {
+  id: number;
+  form_id: number;
+  title: string;
+  sub_title: string;
+  description: string;
+  show_configration: number; // likely a boolean-like number (0 or 1)
+  show_condition: number;    // likely a boolean-like number (0 or 1)
+  image: string;             // URL or file path
+  created_at: string;        // ISO date string
+  updated_at: string;
+  link: string;
+  url : string;        // ISO date string
+}
+
+
+type Form = {
+  id: number;
+  created_at: string;
+  updated_at: string;
+}
 export interface Assignment {
+  start_forms: StartForm;
+  end_forms: EndForm;
   id: number;
   code: string;
+  forms: Form[];
   title: string;
   sub_title: string;
   status: "Active" | "Inactive" | "Draft"; // Update with possible statuses
@@ -89,3 +133,4 @@ export interface Assignment {
   updated_at: string;
   exam_config: ExamConfig;
 }
+

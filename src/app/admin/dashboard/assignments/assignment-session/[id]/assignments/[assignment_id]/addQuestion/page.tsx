@@ -614,7 +614,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { createQuestion } from "@/lib/action/exam_action";
 import { toast } from "sonner";
@@ -672,6 +672,8 @@ type BackendQuestionRequest = {
 };
 
 const QuestionCreator: React.FC = () => {
+   const searchParams = useSearchParams();
+    const form_id = searchParams.get('form_id');
   const [questionData, setQuestionData] = useState<QuestionData>({
     questionText: "",
     type: "true-false",
@@ -794,7 +796,7 @@ const QuestionCreator: React.FC = () => {
     }
 
     return {
-      form_id: 1,
+      form_id: Number(form_id),
       question_type_id: typeMapping[questionData.type],
       question: questionData.questionText,
       show_grade: questionData.showGrade ? 1 : 0,
@@ -1256,7 +1258,7 @@ const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
                         <input
                           type="number"
                           min="0"
-                          step="0.5"
+                        
                           value={questionData.correctAnswerGrade}
                           onChange={(e) =>
                             handleInputChange("correctAnswerGrade", Number(e.target.value))
@@ -1278,8 +1280,7 @@ const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
                       <div className="relative rounded-md">
                         <input
                           type="number"
-                          max="0"
-                          step="0.5"
+                         
                           value={questionData.wrongAnswerGrade}
                           onChange={(e) =>
                             handleInputChange("wrongAnswerGrade", Number(e.target.value))

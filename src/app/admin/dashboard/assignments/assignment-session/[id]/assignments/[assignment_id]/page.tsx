@@ -53,7 +53,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
-import { fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
+import { changeExamStatus, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
@@ -96,25 +96,37 @@ const Page = () => {
   const { id, assignment_id } = useParams();
   const [assignmentData, setAssignmentData] = useState<Assignment | null>(null);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [isExamStatusChanged, setIsExamStatusChanged] = useState(false);
+  const [isExamDeleted, setIsExamDeleted] = useState(false);
+  const [isStartFormDeleted, setIsStartFormDeleted] = useState(false);
+  const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
+  const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] = useState(false);
+
 
 
   useEffect(() => {
     const fetch = async () => {
+      setLoading(true)
       try {
         if (!id) {
           throw new Error("Missing session ID in URL");
         }
         console.log("try to fetch data");
         const data = await fetchAssignmentById(Number(assignment_id));
+        setIsThereErrorWhileFetchData(false);
+
         if (!data) {
           throw new Error("no data")
+          setIsThereErrorWhileFetchData(true);
         }
         setAssignmentData(data?.data);
+
         console.log(assignmentData);
       } catch (err) {
+        setIsThereErrorWhileFetchData(true);
         setError(err instanceof Error ? err.message : "Failed to fetch session");
       }
       finally {
@@ -123,7 +135,7 @@ const Page = () => {
     }
     fetch();
 
-  }, []);
+  }, [isExamDeleted, isEndFormDeleted, isStartFormDeleted, isExamStatusChanged]);
 
 
 
@@ -135,6 +147,7 @@ const Page = () => {
   const [isEdittingExamConditions, setIsEdittingExamConditions] = useState(false);
   const [isEdittingExamRequirments, setIsEdittingExamRequirments] = useState(false);
   const [isThereAddFieldForExamRequirments, setIsThereAddFieldForExamRequirments] = useState(false);
+
 
   const editExamSettingsSchema = z.object({
     time_exam: z.string()
@@ -176,14 +189,14 @@ const Page = () => {
     if (assignmentData) {
       const { exam_config } = assignmentData;
       form.reset({
-        time_exam: exam_config.time_exam,
-        language: exam_config.language as "en" | "ar" | "fn",
-        date_view: exam_config.date_view,
-        count_questions_page: exam_config.count_questions_page,
-        time_questions_page: exam_config.time_questions_page,
-        view_results: exam_config.view_results as "after_completion" | "manually" | "per_answer",
-        count_return_exam: exam_config.count_return_exam,
-        view_answer: exam_config.view_answer as "after_completion" | "manually" | "per_answer",
+        time_exam: exam_config?.time_exam,
+        language: exam_config?.language as "en" | "ar" | "fn",
+        date_view: exam_config?.date_view,
+        count_questions_page: exam_config?.count_questions_page,
+        time_questions_page: exam_config?.time_questions_page,
+        view_results: exam_config?.view_results as "after_completion" | "manually" | "per_answer",
+        count_return_exam: exam_config?.count_return_exam,
+        view_answer: exam_config?.view_answer as "after_completion" | "manually" | "per_answer",
       });
     }
   }, [assignmentData, form]);
@@ -210,24 +223,16 @@ const Page = () => {
 
 
   const editExamConditionsSchema = z.object({
-    conditions: z.object({
-      condition1: z.boolean().default(false),
-      condition2: z.boolean().default(false),
-      condition3: z.boolean().default(false),
-      condition4: z.boolean().default(false),
-    }),
+    conditions: z.record(z.boolean()) // Record of condition IDs to booleans
   });
   type ConditionsFormValues = z.infer<typeof editExamConditionsSchema>;
   const formForConditions = useForm<ConditionsFormValues>({
     resolver: zodResolver(editExamConditionsSchema),
     defaultValues: {
-      conditions: {
-        condition1: false,
-        condition2: false,
-        condition3: false,
-        condition4: false,
-
-      }
+      conditions: assignmentData?.exam_config?.condition_exams?.reduce((acc, condition) => {
+        acc[condition.id] = true; // Assume all existing conditions are selected
+        return acc;
+      }, {} as Record<number, boolean>)
     }
   });
   const onSubmitExamConditions = async (values: ConditionsFormValues) => {
@@ -269,12 +274,17 @@ const Page = () => {
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
     try {
-
-      const response = await updateExamSettings(values, Number(assignment_id));
+      const payload = {
+        ...values,
+        exam_id: Number(assignment_id),
+        condition_exams_id: null,
+        old_condition_exams_id: null,
+      };
+      const response = await updateExamSettings(payload, Number(assignment_id));
       console.log("API Response:", response);
 
-      toast.success("Exam section added successfully", {
-        description: "The exam section has been created successfully.",
+      toast.success("Settings updated successfully", {
+        description: "The exam settings has been updated successfully.",
         duration: 4000,
 
       });
@@ -291,6 +301,109 @@ const Page = () => {
     }
 
   };
+  const changgeExamStatus = async () => {
+    setIsSubmittingExamSettings(true);
+
+    try {
+      const response = await changeExamStatus(Number(assignment_id));
+      console.log("API Response:", response);
+
+      toast.success("Status updated successfully", {
+        description: "The exam status has been updated successfully.",
+        duration: 4000,
+
+      });
+      setIsExamStatusChanged(prev => !prev);
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+      });
+    } finally {
+    }
+
+  };
+
+
+  const deletteExam = async () => {
+    try {
+      const response = await deleteExam(Number(assignment_id));
+      console.log("API Response:", response);
+
+      toast.success("Exam deleted successfully", {
+        description: "The exam has been deleted successfully.",
+        duration: 4000,
+
+      });
+      setIsExamDeleted(prev => !prev);
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+      });
+    } finally {
+    }
+  };
+
+
+  const deletteStartForm = async (id: number) => {
+    if (id) {
+      const toastId = toast.loading('deleting start form ...')
+      try {
+        const response = await deleteStartForm(Number(id));
+        console.log("API Response:", response);
+
+        toast.success("Start Form deleted successfully", {
+          id: toastId,
+          description: "The Start from  has been deleted successfully.",
+          duration: 4000,
+
+        });
+        setIsStartFormDeleted(prev => !prev);
+      }
+
+      catch (error: any) {
+        console.error("Submission Error:", error);
+        toast.error("Oops! Something went wrong", {
+          id: toastId,
+          description: error.message,
+          duration: 5000,
+        });
+      } finally {
+      }
+    }
+  }
+  const deletteEndForm = async (id: number) => {
+    if (id) {
+      const toastId = toast.loading('deleting start form ...')
+      try {
+        const response = await deleteEndForm(Number(id));
+        console.log("API Response:", response);
+
+        toast.success("End Form deleted successfully", {
+          id: toastId,
+          description: "The End from  has been deleted successfully.",
+          duration: 4000,
+
+        });
+        setIsEndFormDeleted(prev => !prev);
+      }
+
+      catch (error: any) {
+        console.error("Submission Error:", error);
+        toast.error("Oops! Something went wrong", {
+          id: toastId,
+          description: error.message,
+          duration: 5000,
+        });
+      } finally {
+      }
+    }
+  }
 
 
   return (
@@ -310,8 +423,12 @@ const Page = () => {
       {
         loading ? (
           <Loading />
-        ) :
-          (<>
+        ) : isThereErrorWhileFetchData ? (
+          <div className="flex justify-center my-20  ">
+            <h1 className="sm:text-2xl">No Data To Display</h1>
+          </div>
+        )
+          : (<>
             <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
 
 
@@ -360,10 +477,10 @@ const Page = () => {
                   >
                     {[
                       { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
-                      { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { } },
-                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.exam_config.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
+                      { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { deletteExam() } },
+                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.exam_config?.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
                       { icon: <CiExport className=" size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
-                      { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { } },
+                      { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { changgeExamStatus() } },
                       { icon: <MdVisibility className=" size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
                     ].map((item, index) => (
                       <Dropdown.Item
@@ -396,10 +513,10 @@ const Page = () => {
 
 
                     <div className="flex items-center gap-3 md:gap-5">
-                      {assignmentData?.exam_config.language && <InfoItem
+                      {assignmentData?.exam_config?.language && <InfoItem
                         icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Language"
-                        value={assignmentData?.exam_config.language}
+                        value={assignmentData?.exam_config?.language}
                       />}
                       {assignmentData?.exam_type.type && <InfoItem
                         icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
@@ -412,12 +529,12 @@ const Page = () => {
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Start Date"
-                      value={`${assignmentData?.exam_config.start_date}`}
+                      value={`${assignmentData?.exam_config?.start_date}`}
                     />
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="End Date"
-                      value={`${assignmentData?.exam_config.end_date}`}
+                      value={`${assignmentData?.exam_config?.end_date}`}
                     />
                     <div className="flex items-center gap-3 md:gap-5">
                       {assignmentData?.duration_in_minutes !== null && <InfoItem
@@ -448,7 +565,7 @@ const Page = () => {
                       />}
 
                     </div>
-                    {assignmentData?.exam_config.view_answer === "manually" ? (
+                    {assignmentData?.exam_config?.view_answer === "manually" ? (
                       <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
                         <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
                         <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
@@ -464,7 +581,7 @@ const Page = () => {
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 p-1.5 mt-8 sm:mt-16">
 
-                  <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                  {assignmentData?.start_forms?.id && <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center mb-4 sm:mb-6">
                         <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
@@ -472,10 +589,10 @@ const Page = () => {
                         </div>
                         <div>
                           <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                            Starting Interface
+                            {assignmentData?.start_forms?.title}
                           </h3>
                           <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
-                            Sub title
+                            {assignmentData?.start_forms?.sub_title}
                           </p>
                         </div>
                       </div>
@@ -485,9 +602,9 @@ const Page = () => {
                         className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                       >
                         {[
-                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
-                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {/* Edit logic */ } },
-                          { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
+                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms?.form_id}`) },
+                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms?.form_id}/update`) },
+                          { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteStartForm(Number(assignmentData?.start_forms.form_id)) } },
 
                         ].map((item, index) => (
                           <Dropdown.Item
@@ -505,7 +622,7 @@ const Page = () => {
 
                     <div className="w-full ">
                       <Image
-                        src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
+                        src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.start_forms?.image}`}
                         alt={'START INTERFACE'}
                         className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
                         width={500}
@@ -513,10 +630,64 @@ const Page = () => {
                       />
                     </div>
 
-                  </div>
+                  </div>}
+                  {
+                    assignmentData?.end_forms?.id &&
+
+                    <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center mb-4 sm:mb-6">
+                          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
+
+                            <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                              {assignmentData?.end_forms?.title}
+                            </h3>
+                            <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
+                              {assignmentData?.end_forms?.sub_title}
+                            </p>
+                          </div>
+                        </div>
+                        <Dropdown
+                          renderToggle={VerticalRenderIconButton}
+                          placement="bottomEnd"
+                          className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                        >
+                          {[
+                            { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms?.form_id}`) },
+                            { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms?.form_id}/update`) },
+                            { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
+
+                          ].map((item, index) => (
+                            <Dropdown.Item
+                              key={index}
+                              className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                              onClick={item.action}
+                            >
+                              {item.icon}
+                              <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown>
+                      </div>
+
+
+                      <div className="w-full ">
+                        <Image
+                          src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.end_forms?.image}`}
+                          alt={'START INTERFACE'}
+                          className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
+                          width={500}
+                          height={500}
+                        />
+                      </div>
+
+                    </div>}
 
                   {/* Ending Interface Card */}
-                  <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                  {/* <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                     <div className="flex justify-between items-start">
 
                       <div className="flex items-center mb-4 sm:mb-6">
@@ -564,7 +735,7 @@ const Page = () => {
                         height={500}
                       />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -793,10 +964,10 @@ const Page = () => {
                                   {isSubmittingExamSettings ? (
                                     <>
                                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      <h4 className="tracking-wide py-0 my-0">Saving...</h4>
+                                      <p className="tracking-wide py-2 my-0">Saving...</p>
                                     </>
                                   ) : (
-                                    <h4 className="tracking-wide py-0 my-0">Save</h4>
+                                    <p className="tracking-wide py-2 my-0">Save</p>
                                   )}
                                 </Button></div>
                             </div>
@@ -812,7 +983,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Time</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.time_exam}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.time_exam}</p>
                             </div>
                           </div>
                           {/* Exam Language */}
@@ -822,7 +993,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Language</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.language}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.language}</p>
                             </div>
                           </div>
 
@@ -832,7 +1003,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.date_view}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.date_view}</p>
                             </div>
                           </div>
 
@@ -843,7 +1014,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.count_questions_page}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.count_questions_page}</p>
                             </div>
                           </div>
 
@@ -853,7 +1024,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.view_results}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_results}</p>
                             </div>
                           </div>
 
@@ -863,7 +1034,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.time_questions_page}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.time_questions_page}</p>
                             </div>
                           </div>
 
@@ -873,7 +1044,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Repeat Count</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.count_return_exam}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.count_return_exam}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
@@ -882,7 +1053,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config.view_answer}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_answer}</p>
                             </div>
                           </div>
 
@@ -921,82 +1092,28 @@ const Page = () => {
                       {isEdittingExamConditions ? (
                         <Form {...formForConditions}>
                           <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6 mt-2">
-                            <FormField
-                              control={formForConditions.control}
-                              name="conditions.condition1"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      color="primary"
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="space-y-1 leading-none">
-                                    Item Name 1
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={formForConditions.control}
-                              name="conditions.condition2"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      color="primary"
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="space-y-1 leading-none">
-                                    Item Name 1
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={formForConditions.control}
-                              name="conditions.condition3"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      color="primary"
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="space-y-1 leading-none">
-                                    Item Name 1
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={formForConditions.control}
-                              name="conditions.condition4"
-                              render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={field.value}
-                                      onCheckedChange={field.onChange}
-                                      color="primary"
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="space-y-1 leading-none">
-                                    Item Name 1
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
+                            {assignmentData?.exam_config?.condition_exams.map((condition) => (
+                              <FormField
+                                key={condition.id}
+                                control={formForConditions.control}
+                                name={`conditions.${condition.id}`}
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={Boolean(field.value)}
+                                        onCheckedChange={field.onChange}
+                                        color="primary"
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="space-y-1 leading-none">
+                                      {condition.name}
+                                    </FormLabel>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
                             <div className="flex items-center justify-end mt-3">
-
                               <Button
                                 type="submit"
                                 appearance="primary"
@@ -1015,22 +1132,22 @@ const Page = () => {
                           </form>
                         </Form>
                       ) : (
-                        <div className="mt-2 flex flex-col gap-y-1">
-                          <p>exam condition 1</p>
-                          <p>exam condition 1</p>
-                          <p>exam condition 1</p>
-                          <div className="flex items-center justify-end mt-3">
 
+                        <div className="mt-2 flex flex-col gap-y-1">
+                          {assignmentData?.exam_config?.condition_exams.map((condition) => (
+                            <p key={condition.id}>{condition.name}</p>
+                          ))}
+                          <div className="flex items-center justify-end mt-3">
                             <Button
                               appearance="primary"
                               className="py-0 !bg-primary-color1 !px-4"
                               onClick={() => setIsEdittingExamConditions(true)}
                             >
                               <h4 className="tracking-wide py-0 my-0">Edit</h4>
-
                             </Button>
                           </div>
                         </div>
+
                       )}
 
                     </AccordionContent>
@@ -1228,7 +1345,7 @@ const Page = () => {
                   <div
                     className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
                   >
-                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`) }} className="h-14 p-1">
+                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions?form_id=${assignmentData?.forms[0]?.id}`) }} className="h-14 p-1">
                       <div className="flex items-center  gap-2 sm:gap-4">
                         <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
