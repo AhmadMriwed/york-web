@@ -435,3 +435,27 @@ export const deletedQuestions= async (ids: number[]) => {
     throw new Error("Unexpected error");
   }
 };
+
+
+export const deletedQuestionCorrectAnswers = async (deletedIds: any) => {
+  try {
+   
+    console.log(deletedIds);
+    const response = await axios.delete(
+      '/assignment/correct-answers/bulk-destroy',
+      {
+        data: { "ids": deletedIds },  // Axios DELETE payload needs to be in config.data
+        headers: {
+          'Content-Type': 'application/json'  // Explicit content type
+        }
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};

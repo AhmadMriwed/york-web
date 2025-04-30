@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 'use client';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -12,11 +16,11 @@ import { IoArrowBackSharp, IoSearch, IoClose } from 'react-icons/io5'
 import { TfiMoreAlt } from 'react-icons/tfi';
 import { Button, Header } from 'rsuite';
 import { Star, ChevronDown } from 'lucide-react';
+import { deletedQuestions, deleteQuestion, getQuestions } from '@/lib/action/evaluation_action';
 import { toast } from 'sonner';
 import Loading from '@/components/Pars/Loading';
 import { MdQuestionMark } from 'react-icons/md';
 import { Tooltip as ReactTooltip } from 'react-tooltip'; // Note the named import
-import { deletedQuestions, deleteQuestion, getQuestions } from '@/lib/action/exam_action';
 
 type Field = {
   id: number;
@@ -57,7 +61,7 @@ const QuestionManager = () => {
   const searchParams = useSearchParams();
   const form_id = searchParams.get('form_id');
   const router = useRouter();
-  const { id, assignment_id } = useParams();
+  const { id, evaluation_id } = useParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [markForAll, setMarkForAll] = useState(0);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
@@ -217,7 +221,7 @@ const QuestionManager = () => {
           <h3 className="text-lg sm:text-xl xl:text-2xl font-semibold tracking-wide">Questions Manager</h3>
         </Header>
         <Button
-          onClick={() => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion?form_id=${form_id}`)}
+          onClick={() => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/addQuestion?form_id=${form_id}`)}
           className='px-6 max-sm:px-3 py-0    !bg-primary-color1 active:!bg-primary-color1
       !text-white'>
           <h3 className='sm:tracking-wide max-sm:text-[15px] '>Add Question</h3>
@@ -541,7 +545,7 @@ const QuestionManager = () => {
                         {
                           icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />,
                           text: "Edit",
-                          action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions/${q.id}/update?form_id=${q.form_id}`)
+                          action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions/${q.id}/update?form_id=${q.form_id}`)
                         },
                         { icon: <Trash className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => handleDelete(q.id) },
 

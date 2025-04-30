@@ -315,7 +315,7 @@ const EditForm = ({
 
 const Page = () => {
     const [refreshCount, setRefreshCount] = useState(0);
-    const { end_interface_id, id, assignment_id } = useParams();
+    const { end_interface_id, id, evaluation_id } = useParams();
     const [loader, setLoader] = useState(false);
     const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -373,7 +373,7 @@ const router = useRouter();
                 duration: 4000,
 
             });
-            router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${end_interface_id}`)
+            router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${end_interface_id}`)
         } catch (error: any) {
             console.error("Submission Error:", error);
             toast.error("Oops! Something went wrong", {

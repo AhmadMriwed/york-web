@@ -53,10 +53,11 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
-import { changeExamStatus, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { deleteEndForm, deleteEvaluation, deleteStartForm, changeEvaluationStatus, fetchEvaluationById, updateEvaluationSettings } from "@/lib/action/evaluation_action";
+import { Assignment, Evaluation } from "@/types/adminTypes/assignments/assignmentsTypes";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
+
 
 
 const RenderIconButton = (props: any, ref: any) => {
@@ -93,8 +94,8 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
 };
 
 const Page = () => {
-  const { id, assignment_id } = useParams();
-  const [assignmentData, setAssignmentData] = useState<Assignment | null>(null);
+  const { id, evaluation_id } = useParams();
+  const [assignmentData, setAssignmentData] = useState<Evaluation | null>(null);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -115,7 +116,7 @@ const Page = () => {
           throw new Error("Missing session ID in URL");
         }
         console.log("try to fetch data");
-        const data = await fetchAssignmentById(Number(assignment_id));
+        const data = await fetchEvaluationById(Number(evaluation_id));
         setIsThereErrorWhileFetchData(false);
 
         if (!data) {
@@ -187,16 +188,16 @@ const Page = () => {
 
   useEffect(() => {
     if (assignmentData) {
-      const { exam_config } = assignmentData;
+      const { evaluation_config } = assignmentData;
       form.reset({
-        time_exam: exam_config?.time_exam,
-        language: exam_config?.language as "en" | "ar" | "fn",
-        date_view: exam_config?.date_view,
-        count_questions_page: exam_config?.count_questions_page,
-        time_questions_page: exam_config?.time_questions_page,
-        view_results: exam_config?.view_results as "after_completion" | "manually" | "per_answer",
-        count_return_exam: exam_config?.count_return_exam,
-        view_answer: exam_config?.view_answer as "after_completion" | "manually" | "per_answer",
+        time_exam: evaluation_config?.time_exam,
+        language: evaluation_config?.language as "en" | "ar" | "fn",
+        date_view: evaluation_config?.date_view,
+        count_questions_page: evaluation_config?.count_questions_page,
+        time_questions_page: evaluation_config?.time_questions_page,
+        view_results: evaluation_config?.view_results as "after_completion" | "manually" | "per_answer",
+        count_return_exam: evaluation_config?.count_return_exam,
+        view_answer: evaluation_config?.view_answer as "after_completion" | "manually" | "per_answer",
       });
     }
   }, [assignmentData, form]);
@@ -229,7 +230,7 @@ const Page = () => {
   const formForConditions = useForm<ConditionsFormValues>({
     resolver: zodResolver(editExamConditionsSchema),
     defaultValues: {
-      conditions: assignmentData?.exam_config?.condition_exams?.reduce((acc, condition) => {
+      conditions: assignmentData?.evaluation_config?.condition_exams?.reduce((acc, condition) => {
         acc[condition.id] = true; // Assume all existing conditions are selected
         return acc;
       }, {} as Record<number, boolean>)
@@ -276,11 +277,11 @@ const Page = () => {
     try {
       const payload = {
         ...values,
-        exam_id: Number(assignment_id),
+        exam_id: Number(evaluation_id),
         condition_exams_id: null,
         old_condition_exams_id: null,
       };
-      const response = await updateExamSettings(payload, Number(assignment_id));
+      const response = await updateEvaluationSettings(payload, Number(evaluation_id));
       console.log("API Response:", response);
 
       toast.success("Settings updated successfully", {
@@ -305,7 +306,7 @@ const Page = () => {
     setIsSubmittingExamSettings(true);
 
     try {
-      const response = await changeExamStatus(Number(assignment_id));
+      const response = await changeEvaluationStatus(Number(evaluation_id));
       console.log("API Response:", response);
 
       toast.success("Status updated successfully", {
@@ -329,7 +330,7 @@ const Page = () => {
 
   const deletteExam = async () => {
     try {
-      const response = await deleteExam(Number(assignment_id));
+      const response = await deleteEvaluation(Number(evaluation_id));
       console.log("API Response:", response);
 
       toast.success("Exam deleted successfully", {
@@ -416,7 +417,7 @@ const Page = () => {
 
             onClick={() => router.back()}
           />
-          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Exam Details</h3>
+          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Evaluation Details</h3>
         </Header>
       </div>
 
@@ -476,9 +477,9 @@ const Page = () => {
                     className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                   >
                     {[
-                      { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
+                      { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/update`) },
                       { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { deletteExam() } },
-                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.exam_config?.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
+                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.evaluation_config?.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
                       { icon: <CiExport className=" size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
                       { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { changgeExamStatus() } },
                       { icon: <MdVisibility className=" size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
@@ -513,15 +514,15 @@ const Page = () => {
 
 
                     <div className="flex items-center gap-3 md:gap-5">
-                      {assignmentData?.exam_config?.language && <InfoItem
+                      {assignmentData?.evaluation_config?.language && <InfoItem
                         icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Language"
-                        value={assignmentData?.exam_config?.language}
+                        value={assignmentData?.evaluation_config?.language}
                       />}
-                      {assignmentData?.exam_type.type && <InfoItem
+                      {assignmentData?.evaluation_type?.type && <InfoItem
                         icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                        label="Exam Type"
-                        value={assignmentData?.exam_type.type}
+                        label="Evaluation Type"
+                        value={assignmentData?.evaluation_type.type}
                       />}
 
 
@@ -529,12 +530,12 @@ const Page = () => {
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Start Date"
-                      value={`${assignmentData?.exam_config?.start_date}`}
+                      value={`${assignmentData?.evaluation_config?.start_date}`}
                     />
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="End Date"
-                      value={`${assignmentData?.exam_config?.end_date}`}
+                      value={`${assignmentData?.evaluation_config?.end_date}`}
                     />
                     <div className="flex items-center gap-3 md:gap-5">
                       {assignmentData?.duration_in_minutes !== null && <InfoItem
@@ -544,7 +545,7 @@ const Page = () => {
                       />}
 
 
-                      {assignmentData?.number_of_questions !== null && <InfoItem
+                      {assignmentData?.number_of_questions && <InfoItem
                         icon={<ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Questions"
                         value={`${assignmentData?.number_of_questions}.`}
@@ -553,19 +554,19 @@ const Page = () => {
 
 
                     <div className="flex items-center gap-3 md:gap-4">
-                      {assignmentData?.number_of_students !== null && <InfoItem
+                      {assignmentData?.number_of_students && <InfoItem
                         icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Students"
                         value={`${assignmentData?.number_of_students}.`}
                       />}
-                      {assignmentData?.percentage !== null && <InfoItem
+                      {assignmentData?.grade_percentage && <InfoItem
                         icon={<Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Passing "
-                        value={`${assignmentData?.percentage}%`}
+                        value={`${assignmentData?.grade_percentage}%`}
                       />}
 
                     </div>
-                    {assignmentData?.exam_config?.view_answer === "manually" ? (
+                    {assignmentData?.evaluation_config?.view_answer === "manually" ? (
                       <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
                         <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
                         <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
@@ -602,8 +603,8 @@ const Page = () => {
                         className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                       >
                         {[
-                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}`) },
-                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}/update`) },
+                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}`) },
+                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}/update`) },
                           { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteStartForm(Number(assignmentData?.start_forms[0].form_id)) } },
 
                         ].map((item, index) => (
@@ -656,8 +657,8 @@ const Page = () => {
                           className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                         >
                           {[
-                            { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}`) },
-                            { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}/update`) },
+                            { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}`) },
+                            { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}/update`) },
                             { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
 
                           ].map((item, index) => (
@@ -686,7 +687,7 @@ const Page = () => {
 
                     </div>}
 
-               
+
                 </div>
               </div>
 
@@ -706,7 +707,7 @@ const Page = () => {
                       <div className="flex items-center h-14 gap-2 sm:gap-4">
                         <Settings className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                          Exam Settings
+                          Evaluation Settings
                         </p>
                       </div>
                     </AccordionTrigger>
@@ -721,7 +722,7 @@ const Page = () => {
                                 name="time_exam"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Time :</FormLabel>
+                                    <FormLabel>Evaluation Time :</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="text"
@@ -741,7 +742,7 @@ const Page = () => {
                                 name="language"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Language : </FormLabel>
+                                    <FormLabel>Evaluation Language : </FormLabel>
                                     <Select
                                       onValueChange={field.onChange}
                                       value={field.value}
@@ -766,7 +767,7 @@ const Page = () => {
                                 name="date_view"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Date :</FormLabel>
+                                    <FormLabel>Evaluation Date :</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="date"
@@ -838,7 +839,7 @@ const Page = () => {
                                 name="time_questions_page"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Time :</FormLabel>
+                                    <FormLabel>Evaluation Time :</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="text"
@@ -858,7 +859,7 @@ const Page = () => {
                                 name="count_return_exam"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Repeat Count :</FormLabel>
+                                    <FormLabel>Evaluation Repeat Count :</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="number"
@@ -934,8 +935,8 @@ const Page = () => {
                               <CiTimer className="text-lg " />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Time</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.time_exam}</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Time</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.time_exam}</p>
                             </div>
                           </div>
                           {/* Exam Language */}
@@ -944,8 +945,8 @@ const Page = () => {
                               <FaLanguage className="text-lg" />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Language</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.language}</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Language</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.language}</p>
                             </div>
                           </div>
 
@@ -954,8 +955,8 @@ const Page = () => {
                               <CiCalendarDate className="text-lg" />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.date_view}</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Date</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.date_view}</p>
                             </div>
                           </div>
 
@@ -966,7 +967,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.count_questions_page}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.count_questions_page}</p>
                             </div>
                           </div>
 
@@ -976,7 +977,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_results}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.view_results}</p>
                             </div>
                           </div>
 
@@ -986,7 +987,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.time_questions_page}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.time_questions_page}</p>
                             </div>
                           </div>
 
@@ -995,8 +996,8 @@ const Page = () => {
                               <FaRedo className="text-lg " />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Repeat Count</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.count_return_exam}</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Repeat Count</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.count_return_exam}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
@@ -1005,7 +1006,7 @@ const Page = () => {
                             </div>
                             <div className="space-y-1">
                               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_answer}</p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.view_answer}</p>
                             </div>
                           </div>
 
@@ -1028,82 +1029,7 @@ const Page = () => {
 
                     </AccordionContent>
                   </AccordionItem>
-                  <AccordionItem
-                    value="item-2"
-                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                  >
-                    <AccordionTrigger className="h-14 p-1">
-                      <div className="flex items-center h-14 gap-2 sm:gap-4">
-                        <MdOutlineAppSettingsAlt className="text-xl sm:text-2xl text-primary-color1" />
-                        <p className="text-sm sm:text-base">
-                          Exam Conditions
-                        </p>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {isEdittingExamConditions ? (
-                        <Form {...formForConditions}>
-                          <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6 mt-2">
-                            {assignmentData?.exam_config?.condition_exams.map((condition) => (
-                              <FormField
-                                key={condition.id}
-                                control={formForConditions.control}
-                                name={`conditions.${condition.id}`}
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={Boolean(field.value)}
-                                        onCheckedChange={field.onChange}
-                                        color="primary"
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="space-y-1 leading-none">
-                                      {condition.name}
-                                    </FormLabel>
-                                  </FormItem>
-                                )}
-                              />
-                            ))}
-                            <div className="flex items-center justify-end mt-3">
-                              <Button
-                                type="submit"
-                                appearance="primary"
-                                className="py-0 !bg-primary-color1 !px-4"
-                              >
-                                {isSubmittingExamConditions ? (
-                                  <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    <h4 className="">Saving...</h4>
-                                  </>
-                                ) : (
-                                  <h4 className="">Save</h4>
-                                )}
-                              </Button>
-                            </div>
-                          </form>
-                        </Form>
-                      ) : (
 
-                        <div className="mt-2 flex flex-col gap-y-1">
-                          {assignmentData?.exam_config?.condition_exams.map((condition) => (
-                            <p key={condition.id}>{condition.name}</p>
-                          ))}
-                          <div className="flex items-center justify-end mt-3">
-                            <Button
-                              appearance="primary"
-                              className="py-0 !bg-primary-color1 !px-4"
-                              onClick={() => setIsEdittingExamConditions(true)}
-                            >
-                              <h4 className="tracking-wide py-0 my-0">Edit</h4>
-                            </Button>
-                          </div>
-                        </div>
-
-                      )}
-
-                    </AccordionContent>
-                  </AccordionItem>
 
                   <AccordionItem
                     value="item-3"
@@ -1113,7 +1039,7 @@ const Page = () => {
                       <div className="flex items-center  gap-2 sm:gap-4">
                         <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                          Exam Requirments
+                          Evaluation Requirments
                         </p>
                       </div>
                     </AccordionTrigger>
@@ -1297,11 +1223,11 @@ const Page = () => {
                   <div
                     className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
                   >
-                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions?form_id=${assignmentData?.forms[0]?.id}`) }} className="h-14 p-1">
+                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions?form_id=${assignmentData?.forms[0]?.id}`) }} className="h-14 p-1">
                       <div className="flex items-center  gap-2 sm:gap-4">
                         <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                          Exam&apos;s Questions
+                          Evaluation&apos;s Questions
                         </p>
                       </div>
                     </button>

@@ -113,8 +113,8 @@ type Form = {
   updated_at: string;
 }
 export interface Assignment {
-  start_forms: StartForm;
-  end_forms: EndForm;
+  start_forms: StartForm[];
+  end_forms: EndForm[];
   id: number;
   code: string;
   forms: Form[];
@@ -132,5 +132,57 @@ export interface Assignment {
   created_at: string;
   updated_at: string;
   exam_config: ExamConfig;
+}
+
+
+interface EvaluationType {
+  id: number;
+  type: string;
+  hint: string | null;
+  description: string;
+}
+
+
+export interface EvaluationConfig {
+  id: number;
+  exam_id: number;
+  evaluation_id: number;
+  condition_exam_id: number | null;
+  time_exam: string;
+  start_date: string;
+  end_date: string;
+  view_results: "manually" | "per_answer" | "after_finish"; // Update with possible values
+  view_answer: "manually" | "per_answer" | "after_finish"; // Update with possible values
+  date_view: string;
+  count_questions_page: number;
+  time_questions_page: string;
+  required_page_next: boolean;
+  count_return_exam: number;
+  language: "en" | "fn"| 'ar' | string; // Update with possible language codes
+  created_at: string;
+  updated_at: string;
+  condition_exams: ConditionExam[]
+}
+
+export interface Evaluation {
+  start_forms: StartForm[];
+  end_forms: EndForm[];
+  id: number;
+  code: string;
+  forms: Form[];
+  title: string;
+  sub_title: string;
+  status: "Active" | "Inactive" | "Draft"; // Update with possible statuses
+  image: string | null;
+  number_of_questions: number;
+  number_of_students: number;
+  grade_percentage: number;
+  duration_in_minutes: number;
+  evaluation_type: EvaluationType;
+  exam_section_id: number | null;
+  exam_type_id: number;
+  created_at: string;
+  updated_at: string;
+  evaluation_config: EvaluationConfig;
 }
 
