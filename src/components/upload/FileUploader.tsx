@@ -9,7 +9,6 @@ import { uploadTrainingPlain } from "@/store/adminstore/slices/courses/training-
 type FileUploaderProps = {
   onUploadSuccess: (fileId: number) => void;
 };
-// hello world
 const FileUploader = ({ onUploadSuccess }: FileUploaderProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const dispatch = useDispatch<any>();

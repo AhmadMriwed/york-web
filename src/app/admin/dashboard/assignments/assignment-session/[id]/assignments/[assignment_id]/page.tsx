@@ -1,6 +1,3 @@
-
-
-
 "use client";
 import { useParams } from "next/navigation";
 import React, { useContext, useState } from "react";
@@ -16,14 +13,12 @@ import {
   Languages,
   Percent,
   ListOrdered,
-
   EditIcon,
   TrashIcon,
   Hash,
   Settings,
   Loader2,
   View,
-
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
@@ -32,8 +27,14 @@ import { PiToggleRightFill } from "react-icons/pi";
 import { CiExport } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 
-
-import { MdTitle, MdSubtitles, MdCategory, MdVisibility, MdVisibilityOff, MdOutlineAppSettingsAlt } from "react-icons/md";
+import {
+  MdTitle,
+  MdSubtitles,
+  MdCategory,
+  MdVisibility,
+  MdVisibilityOff,
+  MdOutlineAppSettingsAlt,
+} from "react-icons/md";
 import StudentResultsTable from "@/components/assignments/assignmentSessionA/StudentResultsTable ";
 import {
   Accordion,
@@ -44,8 +45,21 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
@@ -58,10 +72,11 @@ const RenderIconButton = (props: any, ref: any) => {
       icon={<More className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -74,10 +89,11 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
       icon={<IoMdMore className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -87,10 +103,10 @@ const Page = () => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const router = useRouter();
 
-
-  const [isSubmittingExamConditions, setIsSubmittingExamConditions] = useState(false);
-  const [isSubmittingExamSettings, setIsSubmittingExamSettings] = useState(false);
-
+  const [isSubmittingExamConditions, setIsSubmittingExamConditions] =
+    useState(false);
+  const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
+    useState(false);
 
   const editExamSettingsSchema = z.object({
     examTime: z.string().min(1, "Exam time is required"),
@@ -126,8 +142,6 @@ const Page = () => {
     },
   });
 
-
-
   const editExamConditionsSchema = z.object({
     conditions: z.object({
       condition1: z.boolean().default(false),
@@ -145,9 +159,8 @@ const Page = () => {
         condition2: false,
         condition3: false,
         condition4: false,
-
-      }
-    }
+      },
+    },
   });
   const onSubmitExamConditions = async (values: ConditionsFormValues) => {
     setIsSubmittingExamConditions(true);
@@ -157,13 +170,11 @@ const Page = () => {
       };
 
       console.log("Form submitted:", submissionData);
-
     } catch (error) {
       console.error("Failed to create assignment:", error);
     } finally {
       setIsSubmittingExamConditions(false);
     }
-
   };
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
@@ -173,15 +184,12 @@ const Page = () => {
       };
 
       console.log("Form submitted:", submissionData);
-
     } catch (error) {
       console.error("Failed to create assignment:", error);
     } finally {
       setIsSubmittingExamSettings(false);
     }
-
   };
-
 
   // Exam Data
   const exam = {
@@ -202,26 +210,32 @@ const Page = () => {
   };
   const [previewOpen, setPreviewOpen] = useState(false);
   return (
-    <div className={`relative px-1 sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
-      <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark "/>
+    <div
+      className={`relative px-1 sm:p-4  min-h-screen  ${
+        mode === "dark" ? " text-white" : " text-dark"
+      }`}
+    >
+      <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark " />
       <div className="flex justify-between items-start mb-5 pt-2">
-      <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
-      <IoArrowBackSharp
-                         className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
-
-                  onClick={() => router.back()}
-                />
-          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Exam Details</h3>
+        <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
+          <IoArrowBackSharp
+            className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+            onClick={() => router.back()}
+          />
+          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">
+            Exam Details
+          </h3>
         </Header>
       </div>
       <div className="flex flex-col  gap-5 lg:grid lg:grid-cols-4  ">
-
-
-        <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
+        <div
+          className={`rounded-xl col-span-3 shadow-lg ${
+            mode === "dark" ? "bg-gray-900" : "bg-white"
+          } max-sm:rounded-lg pb-5`}
+        >
           <div className="flex justify-between items-start">
             <div className="flex flex-col items-start justify-start  pb-3 sm:py-2 px-5 max-sm:px-2">
               <div className="flex items-center gap-3">
-
                 <div className="flex items-center justify-start gap-2">
                   <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                   <h1 className="text-[15px] sm:text-[22px] font-bold">
@@ -230,17 +244,16 @@ const Page = () => {
                 </div>
 
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${exam.status === "Active"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                    }`}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    exam.status === "Active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
                 >
                   {exam.status}
                 </span>
               </div>
               <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-6 sm:-mt-3 sm:gap-1">
-
-
                 <div className="flex items-center justify-center gap-2">
                   <MdSubtitles className="w-5 h-5 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                   <h1 className="text-[15px] sm:text-xl font-medium text-gray-700 dark:text-gray-300 ">
@@ -252,7 +265,6 @@ const Page = () => {
                   <p className="text-sm text-gray-500">{exam.code}</p>
                 </div>
               </div>
-
             </div>
             <Dropdown
               renderToggle={RenderIconButton}
@@ -260,11 +272,44 @@ const Page = () => {
               className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
             >
               {[
-                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit" ,  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`)  },
-                { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",action: () =>{} },
-                { icon: <CiExport className="text-primary-color1 size-5 max-sm:size-4" />, text: "Export to Excel",action: () =>{} },
-                { icon: <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />, text: exam.status === "Active" ? "Deactivate" : "Activate",action: () =>{} },
-                { icon: <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />, text: "Preview Exam",action: () =>{} }
+                {
+                  icon: (
+                    <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                  ),
+                  text: "Edit",
+                  action: () =>
+                    router.push(
+                      `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`
+                    ),
+                },
+                {
+                  icon: (
+                    <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                  ),
+                  text: "Delete",
+                  action: () => {},
+                },
+                {
+                  icon: (
+                    <CiExport className="text-primary-color1 size-5 max-sm:size-4" />
+                  ),
+                  text: "Export to Excel",
+                  action: () => {},
+                },
+                {
+                  icon: (
+                    <PiToggleRightFill className="text-primary-color1 size-5 max-sm:size-4" />
+                  ),
+                  text: exam.status === "Active" ? "Deactivate" : "Activate",
+                  action: () => {},
+                },
+                {
+                  icon: (
+                    <MdVisibility className="text-primary-color1 size-5 max-sm:size-4" />
+                  ),
+                  text: "Preview Exam",
+                  action: () => {},
+                },
               ].map((item, index) => (
                 <Dropdown.Item
                   key={index}
@@ -272,14 +317,15 @@ const Page = () => {
                   onClick={item.action}
                 >
                   {item.icon}
-                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                  <span className="max-sm:text-[16px] text-[17px]">
+                    {item.text}
+                  </span>
                 </Dropdown.Item>
               ))}
             </Dropdown>
           </div>
 
           <div className=" px-6 grid grid-cols-1 sm:grid-cols-7 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
-
             <div className="sm:col-span-3 ">
               <Image
                 src={exam.image}
@@ -291,10 +337,7 @@ const Page = () => {
               />
             </div>
 
-
             <div className=" sm:col-span-4   space-y-6  max-sm:space-y-4 ">
-
-
               <div className="flex items-center gap-3 md:gap-5">
                 <InfoItem
                   icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
@@ -319,7 +362,9 @@ const Page = () => {
                   value={`${exam.durationMinutes} mins`}
                 />
                 <InfoItem
-                  icon={<ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                  icon={
+                    <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                  }
                   label="Questions"
                   value={exam.numberOfQuestions}
                 />
@@ -338,16 +383,18 @@ const Page = () => {
                 {exam.showAnswers ? (
                   <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
                     <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
-                    <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
+                    <span className="text-[16px] max-sm:text-sm">
+                      Answers Visible
+                    </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
-
                     <MdVisibilityOff className="w-5 h-5 text-red-500 max-sm:w-4 max-sm:h-4" />
-                    <span className="text-lg max-sm:text-sm">Answers Hidden</span>
+                    <span className="text-lg max-sm:text-sm">
+                      Answers Hidden
+                    </span>
                   </div>
                 )}
-
               </div>
             </div>
           </div>
@@ -374,10 +421,34 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit",    action: () => {/* Edit logic */} },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete",    action: () => {/* Delete logic */} },
-
+                    {
+                      icon: (
+                        <View className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Show More",
+                      action: () =>
+                        router.push(
+                          `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface`
+                        ),
+                    },
+                    {
+                      icon: (
+                        <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Edit",
+                      action: () => {
+                        /* Edit logic */
+                      },
+                    },
+                    {
+                      icon: (
+                        <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Delete",
+                      action: () => {
+                        /* Delete logic */
+                      },
+                    },
                   ].map((item, index) => (
                     <Dropdown.Item
                       key={index}
@@ -385,29 +456,28 @@ const Page = () => {
                       onClick={item.action}
                     >
                       {item.icon}
-                      <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                      <span className="max-sm:text-[16px] text-[17px]">
+                        {item.text}
+                      </span>
                     </Dropdown.Item>
                   ))}
                 </Dropdown>
               </div>
 
-
               <div className="w-full ">
                 <Image
                   src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
-                  alt={'START INTERFACE'}
+                  alt={"START INTERFACE"}
                   className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
                   width={500}
                   height={500}
                 />
               </div>
-
             </div>
 
             {/* Ending Interface Card */}
             <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
               <div className="flex justify-between items-start">
-
                 <div className="flex items-center mb-4 sm:mb-6">
                   <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
                     <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
@@ -427,10 +497,30 @@ const Page = () => {
                   className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
                 >
                   {[
-                    { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More",  action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`) },
-                    { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => {} },
-                    { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {} },
-
+                    {
+                      icon: (
+                        <View className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Show More",
+                      action: () =>
+                        router.push(
+                          `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface`
+                        ),
+                    },
+                    {
+                      icon: (
+                        <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Edit",
+                      action: () => {},
+                    },
+                    {
+                      icon: (
+                        <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                      ),
+                      text: "Delete",
+                      action: () => {},
+                    },
                   ].map((item, index) => (
                     <Dropdown.Item
                       key={index}
@@ -438,7 +528,9 @@ const Page = () => {
                       onClick={item.action}
                     >
                       {item.icon}
-                      <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                      <span className="max-sm:text-[16px] text-[17px]">
+                        {item.text}
+                      </span>
                     </Dropdown.Item>
                   ))}
                 </Dropdown>
@@ -447,7 +539,7 @@ const Page = () => {
               <div className="w-full ">
                 <Image
                   src={`https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`}
-                  alt={'START INTERFACE'}
+                  alt={"START INTERFACE"}
                   className=" rounded-lg object-contain border border-gray-200 dark:border-gray-600"
                   width={500}
                   height={500}
@@ -462,7 +554,6 @@ const Page = () => {
             collapsible
             className="w-full space-y-2 sm:space-y-4"
           >
-
             <AccordionItem
               value="item-1"
               className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
@@ -470,14 +561,15 @@ const Page = () => {
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center h-14 gap-2 sm:gap-4">
                   <Settings className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Settings
-                  </p>
+                  <p className="text-sm sm:text-base">Exam Settings</p>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
+                  <form
+                    onSubmit={form.handleSubmit(onSubmitExamSittings)}
+                    className="space-y-6"
+                  >
                     <div className="space-y-4 sm:space-y-6 dark:text-white">
                       {/* Exam Time */}
                       <FormField
@@ -658,7 +750,6 @@ const Page = () => {
                         )}
                       />
 
-
                       <FormField
                         control={form.control}
                         name="displayCorrectionLadder"
@@ -706,7 +797,6 @@ const Page = () => {
                     </div>
                   </form>
                 </Form>
-
               </AccordionContent>
             </AccordionItem>
             <AccordionItem
@@ -716,14 +806,17 @@ const Page = () => {
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center h-14 gap-2 sm:gap-4">
                   <MdOutlineAppSettingsAlt className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Conditions
-                  </p>
+                  <p className="text-sm sm:text-base">Exam Conditions</p>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
                 <Form {...formForConditions}>
-                  <form onSubmit={formForConditions.handleSubmit(onSubmitExamConditions)} className="space-y-6">
+                  <form
+                    onSubmit={formForConditions.handleSubmit(
+                      onSubmitExamConditions
+                    )}
+                    className="space-y-6"
+                  >
                     <FormField
                       control={formForConditions.control}
                       name="conditions.condition1"
@@ -824,41 +917,40 @@ const Page = () => {
               <AccordionTrigger className="h-14 p-1">
                 <div className="flex items-center  gap-2 sm:gap-4">
                   <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                    Exam Requirments
-                  </p>
+                  <p className="text-sm sm:text-base">Exam Requirments</p>
                 </div>
               </AccordionTrigger>
-              <AccordionContent>
-
-              </AccordionContent>
+              <AccordionContent></AccordionContent>
             </AccordionItem>
-            <div
-              className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-            >
-              <button  onClick={() => {router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`)}} className="h-14 p-1">
+            <div className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => {
+                  router.push(
+                    `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions`
+                  );
+                }}
+                className="h-14 p-1"
+              >
                 <div className="flex items-center  gap-2 sm:gap-4">
                   <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                  <p className="text-sm sm:text-base">
-                  Exam&apos;s Questions
-                  </p>
+                  <p className="text-sm sm:text-base">Exam&apos;s Questions</p>
                 </div>
               </button>
-             
             </div>
           </Accordion>
         </div>
       </div>
-
-
 
       <div className="mt-8 px-3 sm:px-6">
         <h2 className="text-xl md:text-2xl font-bold mb-4">Student Results</h2>
         <StudentResultsTable />
       </div>
 
-
-      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} className="">
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        className=""
+      >
         <Modal.Header className="">
           <Modal.Title className="text-2xl font-bold">Exam Preview</Modal.Title>
         </Modal.Header>

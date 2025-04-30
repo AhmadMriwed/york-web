@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+"use client";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FaChalkboardTeacher,
   FaUserGraduate,
@@ -17,58 +18,114 @@ import {
   FaClock,
   FaHashtag,
   FaLanguage,
+  FaHourglassHalf,
 } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import { Progress } from "antd";
 import { Dropdown, IconButton } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
+import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+import {
+  changeExamStatus,
+  deleteExam,
+  fetchAssignmentById,
+} from "@/lib/action/assignment_action";
+import { useFetchWithId } from "@/hooks/useFetch";
+import { toast } from "sonner";
+import { useParams, useRouter } from "next/navigation";
+import { MdQuestionAnswer } from "react-icons/md";
+import DeleteModal from "./DeleteModal";
 
 type ExamCardProps = {
-  type: "pre-exam" | "post-exam";
-  language: string;
-  rate: number;
-  questions_number: number;
-  students_number: number;
-  hours: number;
-  code: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  ratedStudents?: number;
+  examId: number;
+  color: "purple" | "orange";
   showActions?: boolean;
-  onViewDetails?: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onToggleStatus?: () => void;
-  onExport?: () => void;
-  onCopyLink?: () => void;
+  className?: string;
+  refetch?: () => void;
 };
 
 const ExamCard = ({
-  type,
-  language,
-  rate,
-  questions_number,
-  students_number,
-  hours,
-  code,
-  status,
-  startDate,
-  endDate,
-  ratedStudents,
-  showActions = true,
-  onViewDetails,
-  onEdit,
-  onDelete,
-  onToggleStatus,
-  onExport,
-  onCopyLink,
+  examId,
+  color,
+  showActions = false,
+  className = "",
+  refetch,
 }: ExamCardProps) => {
   const { mode } = useContext(ThemeContext) as { mode: "dark" | "light" };
+  const [progress, setProgress] = useState<number | null>(null);
+  const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
+    useState<boolean>(false);
 
-  // Color configuration based on type
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const {
+    data: assignment,
+    isLoading,
+    error,
+    refetch: refetchAssignment,
+  } = useFetchWithId<Assignment>(fetchAssignmentById, Number(examId));
+
+  useEffect(() => {
+    if (
+      assignment?.grade_percentage !== undefined &&
+      assignment?.grade_percentage !== null
+    ) {
+      setProgress(assignment.grade_percentage);
+    } else {
+      setProgress(null);
+    }
+  }, [assignment?.grade_percentage]);
+
+  const { id } = useParams();
+
+  const onToggleStatus = async () => {
+    try {
+      await changeExamStatus(examId);
+      await refetchAssignment();
+      if (refetch) {
+        await refetch();
+      }
+      toast.success("Status updated successfully");
+    } catch (error) {
+      toast.error("Failed to update status");
+      console.error("Error toggling exam status:", error);
+    }
+  };
+
+  const onExportClick = () => {
+    console.log("export");
+  };
+  const onViewClick = () =>
+    router.push(
+      `/admin/dashboard/assignments/assignment-session/${id}/assignments/${examId}`
+    );
+
+  const onEditClick = () =>
+    router.push(
+      `/admin/dashboard/assignments/assignment-session/${id}/assignments/${examId}/updateAssignment`
+    );
+  const onCopyLink = () => {
+    console.log("copy");
+  };
+
+  const onDeleteClick = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteExam(examId);
+      if (refetch) {
+        await refetch();
+      }
+      await refetchAssignment();
+    } catch (error) {
+      toast.error("Failed to delete evaluation");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const colorConfig = {
-    "pre-exam": {
+    purple: {
       bg: "bg-purple-50 dark:bg-purple-900/30",
       text: "text-purple-700 dark:text-purple-200",
       border: "border-purple-400 dark:border-purple-700",
@@ -76,7 +133,7 @@ const ExamCard = ({
       progress: "#8b5cf6",
       icon: <FaChalkboardTeacher className="text-purple-500 text-3xl" />,
     },
-    "post-exam": {
+    orange: {
       bg: "bg-orange-50 dark:bg-orange-900/30",
       text: "text-orange-700 dark:text-orange-200",
       border: "border-orange-400 dark:border-orange-700",
@@ -86,7 +143,7 @@ const ExamCard = ({
     },
   };
 
-  const currentColor = colorConfig[type];
+  const currentColor = colorConfig[color];
 
   const renderIconButton = (props: any, ref: any) => {
     return (
@@ -118,7 +175,7 @@ const ExamCard = ({
               <h3
                 className={`font-semibold ${currentColor.text} text-lg truncate`}
               >
-                {type === "pre-exam" ? "Pre-Exam" : "Post-Exam"}
+                {assignment?.title}
               </h3>
               {/* Actions Dropdown */}
               {showActions && (
@@ -129,21 +186,21 @@ const ExamCard = ({
                   >
                     <Dropdown.Item
                       icon={<FaEye className="text-blue-500" />}
-                      onClick={onViewDetails}
+                      onClick={onViewClick}
                       className="flex items-center gap-2"
                     >
                       View Details
                     </Dropdown.Item>
                     <Dropdown.Item
                       icon={<FaEdit className="text-yellow-500" />}
-                      onClick={onEdit}
+                      onClick={onEditClick}
                       className="flex items-center gap-2"
                     >
                       Edit
                     </Dropdown.Item>
                     <Dropdown.Item
                       icon={<FaFileExport className="text-purple-500" />}
-                      onClick={onExport}
+                      onClick={onExportClick}
                       className="flex items-center gap-2"
                     >
                       Export
@@ -166,11 +223,13 @@ const ExamCard = ({
                       onClick={onToggleStatus}
                       className="flex items-center gap-2"
                     >
-                      {status === "active" ? "Deactivate" : "Activate"}
+                      {assignment?.status === "Active"
+                        ? "Deactivate"
+                        : "Activate"}
                     </Dropdown.Item>
                     <Dropdown.Item
                       icon={<FaTrash className="text-red-500" />}
-                      onClick={onDelete}
+                      onClick={() => setShowDeleteAssignmentModal(true)}
                       className="flex items-center gap-2"
                     >
                       Delete
@@ -178,93 +237,127 @@ const ExamCard = ({
                   </Dropdown>
                 </div>
               )}
+              <DeleteModal
+                title="Are you sure you want to delete this Assignment?"
+                note="This action cannot be undone. All data related to this Assignment . "
+                open={showDeleteAssignmentModal}
+                onCancel={() => setShowDeleteAssignmentModal(false)}
+                onConfirm={onDeleteClick}
+                isDeleting={isDeleting}
+              />
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-1">
               <span
                 className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 flex-shrink-0 ${
-                  status === "active"
+                  assignment?.status === "Active"
                     ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200"
                     : "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200"
                 }`}
               >
-                {status === "active" ? (
+                {assignment?.status === "Active" ? (
                   <FaCheckCircle className="text-xs" />
                 ) : (
                   <FaTimesCircle className="text-xs" />
                 )}
-                {status === "active" ? "Active" : "Inactive"}
+                {assignment?.status === "Active" ? "Active" : "InActive"}
               </span>
               <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-full flex items-center gap-1 flex-shrink-0">
-                <FaLanguage className="text-xs" />
-                {language}
+                <FaLanguage className="text-xl mr-2" />
+                {assignment?.exam_config?.language || "English"}
               </span>
               <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-full flex items-center gap-1 flex-shrink-0">
                 <FaHashtag className="text-xs" />
-                {code}
+                {assignment?.code}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center flex-col md:flex-row-reverse  ">
+      <div className="flex items-center flex-col md:flex-row-reverse">
         {/* Rating information with circular progress */}
         <div className="mb-4 flex flex-col items-center mt-4 md:mt-0">
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-2">
-            <Progress
-              type="circle"
-              percent={rate}
-              width={80}
-              status="active"
-              strokeWidth={10}
-              strokeColor={currentColor.progress}
-              trailColor={mode === "dark" ? "#374151" : "#e5e7eb"}
-              format={() => (
-                <span className={`text-sm font-bold ${currentColor.text}`}>
-                  {rate}%
-                </span>
-              )}
-              className="[&_.ant-progress-circle-path]:stroke-[10]"
-            />
-          </div>
+          {assignment?.grade_percentage !== null ? (
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-2">
+              <Progress
+                type="circle"
+                percent={assignment?.grade_percentage || 0}
+                width={80}
+                status="active"
+                strokeWidth={10}
+                strokeColor={currentColor.progress}
+                trailColor={mode === "dark" ? "#374151" : "#e5e7eb"}
+                format={() => (
+                  <span className={`text-sm font-bold ${currentColor.text}`}>
+                    {assignment?.grade_percentage}%
+                  </span>
+                )}
+                className="[&_.ant-progress-circle-path]:stroke-[10]"
+              />
+            </div>
+          ) : (
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 mb-2 flex items-center justify-center">
+              <FaHourglassHalf className="text-yellow-500 text-3xl" />
+            </div>
+          )}
           <span
-            className={`text-sm my-3 mx-auto  ml-2 font-bold ${currentColor.text}`}
+            className={`text-sm my-3 mx-auto ml-2 font-bold ${currentColor.text}`}
           >
-            Success Rate
+            {assignment?.grade_percentage !== null
+              ? "Success Rate"
+              : "In Progress"}
           </span>
         </div>
+
         {/* Additional information */}
         <div className="grid grid-cols-2 flex-1 gap-3 sm:gap-4 text-xs sm:text-sm">
           <div className="flex items-center gap-2">
             <FaQuestionCircle className="text-gray-500 dark:text-gray-400 text-sm" />
             <p className="text-gray-500 dark:text-gray-400">Questions:</p>
             <div>
-              <p className="font-medium">{questions_number}</p>
+              <p className="font-medium">
+                {assignment?.number_of_questions || 0}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <FaUsers className="text-gray-500 dark:text-gray-400 text-sm" />
-            <p className="text-gray-500 dark:text-gray-400">Students:</p>
+            <MdQuestionAnswer className="text-gray-500 dark:text-gray-400 text-sm" />
+            <p className="text-gray-500 dark:text-gray-400">View Answers:</p>
             <div>
-              <p className="font-medium">{students_number}</p>
+              <p className="font-medium">
+                {assignment?.exam_config?.view_answer}
+              </p>{" "}
+              {/* Update this with actual data */}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <FaCalendarAlt className="text-gray-500 dark:text-gray-400 text-sm" />
-            <p className="text-gray-500 dark:text-gray-400">Period:</p>
-            <div>
-              <p className="font-medium flex-wrap max-w-24 ">
-                {startDate} / {endDate}
-              </p>
+            <div className="min-w-0">
+              <p className="text-gray-500 dark:text-gray-400">Period:</p>
+              <div className="flex flex-col mt-2">
+                <p className="font-medium truncate">
+                  <span className="hidden md:inline-block">Start Date: </span>
+                  <span className="xs:hidden">S: </span>
+                  {assignment?.exam_config?.start_date}
+                </p>
+                <p className="font-medium truncate">
+                  <span className="hidden md:inline-block">End Date: </span>
+                  <span className="md:hidden">E: </span>
+                  {assignment?.exam_config?.end_date}
+                </p>
+              </div>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
             <FaClock className="text-gray-500 dark:text-gray-400 text-sm" />
             <p className="text-gray-500 dark:text-gray-400">Duration:</p>
             <div>
-              <p className="font-medium">{hours} hours</p>
+              <p className="font-medium">
+                {assignment?.exam_config?.time_exam}
+              </p>
             </div>
           </div>
         </div>

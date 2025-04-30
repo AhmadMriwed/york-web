@@ -1,133 +1,74 @@
-"use client";
-
-import Image from "next/image";
-import React, { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-
+import Image from "next/image";
 type FileUploaderProps = {
-  onUploadSuccess: (fileId: number) => void;
-  multiple?: boolean;
-  maxFiles?: number;
+  file: File | string | null;
+  onChange: (file: File | string | null) => void;
 };
 
-const ImageUploader = ({
-  onUploadSuccess,
-  multiple = false,
-  maxFiles = 1,
-}: FileUploaderProps) => {
-  const [files, setFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-
+const ImageUploader = ({ file, onChange }: FileUploaderProps) => {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles);
-
-      // Create preview URLs for the files
-      const newPreviews = acceptedFiles.map((file) =>
-        URL.createObjectURL(file)
-      );
-      setPreviews(newPreviews);
-
-      // Call the success callback with the first file (or implement your actual upload logic)
-      if (acceptedFiles.length > 0) {
-        onUploadSuccess(1); // Replace with your actual file ID logic
-      }
+      onChange(acceptedFiles[0] || null);
     },
-    [onUploadSuccess]
+    [onChange]
   );
 
-  // Clean up preview URLs when component unmounts
-  React.useEffect(() => {
-    return () => {
-      previews.forEach((preview) => URL.revokeObjectURL(preview));
-    };
-  }, [previews]);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".gif", ".webp"],
-    },
     onDrop,
-    multiple,
-    maxFiles,
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".svg"],
+    },
+    maxFiles: 1,
   });
 
-  const removeImage = (index: number) => {
-    const newFiles = [...files];
-    const newPreviews = [...previews];
-
-    URL.revokeObjectURL(newPreviews[index]);
-    newFiles.splice(index, 1);
-    newPreviews.splice(index, 1);
-
-    setFiles(newFiles);
-    setPreviews(newPreviews);
-
-    if (newFiles.length === 0) {
-      onUploadSuccess(0); // Reset or handle empty state
-    }
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(null);
   };
 
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed border-gray-300 max-w-60 md:max-w-44 mx-auto   md:w-full rounded-lg p-4 text-center cursor-pointer hover:border-primary-color transition-colors"
+      className="file-upload w-fit h-fit mx-auto border-dashed border-1 cursor-pointer p-2 border-gray-400"
     >
       <input {...getInputProps()} />
-      {files.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {previews.map((preview, index) => (
-            <div
-              key={index}
-              className="relative group h-36 w-44 md:w-36 pb-4 mx-auto  "
-            >
-              <div className="aspect-square h-full w-full mx-auto    overflow-hidden rounded-md bg-gray-100">
-                <Image
-                  src={preview}
-                  alt={`Preview ${index + 1}`}
-                  width={300}
-                  height={300}
-                  className="w-full mx-auto h-full object-cover"
-                />
-              </div>
-              <div className="mt-1 text-sm text-gray-600 truncate pb-3">
-                {files[index].name}
-              </div>
-
-              <div className="absolute inset-0 w-52 md:w-44 h-44 -top-4  -left-4 dark:text-white bg-black bg-opacity-0 group-hover:bg-opacity-35 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <span className="text-white text-sm font-medium">
-                  Click to change
-                </span>
-              </div>
-            </div>
-          ))}
+      {file ? (
+        <div className="relative h-44 w-44 p-4">
+          <div className="absolute opacity-0 hover:opacity-40 bg-black z-50 flex items-center justify-center top-0 left-0 w-full h-full">
+            <p className="text-white font-semibold">Click to change</p>
+          </div>
+          <Image
+            src={
+              typeof file === "string"
+                ? file.startsWith("http")
+                  ? file
+                  : `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${file}`
+                : URL.createObjectURL(file)
+            }
+            alt="Uploaded image"
+            layout="fill"
+            className="object-cover"
+          />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 p-4">
-          <div className="p-3 bg-gray-100 rounded-full">
-            <Image
-              src="/icons/upload-image-icon.svg"
-              width={24}
-              height={24}
-              alt="Upload image"
-            />
-          </div>
+          <Image
+            src={"/icons/upload.svg"}
+            height={40}
+            width={40}
+            alt="upload"
+          />
           <div className="text-center">
-            <p className="text-sm font-medium text-gray-700 dark:text-white">
-              {isDragActive ? (
-                "Drop images here..."
-              ) : (
-                <>
-                  <span className="text-primary-color1">Click to upload</span>{" "}
-                  or drag and drop
-                </>
-              )}
+            <p className="text-14-regular">
+              <span className="text-primary-color1">Click to upload</span> or
+              drag and drop
             </p>
+            <p className="text-xs text-gray-500">SVG, PNG, JPG, or GIF</p>
           </div>
         </div>
       )}
     </div>
   );
 };
-
 export default ImageUploader;

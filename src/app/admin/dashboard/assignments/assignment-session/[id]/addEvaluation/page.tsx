@@ -24,35 +24,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-
-import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Header from "@/components/headers/header";
 import { Type } from "@/types/adminTypes/assignments/assignmentsTypes";
-import { createExam, fetchExamTypes } from "@/lib/action/assignment_action";
+import {
+  createEvaluation,
+  fetchEvaluationTypes,
+  fetchExamTypes,
+} from "@/lib/action/assignment_action";
 import { Input } from "@/components/ui/input";
 import { useFetch } from "@/hooks/useFetch";
-import { addExamValidationSchema } from "@/lib/admin/assignmentValidation";
+import { addEvaluationValidationSchema } from "@/lib/admin/evaluationValidation";
+import { images } from "@/constants/images";
+import { Loader2 } from "lucide-react";
 
 const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { id } = useParams();
 
-  const { data: examTypes, isLoading: typeLoading } =
-    useFetch<Type[]>(fetchExamTypes);
+  const { data: evaluationTypes, isLoading: typeLoading } =
+    useFetch<Type[]>(fetchEvaluationTypes);
 
-  type FormValues = z.infer<typeof addExamValidationSchema>;
+  type FormValues = z.infer<typeof addEvaluationValidationSchema>;
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(addExamValidationSchema),
+    resolver: zodResolver(addEvaluationValidationSchema),
     defaultValues: {
       title: "",
       sub_title: "",
       status: "",
       number_of_questions: undefined,
       duration_in_minutes: undefined,
-      exam_type_id: undefined,
+      evaluation_type_id: undefined,
       exam_section_id: id ? Number(id) : undefined,
     },
   });
@@ -66,13 +70,13 @@ const Page = () => {
         duration_in_minutes: Number(values.duration_in_minutes),
       };
 
-      const response = await createExam(submissionData);
-      const examId = response.data.id;
+      const response = await createEvaluation(submissionData);
+      const evaluationId = response.data.id;
       router.push(
-        `/admin/dashboard/assignments/assignment-session/${id}/assignments/${examId}/updateAssignment`
+        `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluationId}/updateEvaluation`
       );
     } catch (error) {
-      console.error("Failed to create exam:", error);
+      console.error("Failed to create evaluation:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -80,15 +84,15 @@ const Page = () => {
 
   return (
     <div className="mx-auto p-4 sm:p-6 max-w-7xl">
-      <Header title="Create New Assignment" />
+      <Header title="Create New Evaluation" />
       <div className="p-4 py-8 rounded-lg dark:bg-[#212A34] bg-white shadow-sm flex flex-col md:flex-row">
         <Image
-          src={"/information/assignment.svg"}
-          width={400} // Increased for better display
-          height={400} // Increased for better display
+          src={images.evaluation}
+          width={400}
+          height={400}
           className="h-96 w-96 mx-auto"
           alt="assignment illustration"
-          priority // Added for above-the-fold images
+          priority
         />
         <div className="flex-1 mx-2 md:mx-8">
           <Form {...form}>
@@ -128,7 +132,7 @@ const Page = () => {
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
-                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-600 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
+                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
                           placeholder="Enter number of questions.."
                         />
                       </FormControl>
@@ -152,7 +156,7 @@ const Page = () => {
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
-                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-600 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
+                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
                           placeholder="Enter number of minutes.."
                         />
                       </FormControl>
@@ -165,21 +169,21 @@ const Page = () => {
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
-                  name="exam_type_id"
+                  name="evaluation_type_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Exam Type : </FormLabel>
+                      <FormLabel>Evaluation Type : </FormLabel>
                       <Select
                         onValueChange={(value) => field.onChange(Number(value))}
                         value={field.value?.toString()}
                       >
                         <FormControl>
-                          <SelectTrigger className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-600 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1">
+                          <SelectTrigger className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1">
                             <SelectValue placeholder="Select exam type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {examTypes?.map((type: Type) => (
+                          {evaluationTypes?.map((type: Type) => (
                             <SelectItem
                               key={type.id}
                               value={type.id.toString()}
@@ -204,13 +208,13 @@ const Page = () => {
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-600 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1">
-                            <SelectValue placeholder="Select exam status" />
+                          <SelectTrigger className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1">
+                            <SelectValue placeholder="Select Evaluation status" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectItem value={"Active"}>Active</SelectItem>
-                          <SelectItem value={"Inactive"}>Inactive</SelectItem>
+                          <SelectItem value={"Inactive"}>InActive</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

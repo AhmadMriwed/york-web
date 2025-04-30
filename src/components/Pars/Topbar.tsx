@@ -201,7 +201,7 @@ export default Topbar;
 
 interface TimeZoneModalProps {
   isModalOpen: boolean;
-  setIsModalOpen: (isOpen: boolean) => void;
+    setIsModalOpen: (isOpen: boolean) => void;
 }
 
 const TimeZoneModal = ({ isModalOpen, setIsModalOpen }: TimeZoneModalProps) => {

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import React, { ReactNode } from "react";
 import { IoArrowBackSharp } from "react-icons/io5";
 
-export default function HeaderAssignment({
+export default function AssignmentHeader({
   children,
   title,
 }: {
@@ -31,6 +31,7 @@ export default function HeaderAssignment({
             Schedule all your exams, tests and Certifications{" "}
           </p>
         </div>
+        
       </div>
       {children}
     </>

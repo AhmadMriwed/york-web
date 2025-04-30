@@ -345,7 +345,7 @@ const InterfaceModal = ({
                 style={{ maxHeight: "calc(70vh - 200px)" }}
               >
                 <p
-                  className="text-gray-800 dark:text-gray-200"
+                  className="text-gray-800 dark:text-gray-200 max-w-full truncate"
                   style={{ whiteSpace: "pre-line" }}
                 >
                   {description}

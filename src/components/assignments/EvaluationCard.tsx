@@ -9,53 +9,85 @@ import {
   FaFileExport,
   FaToggleOn,
   FaToggleOff,
-  FaTrash,
-  FaUserGraduate,
   FaCalendarAlt,
+  FaHourglassHalf,
 } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { Progress } from "antd";
+import { Progress, Empty } from "antd";
 import { Dropdown, IconButton } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
+import { useParams, useRouter } from "next/navigation";
+import { MdTitle } from "react-icons/md";
+import { useFetchWithId } from "@/hooks/useFetch";
+import { Evaluation } from "@/types/adminTypes/assignments/assignmentsTypes";
+import {
+  changeEvaluationStatus,
+  deleteEvaluation,
+  fetchEvaluationById,
+} from "@/lib/action/assignment_action";
+import { toast } from "sonner";
+import Image from "next/image";
+import DeleteModal from "./DeleteModal";
+import { More, Edit, Trash, Paragraph } from "@rsuite/icons";
 
 type EvaluationCardProps = {
-  title: string;
-  rate: number;
+  evaluationId: number;
   color: "blue" | "green";
-  status?: string;
-  studentsRated?: number | string;
-  period?: { start: string; end: string };
   showActions?: boolean;
-  onDetailsClick?: () => void;
-  onExportClick?: () => void;
-  onToggleStatus?: () => void;
-  onEditClick?: () => void;
   className?: string;
+  refetch?: () => void;
 };
 
 const EvaluationCard = ({
-  title,
-  rate,
+  evaluationId,
   color,
-  status = "Active",
-  studentsRated,
-  period,
   showActions = false,
-  onDetailsClick,
-  onExportClick,
-  onToggleStatus,
-  onEditClick,
   className = "",
+  refetch,
 }: EvaluationCardProps) => {
-  const [progress, setProgress] = useState<number>(0);
+  const [progress, setProgress] = useState<number | null>(null);
+  const [showDeleteEvaluationModal, setShowDeleteEvaluationModal] =
+    useState<boolean>(false);
+
+  const router = useRouter();
+  const { id } = useParams();
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
   const { mode } = useContext(ThemeContext) as { mode: "dark" | "light" };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setProgress(rate), 1500);
-    return () => clearTimeout(timer);
-  }, [rate]);
+  const {
+    data: evaluation,
+    isLoading,
+    error,
+    refetch: refetchEvaluation,
+  } = useFetchWithId<Evaluation>(fetchEvaluationById, evaluationId!);
 
-  // Color configuration
+  useEffect(() => {
+    if (
+      evaluation?.grade_percentage !== undefined &&
+      evaluation?.grade_percentage !== null
+    ) {
+      setProgress(evaluation.grade_percentage);
+    } else {
+      setProgress(null);
+    }
+  }, [evaluation?.grade_percentage]);
+
+  const deleteEvaluationFunction = async () => {
+    setIsDeleting(true);
+    try {
+      await refetchEvaluation();
+      await deleteEvaluation(evaluationId);
+      if (refetch) {
+        await refetch();
+      }
+    } catch (error) {
+      toast.error("Failed to delete evaluation");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const colorConfig = {
     blue: {
       bg: "bg-blue-50 dark:bg-blue-900/30",
@@ -92,125 +124,192 @@ const EvaluationCard = ({
     );
   };
 
+  const onToggleStatus = async () => {
+    try {
+      await changeEvaluationStatus(evaluationId);
+      await refetchEvaluation();
+      if (refetch) {
+        await refetch();
+      }
+      toast.success("Status updated successfully");
+    } catch (error) {
+      toast.error("Failed to update status");
+      console.error("Error toggling evaluation status:", error);
+    }
+  };
+
+  const onExportClick = () => {
+    console.log("export");
+  };
+  const onViewClick = () =>
+    router.push(
+      `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluationId}`
+    );
+
+  const onEditClick = () =>
+    router.push(
+      `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluationId}/updateEvaluation`
+    );
+
   return (
     <div
-      className={`p-5 rounded-xl shadow-sm border ${currentColor.border} ${currentColor.bg} ${className}`}
+      className={`p-4 sm:p-5 rounded-xl shadow-sm border ${currentColor.border} ${currentColor.bg} ${className}`}
     >
       {/* Header with icon, title and status */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-white h-14 w-14 flex items-center justify-center dark:bg-gray-800 shadow">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
+        <div className="flex items-center gap-3 w-full ">
+          <div className="p-2 rounded-lg bg-white h-12 w-12 sm:h-14 sm:w-14 flex items-center justify-center dark:bg-gray-800 shadow">
             {currentColor.icon}
           </div>
-          <div>
-            <h3 className={`font-semibold text-lg ${currentColor.text}`}>
-              {title} :
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${
-                  status === "Active"
-                    ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200"
-                    : "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200"
-                }`}
+          <div className="flex items-center mb-3 w-full justify-between  flex-1">
+            <div className="flex-1 min-w-0">
+              <h3
+                className={`font-semibold text-base sm:text-lg truncate ${currentColor.text}`}
               >
-                {status === "Active" ? (
-                  <FaCheckCircle className="text-xs" />
-                ) : (
-                  <FaTimesCircle className="text-xs" />
-                )}
-                {status}
-              </span>
+                {evaluation?.title}
+              </h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 ${
+                    evaluation?.status === "Active"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200"
+                      : "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200"
+                  }`}
+                >
+                  {evaluation?.status === "Active" ? (
+                    <FaCheckCircle className="text-xs" />
+                  ) : (
+                    <FaTimesCircle className="text-xs" />
+                  )}
+                  {evaluation?.status}
+                </span>
+              </div>
             </div>
+            {/* Actions Dropdown */}
+            {showActions && (
+              <div className="self-end sm:self-auto">
+                <Dropdown
+                  renderToggle={renderIconButton}
+                  placement="bottomEnd"
+                  className="mb-5"
+                >
+                  <Dropdown.Item
+                    icon={
+                      <FaEye className="text-blue-500 text-primary-color1" />
+                    }
+                    onClick={onViewClick}
+                    className="flex items-center gap-2"
+                  >
+                    View Details
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    icon={<FaEdit className="text-yellow-500" />}
+                    onClick={onEditClick}
+                    className="flex items-center gap-2"
+                  >
+                    Edit
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    icon={<FaFileExport className="text-purple-500" />}
+                    onClick={onExportClick}
+                    className="flex items-center gap-2"
+                  >
+                    Export
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    icon={
+                      evaluation?.status === "Active" ? (
+                        <FaToggleOn className="text-green-500" />
+                      ) : (
+                        <FaToggleOff className="text-gray-500" />
+                      )
+                    }
+                    onClick={onToggleStatus}
+                    className="flex items-center gap-2"
+                  >
+                    {evaluation?.status === "Active"
+                      ? "Deactivate"
+                      : "Activate"}
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    icon={<Trash className="size-3 " />}
+                    onClick={() => setShowDeleteEvaluationModal(true)}
+                  >
+                    Delete
+                  </Dropdown.Item>
+                </Dropdown>
+                <DeleteModal
+                  title="Are you sure you want to delete this Evaluation?"
+                  note="This action cannot be undone. All data related to this Evaluation . "
+                  open={showDeleteEvaluationModal}
+                  onCancel={() => setShowDeleteEvaluationModal(false)}
+                  onConfirm={deleteEvaluationFunction}
+                  isDeleting={isDeleting}
+                />
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Actions Dropdown */}
-        {showActions && (
-          <Dropdown renderToggle={renderIconButton} placement="bottomEnd">
-            <Dropdown.Item
-              icon={<FaEye className="text-blue-500" />}
-              onClick={onDetailsClick}
-              className="flex items-center gap-2"
-            >
-              View Details
-            </Dropdown.Item>
-            <Dropdown.Item
-              icon={<FaEdit className="text-yellow-500" />}
-              onClick={onEditClick}
-              className="flex items-center gap-2"
-            >
-              Edit
-            </Dropdown.Item>
-            <Dropdown.Item
-              icon={<FaFileExport className="text-purple-500" />}
-              onClick={onExportClick}
-              className="flex items-center gap-2"
-            >
-              Export
-            </Dropdown.Item>
-            <Dropdown.Item
-              icon={
-                status === "Active" ? (
-                  <FaToggleOn className="text-green-500" />
-                ) : (
-                  <FaToggleOff className="text-gray-500" />
-                )
-              }
-              onClick={onToggleStatus}
-              className="flex items-center gap-2"
-            >
-              {status === "Active" ? "Deactivate" : "Activate"}
-            </Dropdown.Item>
-            <Dropdown.Item
-              icon={<FaTrash className="text-red-500" />}
-              onClick={onToggleStatus}
-              className="flex items-center gap-2"
-            >
-              Delete
-            </Dropdown.Item>
-          </Dropdown>
-        )}
       </div>
 
       {/* Progress bar with percentage */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-            Completion Rate :
+            Completion Rate:
           </span>
           <span className={`text-sm font-bold ${currentColor.text}`}>
-            {progress}%
+            {progress !== null ? `${progress}%` : "Not completed"}
           </span>
         </div>
-        <Progress
-          percent={progress}
-          status="active"
-          strokeColor={currentColor.progress}
-          showInfo={false}
-          className="[&_.ant-progress-bg]:h-3"
-        />
+        {progress !== null ? (
+          <Progress
+            percent={progress}
+            status="active"
+            strokeColor={currentColor.progress}
+            showInfo={false}
+            className="[&_.ant-progress-bg]:h-2 sm:[&_.ant-progress-bg]:h-3"
+          />
+        ) : (
+          <div className="flex items-center gap-2 p-2 rounded bg-gray-200 dark:bg-gray-800">
+            <FaHourglassHalf className="text-yellow-500 size-5" />
+            <span className="text-sm text-gray-600 dark:text-gray-100 ">
+              Evaluation is not finish yet
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Additional information with icons */}
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        {studentsRated && (
-          <div className="flex items-center gap-2">
-            <FaUserGraduate className="text-gray-500 dark:text-gray-400" />
-            <div>
-              <p className="text-gray-500 dark:text-gray-400">Students : </p>
-              <p className="font-medium">{studentsRated}</p>
+      <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 text-sm">
+        {evaluation?.sub_title && (
+          <div className="flex items-start gap-2">
+            <MdTitle className="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="text-gray-500 dark:text-gray-400 truncate">
+                SubTitle:
+              </p>
+              <p className="font-medium truncate">{evaluation?.sub_title}</p>
             </div>
           </div>
         )}
-        {period && (
-          <div className="flex items-center gap-2">
-            <FaCalendarAlt className="text-gray-500 dark:text-gray-400 text-sm" />
-            <div>
+        {evaluation?.evaluation_config?.start_date && (
+          <div className="flex items-start gap-2">
+            <FaCalendarAlt className="text-gray-500 dark:text-gray-400 text-sm mt-0.5 flex-shrink-0" />
+            <div className="min-w-0">
               <p className="text-gray-500 dark:text-gray-400">Period:</p>
-              <p className="font-medium ">
-                {period.start} / {period.end}
-              </p>
+              <div className="flex flex-col mt-2">
+                <p className="font-medium truncate">
+                  <span className="hidden md:inline-block">Start Date: </span>
+                  <span className="xs:hidden">S: </span>
+                  {evaluation?.evaluation_config?.start_date}
+                </p>
+                <p className="font-medium truncate">
+                  <span className="hidden md:inline-block">End Date: </span>
+                  <span className="md:hidden">E: </span>
+                  {evaluation?.evaluation_config?.end_date}
+                </p>
+              </div>
             </div>
           </div>
         )}
