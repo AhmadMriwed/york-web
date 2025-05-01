@@ -35,6 +35,8 @@ interface ExamSectionFormValues {
 interface ExamSectionOperationProps {
   typeData?: Partial<any[]>;
   assignmentsSections?: Partial<any[]>;
+  categoryiesData: Partial<any[]>;
+  CategoryLoading: any;
 
 }
 
@@ -74,6 +76,8 @@ const examSectionSchema = yup.object().shape({
 const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
   assignmentsSections,
   typeData,
+  categoryiesData,
+  CategoryLoading
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,11 +86,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
-  const {
-    categories,
-    isLoading: dataLoading,
-  } = useSelector((state: GlobalState) => state.endUser);
-  const dispatch = useDispatch<any>();
+
 
 
 
@@ -141,7 +141,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
     { label: "Active", value: "Active", id: 1 },
     { label: "Inactive", value: "Inactive", id: 2 },
   ];
-  const categoriesList = categories?.map((category: any) => ({
+  const categoriesList = categoryiesData?.map((category: any) => ({
     label: (
       <div key={category.id} className="flex items-center gap-2">
         <div className="w-[25px] h-[25px] rounded-full overflow-hidden bg-slate-400">
@@ -191,9 +191,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
     image: null,
     organization: "", 
   };
-  useEffect(() => {
-    dispatch(getCategories(""));
-  }, [dispatch]);
+
 
   const initialValues = assignmentsSections?.find((section) => section.id === selectedSectionId) 
   ? {
@@ -238,7 +236,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
 
                   onSearch={(value: string) => setSectionTerm(value)}
                   renderMenu={(menu) => {
-                    if (dataLoading) {
+                    if (CategoryLoading) {
                       return (
                         <p
                           style={{
@@ -397,15 +395,15 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
               <Button
                 type="submit"
                 disabled={loading}
-                className="!bg-primary-color1 py-[9px] sm:py-3 sm:px-9  max-sm:!w-full"
+              className="!bg-primary-color1 py-[8px] sm:py-2 sm:!px-9  max-sm:!w-full"
               >
                 {loading ? (<div className="flex justify-center items-center gap-4">
 
                   <Loader />
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Add </h3>
+                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Add </h6>
                 </div>
                 ) : (
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Add </h3>
+                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Add </h6>
                 )}
               </Button>
             </div>

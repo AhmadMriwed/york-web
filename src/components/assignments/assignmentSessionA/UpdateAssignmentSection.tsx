@@ -31,9 +31,11 @@ interface ExamSectionFormValues {
   organization: string | null; // Added organization_name field
 }
 interface ExamSectionOperationProps {
+  initialValuess: Partial<any>;
   typeData?: Partial<any[]>;
-  assignmentsSection?: Partial<any>;
   id: number;
+  categoriesData?: Partial<any>;
+  setIsSucsess: any;
 }
 
 const examSectionSchema = yup.object().shape({
@@ -70,9 +72,11 @@ const examSectionSchema = yup.object().shape({
 
 
 const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
-  assignmentsSection,
+  initialValuess,
   typeData,
-  id
+  id,
+  categoriesData,
+  setIsSucsess
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -81,11 +85,7 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
   
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
-  const {
-    categories,
-    isLoading: dataLoading,
-  } = useSelector((state: GlobalState) => state.endUser);
-  const dispatch = useDispatch<any>();
+ 
 
 
 
@@ -122,6 +122,7 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
        
       });
       actions.resetForm();
+      setIsSucsess(true);
 
     } catch (error: any) {
       console.error("Submission Error:", error);
@@ -141,7 +142,7 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
     { label: "Inactive", value: "Inactive", id: 2 },
   ];
 
-  const categoriesList = categories?.map((category: any) => ({
+  const categoriesList = categoriesData?.map((category: any) => ({
     label: (
       <div key={category.id} className="flex items-center gap-2">
         <div className="w-[25px] h-[25px] rounded-full overflow-hidden bg-slate-400">
@@ -191,15 +192,13 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
     image: null,
     organization: "", 
   };
-  useEffect(() => {
-    dispatch(getCategories(""));
-  }, [dispatch]);
 
-  const initialValues = assignmentsSection ? {
-    ...assignmentsSection,
-    category_id: assignmentsSection.category ?assignmentsSection.category.id : null,
-    type_id: assignmentsSection.type ? assignmentsSection.type.id : null,
-    description: assignmentsSection ? assignmentsSection.description: null
+
+  const initialValues = initialValuess ? {
+    ...initialValuess,
+    category_id: initialValuess.category ?initialValuess.category.id : null,
+    type_id: initialValuess.type ? initialValuess.type.id : null,
+    description: initialValuess ? initialValuess.description: null
   } : defaultValues;
   return (
     <>
@@ -314,15 +313,15 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
               <Button
                 type="submit"
                 disabled={loading}
-                className="!bg-primary-color1 py-[9px] sm:py-3 sm:px-9  max-sm:!w-full"
+                className="!bg-primary-color1 py-[8px] sm:py-2 sm:px-9  max-sm:!w-full"
               >
                 {loading ? (<div className="flex justify-center items-center gap-4">
 
                   <Loader />
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Update </h3>
+                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Updating </h6>
                 </div>
                 ) : (
-                  <h3 className="text-lg tracking-widest sm:text-xl text-white">Update </h3>
+                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Update </h6>
                 )}
               </Button>
             </div>

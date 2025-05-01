@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 
 import dynamic from "next/dynamic";
 
-import { fetchAssignmentSessions, fetchSectionTypes } from "@/lib/action/assignment_action";
+import { fetchAssignmentSessions, fetchCategories, fetchSectionTypes } from "@/lib/action/assignment_action";
 import { Header, Loader } from "rsuite";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ const AddAssignmentSection = () => {
   const [assignmentSessions, setAssignmentSessions] = useState<any[]>([]);
   const [assignmentTypesData, setAssignmentTypesData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [assignmentCategoryData, setAssignmentCategoryData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter() ;
 
@@ -31,8 +32,11 @@ const AddAssignmentSection = () => {
       try {
         const data = await fetchAssignmentSessions();
         const typeData = await fetchSectionTypes();
+        const categoryData = await fetchCategories();
         setAssignmentSessions(data);
         setAssignmentTypesData(typeData);
+        setAssignmentCategoryData(categoryData);
+
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch sessions");
       } finally {
@@ -52,14 +56,16 @@ const AddAssignmentSection = () => {
          
       <Header className="flex justify-start items-center gap-2 max-sm:pt-1 px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
       <IoArrowBackSharp
-         className="text-primary-color1 text-2xl sm:text-3xl cursor-pointer"
+         className="text-primary-color1 text-xl sm:text-xl cursor-pointer"
                   onClick={() => router.back()}
                 />
-        <h1 className="text-[22px] lg:text-3xl font-semibold">Add New Exam Section</h1>
+        <h1 className="text-[20px] lg:text-[27px] font-semibold">Add New Exam Section</h1>
       </Header>
       <AssignmentSessionAddOperation
         assignmentsSections={assignmentSessions}
         typeData={assignmentTypesData}
+        categoryiesData = {assignmentCategoryData}
+        CategoryLoading={loading}
       />
     </section>
   );
