@@ -459,3 +459,21 @@ export const deletedQuestionCorrectAnswers = async (deletedIds: any) => {
     throw new Error("Unexpected error");
   }
 };
+
+
+
+export const getSectionById = async (id: number) => {
+  try {
+    const response = await axios.get(
+      `/assignment/exam-sections/${id}`,
+      getAuthHeaders()
+    );
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
