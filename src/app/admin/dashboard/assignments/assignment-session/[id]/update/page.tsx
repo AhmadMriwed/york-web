@@ -22,7 +22,7 @@ const UpdateAssignmentSection = dynamic(
   }
 );
 
-const updateAssignmentSection = () => {
+const Page = () => {
   const { id } = useParams()
   const [assignmentSession, setAssignmentSession] = useState<any>();
   const [assignmentTypesData, setAssignmentTypesData] = useState<any[]>([]);
@@ -98,4 +98,4 @@ const updateAssignmentSection = () => {
   );
 };
 
-export default updateAssignmentSection;
+export default Page;
