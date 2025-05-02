@@ -58,7 +58,7 @@ const examSectionSchema = yup.object().shape({
       }
     ),
   category_id: yup.number().nullable(),
-  type_id: yup.number().nullable(),
+  type_id: yup.number().required(" type is required"),
   code: yup
     .string()
     .test("len", "Must be empty or exactly 6 characters", (val: any) => {
@@ -103,16 +103,16 @@ const router = useRouter();
       console.log(values);
       formData.append("title", values.title);
     
-      if (values.category_id) formData.append("category_id", values.category_id);
-      if (values.description) formData.append("description", values.description);
-      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date));
-      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date));
-      if (values.trainer) formData.append("trainer", values.trainer);
-      if (values.code) formData.append("code", values.code);
-      if (values.status) formData.append("status", values.status);
-      if (values.image instanceof File) formData.append("image", values.image);
-      if (values.organization) formData.append("organization", values.organization);
-      if (values.type_id) formData.append("type_id", values.type_id.toString());
+      if (values.category_id) formData.append("category_id", values.category_id || undefined);
+      if (values.description) formData.append("description", values.description || undefined);
+      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date || undefined));
+      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date || undefined) );
+      if (values.trainer) formData.append("trainer", values.trainer || undefined);
+      if (values.code) formData.append("code", values.code || undefined) ;
+      if (values.status) formData.append("status", values.status || undefined);
+      if (values.image instanceof File) formData.append("image", values.image || undefined);
+      if (values.organization) formData.append("organization", values.organization || undefined);
+      if (values.type_id) formData.append("type_id", values.type_id.toString() || undefined);
       console.log(formData);
   
       const response = await addExamSection(formData);
@@ -199,7 +199,8 @@ const router = useRouter();
   ? {
       ...assignmentsSections.find((section) => section.id === selectedSectionId),
       category_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.category?.id || null,
-      type_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.type?.id || null
+      type_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.type?.id || null,
+      code: ''
     }
   : defaultValues;
 
@@ -324,7 +325,7 @@ const router = useRouter();
                 name="start_date"
                 label="Start Date"
                 placeholder="Start Date"
-    
+                optional
                 theme={mode}
               />
               <CustomInputField
@@ -333,6 +334,7 @@ const router = useRouter();
                 label="End Date"
                 placeholder="End Date"
                 theme={mode}
+                optional
               />
               {/* Replaced Venue with Organization Name */}
               <CustomInputField
@@ -340,14 +342,14 @@ const router = useRouter();
                 name="organization"
                 label="Organization Name"
                 placeholder="Enter organization name"
-              // optional
+              optional
               />
               <CustomInputField
                 type="select"
                 selectData={typeList}
                 name="type_id"
                 label="Type"
- 
+                required
                 placeholder="type"
               />
               <CustomInputField
@@ -363,14 +365,14 @@ const router = useRouter();
                 name="code"
                 label="Code (6 characters)"
                 placeholder="Enter code"
-              // optional
+              optional
               />
               <CustomInputField
                 type="select"
                 selectData={statusList}
                 name="status"
                 label="Status"
-                // optional
+                optional
                 placeholder="Status"
               />
               <CustomInputField
@@ -378,7 +380,7 @@ const router = useRouter();
                 name="trainer"
                 label="Trainer Name"
                 placeholder="Enter trainer name"
-              // optional
+              optional
               />
             </div>
             <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
@@ -387,7 +389,7 @@ const router = useRouter();
                   name="description"
                   label="Description "
                   value={initialValues?.description}
-                // optional
+                optional
                 />
               </div>
 
