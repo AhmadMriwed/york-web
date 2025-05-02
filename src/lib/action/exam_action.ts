@@ -477,3 +477,69 @@ export const getSectionById = async (id: number) => {
     throw new Error("Unexpected error");
   }
 };
+
+
+
+export const fetchRequirmentFieldsData = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_ASSIGNMENT_URL}/field-requirements`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+
+export const createStartFormF = async ( values: any) => {
+  try {
+    console.log(values);
+    const response = await axios.post(
+      `/assignment/start-forms`,
+      values,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+
+export const createEndFormF = async ( values: any) => {
+  try {
+    console.log(values);
+    const response = await axios.post(
+      `/assignment/end-forms`,
+      values,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};

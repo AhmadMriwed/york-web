@@ -5,7 +5,7 @@ import { ThemeContext } from "@/components/Pars/ThemeContext";
 import "@/components/assignments/assignmentSessionA/assignmentSessionAdd/style.css";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Modal, Button, Input, InputGroup, Header } from "rsuite";
+import { Button, Input, InputGroup, Header } from "rsuite";
 import {
   Calendar,
   Users,
@@ -19,6 +19,7 @@ import {
   Settings,
   Loader2,
   View,
+  EyeIcon,
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
@@ -39,7 +40,7 @@ import {
 } from "@/components/ui/accordion";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Control, FieldValues, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -56,15 +57,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FiFlag, FiPlay } from "react-icons/fi";
+import { FiFlag, FiPlay, FiPlus } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
-import { FaArrowRight, FaCalendarAlt, FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
+import { FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
-import { changeExamStatus, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, updateExamSettings } from "@/lib/action/exam_action";
+import { changeExamStatus, createEndFormF, createStartFormF, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, fetchRequirmentFieldsData, updateExamSettings } from "@/lib/action/exam_action";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
 import { Assignment } from "@/types/adminTypes/assignments/assignExamTypes";
+import CustomFormField, { FormFieldType } from "@/components/review/CustomFormField";
+import ImageUploader from "@/components/upload/ImageUploader";
+import { Modal } from "antd";
+
 
 
 const RenderIconButton = (props: any, ref: any) => {
@@ -76,11 +81,10 @@ const RenderIconButton = (props: any, ref: any) => {
       icon={<More className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${
-        mode === "dark"
-          ? "!text-[var(--light-bg-color)]"
-          : "!text-[var(--dark-color)]"
-      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${mode === "dark"
+        ? "!text-[var(--light-bg-color)]"
+        : "!text-[var(--dark-color)]"
+        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -93,14 +97,19 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
       icon={<IoMdMore className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${
-        mode === "dark"
-          ? "!text-[var(--light-bg-color)]"
-          : "!text-[var(--dark-color)]"
-      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${mode === "dark"
+        ? "!text-[var(--light-bg-color)]"
+        : "!text-[var(--dark-color)]"
+        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
+
+interface RequirementField {
+  id: number; // or string, depending on your data
+  name: string;
+  // other fields if they exist
+}
 
 const Page = () => {
   const { id, assignment_id } = useParams();
@@ -111,10 +120,17 @@ const Page = () => {
   const router = useRouter();
   const [isExamStatusChanged, setIsExamStatusChanged] = useState(false);
   const [isExamDeleted, setIsExamDeleted] = useState(false);
+  const [isViewAnsersChanged, setIsViewAnswersChanged] = useState(false);
   const [isStartFormDeleted, setIsStartFormDeleted] = useState(false);
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
   const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] = useState(false);
+  const [requimrentFields, setRequimrentFields] = useState<RequirementField[]>([]);
+  const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
+    useState<boolean>(false);
 
+  const [showAddEndingInterfaceModal, setShowAddEndingInterfaceModal] =
+    useState<boolean>(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
 
   useEffect(() => {
@@ -124,6 +140,8 @@ const Page = () => {
         if (!id) {
           throw new Error("Missing session ID in URL");
         }
+        const requirdata = await fetchRequirmentFieldsData();
+        setRequimrentFields(requirdata.data);
         console.log("try to fetch data");
         const data = await fetchAssignmentById(Number(assignment_id));
         setIsThereErrorWhileFetchData(false);
@@ -145,7 +163,7 @@ const Page = () => {
     }
     fetch();
 
-  }, [isExamDeleted, isEndFormDeleted, isStartFormDeleted, isExamStatusChanged]);
+  }, [isExamDeleted, isEndFormDeleted, isStartFormDeleted, isExamStatusChanged, isSuccess, isViewAnsersChanged]);
 
 
 
@@ -154,6 +172,7 @@ const Page = () => {
   const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] = useState(false);
   const [isSubmittingExamSettings, setIsSubmittingExamSettings] = useState(false);
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
+
   const [isEdittingExamConditions, setIsEdittingExamConditions] = useState(false);
   const [isEdittingExamRequirments, setIsEdittingExamRequirments] = useState(false);
   const [isThereAddFieldForExamRequirments, setIsThereAddFieldForExamRequirments] = useState(false);
@@ -173,9 +192,9 @@ const Page = () => {
       .refine(v => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
         message: "Invalid time format (HH:MM or HH:MM:SS required)"
       }),
-    view_results: z.enum(["after_completion", "manually", "per_answer"]),
+    view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
     count_return_exam: z.number().min(0),
-    view_answer: z.enum(["after_completion", "manually", "per_answer"]),
+    view_answer: z.enum(["after_completion", "manually", "after_each_answer"]),
   });
 
   type FormValues = z.infer<typeof editExamSettingsSchema>;
@@ -204,9 +223,9 @@ const Page = () => {
         date_view: exam_config?.date_view,
         count_questions_page: exam_config?.count_questions_page,
         time_questions_page: exam_config?.time_questions_page,
-        view_results: exam_config?.view_results as "after_completion" | "manually" | "per_answer",
+        view_results: exam_config?.view_results as "after_completion" | "manually" | "after_each_answer",
         count_return_exam: exam_config?.count_return_exam,
-        view_answer: exam_config?.view_answer as "after_completion" | "manually" | "per_answer",
+        view_answer: exam_config?.view_answer as "after_completion" | "manually" | "after_each_answer",
       });
     }
   }, [assignmentData, form]);
@@ -278,6 +297,42 @@ const Page = () => {
   };
 
 
+  const EditeAnswersView = async () => {
+    setIsSubmittingExamSettings(true);
+    const toastId = toast.loading('changing answers view to manually ...')
+    try {
+      const payload = {
+        exam_id: Number(assignment_id),
+        condition_exams_id: null,
+        old_condition_exams_id: null,
+        view_answer: "manually",
+      };
+      console.log(payload);
+      console.log(assignmentData?.exam_config.id);
+      const response = await updateExamSettings(payload, Number(assignmentData?.exam_config?.id));
+      console.log("API Response:", response);
+
+      toast.success(" Changed successfully", {
+        description: "The answers view has been changed to manually successfully.",
+        duration: 4000,
+        id: toastId
+
+      });
+      setIsExamDeleted(prev => !prev);
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+        id: toastId
+      });
+    } finally {
+
+      setIsSubmittingExamSettings(false);
+    }
+  };
+
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
     try {
@@ -287,7 +342,9 @@ const Page = () => {
         condition_exams_id: null,
         old_condition_exams_id: null,
       };
-      const response = await updateExamSettings(payload, Number(assignment_id));
+      console.log(payload);
+      console.log(assignmentData?.exam_config.id);
+      const response = await updateExamSettings(payload, Number(assignmentData?.exam_config.id));
       console.log("API Response:", response);
 
       toast.success("Settings updated successfully", {
@@ -295,6 +352,7 @@ const Page = () => {
         duration: 4000,
 
       });
+      setIsSuccess(!isSuccess);
 
     } catch (error: any) {
       console.error("Submission Error:", error);
@@ -309,8 +367,8 @@ const Page = () => {
 
   };
   const changgeExamStatus = async () => {
-    setIsSubmittingExamSettings(true);
 
+    const toastId = toast.loading('changing exam status ...')
     try {
       const response = await changeExamStatus(Number(assignment_id));
       console.log("API Response:", response);
@@ -318,6 +376,7 @@ const Page = () => {
       toast.success("Status updated successfully", {
         description: "The exam status has been updated successfully.",
         duration: 4000,
+        id: toastId
 
       });
       setIsExamStatusChanged(prev => !prev);
@@ -327,6 +386,7 @@ const Page = () => {
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
+        id: toastId
       });
     } finally {
     }
@@ -419,7 +479,7 @@ const Page = () => {
       <div className="flex justify-between items-start mb-5 pt-2">
         <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
           <IoArrowBackSharp
-            className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+            className="text-primary-color1 text-xl sm:text-xl cursor-pointer"
 
             onClick={() => router.back()}
           />
@@ -485,7 +545,13 @@ const Page = () => {
                     {[
                       { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/updateAssignment`) },
                       { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { deletteExam() } },
-                      { icon: <input type="checkbox" readOnly={true} checked={assignmentData?.exam_config?.view_answer === 'manually'} className=" size-5 max-sm:size-4 accent-primary-color1 " />, text: "Answer Visible", action: () => { } },
+                      ...(assignmentData?.exam_config?.view_answer !== 'manually'
+                        ? [{
+                          icon: <input type="checkbox" onChange={() => EditeAnswersView()} className="size-5 max-sm:size-4 accent-primary-color1" />,
+                          text: "Answers View",
+                          action: () => { }
+                        }]
+                        : []),
                       { icon: <CiExport className=" size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
                       { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { changgeExamStatus() } },
                       { icon: <MdVisibility className=" size-5 max-sm:size-4" />, text: "Preview Exam", action: () => { } }
@@ -519,7 +585,7 @@ const Page = () => {
                   <div className=" sm:col-span-4   space-y-1 sm:space-y-4  ">
 
 
-                    <div className="flex items-center gap-3 md:gap-5">
+                    
                       {assignmentData?.exam_config?.language && <InfoItem
                         icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                         label="Language"
@@ -532,7 +598,7 @@ const Page = () => {
                       />}
 
 
-                    </div>
+                  
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Start Date"
@@ -572,128 +638,217 @@ const Page = () => {
                       />}
 
                     </div>
-                    {assignmentData?.exam_config?.view_answer === "manually" ? (
-                      <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
-                        <MdVisibility className="w-5 h-5 text-green-500 max-sm:w-4 max-sm:h-4" />
-                        <span className="text-[16px] max-sm:text-sm">Answers Visible</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3 max-sm:gap-2 pl-2 mt-2">
+                    {assignmentData?.exam_config?.view_answer &&
+                      <InfoItem
+                        icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                        label="Answers View "
+                        value={assignmentData?.exam_config?.view_answer}
+                      />
 
-                        <MdVisibilityOff className="w-5 h-5 text-red-500 max-sm:w-4 max-sm:h-4" />
-                        <span className="text-lg max-sm:text-sm">Answers Hidden</span>
-                      </div>
-                    )}
+                    }
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 p-1.5 mt-8 sm:mt-16">
 
-                  {assignmentData?.start_forms[0]?.id && <div className="bg-white dark:bg-gray-900 max-h-[450px] p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-                    <div className="flex justify-between items-start">
+
+
+
+
+
+
+                <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2 p-1.5 mt-8 sm:mt-16 sm:px-2 h-fit">
+                  {assignmentData?.start_forms[0]?.id ? (
+                    <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 pt-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                       <div className="flex items-center mb-4 sm:mb-6">
                         <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
                           <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
                         </div>
                         <div>
+
+
                           <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
                             {assignmentData?.start_forms[0]?.title}
                           </h3>
+                          <div className="absolute right-2 top-2">
+                            <Dropdown
+                              renderToggle={VerticalRenderIconButton}
+                              placement="bottomEnd"
+                              className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                            >
+                              {[
+                                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.id}/update`) },
+                                { icon: <TrashIcon className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteStartForm(Number(assignmentData?.start_forms[0].id)) } },
+
+                              ].map((item, index) => (
+                                <Dropdown.Item
+                                  key={index}
+                                  className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                                  onClick={item.action}
+                                >
+                                  {item.icon}
+                                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                                </Dropdown.Item>
+                              ))}
+                            </Dropdown>
+                          </div>
                           <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
                             {assignmentData?.start_forms[0]?.sub_title}
                           </p>
                         </div>
+
                       </div>
-                      <Dropdown
-                        renderToggle={VerticalRenderIconButton}
-                        placement="bottomEnd"
-                        className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                      >
-                        {[
-                          { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}`) },
-                          { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.form_id}/update`) },
-                          { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteStartForm(Number(assignmentData?.start_forms[0].form_id)) } },
-
-                        ].map((item, index) => (
-                          <Dropdown.Item
-                            key={index}
-                            className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                            onClick={item.action}
-                          >
-                            {item.icon}
-                            <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                        {assignmentData?.start_forms[0]?.description}
+                      </p>
+                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <Button
+                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${assignmentData?.start_forms[0]?.id}`) }}
+                          type="button"
+                          className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                        >
+                          Show
+                        </Button>
+                      </div>
                     </div>
-
-
-                    <div className="w-full h-3/4 ">
-                      <Image
-                        src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.start_forms[0]?.image}`}
-                        alt={'START INTERFACE'}
-                        className="h-full w-full  rounded-lg object-cover max-h-full border border-gray-200 dark:border-gray-600"
-                        width={300}
-                        height={300}
-                      />
-                    </div>
-
-                  </div>}
-                  {
-                    assignmentData?.end_forms[0]?.id &&
-
-                    <div className="bg-white dark:bg-gray-900 p-4 max-h-[430px] sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-                      <div className="flex justify-between items-start">
+                  ) : (
+                    <>
+                      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                         <div className="flex items-center mb-4 sm:mb-6">
-                          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
+                          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/70 rounded-xl mr-3 sm:mr-4">
+                            <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                              Starting Interface
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
+                              Not Configured
+                            </p>
+                          </div>
+                        </div>
+                        <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
+                            No starting interface has been configured yet
+                          </p>
+                        </div>
+                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
+                          <Button
+                            onClick={() =>
+                              setShowAddStartingInterfaceModal(true)
+                            }
+                            type="button"
+                            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
+                          >
+                            <FiPlus className="mr-2" />
+                            Add Starting Interface
+                          </Button>
+                        </div>
+                      </div>
+                      <AddStartFormInterface
+                        isModalOpen={showAddStartingInterfaceModal}
+                        setIsModalOpen={setShowAddStartingInterfaceModal}
+                        control={form.control}
+                        form_id={Number(assignmentData?.forms[0]?.id)}
+                        setissucess={setIsSuccess}
+                        issucess={isSuccess}
+                      />
+                    </>
+                  )}
+                  {assignmentData?.end_forms[0]?.id ? (
+                    <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 h-fit">
+                      <div className="flex items-center mb-4 sm:mb-6">
+                        <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
+                          <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                            {assignmentData?.end_forms[0]?.title}
+                          </h3>
+                          <div className="absolute right-2 top-2">
 
+                            <Dropdown
+                              renderToggle={VerticalRenderIconButton}
+                              placement="bottomEnd"
+                              className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                            >
+                              {[
+                                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.id}/update`) },
+                                { icon: <TrashIcon className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteEndForm(Number(assignmentData?.end_forms[0].id)) } },
+
+
+                              ].map((item, index) => (
+                                <Dropdown.Item
+                                  key={index}
+                                  className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                                  onClick={item.action}
+                                >
+                                  {item.icon}
+                                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
+                                </Dropdown.Item>
+                              ))}
+                            </Dropdown>
+                          </div>
+
+                          <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
+                            {assignmentData?.end_forms[0]?.sub_title}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                        {assignmentData?.end_forms[0]?.description}
+                      </p>
+                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <Button
+                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.id}`)}}
+                          type="button"
+                          className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                        >
+                          Show
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                        <div className="flex items-center mb-4 sm:mb-6">
+                          <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/70 rounded-xl mr-3 sm:mr-4">
                             <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
                           </div>
                           <div>
                             <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                              {assignmentData?.end_forms[0]?.title}
+                              Ending Interface
                             </h3>
-                            <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
-                              {assignmentData?.end_forms[0]?.sub_title}
+                            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
+                              Not Configured
                             </p>
                           </div>
                         </div>
-                        <Dropdown
-                          renderToggle={VerticalRenderIconButton}
-                          placement="bottomEnd"
-                          className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                        >
-                          {[
-                            { icon: <View className="text-primary-color1 size-5 max-sm:size-4" />, text: "Show More", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}`) },
-                            { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${assignmentData?.end_forms[0]?.form_id}/update`) },
-                            { icon: <TrashIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Delete", action: () => {/* Delete logic */ } },
-
-                          ].map((item, index) => (
-                            <Dropdown.Item
-                              key={index}
-                              className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                              onClick={item.action}
-                            >
-                              {item.icon}
-                              <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                            </Dropdown.Item>
-                          ))}
-                        </Dropdown>
+                        <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
+                            No Ending interface has been configured yet
+                          </p>
+                        </div>
+                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
+                          <Button
+                            onClick={() => setShowAddEndingInterfaceModal(true)}
+                            type="button"
+                            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
+                          >
+                            <FiPlus className="mr-2" />
+                            Add Ending Interface
+                          </Button>
+                        </div>
                       </div>
+                      <AddEndFormInterface
+                        isModalOpen={showAddEndingInterfaceModal}
+                        setIsModalOpen={setShowAddEndingInterfaceModal}
+                        control={form.control}
+                        form_id={Number(assignmentData?.forms[0]?.id)}
+                        setissucess={setIsSuccess}
+                        issucess={isSuccess}
 
-
-                      <div className="w-full h-3/4 ">
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.end_forms[0]?.image}`}
-                          alt={'START INTERFACE'}
-                          className="h-full w-full  rounded-lg object-cover border border-gray-200 dark:border-gray-600"
-                          width={300}
-                          height={300}
-                        />
-                      </div>
-
-                    </div>}
-
-               
+                      />
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -773,7 +928,7 @@ const Page = () => {
                                 name="date_view"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Exam Date :</FormLabel>
+                                    <FormLabel> Date View :</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="date"
@@ -797,6 +952,7 @@ const Page = () => {
                                       <Input
                                         type="number"
                                         {...field}
+                                        onChange={(value) => field.onChange(Number(value))}
                                         className="dark:bg-gray-800"
                                       />
                                     </FormControl>
@@ -807,13 +963,33 @@ const Page = () => {
                                 )}
                               />
 
+                              <FormField
+                                control={form.control}
+                                name="time_questions_page"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Time For Page :</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        placeholder="HH:MM"
+                                        {...field}
+                                        className="dark:bg-gray-800"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+
                               {/* Results Display */}
                               <FormField
                                 control={form.control}
-                                name="view_results"
+                                name="view_answer"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Results Display :</FormLabel>
+                                    <FormLabel>Answers View :</FormLabel>
                                     <Select
                                       onValueChange={field.onChange}
                                       value={field.value}
@@ -828,9 +1004,9 @@ const Page = () => {
                                         <SelectItem value="after_completion">
                                           After Finish
                                         </SelectItem>
-                                        <SelectItem value="manually">Manually</SelectItem>
-                                        <SelectItem value="per_answer">
-                                          Per Answer
+                                        <SelectItem value="manually">Manual</SelectItem>
+                                        <SelectItem value="after_each_answer">
+                                          After Each Answer
                                         </SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -839,25 +1015,6 @@ const Page = () => {
                                 )}
                               />
 
-
-                              <FormField
-                                control={form.control}
-                                name="time_questions_page"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Exam Time :</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="text"
-                                        placeholder="HH:MM"
-                                        {...field}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
 
 
                               <FormField
@@ -883,10 +1040,10 @@ const Page = () => {
 
                               <FormField
                                 control={form.control}
-                                name="view_answer"
+                                name="view_results"
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Display Correction Ladder :</FormLabel>
+                                    <FormLabel>Result View :</FormLabel>
                                     <Select
                                       onValueChange={field.onChange}
                                       value={field.value}
@@ -902,8 +1059,8 @@ const Page = () => {
                                           After Finish
                                         </SelectItem>
                                         <SelectItem value="manually">Manually</SelectItem>
-                                        <SelectItem value="per_answer">
-                                          Per Answer
+                                        <SelectItem value="after_each_answer">
+                                          After Each Answer
                                         </SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -961,7 +1118,7 @@ const Page = () => {
                               <CiCalendarDate className="text-lg" />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Exam Date</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Date View : </p>
                               <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.date_view}</p>
                             </div>
                           </div>
@@ -982,7 +1139,7 @@ const Page = () => {
                               <RiSlideshowLine className="text-lg " />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results Display</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Answers View</p>
                               <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_results}</p>
                             </div>
                           </div>
@@ -1011,7 +1168,7 @@ const Page = () => {
                               <FaCheckCircle className="text-lg" />
                             </div>
                             <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Display Correction Ladder</p>
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results View</p>
                               <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.exam_config?.view_answer}</p>
                             </div>
                           </div>
@@ -1019,10 +1176,10 @@ const Page = () => {
                           <div className="flex justify-end mt-3">
                             <Button
                               appearance="primary"
-                              className="py-0 !bg-primary-color1 !px-4"
+                              className=" !bg-primary-color1 py-2 !px-4"
                               onClick={() => setIsEdittingExamSettings(true)}
                             >
-                              <h4 className="tracking-wide py-0 my-0">Edit</h4>
+                              <p className="tracking-wide py-0 my-0">Edit</p>
 
                             </Button>
                           </div>
@@ -1076,15 +1233,15 @@ const Page = () => {
                               <Button
                                 type="submit"
                                 appearance="primary"
-                                className="py-0 !bg-primary-color1 !px-4"
+                                className="py-2 !bg-primary-color1 !px-4"
                               >
                                 {isSubmittingExamConditions ? (
                                   <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    <h4 className="">Saving...</h4>
+                                    <Loader2 className="mr-2  h-4 w-4 animate-spin" />
+                                    <p className="">Saving...</p>
                                   </>
                                 ) : (
-                                  <h4 className="">Save</h4>
+                                  <p className="">Save</p>
                                 )}
                               </Button>
                             </div>
@@ -1096,15 +1253,15 @@ const Page = () => {
                           {assignmentData?.exam_config?.condition_exams.map((condition) => (
                             <p key={condition.id}>{condition.name}</p>
                           ))}
-                          <div className="flex items-center justify-end mt-3">
+                          {/* <div className="flex items-center justify-end mt-3">
                             <Button
                               appearance="primary"
-                              className="py-0 !bg-primary-color1 !px-4"
+                              className="py-2 !bg-primary-color1 !px-4"
                               onClick={() => setIsEdittingExamConditions(true)}
                             >
-                              <h4 className="tracking-wide py-0 my-0">Edit</h4>
+                              <p className="tracking-wide py-0 my-0">Edit</p>
                             </Button>
-                          </div>
+                          </div> */}
                         </div>
 
                       )}
@@ -1125,7 +1282,7 @@ const Page = () => {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      {
+                      {/* {
                         isEdittingExamRequirments ? (<div>
 
                           <div className="">
@@ -1220,9 +1377,9 @@ const Page = () => {
                                     <Button
                                       type="submit"
                                       appearance="primary"
-                                      className="py-0 !bg-primary-color1 !px-4"
+                                      className="py-2 !bg-primary-color1 !px-4"
                                     >
-                                      <h4 className="tracking-wide py-0 my-0">Add</h4>
+                                      <p className="tracking-wide py-0 my-0">Add</p>
 
                                     </Button>
                                   </div>
@@ -1234,20 +1391,20 @@ const Page = () => {
 
                                     onClick={() => { isThereAddFieldForExamRequirments ? setIsThereAddFieldForExamRequirments(false) : setIsThereAddFieldForExamRequirments(true) }}
                                     appearance="primary"
-                                    className="py-0 !bg-primary-color1 !px-4"
+                                    className="py-2 !bg-primary-color1 !px-4"
                                   >
-                                    <h4 className="tracking-wide py-0 my-0">Add Field</h4>
+                                    <p className="tracking-wide py-0 my-0">Add Field</p>
 
                                   </Button>
 
 
                                   <Button
                                     appearance="primary"
-                                    className="py-0 !bg-primary-color1 !px-4"
+                                    className="py-2 !bg-primary-color1 !px-4"
                                     onClick={() => { setIsEdittingExamRequirments(false); setIsThereAddFieldForExamRequirments(false) }}
 
                                   >
-                                    <h4 className="tracking-wide py-0 my-0">Done</h4>
+                                    <p className="tracking-wide py-0 my-0">Done</p>
 
                                   </Button>
 
@@ -1288,17 +1445,26 @@ const Page = () => {
 
                               <Button
                                 appearance="primary"
-                                className="py-0 !bg-primary-color1 !px-4"
+                                className="py-2 !bg-primary-color1 !px-4"
                                 onClick={() => setIsEdittingExamRequirments(true)}
                               >
-                                <h4 className="tracking-wide py-0 my-0">Edit</h4>
+                                <p className="tracking-wide py-0 my-0">Edit</p>
 
                               </Button>
                             </div>
                           </div>
 
                         )
-                      }
+                      } */}
+                      <div className="mt-2 flex flex-col gap-y-1">
+                        {assignmentData?.field_requirements?.map((r) => {
+                          const matchedField = requimrentFields.find(
+                            (field) => field.id === r.field_requirement_id
+                          );
+                          return <p key={r.id}>{matchedField?.name || 'Unknown field'}</p>;
+                        })}
+                      </div>
+
                     </AccordionContent>
                   </AccordionItem>
                   <div
@@ -1379,10 +1545,351 @@ const InfoItem = ({
 );
 
 
-const CustomButton = ({ title }: { title: string }) => {
+
+
+
+type Props = {
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+  control: Control<any>;
+  form_id: number;
+  setissucess: any;
+  issucess: any;
+
+};
+
+
+
+
+
+const AddEndFormInterface = ({
+  isModalOpen,
+  setIsModalOpen,
+  control,
+  form_id,
+  setissucess,
+  issucess
+
+}: Props) => {
+  const addEndFormSchema = z.object({
+
+
+
+    title: z.string(),
+    sub_title: z.string().optional(),
+    description: z.string().optional(),
+
+    image: z.union([
+      z.string().url(),
+      z.instanceof(File)
+    ]).optional().nullable(),
+
+
+    url: z.string().optional()
+
+  });
+  type EndFormValues = z.infer<typeof addEndFormSchema>;
+
+  const addendinterfaceform = useForm<EndFormValues>({
+    resolver: zodResolver(addEndFormSchema),
+    defaultValues: {
+      title: '',
+      sub_title: '',
+      description: '',
+      image: null,
+      url: '',
+    }
+  });
+  const onSubmit = async (values: EndFormValues) => {
+    const toastId = toast.loading('Creating end interface ...');
+    try {
+      const payload = {
+        form_id: form_id,
+        ...values
+      };
+
+      const response = await createEndFormF(payload);
+      console.log("API Response:", response);
+
+      toast.success("Creating successfully", {
+        description: "The end interface has been created successfully.",
+        duration: 4000,
+        id: toastId
+      });
+      setissucess(!issucess);
+      setIsModalOpen(false);
+      addendinterfaceform.reset();
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message || 'Failed to create form',
+        duration: 5000,
+        id: toastId
+      });
+    }
+  };
   return (
-    <Button appearance="subtle" className="">
-      <h3>{title}</h3>
-    </Button>
-  )
-}
+    <Modal
+      title="Add Interface"
+      open={isModalOpen}
+      onCancel={() => (setIsModalOpen(false))}
+      footer={null}
+      width={800}
+    >
+      <Form {...addendinterfaceform}>
+        <form onSubmit={addendinterfaceform.handleSubmit(onSubmit)} className="space-y-6">
+          <CustomFormField
+            fieldType={FormFieldType.SKELETON}
+            control={addendinterfaceform.control}
+            name="image"
+            label="Image"
+            renderSkeleton={(field) => (
+              <FormControl>
+                <ImageUploader
+                  file={field.value}
+                  onChange={(file) => {
+                    field.onChange(file);
+                  }}
+                />
+              </FormControl>
+            )}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={addendinterfaceform.control}
+              label="Title:"
+              name="title"
+              placeholder="Enter title"
+            />
+
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={addendinterfaceform.control}
+              label="Subtitle:"
+              name="sub_title"
+              placeholder="Enter subtitle"
+            />
+
+            <div className="md:col-span-2">
+              <CustomFormField
+                fieldType={FormFieldType.TEXTAREA}
+                control={addendinterfaceform.control}
+                label="Description:"
+                name="description"
+                placeholder="Enter description"
+              />
+            </div>
+
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={addendinterfaceform.control}
+              label="URL:"
+              name="url"
+              placeholder="Enter URL"
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="text-white rounded-[8px] px-3 py-[px] bg-primary-color1 hover:bg-primary-color2"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </Form>
+    </Modal>
+  );
+};
+
+
+const AddStartFormInterface = ({
+  isModalOpen,
+  setIsModalOpen,
+  form_id,
+  setissucess,
+  issucess
+}: Props) => {
+  const addStartInterfaceSchema = z.object({
+    title: z.string().optional(),
+    sub_title: z.string().optional(),
+    description: z.string().optional(),
+    image: z.union([
+      z.string().url(),
+      z.instanceof(File)
+    ]).optional().nullable(),
+    show_configration: z.number().optional(),
+    show_condition: z.number().optional(),
+  });
+
+  type StartFormValues = z.infer<typeof addStartInterfaceSchema>;
+
+  const form = useForm<StartFormValues>({
+    resolver: zodResolver(addStartInterfaceSchema),
+    defaultValues: {
+      title: '',
+      sub_title: '',
+      description: '',
+      image: null,
+      show_configration: 0,
+      show_condition: 0
+    }
+  });
+
+  const onSubmit = async (values: StartFormValues) => {
+    const toastId = toast.loading('Creating start interface ...');
+    try {
+      const payload = {
+        form_id: form_id,
+        ...values
+      };
+
+      const response = await createStartFormF(payload);
+      console.log("API Response:", response);
+
+      toast.success("Creating successfully", {
+        description: "The start interface has been created successfully.",
+        duration: 4000,
+        id: toastId
+      });
+      setissucess(!issucess);
+      setIsModalOpen(false);
+      form.reset();
+
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message || 'Failed to create form',
+        duration: 5000,
+        id: toastId
+      });
+    }
+  };
+
+  return (
+    <Modal
+      title="Add Interface"
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={null}
+      width={800}
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="mt-4">
+            <CustomFormField
+              fieldType={FormFieldType.SKELETON}
+              control={form.control}
+              name="image"
+              label="Image"
+              renderSkeleton={(field) => (
+                <FormControl>
+                  <ImageUploader
+                    file={field.value}
+                    onChange={(file) => field.onChange(file)}
+                  />
+                </FormControl>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="Title:"
+                name="title"
+                placeholder="Enter title"
+              />
+            </div>
+
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="Subtitle:"
+                name="sub_title"
+                placeholder="Enter subtitle"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-start flex-1 mt-4">
+            <CustomFormField
+              fieldType={FormFieldType.TEXTAREA}
+              control={form.control}
+              label="Description:"
+              name="description"
+              placeholder="Enter description"
+            />
+          </div>
+
+          <div className="flex gap-2 md:gap-6 md:flex-row flex-col mt-4">
+            <FormField
+              control={form.control}
+              name="show_condition"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center gap-2">
+                  <FormControl className="mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={field.value === 1}
+                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
+                    />
+                  </FormControl>
+                  <FormLabel className="text-base">Show Conditions</FormLabel>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="show_configration"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center gap-2">
+                  <FormControl className="mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={field.value === 1}
+                      onChange={(e) => field.onChange(e.target.checked ? 1 : 0)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
+                    />
+                  </FormControl>
+                  <FormLabel className="text-base">Show Configuration</FormLabel>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="text-white rounded-[8px] px-3 py-[px] bg-primary-color1 hover:bg-primary-color2"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
+      </Form>
+    </Modal>
+  );
+};

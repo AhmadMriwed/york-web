@@ -704,7 +704,6 @@
 
 
 
-
 'use client';
 
 import { Trash } from 'lucide-react';
@@ -714,7 +713,10 @@ import { IoArrowBackSharp } from 'react-icons/io5';
 import { Button, Header, Message, toaster } from 'rsuite';
 import dynamic from 'next/dynamic';
 
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+const ReactQuill = dynamic(() => import('react-quill'), {
+    ssr: false,
+    loading: () => <p>Loading editor...</p>
+});
 import 'react-quill/dist/quill.snow.css';
 import { deletedQuestionCorrectAnswers, deletedQuestionOptions, getQuestionById, updateQuestion } from '@/lib/action/exam_action';
 import { toast } from 'sonner';
@@ -732,7 +734,6 @@ const modules = {
         ]
     },
 };
-
 type Field = {
     id: number;
     field: string;
@@ -806,15 +807,15 @@ const EditQuestionPage = () => {
                 const response = await getQuestionById(Number(question_id));
                 const data = response.data;
                 setApiData(data);
-    
-                const questionType = 
+
+                const questionType =
                     data.question_type_id === 1 ? 'single' :
-                    data.question_type_id === 2 ? 'multi' :
-                    data.question_type_id === 3 ? 'true_false' :
-                    data.question_type_id === 4 ? 'short' : 'long';
-    
+                        data.question_type_id === 2 ? 'multi' :
+                            data.question_type_id === 3 ? 'true_false' :
+                                data.question_type_id === 4 ? 'short' : 'long';
+
                 let options: Option[] = [];
-                
+
                 if (questionType === 'short' || questionType === 'long') {
                     // For short/long answers, use correct_answers or default to empty string
                     if (data.correct_answers && data.correct_answers.length > 0) {
@@ -830,12 +831,12 @@ const EditQuestionPage = () => {
                     options = (data.fields || []).map((field: Field) => ({
                         id: field.id,
                         text: field.field || '',
-                        isCorrect: (data.correct_answers || []).some((ca: CorAns) => 
+                        isCorrect: (data.correct_answers || []).some((ca: CorAns) =>
                             ca.correct_value === field.field
                         )
                     }));
                 }
-    
+
                 setQuestionData({
                     question: data.question || '',
                     options: options,
@@ -846,14 +847,14 @@ const EditQuestionPage = () => {
                     correct_answer_grade: data.correct_answer_grade || 0,
                     wrong_answer_grade: data.wrong_answer_grade || 0,
                 });
-    
+
                 setErrors({
                     question: false,
                     options: options.map(() => false),
                     correctAnswerGrade: false,
                     wrongAnswerGrade: false,
                 });
-    
+
             } catch (error) {
                 console.error('Error fetching question:', error);
                 toast.error('Failed to load question data');
@@ -861,7 +862,7 @@ const EditQuestionPage = () => {
                 setIsLoading(false);
             }
         };
-    
+
         fetchQuestion();
     }, [question_id]);
 
@@ -876,9 +877,9 @@ const EditQuestionPage = () => {
             wrongAnswerGrade: false,
         };
 
-        if (questionData.type === 'true_false') {
-            newErrors.wrongAnswerGrade = questionData.wrong_answer_grade > 0;
-        }
+        // if (questionData.type === 'true_false') {
+        //     newErrors.wrongAnswerGrade = questionData.wrong_answer_grade > 0;
+        // }
 
         if (['single', 'multi', 'true_false'].includes(questionData.type)) {
             const hasCorrectAnswer = questionData.options.some(opt => opt.isCorrect);
@@ -897,6 +898,17 @@ const EditQuestionPage = () => {
     };
 
     const handleTypeChange = (newType: 'single' | 'multi' | 'true_false' | 'short' | 'long') => {
+        // Track all current options and correct answers for deletion when type changes
+        if (apiData) {
+            // Add all existing field IDs to deletedOptionIds
+            const currentFieldIds = apiData.fields.map(field => field.id);
+            setDeletedOptionIds(prev => [...prev, ...currentFieldIds]);
+
+            // Add all existing correct answer IDs to deletedCorrectAnswerIds
+            const currentCorrectAnswerIds = apiData.correct_answers.map(ca => ca.id);
+            setDeletedCorrectAnswerIds(prev => [...prev, ...currentCorrectAnswerIds]);
+        }
+
         let newOptions: Option[] = [];
 
         if (newType === 'true_false') {
@@ -905,7 +917,13 @@ const EditQuestionPage = () => {
                 { text: 'False', isCorrect: false }
             ];
         } else if (['short', 'long'].includes(newType)) {
-            newOptions = [{ text: '', isCorrect: true }];
+            // Initialize with empty delta structure for Quill
+            newOptions = [{
+                text: questionData.type === newType && questionData.options[0]?.text
+                    ? questionData.options[0].text
+                    : '<p><br></p>',
+                isCorrect: true
+            }];
         } else {
             newOptions = [{ text: '', isCorrect: false }];
         }
@@ -918,26 +936,27 @@ const EditQuestionPage = () => {
             wrong_answer_grade: newType === 'true_false' ? questionData.wrong_answer_grade : 0
         });
 
-        // Reset deletion tracking when type changes
-        setDeletedOptionIds([]);
-        setDeletedCorrectAnswerIds([]);
+        setErrors({
+            question: false,
+            options: newOptions.map(() => false),
+            correctAnswerGrade: false,
+            wrongAnswerGrade: false,
+        });
     };
 
     const handleOptionChange = (index: number, value: string) => {
-        // Create a new array with at least one option if empty
-        const newOptions = questionData.options.length > 0 
-            ? [...questionData.options] 
+        const newOptions = questionData.options.length > 0
+            ? [...questionData.options]
             : [{ text: '', isCorrect: true }];
-        
-        // Ensure the index exists (for short/long answers there should only be index 0)
+
         if (index >= newOptions.length) {
             newOptions.push({ text: value, isCorrect: true });
         } else {
             newOptions[index].text = value;
         }
-    
+
         setQuestionData({ ...questionData, options: newOptions });
-    
+
         setErrors(prev => ({
             ...prev,
             options: newOptions.map(opt => !opt.text.replace(/<[^>]*>/g, '').trim())
@@ -946,18 +965,16 @@ const EditQuestionPage = () => {
 
     const handleCorrectAnswerChange = (index: number) => {
         const newOptions = [...questionData.options];
-        
+
         if (questionData.type === 'single' || questionData.type === 'true_false') {
-            // For single select, unselect all others
             newOptions.forEach((opt, i) => {
                 if (i === index) {
                     opt.isCorrect = true;
-                    
-                    // Track if we're changing a previously correct answer
-                    if (apiData?.correct_answers.some(ca => 
+
+                    if (apiData?.correct_answers.some(ca =>
                         ca.correct_value === opt.text && !opt.isCorrect
                     )) {
-                        const correctAnswer = apiData.correct_answers.find(ca => 
+                        const correctAnswer = apiData.correct_answers.find(ca =>
                             ca.correct_value === opt.text
                         );
                         if (correctAnswer) {
@@ -966,11 +983,10 @@ const EditQuestionPage = () => {
                     }
                 } else {
                     if (opt.isCorrect) {
-                        // Track the deselected correct answer
-                        if (apiData?.correct_answers.some(ca => 
+                        if (apiData?.correct_answers.some(ca =>
                             ca.correct_value === opt.text
                         )) {
-                            const correctAnswer = apiData.correct_answers.find(ca => 
+                            const correctAnswer = apiData.correct_answers.find(ca =>
                                 ca.correct_value === opt.text
                             );
                             if (correctAnswer) {
@@ -982,15 +998,13 @@ const EditQuestionPage = () => {
                 }
             });
         } else if (questionData.type === 'multi') {
-            // For multi select, just toggle this one
             const wasCorrect = newOptions[index].isCorrect;
             newOptions[index].isCorrect = !wasCorrect;
 
-            // Track changes to correct answers
-            if (apiData?.correct_answers.some(ca => 
+            if (apiData?.correct_answers.some(ca =>
                 ca.correct_value === newOptions[index].text
             )) {
-                const correctAnswer = apiData.correct_answers.find(ca => 
+                const correctAnswer = apiData.correct_answers.find(ca =>
                     ca.correct_value === newOptions[index].text
                 );
                 if (correctAnswer) {
@@ -1018,16 +1032,14 @@ const EditQuestionPage = () => {
     const deleteOption = (id: number | undefined, index: number) => {
         const newOptions = [...questionData.options];
         const deletedOption = newOptions.splice(index, 1)[0];
-        
-        // If this option had an ID (meaning it existed in the database)
+
         if (id) {
             setDeletedOptionIds(prev => [...prev, id]);
-            
-            // Also check if it was a correct answer
-            if (apiData?.correct_answers.some(ca => 
+
+            if (apiData?.correct_answers.some(ca =>
                 ca.correct_value === deletedOption.text
             )) {
-                const correctAnswer = apiData.correct_answers.find(ca => 
+                const correctAnswer = apiData.correct_answers.find(ca =>
                     ca.correct_value === deletedOption.text
                 );
                 if (correctAnswer) {
@@ -1035,7 +1047,7 @@ const EditQuestionPage = () => {
                 }
             }
         }
-        
+
         setQuestionData({ ...questionData, options: newOptions });
         setErrors(prev => ({
             ...prev,
@@ -1051,7 +1063,7 @@ const EditQuestionPage = () => {
         const correctAnswerIds = questionData.options
             .filter(opt => opt.isCorrect)
             .map(opt => {
-                const originalCorrect = apiData?.correct_answers?.find(ca => 
+                const originalCorrect = apiData?.correct_answers?.find(ca =>
                     ca.correct_value === opt.text
                 );
                 return originalCorrect?.id;
@@ -1060,10 +1072,10 @@ const EditQuestionPage = () => {
 
         const formData = {
             form_id: Number(evaluation_id),
-            question_type_id: 
+            question_type_id:
                 questionData.type === 'single' ? 1 :
-                questionData.type === 'multi' ? 2 :
-                questionData.type === 'true_false' ? 3 : 4,
+                    questionData.type === 'multi' ? 2 :
+                        questionData.type === 'true_false' ? 3 : 4,
             question: questionData.question,
             show_grade: questionData.show_grade ? 1 : 0,
             hint: questionData.hint,
@@ -1090,7 +1102,7 @@ const EditQuestionPage = () => {
             if (deletedOptionIds.length > 0) {
                 await deletedQuestionOptions(deletedOptionIds);
             }
-            
+
             await updateQuestion(formData, Number(question_id));
             toast.success("Question updated successfully!", { id: toastId });
             router.back();
@@ -1238,24 +1250,25 @@ const EditQuestionPage = () => {
                             </div>
                         </div>
                     )}
-
                     {['short', 'long'].includes(questionData.type) && (
                         <div>
                             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                                 Correct Answer
                             </label>
                             <div className="dark:bg-gray-700 rounded">
-                                <ReactQuill
-                                    theme="snow"
-                                    value={questionData.options[0]?.text || ''}
-                                    onChange={(value) => handleOptionChange(0, value)}
-                                    className="dark:text-white"
-                                    modules={questionData.type === 'short' ? { toolbar: true } : modules}
-                                />
+                                {typeof window !== 'undefined' && (
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={questionData.options[0]?.text || '<p><br></p>'}
+                                        onChange={(value) => handleOptionChange(0, value)}
+                                        className="dark:text-white"
+                                        modules={questionData.type === 'short' ? { toolbar: true } : modules}
+                                        key={`quill-${questionData.type}`} // Add key to force remount on type change
+                                    />
+                                )}
                             </div>
                         </div>
                     )}
-
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
@@ -1266,8 +1279,8 @@ const EditQuestionPage = () => {
                             )}
                             <input
                                 type="number"
-                                min="0.01"
-                                step="0.01"
+                                min="0"
+                                step="1"
                                 value={questionData.correct_answer_grade}
                                 onChange={(e) => setQuestionData({
                                     ...questionData,
@@ -1289,7 +1302,7 @@ const EditQuestionPage = () => {
                                 <input
                                     type="number"
                                     min="0"
-                                    step="0.01"
+                                    step="1"
                                     value={questionData.wrong_answer_grade}
                                     onChange={(e) => setQuestionData({
                                         ...questionData,
@@ -1425,4 +1438,3 @@ const EditQuestionPage = () => {
 };
 
 export default EditQuestionPage;
-

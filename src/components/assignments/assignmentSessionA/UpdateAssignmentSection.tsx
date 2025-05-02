@@ -16,6 +16,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import ImageUploader from "./ImageUploader";
 import CustomInputField from "./CustomInputField";
+import { useRouter } from "next/navigation";
 
 interface ExamSectionFormValues {
   title: string;
@@ -80,7 +81,7 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
-
+const router = useRouter();
 
   
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -115,7 +116,7 @@ const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
   
       const response = await updateExamSection(formData, id);
       console.log("API Response:", response);
-   
+      router.push(`/admin/dashboard/assignments/assignment-session/${id}`)
       toast.success("Exam section updated successfully", {
         description: "The exam section has been updated successfully.",
         duration: 4000,

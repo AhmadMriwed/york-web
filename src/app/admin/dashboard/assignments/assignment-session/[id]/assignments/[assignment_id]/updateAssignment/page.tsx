@@ -145,7 +145,7 @@ const UpdateAssignmentPage = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(updateExamValidationSchema),
     defaultValues: {
-      form_id: assignment?.forms[0].id,
+      form_id: assignment?.forms[0]?.id,
       code: assignment?.code || "",
       title: assignment?.title || "",
       sub_title: assignment?.sub_title || "",

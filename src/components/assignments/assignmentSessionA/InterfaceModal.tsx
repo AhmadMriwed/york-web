@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomFormField, { FormFieldType } from "@/components/review/CustomFormField";
 import { Button } from "@/components/ui/button";
-import { Header } from "rsuite";
+import { Checkbox, Header } from "rsuite";
 import { EditValidation } from "@/schemas/interface";
 import { z } from "zod";
 import { IoArrowBackSharp } from "react-icons/io5";
@@ -19,7 +19,7 @@ import Loading from "@/components/Pars/Loading";
 
 
 
-export const InterfaceModal = ({ interfaceData, header, interface_id, id, assignment_id, loader, interf}: { interfaceData: StartInterfaceType | null; header: string, interface_id: number; id: number; assignment_id: number; loader: any, interf: string }) => {
+export const InterfaceModal = ({ interfaceData, header, interface_id, id, assignment_id, loader, interf }: { interfaceData: StartInterfaceType | null; header: string, interface_id: number; id: number; assignment_id: number; loader: any, interf: string }) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = (values: any) => {
@@ -32,17 +32,24 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
     <div className=" px-1 sm:px-4 pt-3 sm:pt-5 ">
       <div className="flex justify-between items-start mb-5 pt-2">
         <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
-          <IoArrowBackSharp className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+          <IoArrowBackSharp className="text-primary-color1 text-lg sm:text-xl cursor-pointer md:mr-4"
             onClick={() => router.back()}
           />
-          <h3 className="text-[22px]  sm:text-2xl lg:text-3xl font-semibold tracking-wider"> {header}</h3>
+          <h3 className="text-[20px]  md:text-2xl  font-semibold tracking-wider"> {header}</h3>
         </Header>
       </div>
       {
-        loader ? (<div className='flex justify-center my-16'><Loading /></div>): (
+          loader ? (<div className='flex justify-center my-16'><Loading /></div>) 
+                  : interfaceData === null ? (
+                    <div className="flex justify-center my-20  ">
+                      <h1 className="sm:text-2xl">No Data To Display</h1>
+                    </div>
+                  )
+                    : ( 
+        
 
 
-          <div className=" bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10  sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
+          <div className="relative bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10  sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
             <div className="pb-5 sm:pb-8">
               <h2 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
                 {interfaceData?.title}
@@ -55,8 +62,8 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
             </div>
 
             <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              {interfaceData?.image && (
-                <div className="w-full lg:w-1/3 max-sm:p-3">
+              <div className="w-full lg:w-1/3 max-sm:p-3">
+                {interfaceData?.image && (
                   <img
                     src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${interfaceData?.image}`}
                     alt={interfaceData?.title}
@@ -65,10 +72,24 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
                     height={400}
 
                   />
+                )}
+                {(interfaceData?.show_condition || interfaceData?.show_configration) && <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox disabled checked={interfaceData?.show_condition === 1}>
+                      Show conditions
+                    </Checkbox>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      disabled
+                      checked={interfaceData?.show_configration === 1}
+                    >
+                      Show settings
+                    </Checkbox>
+                  </div>
+                </div>}
+              </div>
 
-              
-                </div>
-              )}
 
 
               <div
@@ -81,6 +102,7 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
                   className="flex-1 overflow-y-auto pr-2 mb-4"
                   style={{ maxHeight: "calc(70vh - 200px)" }}
                 >
+                  <h6 className="text-[16px] mb-3 sm:text-[20px] text-semibold">Description : </h6>
                   <p
                     className="text-gray-800 text-[16px] max-sm:text-[14px] dark:text-gray-200"
                     style={{ whiteSpace: "pre-line" }}
@@ -88,6 +110,9 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
                     {interfaceData?.description}
                   </p>
                 </div>
+
+
+
 
                 {(interfaceData?.files || interfaceData?.url) && (
                   <>
@@ -136,22 +161,22 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
                   </>
                 )}
 
-                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+                <div className="  mt-5 md:mt-10 flex flex-row justify-end gap-4 pt-4">
 
                   <Button
                     type="button"
-                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-5 px-8 duration-200"
+                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-5 px-5 duration-200"
                     onClick={() => {
-                      interf === 'start'?
-                      router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${interface_id}/update`)
-                      : router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${interface_id}/update`)
+                      interf === 'start' ?
+                        router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${interface_id}/update`)
+                        : router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${interface_id}/update`)
                     }}
                   >
-                    <EditOutlined className="mr-2 text-white" />
-                    <h1 className="text-white text-lg sm:text-xl">
+                    <EditOutlined className="mr-2  size-4 text-white" />
+                    <p className="text-white text-sm sm:text-lg ">
 
                       Edit
-                    </h1>
+                    </p>
                   </Button>
                 </div>
               </div>

@@ -599,7 +599,7 @@ const QuestionManager = () => {
                 </p>
                 <div className='flex flex-col gap-y-2 items-start justify-start'>
                   {q.options.map((option) => (
-                    <div key={option.id} className={`w-full flex justify-start rounded-[5px] p-2 items-center gap-3 ${option.isCorrect ? "w-full   bg-[#f0fdf8] dark:bg-[#102b27]/70" : ""}`}>
+                    <div key={option.id} className={`w-full flex justify-start rounded-[5px] p-2 items-start gap-3 ${option.isCorrect ? "w-full   bg-[#f0fdf8] dark:bg-[#102b27]/70" : ""}`}>
                       <label className="relative flex items-center cursor-pointer">
                         <input
                           type='checkbox'

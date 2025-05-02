@@ -105,6 +105,12 @@ type Form = {
   created_at: string;
   updated_at: string;
 }
+type FieldRequirment = {
+  id: number;
+  form_id: number;
+  field_requirement_id: number;
+}
+
 export interface Assignment {
   start_forms: StartForm[];
   end_forms: EndForm[];
@@ -125,6 +131,7 @@ export interface Assignment {
   created_at: string;
   updated_at: string;
   exam_config: ExamConfig;
+  field_requirements: FieldRequirment[];
 }
 
 
@@ -177,4 +184,5 @@ export interface Evaluation {
   created_at: string;
   updated_at: string;
   evaluation_config: EvaluationConfig;
+  field_requirements: FieldRequirment[];
 }

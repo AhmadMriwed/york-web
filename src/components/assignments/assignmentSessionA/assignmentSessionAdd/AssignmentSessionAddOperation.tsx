@@ -18,6 +18,7 @@ import { getLocalISODate, getUTCDate } from "@/utils/dateFuncs";
 
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ExamSectionFormValues {
   title: string;
@@ -81,7 +82,7 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
-
+const router = useRouter();
 
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -116,13 +117,14 @@ const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
   
       const response = await addExamSection(formData);
       console.log("API Response:", response);
+      router.push(`/admin/dashboard/assignments/assignment-session/${response.data.data.id}`)
 
       toast.success("Exam section added successfully", {
         description: "The exam section has been created successfully.",
         duration: 4000,
-       
       });
       actions.resetForm();
+      console.log(response.data.data.id);
 
     } catch (error: any) {
       console.error("Submission Error:", error);

@@ -87,7 +87,7 @@ export const deleteQuestion = async (id: number) => {
       console.log(formData);
       console.log(evaluation_id);
       const response = await axios.put(
-        `/assignment/config-evaluations/${evaluation_id}`,
+        `/assignment/config-exams/${evaluation_id}`,
         formData,
         {
           headers: {

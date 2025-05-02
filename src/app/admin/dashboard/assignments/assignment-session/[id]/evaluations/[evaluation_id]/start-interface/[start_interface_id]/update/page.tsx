@@ -3,9 +3,9 @@
 
 
 'use client';
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import { useRef, useState } from "react";
-import { DeleteOutlined, LinkOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { File, Trash } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { getStartInterface, updateStartInterface, uploadFileToStartForm } from "@/lib/action/exam_action";
 import { Checkbox } from '@/components/ui/checkbox';
 import Loading from '@/components/Pars/Loading';
+
 const EditForm = ({
     initialValues,
     onSave,
@@ -39,37 +40,30 @@ const EditForm = ({
     setIsSubmitting: any;
     refreshData: () => void;
 }) => {
-
-
-
-    
-    
     type FormValues = z.infer<typeof EditValidation>;
     
     const defaultValues = {
         ...initialValues,
-        show_condition: initialValues?.show_condition ?? 0, // Default to 0 if undefined
-        show_configration: initialValues?.show_configration ?? 0, // Default to 0 if undefined
-      };
+        show_condition: initialValues?.show_condition ?? 0,
+        show_configration: initialValues?.show_configration ?? 0,
+    };
     
-      const form = useForm<FormValues>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(EditValidation),
         defaultValues,
-      });
+    });
 
-
-       const [isUploading, setIsUploading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     
-
     useEffect(() => {
         if (initialValues) {
-          form.reset({
-            ...initialValues,
-            show_condition: initialValues?.show_condition ?? 0, // Reset with default
-            show_configration: initialValues?.show_configration ?? 0, // Reset with default
-          });
+            form.reset({
+                ...initialValues,
+                show_condition: initialValues?.show_condition ?? 0,
+                show_configration: initialValues?.show_configration ?? 0,
+            });
         }
-      }, [initialValues, form]);
+    }, [initialValues, form]);
 
     const { control, watch, setValue } = form;
     const currentImage = watch("image");
@@ -81,18 +75,9 @@ const EditForm = ({
         }
     };
 
-
     const removeFile = async (index: number) => {
         try {
-            // Call API to delete the file from server
-            // await deleteFileFromStartForm(Number(start_interface_id), fileId);
-
-            // Update local state
-            // const updatedFiles = [...(currentFiles || [])];
-            // updatedFiles.splice(index, 1);
-            // setValue("files", updatedFiles);
-
-            // toast.success("File deleted successfully");
+            // File removal logic
         } catch (error: any) {
             console.error("Error deleting file:", error);
             toast.error("Failed to delete file", {
@@ -101,8 +86,33 @@ const EditForm = ({
         }
     };
 
-    const onSubmit = (values: FormValues) => {
-        onSave(values);
+    const onSubmit = (values: any) => {
+        // Create FormData to handle file uploads
+        const formData = new FormData();
+        
+        // Append all non-image fields
+        Object.keys(values).forEach(key => {
+            if (key !== 'image') {
+                formData.append(key, values[key]);
+            }
+        });
+
+        // Handle image field
+        if (values.image instanceof Blob) {
+            // New image file was uploaded
+            formData.append('image', values.image);
+        } else if (typeof values.image === 'string') {
+            // Existing image URL - send as reference
+            formData.append('existing_image', values.image);
+        } else if (initialValues?.image) {
+            // No image change - keep original
+            formData.append('keep_original_image', 'true');
+        } else {
+            // No image - clear it
+            formData.append('image', '');
+        }
+
+        onSave(formData);
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,26 +120,14 @@ const EditForm = ({
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const file = e.target.files[0];
-
             setIsUploading(true);
             try {
                 const response = await uploadFileToStartForm(Number(start_interface_id), file);
-                console.log("API Response:", response);
-
-                toast.success("Status updated successfully", {
-                    description: "The exam status has been updated successfully.",
-                    duration: 4000,
-
-                });
-                if (refreshData) {
-                    refreshData();
-                }
-
+                toast.success("File uploaded successfully");
+                refreshData();
             } catch (error: any) {
-                console.error("Submission Error:", error);
                 toast.error("Oops! Something went wrong", {
                     description: error.message,
-                    duration: 5000,
                 });
             } finally {
                 setIsUploading(false);
@@ -166,10 +164,9 @@ const EditForm = ({
                     />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Image upload */}
                         <FormItem>
                             <FormLabel className="text-gray-900 dark:text-gray-100">
-                                Image:{" "}
+                                Image:
                             </FormLabel>
                             <div className="flex items-center gap-4 w-full">
                                 {currentImage ? (
@@ -177,7 +174,7 @@ const EditForm = ({
                                         <img
                                             src={
                                                 typeof currentImage === "string"
-                                                    ? currentImage
+                                                    ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${currentImage}`
                                                     : URL.createObjectURL(currentImage)
                                             }
                                             alt="Preview"
@@ -221,7 +218,6 @@ const EditForm = ({
                             </div>
                         </FormItem>
 
-
                         <FormItem>
                             <FormLabel className="flex my-3 justify-between items-center text-gray-900 dark:text-gray-100">
                                 <p>Files: </p>
@@ -235,14 +231,12 @@ const EditForm = ({
                                     />
                                     <Button
                                         type="button"
-                                        onClick={() => fileInputRef.current?.click()} // Trigger input click
-                                         className="bg-primary-color1 !text-white hover:bg-primary-color2 transition-colors duration-200"
-                                                        disabled={isUploading}
-                                                      >
-                                                     
-                                                          {isUploading ? "Uploading..." : "Add Files"}
-                                                    
-                                                      </Button>
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="bg-primary-color1 !text-white hover:bg-primary-color2 transition-colors duration-200"
+                                        disabled={isUploading}
+                                    >
+                                        {isUploading ? "Uploading..." : "Add Files"}
+                                    </Button>
                                 </label>
                             </FormLabel>
                             <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -284,70 +278,62 @@ const EditForm = ({
                             </div>
                         </FormItem>
                     </div>
-           <div className="mt-4 space-y-2 flex items-center gap-4 md:gap-6">
-         
-           <FormField
-  control={control}
-  name="show_condition"
-  render={({ field }) => (
-    <FormItem className="flex items-center space-x-2">
-      <FormControl>
-        <Checkbox
-          checked={field.value === 1}
-          onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
-        />
-      </FormControl>
-      <FormLabel className="!mt-0">Show conditions</FormLabel>
-    </FormItem>
-  )}
-/>
-
-{/* Show Settings Checkbox */}
-<FormField
-  control={control}
-  name="show_configration"
-  render={({ field }) => (
-    <FormItem className="flex items-center space-x-2">
-      <FormControl>
-        <Checkbox
-          checked={field.value === 1}
-          onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
-        />
-      </FormControl>
-      <FormLabel className="!mt-0">Show settings</FormLabel>
-    </FormItem>
-  )}
-/>
-        </div>
-
+                    <div className="mt-4 space-y-2 flex items-center gap-4 md:gap-6">
+                        <FormField
+                            control={control}
+                            name="show_condition"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value === 1}
+                                            onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="!mt-0">Show conditions</FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name="show_configration"
+                            render={({ field }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value === 1}
+                                            onCheckedChange={(checked) => field.onChange(checked ? 1 : 0)}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="!mt-0">Show settings</FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 sm:pt-0">
-                   <Button
-                             type="button"
-                             variant="outline"
-                             className="border-primary-color1 text-primary-color1 hover:bg-primary-color1 hover:text-white dark:text-gray-100 dark:hover:text-white"
-                             onClick={onCancel}
-                             disabled={isSubmitting}
-                           >
-                             Cancel
-                           </Button>
-                           <Button
-                             type="submit"
-                             className="bg-primary-color1 !text-white hover:bg-primary-color2 transition-colors duration-200"
-                             disabled={isSubmitting}
-                           >
-                             {isSubmitting ? "Saving..." : "Save"}
-                           </Button>
+                <div className="flex flex-row justify-end gap-2 pt-4 sm:pt-0">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="border-primary-color1 text-primary-color1 hover:bg-primary-color1 hover:text-white dark:text-gray-100 dark:hover:text-white"
+                        onClick={onCancel}
+                        disabled={isSubmitting}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        type="submit"
+                        className="bg-primary-color1 !text-white hover:bg-primary-color2 transition-colors duration-200"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Saving..." : "Save"}
+                    </Button>
                 </div>
             </form>
         </Form>
     );
 };
-
-
-
-
 
 const Page = () => {
     const [refreshCount, setRefreshCount] = useState(0);
@@ -356,10 +342,10 @@ const Page = () => {
     const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-
     const [isSubmitting, setIsSubmitting] = useState(false);
-   
     const [interfaceData, setInterfaceData] = useState<StartInterfaceType | null>(null);
+    const router = useRouter();
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         const fetch = async () => {
@@ -368,100 +354,82 @@ const Page = () => {
                 if (!start_interface_id) {
                     throw new Error("Missing session ID in URL");
                 }
-
                 const data = await getStartInterface(Number(start_interface_id));
-                setIsThereErrorWhileFetchData(false);
-
-                if (!data) {
-                    throw new Error("no data")
-                    setIsThereErrorWhileFetchData(true);
-                }
                 setInterfaceData(data?.data);
-
-                console.log(setInterfaceData);
             } catch (err) {
                 setIsThereErrorWhileFetchData(true);
                 setError(err instanceof Error ? err.message : "Failed to fetch session");
-            }
-            finally {
+            } finally {
                 setLoading(false);
                 setLoader(false);
             }
-        }
+        };
         fetch();
-
     }, [refreshCount]);
+
     const refreshData = () => {
         setRefreshCount(prev => prev + 1);
     };
 
-    const [isEditing, setIsEditing] = useState(false);
-
-    const handleSave = async (values: any) => {
-        console.log("Saved values:", values);
+    const handleSave = async (formData: FormData) => {
         setIsSubmitting(true);
         try {
-            const response = await updateStartInterface(Number(start_interface_id), values);
-            console.log("API Response:", response);
-
-            toast.success("Start interface updated successfully", {
-                description: "The start interface has been updated successfully.",
-                duration: 4000,
-
-            });
-
+            const response = await updateStartInterface(Number(start_interface_id), formData);
+            toast.success("Start interface updated successfully");
+            router.back();
         } catch (error: any) {
-            console.error("Submission Error:", error);
             toast.error("Oops! Something went wrong", {
                 description: error.message,
-                duration: 5000,
             });
         } finally {
             setIsSubmitting(false);
         }
     };
-    const router = useRouter();
 
     return (
-        <div className=" px-1 sm:px-4 pt-3 sm:pt-5 ">
+        <div className="px-1 sm:px-4 pt-3 sm:pt-5">
             <div className="flex justify-between items-start mb-5 pt-2">
                 <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
-                    <IoArrowBackSharp className="text-primary-color1 text-xl sm:text-2xl cursor-pointer"
+                    <IoArrowBackSharp 
+                        className="text-primary-color1 text-lg sm:text-xl cursor-pointer"
                         onClick={() => router.back()}
                     />
-                    <h3 className="text-[22px]  sm:text-2xl  font-semibold tracking-wide"> Update Interface</h3>
+                    <h3 className="text-[20px] sm:text-2xl font-semibold tracking-wide">Update Interface</h3>
                 </Header>
             </div>
-            {loader ? (<div className='flex justify-center my-16'><Loading /></div>):(<div className=" bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10  sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
-                <div className="pb-5 sm:pb-8">
-                    <h2 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
-                        {interfaceData?.title}
-                    </h2>
-                    {interfaceData?.sub_title && (
-                        <p className="text-gray-600 text-[15px] sm:text-[17px]  dark:text-gray-400">
-                            {interfaceData?.sub_title}
-                        </p>
-                    )}
+            {  loader ? (<div className='flex justify-center my-16'><Loading /></div>) 
+                      : interfaceData === null ? (
+                        <div className="flex justify-center my-20  ">
+                          <h1 className="sm:text-2xl">No Data To Display</h1>
+                        </div>
+                      )
+                        : ( 
+            
+                <div className="bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10 sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
+                    <div className="pb-5 sm:pb-8">
+                        <h2 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
+                            {interfaceData?.title}
+                        </h2>
+                        {interfaceData?.sub_title && (
+                            <p className="text-gray-600 text-[15px] sm:text-[17px] dark:text-gray-400">
+                                {interfaceData?.sub_title}
+                            </p>
+                        )}
+                    </div>
+
+                    <EditForm
+                        initialValues={interfaceData}
+                        onSave={handleSave}
+                        onCancel={() => setIsEditing(false)}
+                        start_interface_id={Number(start_interface_id)}
+                        isSubmitting={isSubmitting}
+                        setIsSubmitting={setIsSubmitting}
+                        refreshData={refreshData}
+                    />
                 </div>
-
-
-                <EditForm
-                    initialValues={interfaceData}
-                    onSave={handleSave}
-                    onCancel={() => setIsEditing(false)}
-                    start_interface_id={Number(start_interface_id)}
-                    isSubmitting={isSubmitting}
-                    setIsSubmitting={setIsSubmitting}
-                    refreshData={refreshData}
-                />
-
-
-            </div>)}
+            )}
         </div>
+    );
+};
 
-    )
-}
-
-export default Page
-
-
+export default Page;
