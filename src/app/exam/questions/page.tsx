@@ -416,7 +416,7 @@ const QuizPage = () => {
   }
   return (
     <div className="h-screen bg-gray-200 flex justify-center items-center">
-      <div className="w-4xl mt-96 mx-auto p-6 relative bg-white  w-[800px] rounded-xl shadow-lg">
+      <div className="w-4xl mt-96 mx-auto p-6 relative   w-[800px] h-[400px] bg-red-400 rounded-xl shadow-lg">
         {/* Header with timer and progress */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">
@@ -439,7 +439,7 @@ const QuizPage = () => {
         </div>
 
         {/* Questions */}
-        <div className="mb-8 space-y-8">
+        <div className="mb-8 space-y-8 max-h-[400px] overflow-y-scroll">
           {currentQuestions.map((question, index) => {
             const absoluteIndex = currentPage * QUESTIONS_PER_PAGE + index;
             const currentAnswer = userAnswers[absoluteIndex];

@@ -29,10 +29,10 @@ export const updateEvaluationValidationSchema = z.object({
     exam_section_id: z.number().optional(),
     
     image: z.union([
-      z.string().url().or(z.string().max(0)), 
-      z.instanceof(File)
-    ]).optional().nullable(),
-
+      z.string().url().or(z.string().min(1)), 
+      z.instanceof(File), 
+    ]),
+    
     evaluation_config: z.object({
       condition_exams_id: z.string().optional(),
       time_exam: z.string().optional(),

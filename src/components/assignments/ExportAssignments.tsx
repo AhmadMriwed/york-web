@@ -24,29 +24,34 @@ import { Input } from "../ui/input";
 import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import { Loader2 } from "lucide-react";
 import { AssignmentSession } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { exportFile } from "@/lib/action/assignment_action";
 
 export const ExportExamStatsValidation = z.object({
   reportType: z.enum(["word", "excel"]),
-  title: z.string(),
-  from: z.number().optional(),
-  to: z.number().optional(),
+  title: z.string().min(1, "Title is required").trim(),
+  from: z.coerce.number().optional(),
+  to: z.coerce.number().optional(),
+  exportMode: z.enum(["single", "multiple"]).default("single"),
 });
 
 type Props = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
-  selectedAssignments: string[];
+  selectedAssignments: number[];
   assignments: AssignmentSession[];
+  setSelectedAssignments: React.Dispatch<React.SetStateAction<number[]>>;
+  refetch: () => void;
 };
 
 const ExportAssignments = ({
   isModalOpen,
   setIsModalOpen,
   selectedAssignments,
+  setSelectedAssignments,
   assignments,
+  refetch,
 }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [exportMode, setExportMode] = useState<"range" | "selection">("range");
 
   type FormValues = z.infer<typeof ExportExamStatsValidation>;
 
@@ -55,38 +60,44 @@ const ExportAssignments = ({
     defaultValues: {
       reportType: "word",
       title: "",
+      from: undefined,
+      to: undefined,
     },
   });
 
   const handleCancel = () => {
     form.reset();
+    setSelectedAssignments([]);
     setIsModalOpen(false);
-    setExportMode("range");
   };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
       const exportData = {
-        ...values,
-        mode: exportMode,
-        ...(exportMode === "selection" ? { selectedAssignments } : {}),
+        url: "/assignment/exam-sections/export-exam-sections",
+        fileName: values.title,
+        format: values.reportType === "word" ? "docx" : "xlsx",
+        ...(selectedAssignments.length > 0
+          ? { ids: selectedAssignments }
+          : {
+              from: values.from,
+              to: values.to,
+            }),
       };
 
-      console.log("Exporting assignments:", exportData);
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await exportFile(exportData);
+      setSelectedAssignments([]);
       handleCancel();
+      await refetch?.();
     } catch (error) {
       console.error("Export failed:", error);
-      alert("Export failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const selectedAssignmentDetails = assignments.filter((assignment) =>
-    selectedAssignments.includes(String(assignment.id))
+    selectedAssignments.includes(assignment.id)
   );
 
   return (
@@ -102,7 +113,7 @@ const ExportAssignments = ({
           {selectedAssignments.length > 0 && (
             <div className="mb-4">
               <h4 className="text-sm font-medium mb-2">
-                Selected Assignments:
+                Selected Assignments ({selectedAssignments.length}):
               </h4>
               <div className="max-h-40 overflow-y-auto border rounded p-2">
                 {selectedAssignmentDetails.map((assignment) => (
@@ -123,6 +134,7 @@ const ExportAssignments = ({
               label="Title:"
               name="title"
               placeholder="Enter title"
+              required
             />
 
             <FormField
@@ -189,7 +201,7 @@ const ExportAssignments = ({
                   Exporting...
                 </>
               ) : (
-                "Export "
+                "Export"
               )}
             </Button>
           </div>

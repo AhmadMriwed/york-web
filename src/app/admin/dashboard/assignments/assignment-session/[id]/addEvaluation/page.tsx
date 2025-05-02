@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomFormField, {
@@ -46,6 +46,10 @@ const Page = () => {
   const { data: evaluationTypes, isLoading: typeLoading } =
     useFetch<Type[]>(fetchEvaluationTypes);
 
+  const searchParams = useSearchParams();
+
+  const evaluation_type_id = searchParams.get("evaluation_type_id");
+
   type FormValues = z.infer<typeof addEvaluationValidationSchema>;
 
   const form = useForm<FormValues>({
@@ -54,9 +58,8 @@ const Page = () => {
       title: "",
       sub_title: "",
       status: "",
-      number_of_questions: undefined,
       duration_in_minutes: undefined,
-      evaluation_type_id: undefined,
+      evaluation_type_id: Number(evaluation_type_id),
       exam_section_id: id ? Number(id) : undefined,
     },
   });
@@ -66,7 +69,6 @@ const Page = () => {
     try {
       const submissionData = {
         ...values,
-        number_of_questions: Number(values.number_of_questions),
         duration_in_minutes: Number(values.duration_in_minutes),
       };
 
@@ -86,6 +88,14 @@ const Page = () => {
     <div className="mx-auto p-4 sm:p-6 max-w-7xl">
       <Header title="Create New Evaluation" />
       <div className="p-4 py-8 rounded-lg dark:bg-[#212A34] bg-white shadow-sm flex flex-col md:flex-row">
+        <div className="w-full block  text-center my-2 md:hidden">
+          <h1 className="text-2xl font-extrabold text-primary-color1 relative z-10 px-8 py-4">
+            <span className="relative">
+              {evaluationTypes?.[Number(evaluation_type_id) - 1]?.type}
+              <span className="absolute bottom-0 left-0 w-full h-2 bg-primary-color2/30 -z-10 transform translate-y-1"></span>
+            </span>
+          </h1>
+        </div>
         <Image
           src={images.evaluation}
           width={400}
@@ -97,6 +107,14 @@ const Page = () => {
         <div className="flex-1 mx-2 md:mx-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="w-full hidden  text-center my-2 md:block">
+                <h1 className="text-2xl font-extrabold text-primary-color1 relative z-10 px-8 py-4">
+                  <span className="relative">
+                    {evaluationTypes?.[Number(evaluation_type_id) - 1]?.type}
+                    <span className="absolute bottom-0 left-0 w-full h-2 bg-primary-color2/30 -z-10 transform translate-y-1"></span>
+                  </span>
+                </h1>
+              </div>
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
                 {/* Title */}
                 <CustomFormField
@@ -118,29 +136,6 @@ const Page = () => {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
-                {/* Number of Questions */}
-                <FormField
-                  control={form.control}
-                  name="number_of_questions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Number of Questions :</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
-                          placeholder="Enter number of questions.."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Duration in Minutes */}
 
                 <FormField
@@ -164,45 +159,17 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="evaluation_type_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Evaluation Type : </FormLabel>
-                      <Select
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        value={field.value?.toString()}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1">
-                            <SelectValue placeholder="Select exam type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {evaluationTypes?.map((type: Type) => (
-                            <SelectItem
-                              key={type.id}
-                              value={type.id.toString()}
-                            >
-                              {type.type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status : </FormLabel>
+                      <p className={"w-full gap-2 flex"}>
+                        <FormLabel className="text-gray-700 dark:text-white">
+                          Status :
+                        </FormLabel>
+                        <span className="text-red-400 text-2xl -mt-2 ">*</span>
+                      </p>
                       <Select
                         onValueChange={(value) => field.onChange(value)}
                         value={field.value}

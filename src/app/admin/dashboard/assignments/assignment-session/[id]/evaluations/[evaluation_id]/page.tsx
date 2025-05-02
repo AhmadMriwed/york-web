@@ -3,8 +3,6 @@
 
 
 
-
-
 "use client";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";

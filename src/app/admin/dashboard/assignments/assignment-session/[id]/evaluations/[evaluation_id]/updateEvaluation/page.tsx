@@ -62,7 +62,7 @@ import {
   fetchEvaluationTypes,
 } from "@/lib/action/assignment_action";
 import { toast } from "sonner";
-import { Modal } from "antd";
+import { Modal, Checkbox } from "antd";
 import { icons } from "@/constants/icons";
 import axios from "axios";
 import { TimePicker } from "antd";
@@ -71,7 +71,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import StartInterfaceModal from "@/components/assignments/StartInterfaceModal";
 import EndInterfaceModal from "@/components/assignments/EndInterfaceModal";
 import { updateEvaluationValidationSchema } from "@/lib/admin/evaluationValidation";
-import { Checkbox } from "@/components/ui/checkbox";
 
 dayjs.extend(customParseFormat);
 
@@ -138,7 +137,7 @@ const UpdateEvaluationPage = () => {
       number_of_questions: evaluation?.number_of_questions || undefined,
       duration_in_minutes: evaluation?.duration_in_minutes || undefined,
       exam_section_id: Number(id),
-      image: evaluation?.image,
+      image: evaluation?.image!,
       evaluation_config: evaluation?.evaluation_config
         ? {
             date_view: evaluation.evaluation_config.date_view || undefined,
@@ -201,7 +200,7 @@ const UpdateEvaluationPage = () => {
         number_of_questions: evaluation?.number_of_questions || undefined,
         duration_in_minutes: evaluation?.duration_in_minutes || undefined,
         exam_section_id: Number(id),
-        image: evaluation?.image || "",
+        image: evaluation?.image || undefined,
         evaluation_config: evaluation?.evaluation_config
           ? {
               date_view: evaluation?.evaluation_config.date_view || undefined,
@@ -250,6 +249,8 @@ const UpdateEvaluationPage = () => {
     }
   }, [evaluation, evaluation_id, id, form]);
 
+  console.log(evaluation);
+
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
 
@@ -278,13 +279,11 @@ const UpdateEvaluationPage = () => {
         if (values.image instanceof File) {
           formData.append("image", values.image);
         } else if (typeof values.image === "string") {
-          formData.append("image", values.image);
+          if (values.image !== evaluation?.image) {
+            formData.append("image", values.image);
+          }
         }
-      } else if (evaluation?.image) {
-        console.log("Using existing evaluation image");
-        formData.append("image", evaluation.image);
       }
-
       if (values.evaluation_config) {
         Object.entries(values.evaluation_config).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -366,7 +365,6 @@ const UpdateEvaluationPage = () => {
           formData.append("end_form_image", values.end_form_image);
         }
       }
-
       if (values.field_requirement?.field_requirement_id?.length) {
         const uniqueIds = values.field_requirement.field_requirement_id.filter(
           (value, index, self) => self.indexOf(value) === index
@@ -393,6 +391,9 @@ const UpdateEvaluationPage = () => {
 
       if (response.status === 200) {
         toast.success("evaluation updated successfully");
+        router.push(
+          `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}`
+        );
         refetch();
         return response.data;
       }
@@ -536,27 +537,6 @@ const UpdateEvaluationPage = () => {
                     <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mt-2">
                       <FormField
                         control={form.control}
-                        name="number_of_questions"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Number of Questions :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(Number(e.target.value))
-                                }
-                                className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
-                                placeholder="Enter number of questions.."
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
                         name="duration_in_minutes"
                         render={({ field }) => (
                           <FormItem>
@@ -576,14 +556,12 @@ const UpdateEvaluationPage = () => {
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="evaluation_config.start_date"
                         render={({ field }) => (
-                          <FormItem className="flex flex-col">
-                            <FormLabel>Start Date</FormLabel>
+                          <FormItem className="flex flex-col my-1">
+                            <FormLabel className="my-0.5">Start Date</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -624,6 +602,8 @@ const UpdateEvaluationPage = () => {
                           </FormItem>
                         )}
                       />
+                    </div>
+                    <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="evaluation_config.end_date"
@@ -677,12 +657,21 @@ const UpdateEvaluationPage = () => {
                       fieldType={FormFieldType.SKELETON}
                       control={form.control}
                       name="image"
-                      label="Evaluation Image"
+                      label="Image"
                       renderSkeleton={(field) => (
                         <FormControl>
                           <ImageUploader
                             file={field.value}
-                            onChange={(file) => field.onChange(file)}
+                            existingUrl={
+                              typeof field.value === "string" && field.value
+                                ? field.value.startsWith("http")
+                                  ? field.value
+                                  : `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${field.value}`
+                                : undefined
+                            }
+                            onChange={(file) => {
+                              field.onChange(file);
+                            }}
                           />
                         </FormControl>
                       )}
@@ -1015,9 +1004,7 @@ const UpdateEvaluationPage = () => {
                         control={form.control}
                         name="field_requirement.field_requirement_id"
                         render={({ field }) => {
-                          // Get current selected values from form
                           const currentValues = field.value || [];
-                          // Get existing field requirements from evaluation data
                           const existingRequirements =
                             evaluation?.field_requirements || [];
 

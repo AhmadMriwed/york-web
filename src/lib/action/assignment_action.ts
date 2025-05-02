@@ -791,3 +791,109 @@ export const fetchEvaluationTypes = async (): Promise<Type[]> => {
     throw new Error(errorMessage);
   }
 };
+
+
+// export : 
+export const exportFile = async (
+  {
+    url,
+    ids,
+    from,
+    to,
+    fileName,
+    format,
+    singleFile = true
+  }: {
+    url: string;
+    ids?: number[];
+    from?: number;
+    to?: number;
+    fileName: string;
+    format: string;
+    singleFile?: boolean;
+  }
+) => {
+  try {
+    const validFormats = ['xlsx', 'csv', 'pdf', 'docx'];
+    if (!validFormats.includes(format)) {
+      throw new Error(`Invalid format. Allowed types: ${validFormats.join(', ')}`);
+    }
+
+    // Convert range to array of IDs if needed
+    const finalIds = ids || (from !== undefined && to !== undefined 
+      ? Array.from({ length: to - from + 1 }, (_, i) => from + i)
+      : undefined);
+
+    const payload: Record<string, any> = {
+      file_name: fileName,
+      type: format,
+    };
+
+    if (finalIds && finalIds.length > 0) {
+      if (singleFile) {
+        // Export all as single file
+        payload.ids = finalIds;
+      } else {
+        // Export multiple files (one per ID)
+        for (const id of finalIds) {
+          const singlePayload = {
+            file_name: `${fileName}_${id}`,
+            type: format,
+            ids: [id]
+          };
+
+          const res = await axios.post(url, singlePayload, {
+            headers: {
+              ...getAuthHeaders("application/json").headers,
+              Accept: "application/json", 
+              "Content-Type": "application/json",
+            },
+            responseType: 'blob'
+          });
+
+          if (res.status === 200) {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${fileName}_${id}.${format}`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        }
+        toast.success(`${finalIds.length} files exported successfully`);
+        return { success: true, count: finalIds.length };
+      }
+    } else {
+      throw new Error("No IDs or valid range provided for export");
+    }
+
+    if (singleFile) {
+      const res = await axios.post(url, payload, {
+        headers: {
+          ...getAuthHeaders("application/json").headers,
+          Accept: "application/json", 
+          "Content-Type": "application/json",
+        },
+        responseType: 'blob'
+      });
+
+      if (res.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${fileName}.${format}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('File exported successfully');
+        return res.data;
+      }
+    }
+  } catch (error: any) {
+    console.error("Export Error:", error);
+    toast.error(error.response?.data?.message || "Failed to export file(s)");
+    throw error;
+  }
+};
