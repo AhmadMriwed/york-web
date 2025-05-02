@@ -187,28 +187,6 @@ const Page = () => {
                               ? "Deactivate"
                               : "Activate"}
                           </Dropdown.Item>
-                          <Dropdown.Item
-                            icon={<FaPlus />}
-                            onClick={() =>
-                              router.push(
-                                `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
-                              )
-                            }
-                            className="text-xs flex gap-2"
-                          >
-                            Add Assignment
-                          </Dropdown.Item>
-                          <Dropdown.Item
-                            icon={<FaPlus />}
-                            onClick={() =>
-                              router.push(
-                                `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
-                              )
-                            }
-                            className="text-xs flex gap-2"
-                          >
-                            Add Evaluation
-                          </Dropdown.Item>
                         </Dropdown>
                       </div>
                     </div>
@@ -220,6 +198,9 @@ const Page = () => {
                   <ExportAssignment
                     isModalOpen={showAssignmentExportModal}
                     setIsModalOpen={setShowAssignmentExportModal}
+                    assignmentSessionId={Number(assignmentSession.id)}
+                    defaultTitle={assignmentSession?.title}
+                    refetch={refetchData}
                   />
                   <DeleteModal
                     title="Are you sure you want to delete this assignmentSession??"
@@ -306,7 +287,7 @@ const Page = () => {
                       <AddNewItem
                         onClick={() =>
                           router.push(
-                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
+                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation?evaluation_type_id=1`
                           )
                         }
                         color="blue"
@@ -327,7 +308,7 @@ const Page = () => {
                       <AddNewItem
                         onClick={() =>
                           router.push(
-                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation`
+                            `/admin/dashboard/assignments/assignment-session/${id}/addEvaluation?evaluation_type_id=2`
                           )
                         }
                         color="green"
@@ -357,7 +338,7 @@ const Page = () => {
                           icon="exam"
                           onClick={() =>
                             router.push(
-                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
+                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment?exam_type_id=1`
                             )
                           }
                           color="purple"
@@ -381,7 +362,7 @@ const Page = () => {
                           icon="exam"
                           onClick={() =>
                             router.push(
-                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment`
+                              `/admin/dashboard/assignments/assignment-session/${id}/addAssignment?exam_type_id=2`
                             )
                           }
                           color="orange"

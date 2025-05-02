@@ -121,6 +121,8 @@ const UpdateAssignmentPage = () => {
     refetch: refetchAssignment,
   } = useFetchWithId<Assignment>(fetchAssignmentById, Number(assignment_id));
 
+  console.log(assignment);
+
   const startFormId =
     assignment?.start_forms?.length! > 0 ? assignment?.start_forms[0].id : null;
   const endFormId =
@@ -141,20 +143,20 @@ const UpdateAssignmentPage = () => {
   } = useFetchWithId<EndFormType>(fetchEndFormById, startFormId!);
 
   type FormValues = z.infer<typeof updateExamValidationSchema>;
+  console.log(assignment?.image!);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(updateExamValidationSchema),
     defaultValues: {
-      form_id: assignment?.forms[0].id,
+      form_id: assignment?.forms[0]?.id,
       code: assignment?.code || "",
       title: assignment?.title || "",
       sub_title: assignment?.sub_title || "",
       status: assignment?.status || "",
       exam_type_id: assignment?.exam_type_id || undefined,
-      number_of_questions: assignment?.number_of_questions || undefined,
       duration_in_minutes: assignment?.duration_in_minutes || undefined,
       exam_section_id: Number(id),
-      image: assignment?.image || "",
+      image: assignment?.image!,
       exam_config: assignment?.exam_config
         ? {
             condition_exams_id: assignment.exam_config.id?.toString() || "",
@@ -182,7 +184,6 @@ const UpdateAssignmentPage = () => {
             title: assignment.start_forms[0].title || "",
             sub_title: assignment.start_forms[0].sub_title || "",
             description: assignment.start_forms[0].description || "",
-            image: assignment.start_forms[0].image || "",
             show_configration: assignment.start_forms[0].show_configration || 0,
             show_condition: assignment.start_forms[0].show_condition || 0,
           }
@@ -219,10 +220,9 @@ const UpdateAssignmentPage = () => {
         sub_title: assignment?.sub_title || "",
         status: assignment?.status || "",
         exam_type_id: assignment?.exam_type_id || undefined,
-        number_of_questions: assignment?.number_of_questions || undefined,
         duration_in_minutes: assignment?.duration_in_minutes || undefined,
         exam_section_id: Number(id),
-        image: assignment?.image || "",
+        image: assignment?.image || undefined,
         exam_config: assignment?.exam_config
           ? {
               date_view: assignment.exam_config.date_view || undefined,
@@ -249,7 +249,6 @@ const UpdateAssignmentPage = () => {
               title: startForm.title || "",
               sub_title: startForm.sub_title || "",
               description: startForm.description || "",
-              image: startForm.image || "",
               show_configration: startForm.show_configration || 1,
               show_condition: startForm.show_condition || 1,
             }
@@ -261,7 +260,6 @@ const UpdateAssignmentPage = () => {
               sub_title: endForm.sub_title || "",
               description: endForm.description || "",
               url: endForm.url || "",
-              image: endForm.image || "",
             }
           : undefined,
         end_form_image: endForm?.image!,
@@ -279,15 +277,12 @@ const UpdateAssignmentPage = () => {
 
     try {
       const formData = new FormData();
-      formData.append("form_id", assignment?.forms[0].id.toString()!);
+      formData.append("form_id", assignment?.forms[0]?.id.toString()!);
       formData.append("code", values.code || "");
       formData.append("title", values.title);
       formData.append("sub_title", values.sub_title || "");
       formData.append("status", values.status || "");
-      formData.append(
-        "number_of_questions",
-        values.number_of_questions?.toString() || ""
-      );
+
       formData.append(
         "duration_in_minutes",
         values.duration_in_minutes?.toString() || ""
@@ -299,11 +294,12 @@ const UpdateAssignmentPage = () => {
       );
 
       if (values.image) {
-        console.log("Image:", values.image);
         if (values.image instanceof File) {
           formData.append("image", values.image);
         } else if (typeof values.image === "string") {
-          formData.append("image", values.image);
+          if (values.image !== assignment?.image) {
+            formData.append("image", values.image);
+          }
         }
       }
       if (values.exam_config) {
@@ -319,8 +315,33 @@ const UpdateAssignmentPage = () => {
             } else if (key === "time_exam") {
               const timeExam = convertToHHMM((value as string) || "");
               formData.append(`exam_config[${key}]`, timeExam);
+            } else if (key === "time_questions_page") {
+              if (
+                value &&
+                value !== assignment?.exam_config?.time_questions_page
+              ) {
+                formData.append(`exam_config[${key}]`, String(value));
+              } else if (
+                !value &&
+                assignment?.exam_config?.time_questions_page
+              ) {
+                formData.append(
+                  `exam_config[${key}]`,
+                  assignment.exam_config.time_questions_page
+                );
+              }
             } else {
-              formData.append(`exam_config[${key}]`, String(value));
+              if (
+                !assignment?.exam_config ||
+                String(value) !==
+                  String(
+                    assignment.exam_config[
+                      key as keyof typeof assignment.exam_config
+                    ]
+                  )
+              ) {
+                formData.append(`exam_config[${key}]`, String(value));
+              }
             }
           }
         });
@@ -330,13 +351,7 @@ const UpdateAssignmentPage = () => {
       if (values.start_form) {
         Object.entries(values.start_form).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            if (key === "image") {
-              if (value instanceof File || typeof value === "string") {
-                formData.append(`start_form[${key}]`, value);
-              }
-            } else {
-              formData.append(`start_form[${key}]`, String(value));
-            }
+            formData.append(`start_form[${key}]`, String(value));
           }
         });
       }
@@ -412,6 +427,9 @@ const UpdateAssignmentPage = () => {
 
       if (response.status === 200) {
         toast.success("Exam updated successfully");
+        router.push(
+          `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}`
+        );
         refetchAssignment();
         return response.data;
       }
@@ -553,27 +571,6 @@ const UpdateAssignmentPage = () => {
                     <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mt-2">
                       <FormField
                         control={form.control}
-                        name="number_of_questions"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Number of Questions :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(Number(e.target.value))
-                                }
-                                className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
-                                placeholder="Enter number of questions.."
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
                         name="duration_in_minutes"
                         render={({ field }) => (
                           <FormItem>
@@ -593,21 +590,19 @@ const UpdateAssignmentPage = () => {
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="exam_config.start_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Start Date</FormLabel>
+                            <FormLabel className="my-1">Start Date</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
-                                <FormControl>
+                                <FormControl className="mt-8">
                                   <Button
                                     variant={"outline"}
                                     className={cn(
-                                      "w-full pl-3 bg-gray-100 dark:bg-gray-700 text-left font-normal",
+                                      "w-full pl-3 bg-gray-100 mt-4  dark:bg-gray-700 text-left font-normal",
                                       !field.value && "text-muted-foreground"
                                     )}
                                   >
@@ -641,6 +636,8 @@ const UpdateAssignmentPage = () => {
                           </FormItem>
                         )}
                       />
+                    </div>
+                    <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="exam_config.end_date"
@@ -694,12 +691,21 @@ const UpdateAssignmentPage = () => {
                       fieldType={FormFieldType.SKELETON}
                       control={form.control}
                       name="image"
-                      label="Assignment Image"
+                      label="Image"
                       renderSkeleton={(field) => (
                         <FormControl>
                           <ImageUploader
                             file={field.value}
-                            onChange={(file) => field.onChange(file)}
+                            existingUrl={
+                              typeof field.value === "string" && field.value
+                                ? field.value.startsWith("http")
+                                  ? field.value
+                                  : `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${field.value}`
+                                : undefined
+                            }
+                            onChange={(file) => {
+                              field.onChange(file);
+                            }}
                           />
                         </FormControl>
                       )}
@@ -972,11 +978,26 @@ const UpdateAssignmentPage = () => {
                             <TimePicker
                               format="HH:mm"
                               value={
-                                field.value ? dayjs(field.value, "HH:mm") : null
+                                field.value
+                                  ? dayjs(
+                                      typeof field.value === "string" &&
+                                        field.value.includes(":")
+                                        ? field.value
+                                        : `00:${field.value}`.slice(-5),
+                                      "HH:mm"
+                                    )
+                                  : null
                               }
-                              onChange={(time, timeString) =>
-                                field.onChange(timeString || undefined)
-                              }
+                              onChange={(time, timeString) => {
+                                if (timeString) {
+                                  field.onChange(timeString);
+                                } else {
+                                  field.onChange(
+                                    assignment?.exam_config
+                                      ?.time_questions_page || ""
+                                  );
+                                }
+                              }}
                               className="w-full bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
                             />
                             <FormMessage />
@@ -1029,49 +1050,55 @@ const UpdateAssignmentPage = () => {
                           const existingConditions =
                             assignment?.exam_config?.condition_exams || [];
 
+                          const initiallyChecked = new Set(
+                            existingConditions.map((c) => c.id)
+                          );
+
                           return (
                             <FormItem className="space-y-3">
                               <div className="flex flex-col space-y-2">
-                                {examCondations?.map((condition: Condition) => (
-                                  <FormItem
-                                    key={condition.id}
-                                    className="flex flex-row items-start space-x-3 space-y-0"
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={
-                                          currentValues.includes(
-                                            condition.id
-                                          ) ||
-                                          existingConditions.some(
-                                            (c) => c.id === condition.id
-                                          )
-                                        }
-                                        onChange={(checked) => {
-                                          const newValue = [...currentValues];
-                                          if (checked) {
-                                            if (
-                                              !newValue.includes(condition.id)
-                                            ) {
-                                              newValue.push(condition.id);
+                                {examCondations?.map((condition: Condition) => {
+                                  const isChecked =
+                                    currentValues.includes(condition.id) ||
+                                    (!currentValues.length &&
+                                      initiallyChecked.has(condition.id));
+
+                                  return (
+                                    <FormItem
+                                      key={condition.id}
+                                      className="flex flex-row items-start space-x-3 space-y-0"
+                                    >
+                                      <FormControl>
+                                        <Checkbox
+                                          checked={isChecked}
+                                          onChange={(e) => {
+                                            const newValue = [...currentValues];
+                                            const conditionIndex =
+                                              newValue.indexOf(condition.id);
+
+                                            if (e.target.checked) {
+                                              if (conditionIndex === -1) {
+                                                newValue.push(condition.id);
+                                              }
+                                            } else {
+                                              // Remove if present
+                                              if (conditionIndex > -1) {
+                                                newValue.splice(
+                                                  conditionIndex,
+                                                  1
+                                                );
+                                              }
                                             }
-                                          } else {
-                                            const index = newValue.indexOf(
-                                              condition.id
-                                            );
-                                            if (index > -1) {
-                                              newValue.splice(index, 1);
-                                            }
-                                          }
-                                          field.onChange(newValue);
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="font-normal">
-                                      {condition.name}
-                                    </FormLabel>
-                                  </FormItem>
-                                ))}
+                                            field.onChange(newValue);
+                                          }}
+                                        />
+                                      </FormControl>
+                                      <FormLabel className="font-normal">
+                                        {condition.name}
+                                      </FormLabel>
+                                    </FormItem>
+                                  );
+                                })}
                               </div>
                               <FormMessage />
                             </FormItem>

@@ -4,7 +4,7 @@ import { z } from "zod";
 export  const addExamValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   sub_title: z.string().optional(),
-  status: z.string().optional(),
+  status: z.string().min(1, "status is required"),
   number_of_questions: z
     .number()
     .min(1, "Must have at least 1 question")
@@ -26,16 +26,13 @@ export const updateExamValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   sub_title: z.string().optional(),
   status: z.string(),
-  number_of_questions: z.number().optional(),
   duration_in_minutes: z.number().optional(),
   exam_type_id: z.number().optional(),
   exam_section_id: z.number().optional(),
-  
   image: z.union([
-    z.string().url(),    
-    z.instanceof(File)
-  ]).optional(),
-  
+    z.string().url().or(z.string().min(1)), 
+    z.instanceof(File), 
+  ]),
   
   exam_config: z.object({
     condition_exams_id: z.string().optional(),
@@ -55,11 +52,6 @@ export const updateExamValidationSchema = z.object({
     title: z.string().optional(),
     sub_title: z.string().optional(),
     description: z.string().optional(),
-    
-    image:z.union([
-      z.string().url(),    
-      z.instanceof(File)
-    ]).optional().nullable(),
     
 
     show_configration: z.number().optional(),

@@ -1,7 +1,6 @@
 "use client";
 import AssignmentCard from "@/components/assignments/AssignmentCard";
 import AssignmentFilter from "@/components/assignments/AssignmentFilter";
-import ExportAssignment from "@/components/assignments/ExportAssignment";
 import ExportAssignments from "@/components/assignments/ExportAssignments";
 import AssignmentHeader from "@/components/assignments/HeaderAssignment";
 import EmptyResult from "@/components/empty-result/EmptyResult";
@@ -19,9 +18,7 @@ import {
   Category,
   SectionType,
 } from "@/types/adminTypes/assignments/assignmentsTypes";
-
-import { GlobalState } from "@/types/storeTypes";
-import { Button, Select } from "antd";
+import { Button } from "antd";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,7 +29,7 @@ import { IoArrowBackSharp } from "react-icons/io5";
 const AssignmentSessionPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const [selectedAssignments, setSelectedAssignments] = useState<string[]>([]);
+  const [selectedAssignments, setSelectedAssignments] = useState<number[]>([]);
   const [filteredAssignments, setFilteredAssignments] = useState<
     AssignmentSession[]
   >([]);
@@ -48,8 +45,6 @@ const AssignmentSessionPage = () => {
 
   const { data: types, isLoading: typesLoading } =
     useFetch<SectionType[]>(fetchSectionTypes);
-
-  console.log(types);
 
   const { data: categories, isLoading: categoriesLoading } =
     useFetch<Category[]>(fetchCategories);
@@ -98,11 +93,11 @@ const AssignmentSessionPage = () => {
 
       setFilteredAssignments(filtered);
     } catch (error) {
-      console.error(error);
+      console.error("Filtering error:", error);
     }
   };
 
-  const toggleAssignmentSelection = (id: string) => {
+  const toggleAssignmentSelection = (id: number) => {
     setSelectedAssignments((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
@@ -112,12 +107,9 @@ const AssignmentSessionPage = () => {
     if (selectedAssignments.length === filteredAssignments.length) {
       setSelectedAssignments([]);
     } else {
-      //@ts-ignore
       setSelectedAssignments(filteredAssignments.map((item) => item.id));
     }
   };
-
-  console.log(categories);
 
   const filterFields = [
     {
@@ -171,11 +163,7 @@ const AssignmentSessionPage = () => {
     },
   ];
 
-  if (error) {
-    return <div>Error loading assignments: {error}</div>;
-  }
-
-  const isLoading = assignmentLoading || typesLoading;
+  const isLoading = assignmentLoading || typesLoading || categoriesLoading;
 
   return (
     <main className="py-8 px-5 sm:px-8 overflow-x-auto max-w-full">
@@ -200,7 +188,7 @@ const AssignmentSessionPage = () => {
             type="primary"
             onClick={() => setIsModalOpen(true)}
             className="flex items-center justify-center sm:justify-start px-3 py-2 text-sm sm:text-[16px] text-white font-semibold bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
-            disabled={isLoading}
+            disabled={isLoading || filteredAssignments.length === 0}
           >
             <CiExport className="mr-2 text-lg sm:text-xl" />
             Export{" "}
@@ -211,12 +199,13 @@ const AssignmentSessionPage = () => {
         </div>
 
         <Link
-          href={"/admin/dashboard/assignments/assignment-session/add"}
+          href="/admin/dashboard/assignments/assignment-session/add"
           className="flex items-center justify-center h-10 px-4 sm:px-5 hover:no-underline rounded-[4px] text-sm sm:text-base text-white hover:!text-white bg-[var(--primary-color1)] hover:bg-[var(--primary-color2)] w-full sm:w-auto"
         >
           + Create New Session
         </Link>
       </header>
+
       <div className="flex justify-center mt-4">
         <AssignmentFilter
           filterValues={filterValues}
@@ -227,12 +216,16 @@ const AssignmentSessionPage = () => {
           onApplyFilter={handleFilter}
         />
       </div>
+
       <ExportAssignments
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         selectedAssignments={selectedAssignments}
+        setSelectedAssignments={setSelectedAssignments}
         assignments={filteredAssignments}
+        refetch={refetch}
       />
+
       <div className="my-7">
         {isLoading ? (
           <Loading />
@@ -258,7 +251,7 @@ const AssignmentSessionPage = () => {
               <AssignmentCard
                 key={item.id}
                 assignmentSession={item}
-                isSelected={selectedAssignments.includes(String(item.id))}
+                isSelected={selectedAssignments.includes(item.id)}
                 onToggleSelect={toggleAssignmentSelection}
                 refetch={refetch}
               />

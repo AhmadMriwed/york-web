@@ -174,3 +174,16 @@ export function formatDateForMySQL(date: Date): string {
     }
     return time;
   };
+  export  const normalizeTimeFormat = (val?: string): string => {
+    if (!val) return "";
+    if (/^\d+$/.test(val)) {
+      // only digits, interpret as minutes
+      const minutes = parseInt(val, 10);
+      const hours = Math.floor(minutes / 60)
+        .toString()
+        .padStart(2, "0");
+      const mins = (minutes % 60).toString().padStart(2, "0");
+      return `${hours}:${mins}`;
+    }
+    return val;
+  };
