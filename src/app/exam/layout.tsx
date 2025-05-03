@@ -8,7 +8,7 @@ const AssignmentsLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div>
-      <header className="px-8 h-16 w-full bg-white  fixed z-10">
+      <header className="px-8 h-20   w-full bg-white  fixed z-10">
         <Image
           src={"/logo dark.png"}
           height={70}

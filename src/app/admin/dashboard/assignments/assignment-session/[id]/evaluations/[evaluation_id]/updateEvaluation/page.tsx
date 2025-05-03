@@ -245,6 +245,12 @@ const UpdateEvaluationPage = () => {
             }
           : undefined,
         end_form_image: endForm?.image!,
+        field_requirement: {
+          field_requirement_id:
+            evaluation?.field_requirements?.map(
+              (f) => f.field_requirement_id
+            ) || [],
+        },
       });
     }
   }, [evaluation, evaluation_id, id, form]);
@@ -1005,8 +1011,6 @@ const UpdateEvaluationPage = () => {
                         name="field_requirement.field_requirement_id"
                         render={({ field }) => {
                           const currentValues = field.value || [];
-                          const existingRequirements =
-                            evaluation?.field_requirements || [];
 
                           return (
                             <FormItem className="space-y-3">
@@ -1019,28 +1023,27 @@ const UpdateEvaluationPage = () => {
                                     >
                                       <FormControl>
                                         <Checkbox
-                                          checked={
-                                            currentValues.includes(
-                                              requirement.id
-                                            ) ||
-                                            existingRequirements.some(
-                                              (r) =>
-                                                r.field_requirement_id ===
-                                                requirement.id
-                                            )
-                                          }
-                                          onChange={(checked) => {
-                                            return checked
-                                              ? field.onChange([
-                                                  ...currentValues,
-                                                  requirement.id,
-                                                ])
-                                              : field.onChange(
-                                                  currentValues.filter(
-                                                    (id) =>
-                                                      id !== requirement.id
-                                                  )
+                                          checked={currentValues.includes(
+                                            requirement.id
+                                          )}
+                                          onChange={(e) => {
+                                            const newValue = [...currentValues];
+                                            const conditionIndex =
+                                              newValue.indexOf(requirement.id);
+
+                                            if (e.target.checked) {
+                                              if (conditionIndex === -1) {
+                                                newValue.push(requirement.id);
+                                              }
+                                            } else {
+                                              if (conditionIndex > -1) {
+                                                newValue.splice(
+                                                  conditionIndex,
+                                                  1
                                                 );
+                                              }
+                                            }
+                                            field.onChange(newValue);
                                           }}
                                         />
                                       </FormControl>

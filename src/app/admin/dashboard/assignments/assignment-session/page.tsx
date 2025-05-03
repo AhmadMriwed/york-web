@@ -10,12 +10,14 @@ import { useFetch } from "@/hooks/useFetch";
 import {
   fetchAssignmentSessions,
   fetchCategories,
+  fetchOrganization,
   fetchSectionTypes,
   filterAssignmentSessions,
 } from "@/lib/action/assignment_action";
 import {
   AssignmentSession,
   Category,
+  Organization,
   SectionType,
 } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { Button } from "antd";
@@ -43,8 +45,16 @@ const AssignmentSessionPage = () => {
     refetch,
   } = useFetch<AssignmentSession[]>(fetchAssignmentSessions);
 
-  const { data: types, isLoading: typesLoading } =
-    useFetch<SectionType[]>(fetchSectionTypes);
+  const { data: organizations } = useFetch<Organization[]>(fetchOrganization);
+
+  console.log(organizations);
+
+  const types = [
+    { type: "Active" },
+    {
+      type: "Inactive",
+    },
+  ];
 
   const { data: categories, isLoading: categoriesLoading } =
     useFetch<Category[]>(fetchCategories);
@@ -61,7 +71,8 @@ const AssignmentSessionPage = () => {
     start_date: null as Date | null,
     end_date: null as Date | null,
     category_ids: [] as number[],
-    status: null as string | null,
+    status: "Active" as string | null,
+    organization: null as string | null,
   });
 
   const resetFilterValues = () => {
@@ -72,11 +83,14 @@ const AssignmentSessionPage = () => {
       end_date: null,
       category_ids: [],
       status: null,
+      organization: null,
     });
   };
 
   const handleFilter = async () => {
     try {
+      console.log("Filter values:", filterValues); // Debug log
+
       const fromDate = filterValues.start_date
         ? format(filterValues.start_date, "yyyy-MM-dd")
         : undefined;
@@ -86,6 +100,8 @@ const AssignmentSessionPage = () => {
 
       const filtered = await filterAssignmentSessions({
         search: filterValues.code || filterValues.title,
+        organization: filterValues.organization || undefined,
+        status: filterValues.status || undefined,
         from_date: fromDate,
         to_date: toDate,
         categories: filterValues.category_ids,
@@ -153,17 +169,31 @@ const AssignmentSessionPage = () => {
       placeholder: "Category",
     },
     {
-      type: "status",
+      type: "select",
       name: "status",
       value: filterValues.status,
       onChange: (value: string | null) =>
         setFilterValues({ ...filterValues, status: value }),
       placeholder: "Status",
-      options: types,
+      options: types.map((type) => ({ label: type.type, value: type.type })),
+    },
+    {
+      type: "select",
+      name: "organization",
+      value: filterValues.organization,
+      onChange: (value: string | null) =>
+        setFilterValues({ ...filterValues, organization: value }),
+      placeholder: "Organization",
+      options:
+        //@ts-ignore
+        organizations?.organizations?.map((org) => ({
+          label: org,
+          value: org,
+        })) || [],
     },
   ];
 
-  const isLoading = assignmentLoading || typesLoading || categoriesLoading;
+  const isLoading = assignmentLoading || categoriesLoading;
 
   return (
     <main className="py-8 px-5 sm:px-8 overflow-x-auto max-w-full">

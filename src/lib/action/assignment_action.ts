@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { getServerLanguage } from "@/app/(root)/[locale]/api/getServerLanguage";
-import { Assignment, AssignmentSession, Category, Condition, EndFormType, Evaluation, FilterAssignmentSessionsParams, Requirement, SectionType, StartFormType, Type } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { Assignment, AssignmentSession, Category, Condition, EndFormType, Evaluation, FilterAssignmentSessionsParams, Organization, Requirement, SectionType, StartFormType, Type } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
 
@@ -27,7 +27,6 @@ const apiClient: AxiosInstance = axios.create({
 const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
   try {
     const response = await apiClient.get(url, config);
-    
     return (
       response.data?.data !== undefined 
         ? response.data.data 
@@ -163,36 +162,35 @@ export const changeStatus = async (id: number): Promise<void> => {
               console.error("Error:", error);
            }
     }
-
-export const filterAssignmentSessions = async (
-          params: FilterAssignmentSessionsParams
-        ): Promise<AssignmentSession[]> => {
-          try {
-            const queryParams = new URLSearchParams();
-            
-            if (params.search) queryParams.append('search', params.search);
-            if (params.organization) queryParams.append('organization', params.organization);
-            if (params.from_date) queryParams.append('from_date', params.from_date);
-            if (params.to_date) queryParams.append('to_date', params.to_date);
-            if (params.per_page) queryParams.append('per_page', params.per_page.toString());
-            
-            if (params.categories && params.categories.length > 0) {
-              params.categories.forEach(catId => {
-                queryParams.append('categories[]', catId.toString());
-              });
-            }
+    export const filterAssignmentSessions = async (
+      params: FilterAssignmentSessionsParams
+    ): Promise<AssignmentSession[]> => {
+      try {
+        const queryParams = new URLSearchParams();
         
-            const url = `/exam-sections/filterAll?${queryParams.toString()}`;
-            return await get<AssignmentSession[]>(url);
-            
-          } catch (error: any) {
-            const errorMessage = error.response?.data?.message || 
-                               error.message || 
-                               "Failed to filter assignments";
-            throw new Error(errorMessage);
-          }
+        if (params.search) queryParams.append('search', params.search);
+        if (params.organization) queryParams.append('organization', params.organization);
+        if (params.status) queryParams.append('status', params.status); 
+        if (params.from_date) queryParams.append('from_date', params.from_date);
+        if (params.to_date) queryParams.append('to_date', params.to_date);
+        if (params.per_page) queryParams.append('per_page', params.per_page.toString());
+        
+        if (params.categories && params.categories.length > 0) {
+          params.categories.forEach(catId => {
+            queryParams.append('categories[]', catId.toString());
+          });
+        }
+    
+        const url = `/exam-sections/filterAll?${queryParams.toString()}`;
+        return await get<AssignmentSession[]>(url);
+        
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.message || 
+                           error.message || 
+                           "Failed to filter assignments";
+        throw new Error(errorMessage);
+      }
     };
-
 
 // Exam : 
 export const createExam = async (values: {
@@ -368,6 +366,17 @@ export const fetchExamTypes = async (): Promise<Type[]> => {
     throw new Error(errorMessage);
   }
 };
+export const fetchOrganization = async (): Promise<Organization[]> => {
+  try {
+   const organizations=  await get<Organization[]>('/exam-sections/get-organization')
+    return organizations;
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+                       error.message || 
+                       "Failed to fetch organization";
+    throw new Error(errorMessage);
+  }
+}; 
 
 // exam condations : 
 export const fetchExamCondations = async (): Promise<Condition[]> => {

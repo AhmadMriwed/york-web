@@ -50,8 +50,6 @@ const Page = () => {
   const { data: examTypes, isLoading: typeLoading } =
     useFetch<Type[]>(fetchExamTypes);
 
-  console.log(examTypes);
-
   type FormValues = z.infer<typeof addExamValidationSchema>;
 
   const form = useForm<FormValues>({
@@ -163,6 +161,7 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="status"

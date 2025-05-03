@@ -8,10 +8,7 @@ export  const addEvaluationValidationSchema = z.object({
     .number()
     .min(1, "Must have at least 1 question")
     .optional(),
-  duration_in_minutes: z
-    .number()
-    .min(1, "Duration must be at least 1 minute")
-    .optional(),
+
   evaluation_type_id: z.number().optional(),
   exam_section_id: z.number().optional(),
 });
@@ -31,7 +28,7 @@ export const updateEvaluationValidationSchema = z.object({
     image: z.union([
       z.string().url().or(z.string().min(1)), 
       z.instanceof(File), 
-    ]),
+    ]).nullable().optional(),
     
     evaluation_config: z.object({
       condition_exams_id: z.string().optional(),

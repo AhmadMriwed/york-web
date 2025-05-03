@@ -267,6 +267,12 @@ const UpdateAssignmentPage = () => {
           condition_exams_id:
             assignment?.exam_config?.condition_exams?.map((c) => c.id) || [],
         },
+        field_requirement: {
+          field_requirement_id:
+            assignment?.field_requirements?.map(
+              (f) => f.field_requirement_id
+            ) || [],
+        },
       });
     }
   }, [assignment, assignment_id, id, form]);
@@ -442,6 +448,7 @@ const UpdateAssignmentPage = () => {
       setIsSubmitting(false);
     }
   };
+  console.log(assignment?.field_requirements);
 
   const navigateToQuestionsPage = () => {
     router.push(
@@ -1047,58 +1054,45 @@ const UpdateAssignmentPage = () => {
                         name="exam_condition.condition_exams_id"
                         render={({ field }) => {
                           const currentValues = field.value || [];
-                          const existingConditions =
-                            assignment?.exam_config?.condition_exams || [];
-
-                          const initiallyChecked = new Set(
-                            existingConditions.map((c) => c.id)
-                          );
-
                           return (
                             <FormItem className="space-y-3">
                               <div className="flex flex-col space-y-2">
-                                {examCondations?.map((condition: Condition) => {
-                                  const isChecked =
-                                    currentValues.includes(condition.id) ||
-                                    (!currentValues.length &&
-                                      initiallyChecked.has(condition.id));
+                                {examCondations?.map((condition: Condition) => (
+                                  <FormItem
+                                    key={condition.id}
+                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={currentValues.includes(
+                                          condition.id
+                                        )}
+                                        onChange={(e) => {
+                                          const newValue = [...currentValues];
+                                          const conditionIndex =
+                                            newValue.indexOf(condition.id);
 
-                                  return (
-                                    <FormItem
-                                      key={condition.id}
-                                      className="flex flex-row items-start space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={isChecked}
-                                          onChange={(e) => {
-                                            const newValue = [...currentValues];
-                                            const conditionIndex =
-                                              newValue.indexOf(condition.id);
-
-                                            if (e.target.checked) {
-                                              if (conditionIndex === -1) {
-                                                newValue.push(condition.id);
-                                              }
-                                            } else {
-                                              // Remove if present
-                                              if (conditionIndex > -1) {
-                                                newValue.splice(
-                                                  conditionIndex,
-                                                  1
-                                                );
-                                              }
+                                          if (e.target.checked) {
+                                            if (conditionIndex === -1) {
+                                              newValue.push(condition.id);
                                             }
-                                            field.onChange(newValue);
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {condition.name}
-                                      </FormLabel>
-                                    </FormItem>
-                                  );
-                                })}
+                                          } else {
+                                            if (conditionIndex > -1) {
+                                              newValue.splice(
+                                                conditionIndex,
+                                                1
+                                              );
+                                            }
+                                          }
+                                          field.onChange(newValue);
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                      {condition.name}
+                                    </FormLabel>
+                                  </FormItem>
+                                ))}
                               </div>
                               <FormMessage />
                             </FormItem>
@@ -1134,8 +1128,6 @@ const UpdateAssignmentPage = () => {
                         name="field_requirement.field_requirement_id"
                         render={({ field }) => {
                           const currentValues = field.value || [];
-                          const existingRequirements =
-                            assignment?.field_requirements || [];
 
                           return (
                             <FormItem className="space-y-3">
@@ -1148,28 +1140,27 @@ const UpdateAssignmentPage = () => {
                                     >
                                       <FormControl>
                                         <Checkbox
-                                          checked={
-                                            currentValues.includes(
-                                              requirement.id
-                                            ) ||
-                                            existingRequirements.some(
-                                              (r) =>
-                                                r.field_requirement_id ===
-                                                requirement.id
-                                            )
-                                          }
-                                          onChange={(checked) => {
-                                            return checked
-                                              ? field.onChange([
-                                                  ...currentValues,
-                                                  requirement.id,
-                                                ])
-                                              : field.onChange(
-                                                  currentValues.filter(
-                                                    (id) =>
-                                                      id !== requirement.id
-                                                  )
+                                          checked={currentValues.includes(
+                                            requirement.id
+                                          )}
+                                          onChange={(e) => {
+                                            const newValue = [...currentValues];
+                                            const conditionIndex =
+                                              newValue.indexOf(requirement.id);
+
+                                            if (e.target.checked) {
+                                              if (conditionIndex === -1) {
+                                                newValue.push(requirement.id);
+                                              }
+                                            } else {
+                                              if (conditionIndex > -1) {
+                                                newValue.splice(
+                                                  conditionIndex,
+                                                  1
                                                 );
+                                              }
+                                            }
+                                            field.onChange(newValue);
                                           }}
                                         />
                                       </FormControl>
