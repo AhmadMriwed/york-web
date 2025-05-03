@@ -73,7 +73,7 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
 
                   />
                 )}
-                {(interfaceData?.show_condition || interfaceData?.show_configration) && <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
+          {interf == 'start' &&  <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
                   <div className="flex items-center space-x-2">
                     <Checkbox  checked={interfaceData?.show_condition === 1}>
                       Show conditions
@@ -161,18 +161,18 @@ export const InterfaceModal = ({ interfaceData, header, interface_id, id, assign
                   </>
                 )}
 
-                <div className="  mt-5 md:mt-10 flex flex-row justify-end gap-4 pt-4">
+                <div className="  mt-2 md:mt-10 flex flex-row justify-end gap-4 sm:pt-4">
 
                   <Button
                     type="button"
-                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-5 px-5 duration-200"
+                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-2 sm:py-4 px-3 sm:px-4 duration-200"
                     onClick={() => {
                       interf === 'start' ?
                         router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/start-interface/${interface_id}/update`)
                         : router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/end-interface/${interface_id}/update`)
                     }}
                   >
-                    <EditOutlined className="mr-2  size-4 text-white" />
+                    <EditOutlined className="mr-2  size-2 sm:size-3 text-white" />
                     <p className="text-white text-sm sm:text-lg ">
 
                       Edit

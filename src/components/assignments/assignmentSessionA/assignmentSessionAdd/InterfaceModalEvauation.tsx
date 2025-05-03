@@ -72,7 +72,7 @@ export const InterfaceModalEvaluation = ({ interfaceData, header, interface_id, 
                   />
               )}
 
-    {(interfaceData?.show_condition || interfaceData?.show_configration) && <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
+    {interf == 'start' && <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
                   <div className="flex items-center space-x-2">
                     <Checkbox  checked={interfaceData?.show_condition === 1}>
                       Show conditions
@@ -159,11 +159,11 @@ export const InterfaceModalEvaluation = ({ interfaceData, header, interface_id, 
 
 
 
-                <div className="  mt-5 md:mt-10 flex flex-row justify-end gap-4 pt-4">
+                <div className="  mt-2 md:mt-10 flex flex-row justify-end gap-4 sm:pt-4">
 
                   <Button
                     type="button"
-                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-5 px-5 duration-200"
+                    className="bg-primary-color1 hover:bg-primary-color2 transition-colors py-2 sm:py-[14px] px-3 sm:px-4 duration-200"
                     onClick={() => {
                       interf === 'start' ?
                         router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${assignment_id}/start-interface/${interface_id}/update`)

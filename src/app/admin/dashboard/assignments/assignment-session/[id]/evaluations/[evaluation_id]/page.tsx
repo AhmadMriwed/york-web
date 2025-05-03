@@ -580,7 +580,7 @@ const Page = () => {
 
                 <div className=" px-6 grid grid-cols-1 sm:grid-cols-8 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
 
-                  <div className="max-sm:px-3 sm:col-span-3 ">
+                  <div className="max-sm:px-4 max-sm:py-2 sm:col-span-3 ">
                     <Image
                       src={assignmentData?.image ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.image}` : "/register.png"}
                       alt="Evaluation Image"

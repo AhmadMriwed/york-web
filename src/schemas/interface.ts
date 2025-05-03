@@ -3,9 +3,9 @@ import { z } from "zod";
 
 export const EditValidation = z.object({
   title: z.string().min(1, "Title is required"),
-  sub_title: z.string().optional(),
-  description: z.string().optional(),
-  image: z.any().optional(), // Adjust based on your image handling
+  sub_title: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  image: z.any().optional().nullable(), // Adjust based on your image handling
   files: z.array(z.any()).optional(), // Adjust based on your file handling
   
     show_configration: z.number().min(0).max(1).default(0),
@@ -13,9 +13,9 @@ export const EditValidation = z.object({
 });
 export const EditValidationEnd = z.object({
   title: z.string().min(1, "Title is required"),
-  sub_title: z.string().optional(),
-  description: z.string().optional(),
-  image: z.any().optional(), // Adjust based on your image handling
+  sub_title: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  image: z.any().optional().nullable(), // Adjust based on your image handling
   files: z.array(z.any()).optional(), // Adjust based on your file handling
   url: z.string()
   .regex(

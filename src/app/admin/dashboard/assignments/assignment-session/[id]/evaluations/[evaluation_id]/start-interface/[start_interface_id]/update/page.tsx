@@ -1,7 +1,3 @@
-
-
-
-
 'use client';
 import React, { useEffect } from 'react';
 import { useRef, useState } from "react";
@@ -13,7 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import CustomFormField, { FormFieldType } from "@/components/review/CustomFormField";
 import { Button } from "@/components/ui/button";
 import { Header } from "rsuite";
-import { EditValidation } from "@/schemas/interface";
 import { z } from "zod";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { useParams, useRouter } from "next/navigation";
@@ -22,6 +17,17 @@ import { toast } from "sonner";
 import { getStartInterface, updateStartInterface, uploadFileToStartForm } from "@/lib/action/exam_action";
 import { Checkbox } from '@/components/ui/checkbox';
 import Loading from '@/components/Pars/Loading';
+
+// Updated validation schema - only title is required
+const EditValidation = z.object({
+  title: z.string().min(1, "Title is required"),
+  sub_title: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  image: z.union([z.string(), z.instanceof(Blob)]).nullable().optional(),
+  show_condition: z.number().min(0).max(1).default(0),
+  show_configration: z.number().min(0).max(1).default(0),
+  url: z.string().nullable().optional()
+});
 
 const EditForm = ({
     initialValues,
@@ -43,9 +49,13 @@ const EditForm = ({
     type FormValues = z.infer<typeof EditValidation>;
     
     const defaultValues = {
-        ...initialValues,
+        title: initialValues?.title ?? "",
+        sub_title: initialValues?.sub_title ?? null,
+        description: initialValues?.description ?? null,
+        image: initialValues?.image ?? null,
         show_condition: initialValues?.show_condition ?? 0,
         show_configration: initialValues?.show_configration ?? 0,
+        url: initialValues?.url ?? null
     };
     
     const form = useForm<FormValues>({
@@ -54,14 +64,12 @@ const EditForm = ({
     });
 
     const [isUploading, setIsUploading] = useState(false);
+    const [imageRemoved, setImageRemoved] = useState(false);
     
     useEffect(() => {
         if (initialValues) {
-            form.reset({
-                ...initialValues,
-                show_condition: initialValues?.show_condition ?? 0,
-                show_configration: initialValues?.show_configration ?? 0,
-            });
+            form.reset(defaultValues);
+            setImageRemoved(false);
         }
     }, [initialValues, form]);
 
@@ -72,7 +80,13 @@ const EditForm = ({
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files?.[0]) {
             setValue("image", e.target.files[0]);
+            setImageRemoved(false);
         }
+    };
+
+    const handleRemoveImage = () => {
+        setValue("image", null);
+        setImageRemoved(true);
     };
 
     const removeFile = async (index: number) => {
@@ -86,14 +100,13 @@ const EditForm = ({
         }
     };
 
-    const onSubmit = (values: any) => {
-        // Create FormData to handle file uploads
+    const onSubmit = (values: FormValues) => {
         const formData = new FormData();
         
-        // Append all non-image fields
-        Object.keys(values).forEach(key => {
-            if (key !== 'image') {
-                formData.append(key, values[key]);
+        // Append all fields, converting null to empty string where needed
+        Object.entries(values).forEach(([key, value]) => {
+            if (key !== 'image' && value !== null && value !== undefined) {
+                formData.append(key, String(value));
             }
         });
 
@@ -101,10 +114,13 @@ const EditForm = ({
         if (values.image instanceof Blob) {
             // New image file was uploaded
             formData.append('image', values.image);
-        } else if (typeof values.image === 'string') {
-            // Existing image URL - send as reference
+        } else if (typeof values.image === 'string' && !imageRemoved) {
+            // Existing image URL - send as reference if not removed
             formData.append('existing_image', values.image);
-        } else if (initialValues?.image) {
+        } else if (imageRemoved) {
+            // Image was explicitly removed
+            formData.append('image', '');
+        } else if (initialValues?.image && !imageRemoved) {
             // No image change - keep original
             formData.append('keep_original_image', 'true');
         } else {
@@ -146,13 +162,14 @@ const EditForm = ({
                             label="Title:"
                             name="title"
                             placeholder="Enter a title"
+                            required
                         />
                         <CustomFormField
                             fieldType={FormFieldType.INPUT}
                             control={form.control}
                             label="SubTitle:"
                             name="sub_title"
-                            placeholder="Enter a title"
+                            placeholder="Enter a subtitle (optional)"
                         />
                     </div>
 
@@ -161,15 +178,16 @@ const EditForm = ({
                         control={form.control}
                         label="Description:"
                         name="description"
+                        placeholder="Enter description (optional)"
                     />
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <FormItem>
                             <FormLabel className="text-gray-900 dark:text-gray-100">
-                                Image:
+                                Image (optional):
                             </FormLabel>
                             <div className="flex items-center gap-4 w-full">
-                                {currentImage ? (
+                                {currentImage && !imageRemoved ? (
                                     <div className="relative group w-full">
                                         <img
                                             src={
@@ -190,13 +208,7 @@ const EditForm = ({
                                                     className="hidden"
                                                 />
                                             </label>
-                                            <button
-                                                type="button"
-                                                onClick={() => setValue("image", undefined)}
-                                                className="px-4 p-2 bg-white dark:bg-gray-800 rounded-full transition-all flex items-center justify-center h-8 w-8"
-                                            >
-                                                <DeleteOutlined className="text-red-500 dark:text-red-400" />
-                                            </button>
+                                         
                                         </div>
                                     </div>
                                 ) : (
@@ -204,7 +216,7 @@ const EditForm = ({
                                         <div className="w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center hover:border-primary-color1 transition-all">
                                             <PlusOutlined className="text-2xl text-gray-400 dark:text-gray-300 mb-2" />
                                             <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                Upload Image
+                                                Upload Image (optional)
                                             </span>
                                             <input
                                                 type="file"
@@ -220,7 +232,7 @@ const EditForm = ({
 
                         <FormItem>
                             <FormLabel className="flex my-3 justify-between items-center text-gray-900 dark:text-gray-100">
-                                <p>Files: </p>
+                                <p>Files (optional): </p>
                                 <label className="cursor-pointer">
                                     <input
                                         ref={fileInputRef}
@@ -345,7 +357,6 @@ const Page = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [interfaceData, setInterfaceData] = useState<StartInterfaceType | null>(null);
     const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         const fetch = async () => {
@@ -374,6 +385,7 @@ const Page = () => {
     const handleSave = async (formData: FormData) => {
         setIsSubmitting(true);
         try {
+          
             const response = await updateStartInterface(Number(start_interface_id), formData);
             toast.success("Start interface updated successfully");
             router.back();
@@ -404,19 +416,7 @@ const Page = () => {
                         </div>
                       )
                         : ( 
-            
                 <div className="bg-white dark:bg-gray-900 px-4 py-1 rounded-[5px] pb-8 sm:px-10 sm:py-8 sm:pb-12 min-h-[80vh] border-gray-200 dark:border-gray-700">
-                    <div className="pb-5 sm:pb-8">
-                        <h2 className="text-primary-color1 text-[18px] sm:text-xl lg:text-2xl tracking-wide font-semibold dark:text-primary-color2">
-                            {interfaceData?.title}
-                        </h2>
-                        {interfaceData?.sub_title && (
-                            <p className="text-gray-600 text-[15px] sm:text-[17px] dark:text-gray-400">
-                                {interfaceData?.sub_title}
-                            </p>
-                        )}
-                    </div>
-
                     <EditForm
                         initialValues={interfaceData}
                         onSave={handleSave}
