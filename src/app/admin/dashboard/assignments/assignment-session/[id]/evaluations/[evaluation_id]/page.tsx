@@ -360,7 +360,9 @@ const Page = () => {
         duration: 4000,
 
       });
+      setIsEdittingExamSettings(false);
       setIsSuccess(!isSuccess);
+
 
     } catch (error: any) {
       console.error("Submission Error:", error);
@@ -532,12 +534,12 @@ const Page = () => {
                     <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-5 sm:-mt-3 sm:gap-1">
 
 
-                      <div className="flex items-center justify-center gap-2">
+                    {assignmentData?.sub_title && <div className="flex items-center justify-center gap-2">
                         <MdSubtitles className="w-5 h-5 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                         <h4 className="text-[15px] sm:text-[17px] font-medium text-gray-700 dark:text-gray-300 ">
                           {assignmentData?.sub_title}
                         </h4>
-                      </div>
+                      </div>}
                       {assignmentData?.code && <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
                         <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                         <p className="text-[12px] sm:text-sm text-gray-500">{assignmentData?.code}</p>
@@ -576,37 +578,37 @@ const Page = () => {
                   </Dropdown>
                 </div>
 
-                <div className=" px-6 grid grid-cols-1 sm:grid-cols-7 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
+                <div className=" px-6 grid grid-cols-1 sm:grid-cols-8 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
 
-                  <div className="sm:col-span-3 ">
+                  <div className="max-sm:px-3 sm:col-span-3 ">
                     <Image
                       src={assignmentData?.image ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.image}` : "/register.png"}
                       alt="Evaluation Image"
-                      width={600}
-                      height={600}
-                      className="object-cover rounded-lg"
+                      width={400}
+                      height={200}
+                      className="object-cover aspect-[9/6] rounded-lg"
                       priority
                     />
                   </div>
 
 
-                  <div className=" sm:col-span-4   space-y-1 sm:space-y-4  ">
+                  <div className=" sm:col-span-5   space-y-1 sm:space-y-4  ">
 
 
-               
-                      {assignmentData?.evaluation_config?.language && <InfoItem
-                        icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                        label="Language"
-                        value={assignmentData?.evaluation_config?.language}
-                      />}
-                      {assignmentData?.evaluation_type?.type && <InfoItem
-                        icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                        label="Evaluation Type"
-                        value={assignmentData?.evaluation_type?.type}
-                      />}
+
+                    {assignmentData?.evaluation_config?.language && <InfoItem
+                      icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Language"
+                      value={assignmentData?.evaluation_config?.language}
+                    />}
+                    {assignmentData?.evaluation_type?.type && <InfoItem
+                      icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Evaluation Type"
+                      value={assignmentData?.evaluation_type?.type}
+                    />}
 
 
-                  
+
                     <InfoItem
                       icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Start Date"
@@ -663,7 +665,8 @@ const Page = () => {
 
 
 
-                <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2 p-1.5 mt-8 sm:mt-16 sm:px-2 h-fit">
+                <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:px-10 p-1.5 mt-8 sm:mt-16 px-4 xl:gap-7 sm:px-6 ">
+
                   {assignmentData?.start_forms[0]?.id ? (
                     <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 pt-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                       <div className="flex items-center mb-4 sm:mb-6">
@@ -707,14 +710,14 @@ const Page = () => {
                       <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                         {assignmentData?.start_forms[0]?.description}
                       </p>
-                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
-                        <Button
+                      <div className="flex items-center justify-end mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <button
                           onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.id}`) }}
                           type="button"
-                          className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                          className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
                         >
                           Show
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -739,7 +742,7 @@ const Page = () => {
                           </p>
                         </div>
                         <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
-                          <Button
+                          <button
                             onClick={() =>
                               setShowAddStartingInterfaceModal(true)
                             }
@@ -748,7 +751,7 @@ const Page = () => {
                           >
                             <FiPlus className="mr-2" />
                             Add Starting Interface
-                          </Button>
+                          </button>
                         </div>
                       </div>
                       <AddStartFormInterface
@@ -804,11 +807,11 @@ const Page = () => {
                       <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
                         {assignmentData?.end_forms[0]?.description}
                       </p>
-                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center justify-end  mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                         <Button
-                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}`)}}
+                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}`) }}
                           type="button"
-                          className="w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                          className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
                         >
                           Show
                         </Button>
@@ -876,7 +879,7 @@ const Page = () => {
                       <div className="flex items-center h-14 gap-2 sm:gap-4">
                         <Settings className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                        Evaluation Settings
+                          Evaluation Settings
                         </p>
                       </div>
                     </AccordionTrigger>
@@ -1076,9 +1079,14 @@ const Page = () => {
                                   </FormItem>
                                 )}
                               />
-                              <div className="flex items-center justify-end mt-3">
+                              <div className="flex items-center justify-end gap-3 mt-3">
 
+                                <button
 
+                                  className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
+                                  onClick={() => setIsEdittingExamSettings(false)}
+                                >Cancel
+                                </button>
 
                                 <Button
                                   type="submit"
@@ -1200,7 +1208,7 @@ const Page = () => {
 
                     </AccordionContent>
                   </AccordionItem>
-             
+
 
                   <AccordionItem
                     value="item-3"
@@ -1210,12 +1218,12 @@ const Page = () => {
                       <div className="flex items-center  gap-2 sm:gap-4">
                         <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                        Evaluation Requirments
+                          Evaluation Requirments
                         </p>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-               
+
                       <div className="mt-2 flex flex-col gap-y-1">
                         {assignmentData?.field_requirements?.map((r) => {
                           const matchedField = requimrentFields.find(
@@ -1234,7 +1242,7 @@ const Page = () => {
                       <div className="flex items-center  gap-2 sm:gap-4">
                         <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
                         <p className="text-sm sm:text-base">
-                        Evaluation&apos;s Questions
+                          Evaluation&apos;s Questions
                         </p>
                       </div>
                     </button>

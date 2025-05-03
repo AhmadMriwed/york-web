@@ -127,7 +127,7 @@ const StartInterfaceModal = ({
                       : "/register.png"
                   }
                   alt={startForm.title}
-                  className="w-full h-auto rounded-lg object-contain border border-gray-200 dark:border-gray-600"
+                  className="w-full h-auto aspect-[9/6] rounded-lg object-contain border border-gray-200 dark:border-gray-600"
                   height={300}
                   width={250}
                 />

@@ -420,7 +420,7 @@ const Page = () => {
                     <EditForm
                         initialValues={interfaceData}
                         onSave={handleSave}
-                        onCancel={() => setIsEditing(false)}
+                        onCancel={() => router.back()}
                         start_interface_id={Number(start_interface_id)}
                         isSubmitting={isSubmitting}
                         setIsSubmitting={setIsSubmitting}

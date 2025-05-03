@@ -297,7 +297,7 @@ const EditForm = ({
 
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 sm:pt-0">
+            <div className="flex flex-row justify-end gap-2 pt-4 sm:pt-0">
                 <Button
                     type="button"
                     variant="outline"
@@ -406,7 +406,7 @@ const Page = () => {
             <EditForm
                 initialValues={interfaceData}
                 onSave={handleSave}
-                onCancel={() => setIsEditing(false)}
+                onCancel={() => router.back()}
                 end_interface_id={Number(end_interface_id)}
                 isSubmitting={isSubmitting}
                 setIsSubmitting={setIsSubmitting}

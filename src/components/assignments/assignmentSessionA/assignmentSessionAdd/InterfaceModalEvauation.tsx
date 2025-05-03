@@ -65,7 +65,7 @@ export const InterfaceModalEvaluation = ({ interfaceData, header, interface_id, 
                   <img
                     src={`${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${interfaceData?.image}`}
                     alt={interfaceData?.title}
-                    className=" rounded-lg object-contain aspect-[9/7] border border-gray-200 dark:border-gray-600"
+                    className="  object-contain aspect-[9/7] border border-gray-200 dark:border-gray-600"
                     width={400}
                     height={400}
 
@@ -74,13 +74,13 @@ export const InterfaceModalEvaluation = ({ interfaceData, header, interface_id, 
 
     {(interfaceData?.show_condition || interfaceData?.show_configration) && <div className="mt-4 md:mt-5 space-y-2 flex items-center gap-4 ">
                   <div className="flex items-center space-x-2">
-                    <Checkbox disabled checked={interfaceData?.show_condition === 1}>
+                    <Checkbox  checked={interfaceData?.show_condition === 1}>
                       Show conditions
                     </Checkbox>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      disabled
+                      
                       checked={interfaceData?.show_configration === 1}
                     >
                       Show settings

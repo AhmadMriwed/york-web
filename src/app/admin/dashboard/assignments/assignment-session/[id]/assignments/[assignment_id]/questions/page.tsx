@@ -218,9 +218,9 @@ const QuestionManager = () => {
         </Header>
         <Button
           onClick={() => router.push(`/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion?form_id=${form_id}`)}
-          className='px-6 max-sm:px-3 py-0    !bg-primary-color1 active:!bg-primary-color1
+          className='px-6 max-sm:px-3 py-2 sm:py-[9px]    !bg-primary-color1 active:!bg-primary-color1
       !text-white'>
-          <h3 className='sm:tracking-wide max-sm:text-[15px] '>Add Question</h3>
+          <p className='sm:tracking-wide max-sm:text-[15px] '>Add Question</p>
         </Button>
       </div>
 
