@@ -15,6 +15,9 @@ export interface Type {
   hint?: string | null;
   description?: string | null;
 }
+export interface Organization {
+  name: string;
+}
 
 export interface Condition {
   id: number;
@@ -136,6 +139,7 @@ export interface SectionType {
 export interface FilterAssignmentSessionsParams {
   search?: string;
   organization?: string;
+  status?: string;
   from_date?: string;
   to_date?: string;
   categories?: number[];

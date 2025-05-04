@@ -39,6 +39,11 @@ const AssignmentFilter = ({
         label: option.type,
         value: option.type,
       }));
+    } else if (field.name === "organization") {
+      return field.options?.map((option: any) => ({
+        label: option.type,
+        value: option.type,
+      }));
     }
     return [];
   };
@@ -94,7 +99,7 @@ const AssignmentFilter = ({
         </div>
       </div>
       <div className="w-full flex flex-wrap gap-1 element-center mt-4">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3  gap-2 text-center">
           {filterFields.map((field: any, index: number) => {
             if (field.type === "date") {
               return (
@@ -108,7 +113,11 @@ const AssignmentFilter = ({
                   disabled={disabled}
                 />
               );
-            } else if (field.type === "select" || field.name === "status") {
+            } else if (
+              field.type === "select" ||
+              field.name === "status" ||
+              field.name === "organization"
+            ) {
               return (
                 <SelectPicker
                   searchable={false}

@@ -58,7 +58,6 @@ const Page = () => {
       title: "",
       sub_title: "",
       status: "",
-      duration_in_minutes: undefined,
       evaluation_type_id: Number(evaluation_type_id),
       exam_section_id: id ? Number(id) : undefined,
     },
@@ -69,7 +68,6 @@ const Page = () => {
     try {
       const submissionData = {
         ...values,
-        duration_in_minutes: Number(values.duration_in_minutes),
       };
 
       const response = await createEvaluation(submissionData);
@@ -138,27 +136,6 @@ const Page = () => {
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
                 {/* Duration in Minutes */}
 
-                <FormField
-                  control={form.control}
-                  name="duration_in_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration in Minutes :</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          className="flex rounded-md border border-dark-500 bg-gray-100 dark:bg-gray-700 focus-within:border ring-primary-color1 focus:ring-1  focus:outline-none focus-within:border-primary-color1"
-                          placeholder="Enter number of minutes.."
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="status"
