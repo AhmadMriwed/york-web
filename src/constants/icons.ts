@@ -21,11 +21,13 @@ import bell from '../../public/icons/bell.svg'
 import oclock from '../../public/icons/oclock.svg'
 import requirement from '../../public/icons/requirement.svg'
 import update from '../../public/icons/update.svg'
+import id from '../../public/icons/id.svg'
 
 
 export const icons = {
     trainer,
     oclock,
+    id,
     requirement,
     update,
     checkmarkOutline,

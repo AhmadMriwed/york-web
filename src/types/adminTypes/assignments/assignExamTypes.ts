@@ -116,6 +116,7 @@ export interface Assignment {
   end_forms: EndForm[];
   id: number;
   code: string;
+  url: string|null;
   forms: Form[];
   title: string;
   sub_title: string;
@@ -169,6 +170,7 @@ export interface Evaluation {
   end_forms: EndForm[];
   id: number;
   code: string;
+  url?:string; 
   forms: Form[];
   title: string;
   sub_title: string;
@@ -185,4 +187,44 @@ export interface Evaluation {
   updated_at: string;
   evaluation_config: EvaluationConfig;
   field_requirements: FieldRequirment[];
+}
+
+export interface ExamData {
+  id: number;
+  code: string;
+  title: string;
+  sub_title: string;
+  status: string;
+  image: string | null;
+  number_of_questions: number;
+  duration_in_minutes: number;
+  grade_percentage: number | null;
+  exam_type: {
+    id: number;
+    type: string;
+    hint: string | null;
+    description: string;
+  };
+  exam_section_id: number;
+  exam_type_id: number;
+  created_at: string;
+  updated_at: string;
+  exam_config: {
+    id: number;
+    exam_id: number;
+    evaluation_id: number | null;
+    time_exam: string;
+    start_date: string;
+    end_date: string;
+    view_results: string;
+    view_answer: string;
+    date_view: string;
+    count_questions_page: number;
+    time_questions_page: string;
+    required_page_next: boolean;
+    count_return_exam: number;
+    language: string;
+    created_at: string;
+    updated_at: string;
+  };
 }

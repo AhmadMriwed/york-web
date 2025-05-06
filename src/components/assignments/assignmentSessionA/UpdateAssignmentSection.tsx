@@ -41,7 +41,7 @@ interface ExamSectionOperationProps {
 
 const examSectionSchema = yup.object().shape({
   title: yup.string().required(" title is required"),
-  image: yup.mixed().nullable(), 
+  image: yup.mixed().nullable(),
   start_date: yup.date().nullable(),
   end_date: yup
     .date()
@@ -68,75 +68,68 @@ const examSectionSchema = yup.object().shape({
   status: yup.string().nullable(),
   description: yup.string(),
 
-  organization: yup.string(), 
+  organization: yup.string(),
 });
-
 
 const UpdateAssignmentSection: React.FC<ExamSectionOperationProps> = ({
   initialValuess,
   typeData,
   id,
   categoriesData,
-  setIsSucsess
+  setIsSucsess,
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
-const router = useRouter();
+  const router = useRouter();
 
-  
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
- 
 
-
-
-
-
-
-  const submitHandler = async (values: any, actions: any) => {  
+  const submitHandler = async (values: any, actions: any) => {
     try {
       setLoading(true);
 
       const formData = new FormData();
-  
+
       console.log(values);
       formData.append("title", values.title);
-    
-      if (values.category_id) formData.append("category_id", values.category_id);
-      if (values.description) formData.append("description", values.description);
-      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date));
-      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date));
+
+      if (values.category_id)
+        formData.append("category_id", values.category_id);
+      if (values.description)
+        formData.append("description", values.description);
+      if (values.start_date)
+        formData.append("start_date", getLocalISODate(values.start_date));
+      if (values.end_date)
+        formData.append("end_date", getLocalISODate(values.end_date));
       if (values.trainer) formData.append("trainer", values.trainer);
       if (values.code) formData.append("code", values.code);
       if (values.status) formData.append("status", values.status);
       if (values.image instanceof File) formData.append("image", values.image);
-      if (values.organization) formData.append("organization", values.organization);
+      if (values.organization)
+        formData.append("organization", values.organization);
       if (values.type_id) formData.append("type_id", values.type_id.toString());
       console.log(formData);
-  
+
       const response = await updateExamSection(formData, id);
       console.log("API Response:", response);
-      router.push(`/admin/dashboard/assignments/assignment-session/${id}`)
+      router.push(`/admin/dashboard/assignments/assignment-session/${id}`);
       toast.success("Exam section updated successfully", {
         description: "The exam section has been updated successfully.",
         duration: 4000,
-       
       });
       actions.resetForm();
       setIsSucsess(true);
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
       });
-    }finally {
+    } finally {
       setLoading(false);
-      actions.setSubmitting(false);
     }
   };
-
 
   const statusData = [
     { label: "Active", value: "Active", id: 1 },
@@ -177,8 +170,6 @@ const router = useRouter();
     ),
     value: type.id,
   }));
-  
-
 
   const defaultValues: ExamSectionFormValues = {
     title: "",
@@ -191,151 +182,148 @@ const router = useRouter();
     description: "",
     type_id: null,
     image: null,
-    organization: "", 
+    organization: "",
   };
 
-
-  const initialValues = initialValuess ? {
-    ...initialValuess,
-    category_id: initialValuess.category ?initialValuess.category.id : null,
-    type_id: initialValuess.type ? initialValuess.type.id : null,
-    description: initialValuess ? initialValuess.description: null
-  } : defaultValues;
+  const initialValues = initialValuess
+    ? {
+        ...initialValuess,
+        category_id: initialValuess.category
+          ? initialValuess.category.id
+          : null,
+        type_id: initialValuess.type ? initialValuess.type.id : null,
+        description: initialValuess ? initialValuess.description : null,
+      }
+    : defaultValues;
   return (
     <>
-   
-    <Formik
-      initialValues={initialValues }
-      validationSchema={examSectionSchema}
-      onSubmit={submitHandler}
-      enableReinitialize
-      innerRef={(instance) => {
-        formikRef.current = instance;
-      }}
-    >
-      {(props: FormikProps<any>) => (
-        <Form
-          className={`relative py-2  sm:p-6 rounded-lg ${mode === "dark" ? " text-white" : " text-black"
+      <Formik
+        initialValues={initialValues}
+        validationSchema={examSectionSchema}
+        onSubmit={submitHandler}
+        enableReinitialize
+        innerRef={(instance) => {
+          formikRef.current = instance;
+        }}
+      >
+        {(props: FormikProps<any>) => (
+          <Form
+            className={`relative py-2  sm:p-6 rounded-lg ${
+              mode === "dark" ? " text-white" : " text-black"
             }`}
-        >
-
-          <div
-            className={`mt-4 px-5 sm:px-10 xl:px-20 py-5 md:py-11 rounded-lg ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
-              }`}
           >
-          
+            <div
+              className={`mt-4 px-5 sm:px-10 xl:px-20 py-5 md:py-11 rounded-lg ${
+                mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
+              }`}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+                <CustomInputField
+                  type="text"
+                  name="title"
+                  label="Title "
+                  placeholder="Enter title in English"
+                  required
+                />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+                <CustomInputField
+                  type="date"
+                  name="start_date"
+                  label="Start Date"
+                  placeholder="Start Date"
+                  theme={mode}
+                />
+                <CustomInputField
+                  type="date"
+                  name="end_date"
+                  label="End Date"
+                  placeholder="End Date"
+                  theme={mode}
+                />
 
-              <CustomInputField
-                type="text"
-                name="title"
-                label="Title "
-                placeholder="Enter title in English"
-                required
-              />
-
-
-              <CustomInputField
-                type="date"
-                name="start_date"
-                label="Start Date"
-                placeholder="Start Date"
-    
-                theme={mode}
-              />
-              <CustomInputField
-                type="date"
-                name="end_date"
-                label="End Date"
-                placeholder="End Date"
-                theme={mode}
-              />
-
-              <CustomInputField
-                type="text"
-                name="organization"
-                label="Organization Name"
-                placeholder="Enter organization name"
-              // optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={typeList}
-                name="type_id"
-                label="Type"
- 
-                placeholder="type"
-              />
-              <CustomInputField
-                type="select"
-                selectData={categoriesList}
-                name="category_id"
-                label="Category"
-
-                placeholder="Category"
-              />
-              <CustomInputField
-                type="text"
-                name="code"
-                label="Code (6 characters)"
-                placeholder="Enter code"
-              // optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={statusList}
-                name="status"
-                label="Status"
-                // optional
-                placeholder="Status"
-              />
-              <CustomInputField
-                type="text"
-                name="trainer"
-                label="Trainer Name"
-                placeholder="Enter trainer name"
-              // optional
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
-              <div className="space-y-4">
-                <TextEditor
-                  name="description"
-                  label="Description "
-                  value={initialValues?.description}
-                // optional
+                <CustomInputField
+                  type="text"
+                  name="organization"
+                  label="Organization Name"
+                  placeholder="Enter organization name"
+                  // optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={typeList}
+                  name="type_id"
+                  label="Type"
+                  placeholder="type"
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={categoriesList}
+                  name="category_id"
+                  label="Category"
+                  placeholder="Category"
+                />
+                <CustomInputField
+                  type="text"
+                  name="code"
+                  label="Code (6 characters)"
+                  placeholder="Enter code"
+                  // optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={statusList}
+                  name="status"
+                  label="Status"
+                  // optional
+                  placeholder="Status"
+                />
+                <CustomInputField
+                  type="text"
+                  name="trainer"
+                  label="Trainer Name"
+                  placeholder="Enter trainer name"
+                  // optional
                 />
               </div>
-
-              <ImageUploader formikProps={props} />
-            </div>
-            <div className="mt-7 flex justify-end">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="!bg-primary-color1 py-[8px] sm:py-2 sm:px-9  max-sm:!w-full"
-              >
-                {loading ? (<div className="flex justify-center items-center gap-4">
-
-                  <Loader />
-                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Updating </h6>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
+                <div className="space-y-4">
+                  <TextEditor
+                    name="description"
+                    label="Description "
+                    value={initialValues?.description}
+                    // optional
+                  />
                 </div>
-                ) : (
-                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Update </h6>
-                )}
-              </Button>
+
+                <ImageUploader formikProps={props} />
+              </div>
+              <div className="mt-7 flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="!bg-primary-color1 py-[8px] sm:py-2 sm:px-9  max-sm:!w-full"
+                >
+                  {loading ? (
+                    <div className="flex justify-center items-center gap-4">
+                      <Loader />
+                      <h6 className="text-[17px] tracking-wide sm:text-xl text-white">
+                        Updating{" "}
+                      </h6>
+                    </div>
+                  ) : (
+                    <h6 className="text-[17px] tracking-wide sm:text-xl text-white">
+                      Update{" "}
+                    </h6>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
+          </Form>
+        )}
+      </Formik>
 
-        </Form>
-      )}
-    </Formik>
-  
-    <Toaster position="top-right" richColors />
-
-
-     </>
+      <Toaster position="top-right" richColors />
+    </>
   );
 };
 export default UpdateAssignmentSection;

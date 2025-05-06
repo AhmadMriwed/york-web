@@ -267,18 +267,16 @@ const CustomFormField = (props: CustomProps) => {
       name={name}
       render={({ field }) => (
         <FormItem className="flex-1 flex flex-col">
-          {fieldType !== FormFieldType.CHECKBOX &&
-            label &&
-            (required ? (
-              <p className={cn(" w-full gap-2 flex ")}>
-                <FormLabel className="text-gray-700 dark:text-white">
-                  {label}
-                </FormLabel>
-                <span className="text-red-400 text-2xl -mt-2 ">*</span>
-              </p>
-            ) : (
-              <FormLabel className="mb-2">{label}</FormLabel>
-            ))}
+          {fieldType !== FormFieldType.CHECKBOX && label && (
+            <p className={cn("w-full gap-2 flex items-center")}>
+              <FormLabel className="text-gray-700 dark:text-white">
+                {label}
+              </FormLabel>
+              {required && (
+                <span className="text-red-400 text-2xl -mt-2">*</span>
+              )}
+            </p>
+          )}
           <RenderField field={field} props={{ ...props, defaultCountry }} />{" "}
           {/* Pass defaultCountry as a prop */}
           <FormMessage className="shad-error" />

@@ -1,8 +1,3 @@
-
-
-
-
-
 "use client";
 import { useParams } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
@@ -25,6 +20,7 @@ import {
   Loader2,
   View,
   EyeIcon,
+  Link,
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
@@ -33,9 +29,14 @@ import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 
-
-
-import { MdTitle, MdSubtitles, MdCategory, MdVisibility, MdVisibilityOff, MdOutlineAppSettingsAlt } from "react-icons/md";
+import {
+  MdTitle,
+  MdSubtitles,
+  MdCategory,
+  MdVisibility,
+  MdVisibilityOff,
+  MdOutlineAppSettingsAlt,
+} from "react-icons/md";
 import StudentResultsTable from "@/components/assignments/assignmentSessionA/StudentResultsTable ";
 import {
   Accordion,
@@ -64,21 +65,45 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay, FiPlus } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
-import { FaCheckCircle, FaClock, FaLanguage, FaQuestionCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaClock,
+  FaLanguage,
+  FaQuestionCircle,
+  FaRedo,
+  FaRegNewspaper,
+} from "react-icons/fa";
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
 // import { changeExamStatus, createEndFormF, createStartFormF, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, fetchRequirmentFieldsData, updateExamSettings } from "@/lib/action/exam_action";
-import { deleteEndForm, deleteEvaluation, deleteStartForm, changeEvaluationStatus, fetchEvaluationById, updateEvaluationSettings } from "@/lib/action/evaluation_action";
+import {
+  deleteEndForm,
+  deleteEvaluation,
+  deleteStartForm,
+  changeEvaluationStatus,
+  fetchEvaluationById,
+  updateEvaluationSettings,
+} from "@/lib/action/evaluation_action";
 
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
-import { Assignment, Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
-import CustomFormField, { FormFieldType } from "@/components/review/CustomFormField";
+import {
+  Assignment,
+  Evaluation,
+} from "@/types/adminTypes/assignments/assignExamTypes";
+import CustomFormField, {
+  FormFieldType,
+} from "@/components/review/CustomFormField";
 import ImageUploader from "@/components/upload/ImageUploader";
 import { Modal } from "antd";
-import { createEndFormF, createStartFormF, fetchRequirmentFieldsData } from "@/lib/action/exam_action";
-
-
+import {
+  createEndFormF,
+  createStartFormF,
+  fetchRequirmentFieldsData,
+  generateUrl,
+} from "@/lib/action/exam_action";
+import { Snippet } from "@heroui/react";
+import { fetchExamUsers } from "@/lib/action/assignment_action";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -89,10 +114,11 @@ const RenderIconButton = (props: any, ref: any) => {
       icon={<More className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -105,10 +131,11 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
       icon={<IoMdMore className="size-6 max-sm:size-5" />}
       size="lg"
       circle
-      className={`${mode === "dark"
-        ? "!text-[var(--light-bg-color)]"
-        : "!text-[var(--dark-color)]"
-        } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
+      className={`${
+        mode === "dark"
+          ? "!text-[var(--light-bg-color)]"
+          : "!text-[var(--dark-color)]"
+      } !bg-transparent hover:!bg-gray-100 dark:hover:!bg-gray-700 transition-colors`}
     />
   );
 };
@@ -131,19 +158,23 @@ const Page = () => {
   const [isViewAnsersChanged, setIsViewAnswersChanged] = useState(false);
   const [isStartFormDeleted, setIsStartFormDeleted] = useState(false);
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
-  const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] = useState(false);
-  const [requimrentFields, setRequimrentFields] = useState<RequirementField[]>([]);
+  const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] =
+    useState(false);
+  const [requimrentFields, setRequimrentFields] = useState<RequirementField[]>(
+    []
+  );
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
     useState<boolean>(false);
+
+  const [examUsers, setExamUsers] = useState();
 
   const [showAddEndingInterfaceModal, setShowAddEndingInterfaceModal] =
     useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-
   useEffect(() => {
     const fetch = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         if (!id) {
           throw new Error("Missing session ID in URL");
@@ -153,9 +184,12 @@ const Page = () => {
         console.log("try to fetch data");
         const data = await fetchEvaluationById(Number(evaluation_id));
         setIsThereErrorWhileFetchData(false);
+        const users = await fetchExamUsers(Number(evaluation_id));
+        console.log(users.data);
+        setExamUsers(users.data);
 
         if (!data) {
-          throw new Error("no data")
+          throw new Error("no data");
           setIsThereErrorWhileFetchData(true);
         }
         setAssignmentData(data?.data);
@@ -163,42 +197,55 @@ const Page = () => {
         console.log(assignmentData);
       } catch (err) {
         setIsThereErrorWhileFetchData(true);
-        setError(err instanceof Error ? err.message : "Failed to fetch session");
-      }
-      finally {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch session"
+        );
+      } finally {
         setLoading(false);
       }
-    }
+    };
     fetch();
+  }, [
+    isExamDeleted,
+    isEndFormDeleted,
+    isStartFormDeleted,
+    isExamStatusChanged,
+    isSuccess,
+    isViewAnsersChanged,
+  ]);
 
-  }, [isExamDeleted, isEndFormDeleted, isStartFormDeleted, isExamStatusChanged, isSuccess, isViewAnsersChanged]);
-
-
-
-
-  const [isSubmittingExamConditions, setIsSubmittingExamConditions] = useState(false);
-  const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] = useState(false);
-  const [isSubmittingExamSettings, setIsSubmittingExamSettings] = useState(false);
+  const [isSubmittingExamConditions, setIsSubmittingExamConditions] =
+    useState(false);
+  const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] =
+    useState(false);
+  const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
+    useState(false);
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
 
-  const [isEdittingExamConditions, setIsEdittingExamConditions] = useState(false);
-  const [isEdittingExamRequirments, setIsEdittingExamRequirments] = useState(false);
-  const [isThereAddFieldForExamRequirments, setIsThereAddFieldForExamRequirments] = useState(false);
-
+  const [isEdittingExamConditions, setIsEdittingExamConditions] =
+    useState(false);
+  const [isEdittingExamRequirments, setIsEdittingExamRequirments] =
+    useState(false);
+  const [
+    isThereAddFieldForExamRequirments,
+    setIsThereAddFieldForExamRequirments,
+  ] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    time_exam: z.string()
-      .refine(v => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)"
+    time_exam: z
+      .string()
+      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
+        message: "Invalid time format (HH:MM or HH:MM:SS required)",
       }),
     language: z.enum(["en", "ar", "fn"]),
     date_view: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
       message: "Date must be in YYYY-MM-DD format",
     }),
     count_questions_page: z.number().min(1),
-    time_questions_page: z.string()
-      .refine(v => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)"
+    time_questions_page: z
+      .string()
+      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
+        message: "Invalid time format (HH:MM or HH:MM:SS required)",
       }),
     view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
     count_return_exam: z.number().min(0),
@@ -218,9 +265,8 @@ const Page = () => {
       view_results: "manually",
       count_return_exam: 0,
       view_answer: "manually",
-    }
+    },
   });
-
 
   useEffect(() => {
     if (assignmentData) {
@@ -231,46 +277,52 @@ const Page = () => {
         date_view: evaluation_config?.date_view,
         count_questions_page: evaluation_config?.count_questions_page,
         time_questions_page: evaluation_config?.time_questions_page,
-        view_results: evaluation_config?.view_results as "after_completion" | "manually" | "after_each_answer",
+        view_results: evaluation_config?.view_results as
+          | "after_completion"
+          | "manually"
+          | "after_each_answer",
         count_return_exam: evaluation_config?.count_return_exam,
-        view_answer: evaluation_config?.view_answer as "after_completion" | "manually" | "after_each_answer",
+        view_answer: evaluation_config?.view_answer as
+          | "after_completion"
+          | "manually"
+          | "after_each_answer",
       });
     }
   }, [assignmentData, form]);
 
-
   const formatDateForInput = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   };
 
-
   const editExamRequirmentsSchema = z.object({
-    label: z.string().min(1, 'Label is required'),
-    type: z.string().min(1, 'Type is required')
-  })
+    label: z.string().min(1, "Label is required"),
+    type: z.string().min(1, "Type is required"),
+  });
   type RequirmentsFormValue = z.infer<typeof editExamRequirmentsSchema>;
 
   const formForRequirments = useForm<RequirmentsFormValue>({
     resolver: zodResolver(editExamRequirmentsSchema),
     defaultValues: {
       label: "",
-      type: ""
-    }
+      type: "",
+    },
   });
 
-
   const editExamConditionsSchema = z.object({
-    conditions: z.record(z.boolean()) // Record of condition IDs to booleans
+    conditions: z.record(z.boolean()), // Record of condition IDs to booleans
   });
   type ConditionsFormValues = z.infer<typeof editExamConditionsSchema>;
   const formForConditions = useForm<ConditionsFormValues>({
     resolver: zodResolver(editExamConditionsSchema),
     defaultValues: {
-      conditions: assignmentData?.evaluation_config?.condition_exams?.reduce((acc, condition) => {
-        acc[condition.id] = true; // Assume all existing conditions are selected
-        return acc;
-      }, {} as Record<number, boolean>)
-    }
+      conditions: assignmentData?.evaluation_config?.condition_exams?.reduce(
+        (acc, condition) => {
+          acc[condition.id] = true; // Assume all existing conditions are selected
+          return acc;
+        },
+        {} as Record<number, boolean>
+      ),
+    },
   });
   const onSubmitExamConditions = async (values: ConditionsFormValues) => {
     setIsSubmittingExamConditions(true);
@@ -295,7 +347,6 @@ const Page = () => {
 
       console.log("Form submitted:", submissionData);
       formForRequirments.reset();
-
     } catch (error) {
       console.error("Failed to create assignment:", error);
     } finally {
@@ -304,10 +355,9 @@ const Page = () => {
     }
   };
 
-
   const EditeAnswersView = async () => {
     setIsSubmittingExamSettings(true);
-    const toastId = toast.loading('changing answers view to manually ...')
+    const toastId = toast.loading("changing answers view to manually ...");
     try {
       const payload = {
         evaluation_id: Number(evaluation_id),
@@ -317,26 +367,27 @@ const Page = () => {
       };
       console.log(payload);
       console.log(assignmentData?.evaluation_config.id);
-      const response = await updateEvaluationSettings(payload, Number(assignmentData?.evaluation_config.id));
+      const response = await updateEvaluationSettings(
+        payload,
+        Number(assignmentData?.evaluation_config.id)
+      );
       console.log("API Response:", response);
 
       toast.success(" Changed successfully", {
-        description: "The answers view has been changed to manually successfully.",
+        description:
+          "The answers view has been changed to manually successfully.",
         duration: 4000,
-        id: toastId
-
+        id: toastId,
       });
-      setIsExamDeleted(prev => !prev);
-
+      setIsExamDeleted((prev) => !prev);
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
-        id: toastId
+        id: toastId,
       });
     } finally {
-
       setIsSubmittingExamSettings(false);
     }
   };
@@ -352,18 +403,18 @@ const Page = () => {
       };
       console.log(payload);
       console.log(assignmentData?.evaluation_config.id);
-      const response = await updateEvaluationSettings(payload, Number(assignmentData?.evaluation_config.id));
+      const response = await updateEvaluationSettings(
+        payload,
+        Number(assignmentData?.evaluation_config.id)
+      );
       console.log("API Response:", response);
 
       toast.success("Settings updated successfully", {
         description: "The evaluation settings has been updated successfully.",
         duration: 4000,
-
       });
       setIsEdittingExamSettings(false);
       setIsSuccess(!isSuccess);
-
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
@@ -371,14 +422,11 @@ const Page = () => {
         duration: 5000,
       });
     } finally {
-
       setIsSubmittingExamSettings(false);
     }
-
   };
   const changgeExamStatus = async () => {
-
-    const toastId = toast.loading('changing evaluation status ...')
+    const toastId = toast.loading("changing evaluation status ...");
     try {
       const response = await changeEvaluationStatus(Number(evaluation_id));
       console.log("API Response:", response);
@@ -386,23 +434,19 @@ const Page = () => {
       toast.success("Status updated successfully", {
         description: "The evaluation status has been updated successfully.",
         duration: 4000,
-        id: toastId
-
+        id: toastId,
       });
-      setIsExamStatusChanged(prev => !prev);
-
+      setIsExamStatusChanged((prev) => !prev);
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
-        id: toastId
+        id: toastId,
       });
     } finally {
     }
-
   };
-
 
   const deletteExam = async () => {
     try {
@@ -412,10 +456,8 @@ const Page = () => {
       toast.success("Evaluation deleted successfully", {
         description: "The evaluation has been deleted successfully.",
         duration: 4000,
-
       });
-      setIsExamDeleted(prev => !prev);
-
+      setIsExamDeleted((prev) => !prev);
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
@@ -426,10 +468,9 @@ const Page = () => {
     }
   };
 
-
   const deletteStartForm = async (id: number) => {
     if (id) {
-      const toastId = toast.loading('deleting start form ...')
+      const toastId = toast.loading("deleting start form ...");
       try {
         const response = await deleteStartForm(Number(id));
         console.log("API Response:", response);
@@ -438,12 +479,9 @@ const Page = () => {
           id: toastId,
           description: "The Start from  has been deleted successfully.",
           duration: 4000,
-
         });
-        setIsStartFormDeleted(prev => !prev);
-      }
-
-      catch (error: any) {
+        setIsStartFormDeleted((prev) => !prev);
+      } catch (error: any) {
         console.error("Submission Error:", error);
         toast.error("Oops! Something went wrong", {
           id: toastId,
@@ -453,10 +491,10 @@ const Page = () => {
       } finally {
       }
     }
-  }
+  };
   const deletteEndForm = async (id: number) => {
     if (id) {
-      const toastId = toast.loading('deleting start form ...')
+      const toastId = toast.loading("deleting start form ...");
       try {
         const response = await deleteEndForm(Number(id));
         console.log("API Response:", response);
@@ -465,12 +503,9 @@ const Page = () => {
           id: toastId,
           description: "The End from  has been deleted successfully.",
           duration: 4000,
-
         });
-        setIsEndFormDeleted(prev => !prev);
-      }
-
-      catch (error: any) {
+        setIsEndFormDeleted((prev) => !prev);
+      } catch (error: any) {
         console.error("Submission Error:", error);
         toast.error("Oops! Something went wrong", {
           id: toastId,
@@ -480,787 +515,979 @@ const Page = () => {
       } finally {
       }
     }
-  }
+  };
 
+  const generate = async () => {
+    const toastId = toast.loading("generating url ...");
+    try {
+      const response = await generateUrl(Number(evaluation_id));
+      console.log("API Response:", response);
+
+      toast.success("URL has been created  successfully", {
+        duration: 300,
+        id: toastId,
+      });
+      setIsExamStatusChanged((prev) => !prev);
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+        id: toastId,
+      });
+    } finally {
+    }
+  };
 
   return (
-    <div className={`relative px-1 sm:p-4  min-h-screen  ${mode === "dark" ? " text-white" : " text-dark"}`}>
+    <div
+      className={`relative px-1 sm:p-4  min-h-screen  ${
+        mode === "dark" ? " text-white" : " text-dark"
+      }`}
+    >
       <div className="absolut w-full h-full bg-white opacity-50 dark:opacity-60 dark:bg-dark " />
       <div className="flex justify-between items-start mb-5 pt-2">
         <Header className="flex justify-start items-center gap-2 max-sm:pt-1 max-sm:px-3 text-[var(--primary-color1)] hover:text-[var(--primary-color2)]">
           <IoArrowBackSharp
             className="text-primary-color1 text-xl sm:text-xl cursor-pointer"
-
             onClick={() => router.back()}
           />
-          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">Evaluation Details</h3>
+          <h3 className="text-[21px] sm:text-2xl font-semibold tracking-wider">
+            Evaluation Details
+          </h3>
         </Header>
       </div>
 
-      {
-        loading ? (
-          <Loading />
-        ) : isThereErrorWhileFetchData ? (
-          <div className="flex justify-center my-20  ">
-            <h1 className="sm:text-2xl">No Data To Display</h1>
-          </div>
-        )
-          : (<>
-            <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
+      {loading ? (
+        <Loading />
+      ) : isThereErrorWhileFetchData ? (
+        <div className="flex justify-center my-20  ">
+          <h1 className="sm:text-2xl">No Data To Display</h1>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col  gap-5 xl:grid xl:grid-cols-4  ">
+            <div
+              className={`rounded-xl col-span-3 shadow-lg ${
+                mode === "dark" ? "bg-gray-900" : "bg-white"
+              } max-sm:rounded-lg pb-5`}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col items-start justify-start  pb-3 sm:py-2 px-5 max-sm:px-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-start gap-2">
+                      <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
+                      <h1 className="text-[17px] sm:text-[22px] font-bold">
+                        {assignmentData?.title}
+                      </h1>
+                    </div>
 
-
-
-              <div className={`rounded-xl col-span-3 shadow-lg ${mode === "dark" ? "bg-gray-900" : "bg-white"} max-sm:rounded-lg pb-5`}>
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col items-start justify-start  pb-3 sm:py-2 px-5 max-sm:px-2">
-                    <div className="flex items-center gap-3">
-
-                      <div className="flex items-center justify-start gap-2">
-                        <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                        <h1 className="text-[17px] sm:text-[22px] font-bold">
-                          {assignmentData?.title}
-                        </h1>
-                      </div>
-
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${assignmentData?.status === "Active"
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        assignmentData?.status === "Active"
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
-                          }`}
-                      >
-                        {assignmentData?.status}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-5 sm:-mt-3 sm:gap-1">
-
-
-                    {assignmentData?.sub_title && <div className="flex items-center justify-center gap-2">
+                      }`}
+                    >
+                      {assignmentData?.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-5 sm:-mt-3 sm:gap-1">
+                    {assignmentData?.sub_title && (
+                      <div className="flex items-center justify-center gap-2">
                         <MdSubtitles className="w-5 h-5 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                         <h4 className="text-[15px] sm:text-[17px] font-medium text-gray-700 dark:text-gray-300 ">
                           {assignmentData?.sub_title}
                         </h4>
-                      </div>}
-                      {assignmentData?.code && <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
+                      </div>
+                    )}
+                    {assignmentData?.code && (
+                      <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
                         <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                        <p className="text-[12px] sm:text-sm text-gray-500">{assignmentData?.code}</p>
-                      </div>}
-                    </div>
-
+                        <p className="text-[12px] sm:text-sm text-gray-500">
+                          {assignmentData?.code}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <Dropdown
-                    renderToggle={RenderIconButton}
-                    placement="bottomEnd"
-                    className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                  >
-                    {[
-                      { icon: <EditIcon className=" size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/updateEvaluation`) },
-                      { icon: <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />, text: "Delete", action: () => { deletteExam() } },
-                      ...(assignmentData?.evaluation_config?.view_answer !== 'manually'
-                        ? [{
-                          icon: <input type="checkbox" onChange={() => EditeAnswersView()} className="size-5 max-sm:size-4 accent-primary-color1" />,
-                          text: "Answers View",
-                          action: () => { }
-                        }]
-                        : []),
-                      { icon: <CiExport className=" size-5 max-sm:size-4" />, text: "Export to Excel", action: () => { } },
-                      { icon: <PiToggleRightFill className=" size-5 max-sm:size-4" />, text: assignmentData?.status === "Active" ? "Deactivate" : "Activate", action: () => { changgeExamStatus() } },
-                      { icon: <MdVisibility className=" size-5 max-sm:size-4" />, text: "Preview Evaluation", action: () => { } }
-                    ].map((item, index) => (
-                      <Dropdown.Item
-                        key={index}
-                        className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                        onClick={item.action}
-                      >
-                        {item.icon}
-                        <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown>
+                </div>
+                <Dropdown
+                  renderToggle={RenderIconButton}
+                  placement="bottomEnd"
+                  className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                >
+                  {[
+                    {
+                      icon: <EditIcon className=" size-5 max-sm:size-4" />,
+                      text: "Edit",
+                      action: () =>
+                        router.push(
+                          `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/updateEvaluation`
+                        ),
+                    },
+                    {
+                      icon: (
+                        <TrashIcon className=" text-red-500 hover:text-red-700 size-5 max-sm:size-4" />
+                      ),
+                      text: "Delete",
+                      action: () => {
+                        deletteExam();
+                      },
+                    },
+                    ...(assignmentData?.evaluation_config?.view_answer !==
+                    "manually"
+                      ? [
+                          {
+                            icon: (
+                              <input
+                                type="checkbox"
+                                onChange={() => EditeAnswersView()}
+                                className="size-5 max-sm:size-4 accent-primary-color1"
+                              />
+                            ),
+                            text: "Answers View",
+                            action: () => {},
+                          },
+                        ]
+                      : []),
+                    {
+                      icon: <CiExport className=" size-5 max-sm:size-4" />,
+                      text: "Export to Excel",
+                      action: () => {},
+                    },
+                    {
+                      icon: (
+                        <PiToggleRightFill className=" size-5 max-sm:size-4" />
+                      ),
+                      text:
+                        assignmentData?.status === "Active"
+                          ? "Deactivate"
+                          : "Activate",
+                      action: () => {
+                        changgeExamStatus();
+                      },
+                    },
+                    {
+                      icon: <MdVisibility className=" size-5 max-sm:size-4" />,
+                      text: "Preview Evaluation",
+                      action: () => {},
+                    },
+                    {
+                      icon: <Link className=" size-5 max-sm:size-4" />,
+                      text: "Generate Url",
+                      action: () => {
+                        generate();
+                      },
+                    },
+                  ].map((item, index) => (
+                    <Dropdown.Item
+                      key={index}
+                      className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                      onClick={item.action}
+                    >
+                      {item.icon}
+                      <span className="max-sm:text-[16px] text-[17px]">
+                        {item.text}
+                      </span>
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown>
+              </div>
+
+              <div className=" px-6 grid grid-cols-1 sm:grid-cols-8 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
+                <div className="max-sm:px-4 max-sm:py-2 sm:col-span-3 ">
+                  <Image
+                    src={
+                      assignmentData?.image
+                        ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.image}`
+                        : "/register.png"
+                    }
+                    alt="Evaluation Image"
+                    width={400}
+                    height={200}
+                    className="object-cover aspect-[9/6] rounded-lg"
+                    priority
+                  />
                 </div>
 
-                <div className=" px-6 grid grid-cols-1 sm:grid-cols-8 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
-
-                  <div className="max-sm:px-4 max-sm:py-2 sm:col-span-3 ">
-                    <Image
-                      src={assignmentData?.image ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${assignmentData?.image}` : "/register.png"}
-                      alt="Evaluation Image"
-                      width={400}
-                      height={200}
-                      className="object-cover aspect-[9/6] rounded-lg"
-                      priority
-                    />
-                  </div>
-
-
-                  <div className=" sm:col-span-5   space-y-1 sm:space-y-4  ">
-
-
-
-                    {assignmentData?.evaluation_config?.language && <InfoItem
-                      icon={<Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                <div className=" sm:col-span-5   space-y-1 sm:space-y-4  ">
+                  {assignmentData?.evaluation_config?.language && (
+                    <InfoItem
+                      icon={
+                        <Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                      }
                       label="Language"
                       value={assignmentData?.evaluation_config?.language}
-                    />}
-                    {assignmentData?.evaluation_type?.type && <InfoItem
-                      icon={<MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                    />
+                  )}
+                  {assignmentData?.evaluation_type?.type && (
+                    <InfoItem
+                      icon={
+                        <MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                      }
                       label="Evaluation Type"
                       value={assignmentData?.evaluation_type?.type}
-                    />}
-
-
-
-                    <InfoItem
-                      icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                      label="Start Date"
-                      value={`${assignmentData?.evaluation_config?.start_date}`}
                     />
-                    <InfoItem
-                      icon={<Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                      label="End Date"
-                      value={`${assignmentData?.evaluation_config?.end_date}`}
-                    />
-                    <div className="flex items-center gap-3 md:gap-5">
-                      {assignmentData?.duration_in_minutes !== null && <InfoItem
-                        icon={<Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                  )}
+
+                  <InfoItem
+                    icon={
+                      <Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Start Date"
+                    value={`${assignmentData?.evaluation_config?.start_date}`}
+                  />
+                  <InfoItem
+                    icon={
+                      <Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="End Date"
+                    value={`${assignmentData?.evaluation_config?.end_date}`}
+                  />
+                  <div className="flex items-center gap-3 md:gap-5">
+                    {assignmentData?.duration_in_minutes !== null && (
+                      <InfoItem
+                        icon={
+                          <Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        }
                         label="Duration"
                         value={`${assignmentData?.duration_in_minutes} mins`}
-                      />}
+                      />
+                    )}
 
-
-                      {assignmentData?.number_of_questions !== null && <InfoItem
-                        icon={<ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                    {assignmentData?.number_of_questions !== null && (
+                      <InfoItem
+                        icon={
+                          <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        }
                         label="Questions"
                         value={`${assignmentData?.number_of_questions}.`}
-                      />}
-                    </div>
+                      />
+                    )}
+                  </div>
 
-
-                    <div className="flex items-center gap-3 md:gap-4">
-                      {assignmentData?.number_of_students !== null && <InfoItem
-                        icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                  <div className="flex items-center gap-3 md:gap-4">
+                    {assignmentData?.number_of_students !== null && (
+                      <InfoItem
+                        icon={
+                          <Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        }
                         label="Students"
                         value={`${assignmentData?.number_of_students}.`}
-                      />}
-                      {assignmentData?.grade_percentage !== null && <InfoItem
-                        icon={<Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      />
+                    )}
+                    {assignmentData?.grade_percentage !== null && (
+                      <InfoItem
+                        icon={
+                          <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        }
                         label="Passing "
                         value={`${assignmentData?.grade_percentage}%`}
-                      />}
-
-                    </div>
-                    {assignmentData?.evaluation_config?.view_answer &&
-                      <InfoItem
-                        icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                        label="Answers View "
-                        value={assignmentData?.evaluation_config?.view_answer}
                       />
-
-                    }
+                    )}
                   </div>
+                  {assignmentData?.evaluation_config?.view_answer && (
+                    <InfoItem
+                      icon={
+                        <EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                      }
+                      label="Answers View "
+                      value={assignmentData?.evaluation_config?.view_answer}
+                    />
+                  )}
+                  {assignmentData?.url && (
+                    <Snippet symbol="" variant="bordered" className="fit">
+                      {`https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`}
+                    </Snippet>
+                  )}
                 </div>
+              </div>
 
-
-
-
-
-
-
-                <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:px-10 p-1.5 mt-8 sm:mt-16 px-4 xl:gap-7 sm:px-6 ">
-
-                  {assignmentData?.start_forms[0]?.id ? (
-                    <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 pt-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+              <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:px-10 p-1.5 mt-8 sm:mt-16 px-4 xl:gap-7 sm:px-6 ">
+                {assignmentData?.start_forms[0]?.id ? (
+                  <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 pt-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-center mb-4 sm:mb-6">
+                      <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
+                        <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                          {assignmentData?.start_forms[0]?.title}
+                        </h3>
+                        <div className="absolute right-2 top-2">
+                          <Dropdown
+                            renderToggle={VerticalRenderIconButton}
+                            placement="bottomEnd"
+                            className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                          >
+                            {[
+                              {
+                                icon: (
+                                  <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                                ),
+                                text: "Edit",
+                                action: () =>
+                                  router.push(
+                                    `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.id}/update`
+                                  ),
+                              },
+                              {
+                                icon: (
+                                  <TrashIcon className="text-red-500 size-5 max-sm:size-4" />
+                                ),
+                                text: "Delete",
+                                action: () => {
+                                  if (assignmentData)
+                                    deletteStartForm(
+                                      Number(assignmentData?.start_forms[0].id)
+                                    );
+                                },
+                              },
+                            ].map((item, index) => (
+                              <Dropdown.Item
+                                key={index}
+                                className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                                onClick={item.action}
+                              >
+                                {item.icon}
+                                <span className="max-sm:text-[16px] text-[17px]">
+                                  {item.text}
+                                </span>
+                              </Dropdown.Item>
+                            ))}
+                          </Dropdown>
+                        </div>
+                        <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
+                          {assignmentData?.start_forms[0]?.sub_title}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                      {assignmentData?.start_forms[0]?.description}
+                    </p>
+                    <div className="flex items-center justify-end mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <button
+                        onClick={() => {
+                          router.push(
+                            `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.id}`
+                          );
+                        }}
+                        type="button"
+                        className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                      >
+                        Show
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                       <div className="flex items-center mb-4 sm:mb-6">
-                        <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl mr-3 sm:mr-4">
+                        <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/70 rounded-xl mr-3 sm:mr-4">
                           <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
                         </div>
                         <div>
-
-
                           <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                            {assignmentData?.start_forms[0]?.title}
+                            Starting Interface
                           </h3>
-                          <div className="absolute right-2 top-2">
-                            <Dropdown
-                              renderToggle={VerticalRenderIconButton}
-                              placement="bottomEnd"
-                              className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                            >
-                              {[
-                                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.id}/update`) },
-                                { icon: <TrashIcon className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteStartForm(Number(assignmentData?.start_forms[0].id)) } },
-
-                              ].map((item, index) => (
-                                <Dropdown.Item
-                                  key={index}
-                                  className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                                  onClick={item.action}
-                                >
-                                  {item.icon}
-                                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                                </Dropdown.Item>
-                              ))}
-                            </Dropdown>
-                          </div>
-                          <p className="text-blue-500 dark:text-blue-400 text-sm sm:text-base font-medium mt-1">
-                            {assignmentData?.start_forms[0]?.sub_title}
+                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
+                            Not Configured
                           </p>
                         </div>
-
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {assignmentData?.start_forms[0]?.description}
-                      </p>
-                      <div className="flex items-center justify-end mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
+                          No starting interface has been configured yet
+                        </p>
+                      </div>
+                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
                         <button
-                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/start-interface/${assignmentData?.start_forms[0]?.id}`) }}
+                          onClick={() => setShowAddStartingInterfaceModal(true)}
                           type="button"
-                          className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                          className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
                         >
-                          Show
+                          <FiPlus className="mr-2" />
+                          Add Starting Interface
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-                        <div className="flex items-center mb-4 sm:mb-6">
-                          <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/70 rounded-xl mr-3 sm:mr-4">
-                            <FiPlay className="text-blue-600 dark:text-blue-300 text-xl sm:text-2xl" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                              Starting Interface
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
-                              Not Configured
-                            </p>
-                          </div>
-                        </div>
-                        <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
-                            No starting interface has been configured yet
-                          </p>
-                        </div>
-                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
-                          <button
-                            onClick={() =>
-                              setShowAddStartingInterfaceModal(true)
-                            }
-                            type="button"
-                            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
-                          >
-                            <FiPlus className="mr-2" />
-                            Add Starting Interface
-                          </button>
-                        </div>
+                    <AddStartFormInterface
+                      isModalOpen={showAddStartingInterfaceModal}
+                      setIsModalOpen={setShowAddStartingInterfaceModal}
+                      control={form.control}
+                      form_id={Number(assignmentData?.forms[0]?.id)}
+                      setissucess={setIsSuccess}
+                      issucess={isSuccess}
+                    />
+                  </>
+                )}
+                {assignmentData?.end_forms[0]?.id ? (
+                  <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 h-fit">
+                    <div className="flex items-center mb-4 sm:mb-6">
+                      <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
+                        <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
                       </div>
-                      <AddStartFormInterface
-                        isModalOpen={showAddStartingInterfaceModal}
-                        setIsModalOpen={setShowAddStartingInterfaceModal}
-                        control={form.control}
-                        form_id={Number(assignmentData?.forms[0]?.id)}
-                        setissucess={setIsSuccess}
-                        issucess={isSuccess}
-                      />
-                    </>
-                  )}
-                  {assignmentData?.end_forms[0]?.id ? (
-                    <div className="relative bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 h-fit">
+                      <div>
+                        <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
+                          {assignmentData?.end_forms[0]?.title}
+                        </h3>
+                        <div className="absolute right-2 top-2">
+                          <Dropdown
+                            renderToggle={VerticalRenderIconButton}
+                            placement="bottomEnd"
+                            className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
+                          >
+                            {[
+                              {
+                                icon: (
+                                  <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />
+                                ),
+                                text: "Edit",
+                                action: () =>
+                                  router.push(
+                                    `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}/update`
+                                  ),
+                              },
+                              {
+                                icon: (
+                                  <TrashIcon className="text-red-500 size-5 max-sm:size-4" />
+                                ),
+                                text: "Delete",
+                                action: () => {
+                                  if (assignmentData)
+                                    deletteEndForm(
+                                      Number(assignmentData?.end_forms[0].id)
+                                    );
+                                },
+                              },
+                            ].map((item, index) => (
+                              <Dropdown.Item
+                                key={index}
+                                className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
+                                onClick={item.action}
+                              >
+                                {item.icon}
+                                <span className="max-sm:text-[16px] text-[17px]">
+                                  {item.text}
+                                </span>
+                              </Dropdown.Item>
+                            ))}
+                          </Dropdown>
+                        </div>
+
+                        <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
+                          {assignmentData?.end_forms[0]?.sub_title}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
+                      {assignmentData?.end_forms[0]?.description}
+                    </p>
+                    <div className="flex items-center justify-end  mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <Button
+                        onClick={() => {
+                          router.push(
+                            `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}`
+                          );
+                        }}
+                        type="button"
+                        className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                      >
+                        Show
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
                       <div className="flex items-center mb-4 sm:mb-6">
-                        <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/50 rounded-xl mr-3 sm:mr-4">
+                        <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/70 rounded-xl mr-3 sm:mr-4">
                           <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
                         </div>
                         <div>
                           <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                            {assignmentData?.end_forms[0]?.title}
+                            Ending Interface
                           </h3>
-                          <div className="absolute right-2 top-2">
-
-                            <Dropdown
-                              renderToggle={VerticalRenderIconButton}
-                              placement="bottomEnd"
-                              className="[&_.dropdown-menu]:min-w-[220px] pr-3 max-sm:[&_.dropdown-menu]:min-w-[180px] max-sm:pr-1"
-                            >
-                              {[
-                                { icon: <EditIcon className="text-primary-color1 size-5 max-sm:size-4" />, text: "Edit", action: () => router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}/update`) },
-                                { icon: <TrashIcon className="text-red-500 size-5 max-sm:size-4" />, text: "Delete", action: () => { if (assignmentData) deletteEndForm(Number(assignmentData?.end_forms[0].id)) } },
-
-
-                              ].map((item, index) => (
-                                <Dropdown.Item
-                                  key={index}
-                                  className="!flex !items-center !px-3 !py-3 text-lg transition-colors max-sm:!px-2 max-sm:!py-3 gap-3 max-sm:text-[16px]"
-                                  onClick={item.action}
-                                >
-                                  {item.icon}
-                                  <span className="max-sm:text-[16px] text-[17px]">{item.text}</span>
-                                </Dropdown.Item>
-                              ))}
-                            </Dropdown>
-                          </div>
-
-                          <p className="text-green-500 dark:text-green-400 text-sm sm:text-base font-medium mt-1">
-                            {assignmentData?.end_forms[0]?.sub_title}
+                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
+                            Not Configured
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {assignmentData?.end_forms[0]?.description}
-                      </p>
-                      <div className="flex items-center justify-end  mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
+                          No Ending interface has been configured yet
+                        </p>
+                      </div>
+                      <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
                         <Button
-                          onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/end-interface/${assignmentData?.end_forms[0]?.id}`) }}
+                          onClick={() => setShowAddEndingInterfaceModal(true)}
                           type="button"
-                          className="w-auto px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg"
+                          className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
                         >
-                          Show
+                          <FiPlus className="mr-2" />
+                          Add Ending Interface
                         </Button>
                       </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300">
-                        <div className="flex items-center mb-4 sm:mb-6">
-                          <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/70 rounded-xl mr-3 sm:mr-4">
-                            <FiFlag className="text-green-600 dark:text-green-300 text-xl sm:text-2xl" />
+                    <AddEndFormInterface
+                      isModalOpen={showAddEndingInterfaceModal}
+                      setIsModalOpen={setShowAddEndingInterfaceModal}
+                      control={form.control}
+                      form_id={Number(assignmentData?.forms[0]?.id)}
+                      setissucess={setIsSuccess}
+                      issucess={isSuccess}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="xl:col-span-1 ">
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full  space-x-2 max-xl:grid max-xl:grid-cols-2 max-lg:grid-cols-1"
+              >
+                <AccordionItem
+                  value="item-1"
+                  className="bg-white mt-4 xl:mt-0 sm:mx-1  dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                >
+                  <AccordionTrigger className="h-14 p-1">
+                    <div className="flex items-center h-14 gap-2 sm:gap-4">
+                      <Settings className="text-xl sm:text-2xl text-primary-color1" />
+                      <p className="text-sm sm:text-base">
+                        Evaluation Settings
+                      </p>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {isEdittingExamSettings ? (
+                      <Form {...form}>
+                        <form
+                          onSubmit={form.handleSubmit(onSubmitExamSittings)}
+                          className="space-y-6"
+                        >
+                          <div className="space-y-4 sm:space-y-6 dark:text-white">
+                            <FormField
+                              control={form.control}
+                              name="time_exam"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Evaluation Time :</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="text"
+                                      placeholder="HH:MM"
+                                      {...field}
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="language"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Evaluation Language : </FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-800">
+                                        <SelectValue placeholder="Select language" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-800">
+                                      <SelectItem value="en">
+                                        English
+                                      </SelectItem>
+                                      <SelectItem value="ar">
+                                        العربية
+                                      </SelectItem>
+                                      <SelectItem value="fn">Fransh</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="date_view"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel> Date View :</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="date"
+                                      {...field}
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="count_questions_page"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Questions Per Page : </FormLabel>
+
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      {...field}
+                                      onChange={(value) =>
+                                        field.onChange(Number(value))
+                                      }
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="time_questions_page"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Time For Page :</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="text"
+                                      placeholder="HH:MM"
+                                      {...field}
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Results Display */}
+                            <FormField
+                              control={form.control}
+                              name="view_answer"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Answers View :</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="Manual"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-800">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-800">
+                                      <SelectItem value="after_completion">
+                                        After Finish
+                                      </SelectItem>
+                                      <SelectItem value="manually">
+                                        Manual
+                                      </SelectItem>
+                                      <SelectItem value="after_each_answer">
+                                        After Each Answer
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="count_return_exam"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Evaluation Repeat Count :
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      placeholder="e.g. 3"
+                                      {...field}
+                                      onChange={(value) =>
+                                        field.onChange(Number(value))
+                                      }
+                                      className="dark:bg-gray-800"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="view_results"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Result View :</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="Manual"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-800">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-800">
+                                      <SelectItem value="after_completion">
+                                        After Finish
+                                      </SelectItem>
+                                      <SelectItem value="manually">
+                                        Manually
+                                      </SelectItem>
+                                      <SelectItem value="after_each_answer">
+                                        After Each Answer
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className="flex items-center justify-end gap-3 mt-3">
+                              <button
+                                className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
+                                onClick={() => setIsEdittingExamSettings(false)}
+                              >
+                                Cancel
+                              </button>
+
+                              <Button
+                                type="submit"
+                                appearance="primary"
+                                className="py-0 !bg-primary-color1 !px-4"
+                              >
+                                {isSubmittingExamSettings ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    <p className="tracking-wide py-2 my-0">
+                                      Saving...
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="tracking-wide py-2 my-0">
+                                    Save
+                                  </p>
+                                )}
+                              </Button>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-white">
-                              Ending Interface
-                            </h3>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium mt-1">
-                              Not Configured
+                        </form>
+                      </Form>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-6 pt-4">
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <CiTimer className="text-lg " />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Evaluation Time
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.time_exam}
                             </p>
                           </div>
                         </div>
-                        <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base text-center italic">
-                            No Ending interface has been configured yet
-                          </p>
+                        {/* Exam Language */}
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaLanguage className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Evaluation Language
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.language}
+                            </p>
+                          </div>
                         </div>
-                        <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 text-center">
+
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <CiCalendarDate className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Evaluation Date
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.date_view}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaRegNewspaper className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Questions Per Page
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {
+                                assignmentData?.evaluation_config
+                                  ?.count_questions_page
+                              }
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <RiSlideshowLine className="text-lg " />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Answers View
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.view_results}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <AiOutlineFieldTime className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Time Per Page
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {
+                                assignmentData?.evaluation_config
+                                  ?.time_questions_page
+                              }
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaRedo className="text-lg " />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Evaluation Repeat Count
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {
+                                assignmentData?.evaluation_config
+                                  ?.count_return_exam
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaCheckCircle className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Results View
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.view_answer}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end mt-3">
                           <Button
-                            onClick={() => setShowAddEndingInterfaceModal(true)}
-                            type="button"
-                            className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center mx-auto"
+                            appearance="primary"
+                            className=" !bg-primary-color1 py-2 !px-4"
+                            onClick={() => setIsEdittingExamSettings(true)}
                           >
-                            <FiPlus className="mr-2" />
-                            Add Ending Interface
+                            <p className="tracking-wide py-0 my-0">Edit</p>
                           </Button>
                         </div>
                       </div>
-                      <AddEndFormInterface
-                        isModalOpen={showAddEndingInterfaceModal}
-                        setIsModalOpen={setShowAddEndingInterfaceModal}
-                        control={form.control}
-                        form_id={Number(assignmentData?.forms[0]?.id)}
-                        setissucess={setIsSuccess}
-                        issucess={isSuccess}
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
 
-                      />
-                    </>
-                  )}
-                </div>
-              </div>
-
-
-              <div className="xl:col-span-1 ">
-                <Accordion
-                  type="single"
-                  collapsible
-                  className="w-full  space-x-2 max-xl:grid max-xl:grid-cols-2 max-lg:grid-cols-1"
+                <AccordionItem
+                  value="item-3"
+                  className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
                 >
-
-                  <AccordionItem
-                    value="item-1"
-                    className="bg-white mt-4 xl:mt-0 sm:mx-1  dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  <AccordionTrigger className="h-14 p-1">
+                    <div className="flex items-center  gap-2 sm:gap-4">
+                      <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
+                      <p className="text-sm sm:text-base">
+                        Evaluation Requirments
+                      </p>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="mt-2 flex flex-col gap-y-1">
+                      {assignmentData?.field_requirements?.map((r) => {
+                        const matchedField = requimrentFields.find(
+                          (field) => field.id === r.field_requirement_id
+                        );
+                        return (
+                          <p key={r.id}>
+                            {matchedField?.name || "Unknown field"}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <div className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => {
+                      router.push(
+                        `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions?form_id=${assignmentData?.forms[0]?.id}`
+                      );
+                    }}
+                    className="h-14 p-1"
                   >
-                    <AccordionTrigger className="h-14 p-1">
-                      <div className="flex items-center h-14 gap-2 sm:gap-4">
-                        <Settings className="text-xl sm:text-2xl text-primary-color1" />
-                        <p className="text-sm sm:text-base">
-                          Evaluation Settings
-                        </p>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      {isEdittingExamSettings ? (
-                        <Form {...form}>
-                          <form onSubmit={form.handleSubmit(onSubmitExamSittings)} className="space-y-6">
-                            <div className="space-y-4 sm:space-y-6 dark:text-white">
-
-                              <FormField
-                                control={form.control}
-                                name="time_exam"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Evaluation Time :</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="text"
-                                        placeholder="HH:MM"
-                                        {...field}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-
-                              <FormField
-                                control={form.control}
-                                name="language"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Evaluation Language : </FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      value={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger className="dark:bg-gray-800">
-                                          <SelectValue placeholder="Select language" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="dark:bg-gray-800">
-                                        <SelectItem value="en">English</SelectItem>
-                                        <SelectItem value="ar">العربية</SelectItem>
-                                        <SelectItem value="fn">Fransh</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name="date_view"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel> Date View :</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="date"
-                                        {...field}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                control={form.control}
-                                name="count_questions_page"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Questions Per Page : </FormLabel>
-
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        {...field}
-                                        onChange={(value) => field.onChange(Number(value))}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-
-
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                control={form.control}
-                                name="time_questions_page"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Time For Page :</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="text"
-                                        placeholder="HH:MM"
-                                        {...field}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-
-                              {/* Results Display */}
-                              <FormField
-                                control={form.control}
-                                name="view_answer"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Answers View :</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      value={field.value}
-                                      defaultValue="Manual"
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger className="dark:bg-gray-800">
-                                          <SelectValue placeholder="Select option" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="dark:bg-gray-800">
-                                        <SelectItem value="after_completion">
-                                          After Finish
-                                        </SelectItem>
-                                        <SelectItem value="manually">Manual</SelectItem>
-                                        <SelectItem value="after_each_answer">
-                                          After Each Answer
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-
-
-                              <FormField
-                                control={form.control}
-                                name="count_return_exam"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Evaluation Repeat Count :</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        placeholder="e.g. 3"
-                                        {...field}
-                                        onChange={(value) => field.onChange(Number(value))}
-                                        className="dark:bg-gray-800"
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-
-                              <FormField
-                                control={form.control}
-                                name="view_results"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Result View :</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      value={field.value}
-                                      defaultValue="Manual"
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger className="dark:bg-gray-800">
-                                          <SelectValue placeholder="Select option" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent className="dark:bg-gray-800">
-                                        <SelectItem value="after_completion">
-                                          After Finish
-                                        </SelectItem>
-                                        <SelectItem value="manually">Manually</SelectItem>
-                                        <SelectItem value="after_each_answer">
-                                          After Each Answer
-                                        </SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div className="flex items-center justify-end gap-3 mt-3">
-
-                                <button
-
-                                  className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
-                                  onClick={() => setIsEdittingExamSettings(false)}
-                                >Cancel
-                                </button>
-
-                                <Button
-                                  type="submit"
-                                  appearance="primary"
-                                  className="py-0 !bg-primary-color1 !px-4"
-                                >
-                                  {isSubmittingExamSettings ? (
-                                    <>
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      <p className="tracking-wide py-2 my-0">Saving...</p>
-                                    </>
-                                  ) : (
-                                    <p className="tracking-wide py-2 my-0">Save</p>
-                                  )}
-                                </Button></div>
-                            </div>
-                          </form>
-                        </Form>
-                      ) : (
-
-                        <div className="grid grid-cols-1 gap-6 pt-4">
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <CiTimer className="text-lg " />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Time</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.time_exam}</p>
-                            </div>
-                          </div>
-                          {/* Exam Language */}
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <FaLanguage className="text-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Language</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.language}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <CiCalendarDate className="text-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Date</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.date_view}</p>
-                            </div>
-                          </div>
-
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <FaRegNewspaper className="text-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Questions Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.count_questions_page}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <RiSlideshowLine className="text-lg " />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Answers View</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.view_results}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <AiOutlineFieldTime className="text-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Time Per Page</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.time_questions_page}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <FaRedo className="text-lg " />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Evaluation Repeat Count</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.count_return_exam}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-4">
-                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                              <FaCheckCircle className="text-lg" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Results View</p>
-                              <p className="text-gray-900 font-medium dark:text-gray-100">{assignmentData?.evaluation_config?.view_answer}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end mt-3">
-                            <Button
-                              appearance="primary"
-                              className=" !bg-primary-color1 py-2 !px-4"
-                              onClick={() => setIsEdittingExamSettings(true)}
-                            >
-                              <p className="tracking-wide py-0 my-0">Edit</p>
-
-                            </Button>
-                          </div>
-                        </div>
-
-
-                      )}
-
-
-
-                    </AccordionContent>
-                  </AccordionItem>
-
-
-                  <AccordionItem
-                    value="item-3"
-                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                  >
-                    <AccordionTrigger className="h-14 p-1">
-                      <div className="flex items-center  gap-2 sm:gap-4">
-                        <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                        <p className="text-sm sm:text-base">
-                          Evaluation Requirments
-                        </p>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-
-                      <div className="mt-2 flex flex-col gap-y-1">
-                        {assignmentData?.field_requirements?.map((r) => {
-                          const matchedField = requimrentFields.find(
-                            (field) => field.id === r.field_requirement_id
-                          );
-                          return <p key={r.id}>{matchedField?.name || 'Unknown field'}</p>;
-                        })}
-                      </div>
-
-                    </AccordionContent>
-                  </AccordionItem>
-                  <div
-                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                  >
-                    <button onClick={() => { router.push(`/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions?form_id=${assignmentData?.forms[0]?.id}`) }} className="h-14 p-1">
-                      <div className="flex items-center  gap-2 sm:gap-4">
-                        <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                        <p className="text-sm sm:text-base">
-                          Evaluation&apos;s Questions
-                        </p>
-                      </div>
-                    </button>
-
-                  </div>
-                </Accordion>
-              </div>
+                    <div className="flex items-center  gap-2 sm:gap-4">
+                      <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
+                      <p className="text-sm sm:text-base">
+                        Evaluation&apos;s Questions
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </Accordion>
             </div>
+          </div>
 
-
-
-            <div className="mt-8 ">
-              <h2 className="text-xl md:text-2xl font-bold mb-4">Student Results</h2>
-              <StudentResultsTable />
-            </div>
-          </>
-          )}
-
+          <div className="mt-8 ">
+            <h2 className="text-xl md:text-2xl font-bold mb-4">
+              Student Results
+            </h2>
+            <StudentResultsTable data={examUsers} />
+          </div>
+        </>
+      )}
 
       {mode === "dark" && (
         <style>
@@ -1312,10 +1539,6 @@ const InfoItem = ({
   </div>
 );
 
-
-
-
-
 type Props = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
@@ -1323,12 +1546,7 @@ type Props = {
   form_id: number;
   setissucess: any;
   issucess: any;
-
 };
-
-
-
-
 
 const AddEndFormInterface = ({
   isModalOpen,
@@ -1336,44 +1554,38 @@ const AddEndFormInterface = ({
   control,
   form_id,
   setissucess,
-  issucess
-
+  issucess,
 }: Props) => {
   const addEndFormSchema = z.object({
-
-
-
     title: z.string(),
     sub_title: z.string().optional(),
     description: z.string().optional(),
 
-    image: z.union([
-      z.string().url(),
-      z.instanceof(File)
-    ]).optional().nullable(),
+    image: z
+      .union([z.string().url(), z.instanceof(File)])
+      .optional()
+      .nullable(),
 
-
-    url: z.string().optional()
-
+    url: z.string().optional(),
   });
   type EndFormValues = z.infer<typeof addEndFormSchema>;
 
   const addendinterfaceform = useForm<EndFormValues>({
     resolver: zodResolver(addEndFormSchema),
     defaultValues: {
-      title: '',
-      sub_title: '',
-      description: '',
+      title: "",
+      sub_title: "",
+      description: "",
       image: null,
-      url: '',
-    }
+      url: "",
+    },
   });
   const onSubmit = async (values: EndFormValues) => {
-    const toastId = toast.loading('Creating end interface ...');
+    const toastId = toast.loading("Creating end interface ...");
     try {
       const payload = {
         form_id: form_id,
-        ...values
+        ...values,
       };
 
       const response = await createEndFormF(payload);
@@ -1382,18 +1594,17 @@ const AddEndFormInterface = ({
       toast.success("Creating successfully", {
         description: "The end interface has been created successfully.",
         duration: 4000,
-        id: toastId
+        id: toastId,
       });
       setissucess(!issucess);
       setIsModalOpen(false);
       addendinterfaceform.reset();
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
-        description: error.message || 'Failed to create form',
+        description: error.message || "Failed to create form",
         duration: 5000,
-        id: toastId
+        id: toastId,
       });
     }
   };
@@ -1401,12 +1612,15 @@ const AddEndFormInterface = ({
     <Modal
       title="Add Interface"
       open={isModalOpen}
-      onCancel={() => (setIsModalOpen(false))}
+      onCancel={() => setIsModalOpen(false)}
       footer={null}
       width={800}
     >
       <Form {...addendinterfaceform}>
-        <form onSubmit={addendinterfaceform.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={addendinterfaceform.handleSubmit(onSubmit)}
+          className="space-y-6"
+        >
           <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={addendinterfaceform.control}
@@ -1480,22 +1694,21 @@ const AddEndFormInterface = ({
   );
 };
 
-
 const AddStartFormInterface = ({
   isModalOpen,
   setIsModalOpen,
   form_id,
   setissucess,
-  issucess
+  issucess,
 }: Props) => {
   const addStartInterfaceSchema = z.object({
     title: z.string().optional(),
     sub_title: z.string().optional(),
     description: z.string().optional(),
-    image: z.union([
-      z.string().url(),
-      z.instanceof(File)
-    ]).optional().nullable(),
+    image: z
+      .union([z.string().url(), z.instanceof(File)])
+      .optional()
+      .nullable(),
     show_configration: z.number().optional(),
     show_condition: z.number().optional(),
   });
@@ -1505,21 +1718,21 @@ const AddStartFormInterface = ({
   const form = useForm<StartFormValues>({
     resolver: zodResolver(addStartInterfaceSchema),
     defaultValues: {
-      title: '',
-      sub_title: '',
-      description: '',
+      title: "",
+      sub_title: "",
+      description: "",
       image: null,
       show_configration: 0,
-      show_condition: 0
-    }
+      show_condition: 0,
+    },
   });
 
   const onSubmit = async (values: StartFormValues) => {
-    const toastId = toast.loading('Creating start interface ...');
+    const toastId = toast.loading("Creating start interface ...");
     try {
       const payload = {
         form_id: form_id,
-        ...values
+        ...values,
       };
 
       const response = await createStartFormF(payload);
@@ -1528,18 +1741,17 @@ const AddStartFormInterface = ({
       toast.success("Creating successfully", {
         description: "The start interface has been created successfully.",
         duration: 4000,
-        id: toastId
+        id: toastId,
       });
       setissucess(!issucess);
       setIsModalOpen(false);
       form.reset();
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
-        description: error.message || 'Failed to create form',
+        description: error.message || "Failed to create form",
         duration: 5000,
-        id: toastId
+        id: toastId,
       });
     }
   };
@@ -1635,7 +1847,9 @@ const AddStartFormInterface = ({
                       className="h-4 w-4 rounded border-gray-300 text-primary-color1 focus:ring-primary-color1"
                     />
                   </FormControl>
-                  <FormLabel className="text-base">Show Configuration</FormLabel>
+                  <FormLabel className="text-base">
+                    Show Configuration
+                  </FormLabel>
                 </FormItem>
               )}
             />

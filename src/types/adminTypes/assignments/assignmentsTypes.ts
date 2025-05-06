@@ -149,3 +149,36 @@ export interface Evaluation extends Assignment {
   evaluation_type_id:number;
   evaluation_config:ExamConfig; 
 }
+
+
+export type UserAnswer = string | string[] | boolean | null;
+export type QuestionField = {
+  id: number;
+  question_form_id: number;
+  field: string;
+  field_type: string;
+};
+
+export type CorrectAnswer = {
+  id: number;
+  question_form_id: number;
+  correct_value: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type QuestionData = {
+  id: number;
+  form_id: number;
+  question_type_id: number;
+  question: string;
+  correct_answer_grade: number;
+  wrong_answer_grade: number;
+  hint: string | null;
+  show_grade: number;
+  fields: QuestionField[];
+  correct_answers: CorrectAnswer[];
+  created_at: string;
+  updated_at: string;
+};
+

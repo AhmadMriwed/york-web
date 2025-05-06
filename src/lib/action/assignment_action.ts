@@ -3,6 +3,7 @@ import { getServerLanguage } from "@/app/(root)/[locale]/api/getServerLanguage";
 import { Assignment, AssignmentSession, Category, Condition, EndFormType, Evaluation, FilterAssignmentSessionsParams, Organization, Requirement, SectionType, StartFormType, Type } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
+import { ResultQuestionData, UserResponse } from "@/types/adminTypes/assignments/examTypes";
 
 interface ApiResponse<T> {
   data: T;
@@ -378,6 +379,27 @@ export const fetchOrganization = async (): Promise<Organization[]> => {
   }
 }; 
 
+export const fetchExamUsers = async (assignment_id: number) => {
+  try {
+    const response = await axios.get(
+      `/assignment/exams/${assignment_id}/assignment-users`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+
+
 // exam condations : 
 export const fetchExamCondations = async (): Promise<Condition[]> => {
   try {
@@ -406,6 +428,16 @@ export const fetchExamRequirementFields = async (): Promise<Requirement[]> => {
 export const fetchAssignmentById = async (id:number): Promise<Assignment> => {
   try {
     return await get<Assignment>(`/exams/${id}`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+                       error.message || 
+                       "Failed to fetch assignments";
+    throw new Error(errorMessage);
+  }
+};
+export const fetchAssignmentByUrl = async (url:string): Promise<Assignment> => {
+  try {
+    return await get<Assignment>(`/exams/by-url/${url}`);
   } catch (error: any) {
     const errorMessage = error.response?.data?.message || 
                        error.message || 
@@ -906,3 +938,51 @@ export const exportFile = async (
     throw error;
   }
 };
+
+// questions: 
+export const getQuestions = async (values: {
+  per_page: string,
+  form_id: number
+}) => {
+  try {
+    const response = await axios.post(`/assignment/question-forms/get-questions-by-id`, values, {
+      headers: {
+       "Content-Type": "application/json",
+      },
+    });
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    }
+    
+    throw new Error(response.data?.message || "Failed to create evaluation");
+    
+  } catch (error: any) {
+    console.error("Error creating evaluation:", error);
+    toast.error(error.response?.data?.message || "Failed to create evaluation");
+    throw error;
+  }
+};
+
+// results page : 
+export const fetchResultById = async (id:number): Promise<UserResponse> => {
+  try {
+    return await get<UserResponse>(`/assignment-users/${id}`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+    error.message || 
+    "Failed to fetch end form";
+    throw new Error(errorMessage);
+  }
+};
+export const fetchResultViewById = async (id:number): Promise<ResultQuestionData[]> => {
+  try {
+    return await get<ResultQuestionData[]>(`/answers/${id}/correctness`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+    error.message || 
+    "Failed to fetch end form";
+    throw new Error(errorMessage);
+  }
+};
+
