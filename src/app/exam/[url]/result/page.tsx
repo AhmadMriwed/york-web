@@ -16,6 +16,8 @@ import { FiChevronRight } from "react-icons/fi";
 import { Modal, Button, message } from "antd";
 import { Rate } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { LinkIcon } from "lucide-react";
+import Link from "next/link";
 
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
@@ -267,9 +269,17 @@ const QuizResultsPage = () => {
               </div>
 
               {/* Timer card */}
-              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h2 className="font-bold text-gray-800 mb-4">TIMER</h2>
-                <div className="flex items-center mb-4">
+
+              {exam?.end_forms[0].url && (
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <h2 className="font-bold text-gray-800 mb-4">Url</h2>
+                  <div className="flex items-center gap-2">
+                    <LinkIcon className="size-4 text-primary-color1" />
+                    <Link href={exam?.end_forms[0].url!}>
+                      <p>{exam?.end_forms[0].url}</p>
+                    </Link>
+                  </div>
+                  {/* <div className="flex items-center mb-4">
                   <div className=" bg-[#0372f8]/10 p-2 rounded-full mr-4">
                     <Image
                       src={icons.oclock}
@@ -304,8 +314,9 @@ const QuizResultsPage = () => {
                     <p className="text-gray-500">End :</p>
                     <p className="font-medium">{result?.end}</p>
                   </div>
+                </div> */}
                 </div>
-              </div>
+              )}
             </div>
 
             {examData?.exam_config.view_results !== "manually" && (

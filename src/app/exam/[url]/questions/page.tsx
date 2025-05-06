@@ -373,7 +373,7 @@ const QuizQuestionPage = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-600">ID:</p>
-                    <p className="font-medium">{userData?.id}</p>
+                    <p className="font-medium">{userData?.id_number}</p>
                   </div>
                   <div className="flex items-center bg-teal-50 rounded-full px-3 py-1">
                     <BookmarkIcon className="h-3 w-3 mr-1 text-teal-600" />
