@@ -77,10 +77,7 @@ const QuizQuestionPage = () => {
       };
 
       try {
-        const response = await getQuestionsByFormId(
-          values.page,
-          values.form_id
-        );
+        const response = await getQuestionsByFormId(values.form_id);
         if (response.data) {
           if (pageIndex === 1) {
             setQuestions(response.data);

@@ -68,7 +68,6 @@ export const fetchExamFiles = async () => {
 
 
   export const getQuestionsByFormId = async (
-    page: number,
     form_id: number
   ) => {
     const payload = {
