@@ -661,7 +661,7 @@ export const createEvaluation = async (values: {
        "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 201) {
+    if (response.status === 200) {
       toast.success('Evaluation created successfully');
       return response.data;
     }

@@ -1,10 +1,10 @@
 "use client";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form, Formik, FormikProps } from "formik";
+import { Form, Formik, FormikProps, useField } from "formik";
 import * as yup from "yup";
 import { GlobalState } from "@/types/storeTypes";
-import { Button, InputPicker, Loader } from "rsuite";
+import { Button, InputPicker, Loader, SelectPicker } from "rsuite";
 import Image from "next/image";
 import TextEditor from "@/components/inputs/editor/Editor";
 
@@ -13,17 +13,22 @@ import { getCategories } from "@/store/endUser/endUserSlice";
 import CustomInputField from "../CustomInputField";
 import "./style.css";
 import ImageUploader from "../ImageUploader";
-import { addExamSection } from "@/lib/action/assignment_action";
+import {
+  addExamSection,
+  fetchCategories,
+} from "@/lib/action/assignment_action";
 import { getLocalISODate, getUTCDate } from "@/utils/dateFuncs";
 
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { createCategory } from "@/lib/action/exam_action";
+import { Loader2 } from "lucide-react";
 
 interface ExamSectionFormValues {
   title: string;
   trainer_name: string | null;
-  start_date: Date;
+  start_date: Date | null;
   end_date: Date | null;
   category_id: number | null;
   code: string;
@@ -36,14 +41,12 @@ interface ExamSectionFormValues {
 interface ExamSectionOperationProps {
   typeData?: Partial<any[]>;
   assignmentsSections?: Partial<any[]>;
-  categoryiesData: Partial<any[]>;
   CategoryLoading: any;
-
 }
 
 const examSectionSchema = yup.object().shape({
   title: yup.string().required(" title is required"),
-  image: yup.mixed().nullable(), 
+  image: yup.mixed().nullable(),
   start_date: yup.date().nullable(),
   end_date: yup
     .date()
@@ -70,54 +73,89 @@ const examSectionSchema = yup.object().shape({
   status: yup.string().nullable(),
   description: yup.string(),
 
-  organization: yup.string(), 
+  organization: yup.string(),
 });
-
 
 const AssignmentSessionAddOperation: React.FC<ExamSectionOperationProps> = ({
   assignmentsSections,
   typeData,
-  categoryiesData,
-  CategoryLoading
+  CategoryLoading,
 }) => {
   const [sectionTerm, setSectionTerm] = useState("");
   const [loading, setLoading] = useState(false);
-const router = useRouter();
+  const router = useRouter();
 
-  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(
+    null
+  );
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const formikRef = useRef<FormikProps<any> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [assignmentCategoryData, setAssignmentCategoryData] = useState<any[]>(
+    []
+  );
+  const [isrefetchcategory, setIsrefetchcategory] = useState(false);
+  const [categoryLoader, setCategoryLoader] = useState(false);
 
+  useEffect(() => {
+    setLoading(true);
+    const loadData = async () => {
+      setCategoryLoader(true);
+      try {
+        const categoryData = await fetchCategories();
+        setAssignmentCategoryData(categoryData);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch sessions"
+        );
+      } finally {
+        setLoading(false);
+        setCategoryLoader(false);
+      }
+    };
+    loadData();
+  }, [isrefetchcategory]);
 
-
-
-
-
-
-  const submitHandler = async (values: any, actions: any) => {  
+  const submitHandler = async (values: any, actions: any) => {
     try {
       setLoading(true);
 
       const formData = new FormData();
-  
+
       console.log(values);
       formData.append("title", values.title);
-    
-      if (values.category_id) formData.append("category_id", values.category_id || undefined);
-      if (values.description) formData.append("description", values.description || undefined);
-      if (values.start_date) formData.append("start_date",getLocalISODate( values.start_date || undefined));
-      if (values.end_date) formData.append("end_date", getLocalISODate(values.end_date || undefined) );
-      if (values.trainer) formData.append("trainer", values.trainer || undefined);
-      if (values.code) formData.append("code", values.code || undefined) ;
+
+      if (values.category_id)
+        formData.append("category_id", values.category_id || undefined);
+      if (values.description)
+        formData.append("description", values.description || undefined);
+      if (values.start_date)
+        formData.append(
+          "start_date",
+          getLocalISODate(values.start_date || undefined)
+        );
+      if (values.end_date)
+        formData.append(
+          "end_date",
+          getLocalISODate(values.end_date || undefined)
+        );
+      if (values.trainer)
+        formData.append("trainer", values.trainer || undefined);
+      if (values.code) formData.append("code", values.code || undefined);
       if (values.status) formData.append("status", values.status || undefined);
-      if (values.image instanceof File) formData.append("image", values.image || undefined);
-      if (values.organization) formData.append("organization", values.organization || undefined);
-      if (values.type_id) formData.append("type_id", values.type_id.toString() || undefined);
+      if (values.image instanceof File)
+        formData.append("image", values.image || undefined);
+      if (values.organization)
+        formData.append("organization", values.organization || undefined);
+      if (values.type_id)
+        formData.append("type_id", values.type_id.toString() || undefined);
       console.log(formData);
-  
+
       const response = await addExamSection(formData);
       console.log("API Response:", response);
-      router.push(`/admin/dashboard/assignments/assignment-session/${response.data.data.id}`)
+      router.push(
+        `/admin/dashboard/assignments/assignment-session/${response.data.data.id}`
+      );
 
       toast.success("Exam section added successfully", {
         description: "The exam section has been created successfully.",
@@ -125,25 +163,23 @@ const router = useRouter();
       });
       actions.resetForm();
       console.log(response.data.data.id);
-
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
         description: error.message,
         duration: 5000,
       });
-    }finally {
+    } finally {
       setLoading(false);
-      actions.setSubmitting(false);
+      // actions.setSubmitting(false);
     }
   };
-
 
   const statusData = [
     { label: "Active", value: "Active", id: 1 },
     { label: "Inactive", value: "Inactive", id: 2 },
   ];
-  const categoriesList = categoryiesData?.map((category: any) => ({
+  const categoriesList = assignmentCategoryData?.map((category: any) => ({
     label: (
       <div key={category.id} className="flex items-center gap-2">
         <div className="w-[25px] h-[25px] rounded-full overflow-hidden bg-slate-400">
@@ -177,66 +213,72 @@ const router = useRouter();
     ),
     value: type.id,
   }));
-  
-
 
   const defaultValues: ExamSectionFormValues = {
     title: "",
     trainer_name: null,
-    start_date: new Date(),
-    end_date: new Date(),
+    start_date: null,
+    end_date: null,
     category_id: null,
     code: "",
     status: "",
     description: "",
     type_id: null,
     image: null,
-    organization: "", 
+    organization: "",
   };
 
-
-  const initialValues = assignmentsSections?.find((section) => section.id === selectedSectionId) 
-  ? {
-      ...assignmentsSections.find((section) => section.id === selectedSectionId),
-      category_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.category?.id || null,
-      type_id: assignmentsSections.find((section) => section.id === selectedSectionId)?.type?.id || null,
-      code: ''
-    }
-  : defaultValues;
+  const initialValues = assignmentsSections?.find(
+    (section) => section.id === selectedSectionId
+  )
+    ? {
+        ...assignmentsSections.find(
+          (section) => section.id === selectedSectionId
+        ),
+        category_id:
+          assignmentsSections.find(
+            (section) => section.id === selectedSectionId
+          )?.category?.id || null,
+        type_id:
+          assignmentsSections.find(
+            (section) => section.id === selectedSectionId
+          )?.type?.id || null,
+        code: "",
+      }
+    : defaultValues;
 
   return (
     <>
-   
-    <Formik
-      initialValues={initialValues }
-      validationSchema={examSectionSchema}
-      onSubmit={submitHandler}
-      enableReinitialize
-      innerRef={(instance) => {
-        formikRef.current = instance;
-      }}
-    >
-      {(props: FormikProps<any>) => (
-        <Form
-          className={`relative py-2 max-sm:mt-1 sm:p-6 rounded-lg ${mode === "dark" ? " text-white" : " text-black"
+      <Formik
+        initialValues={initialValues}
+        validationSchema={examSectionSchema}
+        onSubmit={submitHandler}
+        enableReinitialize
+        innerRef={(instance) => {
+          formikRef.current = instance;
+        }}
+      >
+        {(props: FormikProps<any>) => (
+          <Form
+            className={`relative py-2 max-sm:mt-1 sm:p-6 rounded-lg ${
+              mode === "dark" ? " text-white" : " text-black"
             }`}
-        >
-
-          <div
-            className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-md ${mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
-              }`}
           >
-           
+            <div
+              className={`mt-4 px-4 sm:px-10 lg:px-20 py-5 md:py-11 rounded-md ${
+                mode === "dark" ? "bg-gray-900 opacity-95" : "bg-light"
+              }`}
+            >
               <div className="mb-8 flex flex-col justify-center gap-2">
                 <p
-                  className={`font-medium text-[16px] max-sm:text-[15px] px-2 ${mode === "dark" ? "text-gray-100" : "text-gray-700"
-                    }`}
+                  className={`font-medium text-[16px] max-sm:text-[15px] px-2 ${
+                    mode === "dark" ? "text-gray-100" : "text-gray-700"
+                  }`}
                 >
                   Choose an exam section to fill the fields automatically:
                 </p>
                 <InputPicker
                   size="lg"
-
                   onSearch={(value: string) => setSectionTerm(value)}
                   renderMenu={(menu) => {
                     if (CategoryLoading) {
@@ -307,120 +349,267 @@ const router = useRouter();
                   </style>
                 )}
               </div>
-           
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 max-sm:gap-y-2 ">
+                <CustomInputField
+                  type="text"
+                  name="title"
+                  label="Title (English)"
+                  placeholder="Enter title in English"
+                  required
+                />
 
-              <CustomInputField
-                type="text"
-                name="title"
-                label="Title (English)"
-                placeholder="Enter title in English"
-                required
-              />
+                <CustomInputField
+                  type="date"
+                  name="start_date"
+                  label="Start Date"
+                  placeholder="Start Date"
+                  optional
+                  theme={mode}
+                />
+                <CustomInputField
+                  type="date"
+                  name="end_date"
+                  label="End Date"
+                  placeholder="End Date"
+                  theme={mode}
+                  optional
+                />
+                {/* Replaced Venue with Organization Name */}
+                <CustomInputField
+                  type="text"
+                  name="organization"
+                  label="Organization Name"
+                  placeholder="Enter organization name"
+                  optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={typeList}
+                  name="type_id"
+                  label="Type"
+                  required
+                  placeholder="type"
+                />
+                {/* <CustomInputField
+                  type="select"
+                  selectData={categoriesList}
+                  name="category_id"
+                  label="Category"
+                  placeholder="Category"
+                /> */}
+                <CategorySelect
+                  // type="select"
+                  selectData={categoriesList}
+                  name="category_id"
+                  label="Category"
+                  placeholder="Category"
+                  selectLoading={categoryLoader}
+                  selectSearchable={true}
+                  isrefetchcategory={isrefetchcategory}
+                  setisrefetchcaetgory={setIsrefetchcategory}
+                  selectOnSearch={(value) => setSectionTerm(value)}
+                  theme={mode}
+                />
 
-
-              <CustomInputField
-                type="date"
-                name="start_date"
-                label="Start Date"
-                placeholder="Start Date"
-                optional
-                theme={mode}
-              />
-              <CustomInputField
-                type="date"
-                name="end_date"
-                label="End Date"
-                placeholder="End Date"
-                theme={mode}
-                optional
-              />
-              {/* Replaced Venue with Organization Name */}
-              <CustomInputField
-                type="text"
-                name="organization"
-                label="Organization Name"
-                placeholder="Enter organization name"
-              optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={typeList}
-                name="type_id"
-                label="Type"
-                required
-                placeholder="type"
-              />
-              <CustomInputField
-                type="select"
-                selectData={categoriesList}
-                name="category_id"
-                label="Category"
-
-                placeholder="Category"
-              />
-              <CustomInputField
-                type="text"
-                name="code"
-                label="Code (6 characters)"
-                placeholder="Enter code"
-              optional
-              />
-              <CustomInputField
-                type="select"
-                selectData={statusList}
-                name="status"
-                label="Status"
-                optional
-                placeholder="Status"
-              />
-              <CustomInputField
-                type="text"
-                name="trainer"
-                label="Trainer Name"
-                placeholder="Enter trainer name"
-              optional
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
-              <div className="space-y-4">
-                <TextEditor
-                  name="description"
-                  label="Description "
-                  value={initialValues?.description}
-                optional
+                <CustomInputField
+                  type="text"
+                  name="code"
+                  label="Code (6 characters)"
+                  placeholder="Enter code"
+                  optional
+                />
+                <CustomInputField
+                  type="select"
+                  selectData={statusList}
+                  name="status"
+                  label="Status"
+                  optional
+                  placeholder="Status"
+                />
+                <CustomInputField
+                  type="text"
+                  name="trainer"
+                  label="Trainer Name"
+                  placeholder="Enter trainer name"
+                  optional
                 />
               </div>
-
-              <ImageUploader formikProps={props} />
-            </div>
-            <div className="mt-7 flex justify-end">
-              <Button
-                type="submit"
-                disabled={loading}
-              className="!bg-primary-color1 py-[8px] sm:py-2 sm:!px-9  max-sm:!w-full"
-              >
-                {loading ? (<div className="flex justify-center items-center gap-4">
-
-                  <Loader />
-                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Add </h6>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4 sm:gap-y-2 my-6 max-sm:my-3">
+                <div className="space-y-4">
+                  <TextEditor
+                    name="description"
+                    label="Description "
+                    value={initialValues?.description}
+                    optional
+                  />
                 </div>
-                ) : (
-                  <h6 className="text-[17px] tracking-wide sm:text-xl text-white">Add </h6>
-                )}
-              </Button>
+
+                <ImageUploader formikProps={props} />
+              </div>
+              <div className="mt-7 flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="!bg-primary-color1 py-[8px] sm:py-2 sm:!px-9  max-sm:!w-full"
+                >
+                  {loading ? (
+                    <div className="flex justify-center items-center gap-4">
+                      <Loader />
+                      <h6 className="text-[17px] tracking-wide sm:text-xl text-white">
+                        Add{" "}
+                      </h6>
+                    </div>
+                  ) : (
+                    <h6 className="text-[17px] tracking-wide sm:text-xl text-white">
+                      Add{" "}
+                    </h6>
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
+          </Form>
+        )}
+      </Formik>
 
-        </Form>
-      )}
-    </Formik>
-  
-    <Toaster position="top-right" richColors />
-
-
-     </>
+      <Toaster position="top-right" richColors />
+    </>
   );
 };
 export default AssignmentSessionAddOperation;
+
+const CategorySelect = ({
+  name,
+  label,
+  placeholder,
+  optional,
+  required,
+  isrefetchcategory,
+  setisrefetchcaetgory,
+  disabled,
+  selectData,
+  selectLoading,
+  selectSearchable,
+  selectOnSearch,
+  textAreaRows,
+  value,
+  theme,
+}: {
+  name: string;
+  label: string;
+  placeholder?: string;
+  isrefetchcategory: any;
+  setisrefetchcaetgory: any;
+  optional?: boolean;
+  required?: boolean;
+  disabled?: boolean;
+  selectData?: any;
+  selectLoading?: boolean;
+  selectSearchable?: boolean;
+  selectOnSearch?: (value: string) => void;
+  textAreaRows?: number;
+  value?: any;
+  theme: "light" | "dark";
+}) => {
+  const [field, meta, helpers] = useField(name);
+  const [loadingBtn, setLoadingBtn] = useState(false);
+  return (
+    <div className="mb-[10px]">
+      {/* Label */}
+      <label
+        htmlFor={name}
+        className={`text-[15px] ml-[4px]   dark:!text-gray-100`}
+      >
+        {label} {optional ? "(optional)" : ""}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="relative">
+        <SelectPicker
+          placement="auto"
+          data={selectData}
+          searchable={selectSearchable}
+          onSearch={selectOnSearch}
+          renderMenu={(menu) => {
+            if (selectLoading) {
+              return (
+                <p
+                  style={{
+                    padding: 10,
+                    color: theme === "dark" ? "#ccc" : "#999",
+                    textAlign: "center",
+                    background: theme === "dark" ? "#1f2937" : "white",
+                  }}
+                >
+                  <Loader />
+                </p>
+              );
+            }
+            return (
+              <div>
+                {menu}
+                {/* Add new category form */}
+                <div className={`p-3 border-t `}>
+                  <p className="m-0 text-[16px]">{`Can't find your category? Add a new one:`}</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="New category name"
+                      className={`flex-1 px-3 border-gray-400 focus:outline-none focus:border-1 focus:border-primary-color1  py-[6px] rounded border `}
+                      id={`new-${name}-input`}
+                    />
+                    <button
+                      type="submit"
+                      className={`px-5 py-[6px] rounded bg-primary-color1 text-white`}
+                      onClick={async () => {
+                        const input = document.getElementById(
+                          `new-${name}-input`
+                        ) as HTMLInputElement;
+                        const newCategoryName = input.value.trim();
+                        if (newCategoryName) {
+                          try {
+                            setLoadingBtn(true);
+
+                            await createCategory(newCategoryName);
+                            toast.success(
+                              `Category "${newCategoryName}" added successfully`
+                            );
+                            input.value = "";
+                            setisrefetchcaetgory(!isrefetchcategory);
+
+                            // await reloadCategories();
+                          } catch (error) {
+                            toast.error("Failed to add new category");
+                          } finally {
+                            setLoadingBtn(false);
+                          }
+                        }
+                      }}
+                    >
+                      {loadingBtn ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <span>Add</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }}
+          size="md"
+          className={`!w-full !border-none  ${
+            meta.error && meta.touched
+              ? "!border-[1px] !border-red-600 rounded-lg"
+              : `!border-[1px] rounded-lg `
+          }`}
+          id={name}
+          name={name}
+          placeholder={placeholder}
+          menuClassName="dark:!bg-gray-800"
+          value={field.value}
+          onChange={(value) => field.onChange({ target: { name, value } })}
+        />
+      </div>
+    </div>
+  );
+};

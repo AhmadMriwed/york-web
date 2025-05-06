@@ -91,9 +91,6 @@ const Page = () => {
     );
   };
   //
-  const changeSessionStatus = async () => {
-    await changeStatus(Number(id));
-  };
 
   const {
     data: assignmentSession,
@@ -101,6 +98,16 @@ const Page = () => {
     error,
     refetch: refetchData,
   } = useFetchWithId<AssignmentSession>(fetchAssignmentSessionById, Number(id));
+
+  const changeSessionStatus = async () => {
+    try {
+      await changeStatus(Number(id));
+      toast.success("Status changed successfully");
+      await refetchData();
+    } catch (error) {
+      toast.error("Failed to change status");
+    }
+  };
 
   const trainerEvaluationId = assignmentSession?.evaluations?.find(
     (e) => e.evaluation_type_id === 1

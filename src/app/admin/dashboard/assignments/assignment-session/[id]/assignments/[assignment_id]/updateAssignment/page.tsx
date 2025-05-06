@@ -31,7 +31,7 @@ import {
 import ImageUploader from "@/components/upload/ImageUploader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Settings } from "lucide-react";
+import { Loader2, Settings, XIcon } from "lucide-react";
 import { MdAssignment, MdUpdate } from "react-icons/md";
 import { FiPlay, FiFlag, FiPlus } from "react-icons/fi";
 import {
@@ -114,6 +114,8 @@ const UpdateAssignmentPage = () => {
     Requirement[]
   >(fetchExamRequirementFields);
 
+  console.log(requirementsField);
+
   const {
     data: assignment,
     isLoading,
@@ -143,7 +145,9 @@ const UpdateAssignmentPage = () => {
   } = useFetchWithId<EndFormType>(fetchEndFormById, startFormId!);
 
   type FormValues = z.infer<typeof updateExamValidationSchema>;
-  console.log(assignment?.image!);
+  console.log(assignment);
+
+  console.log(typeof assignment?.forms[0]?.id);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(updateExamValidationSchema),
@@ -170,7 +174,6 @@ const UpdateAssignmentPage = () => {
             time_questions_page:
               assignment.exam_config.time_questions_page || "",
             language: assignment.exam_config.language || "",
-            time_exam: assignment.exam_config.time_exam || "",
             start_date: assignment.exam_config.start_date
               ? new Date(assignment.exam_config.start_date)
               : undefined,
@@ -205,8 +208,7 @@ const UpdateAssignmentPage = () => {
       },
       field_requirement: {
         field_requirement_id:
-          assignment?.field_requirements?.map((f) => f.field_requirement_id) ||
-          [],
+          assignment?.field_requirements?.map((f) => f.id) || [],
       },
     },
   });
@@ -235,7 +237,6 @@ const UpdateAssignmentPage = () => {
               time_questions_page:
                 assignment.exam_config.time_questions_page || "",
               language: assignment.exam_config.language || "",
-              time_exam: assignment.exam_config.time_exam || "",
               start_date: assignment.exam_config.start_date
                 ? new Date(assignment.exam_config.start_date)
                 : undefined,
@@ -269,9 +270,7 @@ const UpdateAssignmentPage = () => {
         },
         field_requirement: {
           field_requirement_id:
-            assignment?.field_requirements?.map(
-              (f) => f.field_requirement_id
-            ) || [],
+            assignment?.field_requirements?.map((f) => f.id) || [],
         },
       });
     }
@@ -409,8 +408,10 @@ const UpdateAssignmentPage = () => {
       }
 
       if (values.field_requirement?.field_requirement_id?.length) {
+        const validIds = requirementsField?.map((r) => r.id) || [];
         const uniqueIds = values.field_requirement.field_requirement_id.filter(
-          (value, index, self) => self.indexOf(value) === index
+          (value, index, self) =>
+            self.indexOf(value) === index && validIds.includes(value)
         );
 
         uniqueIds.forEach((id, index) => {
@@ -448,7 +449,6 @@ const UpdateAssignmentPage = () => {
       setIsSubmitting(false);
     }
   };
-  console.log(assignment?.field_requirements);
 
   const navigateToQuestionsPage = () => {
     router.push(
@@ -494,6 +494,7 @@ const UpdateAssignmentPage = () => {
                                 field.onChange(Number(value))
                               }
                               value={field.value?.toString()}
+                              disabled
                             >
                               <FormControl>
                                 <SelectTrigger className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none">
@@ -554,20 +555,21 @@ const UpdateAssignmentPage = () => {
                         control={form.control}
                         name="exam_config.language"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="-mt-1.5">
                             <FormLabel>Exam Language : </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100 ">
                                   <SelectValue placeholder="Select language" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="english">English</SelectItem>
-                                <SelectItem value="arabic">Arabic</SelectItem>
+                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="ar">Arabic</SelectItem>
+                                <SelectItem value="fn">Franch</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -578,61 +580,54 @@ const UpdateAssignmentPage = () => {
                     <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mt-2">
                       <FormField
                         control={form.control}
-                        name="duration_in_minutes"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Duration in Minutes :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(Number(e.target.value))
-                                }
-                                className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
-                                placeholder="e.g. 3"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
                         name="exam_config.start_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel className="my-1">Start Date</FormLabel>
+                            <FormLabel className="mt-2">Start Date :</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl className="mt-8">
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 bg-gray-100 mt-4  dark:bg-gray-700 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value as Date, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
+                                  <div className="relative">
+                                    <Button
+                                      type="button"
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-full pl-3 bg-gray-100 relative dark:bg-gray-700 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value ? (
+                                        format(field.value as Date, "PPP")
+                                      ) : (
+                                        <span>Pick a date</span>
+                                      )}
+                                      {field.value ? (
+                                        <button
+                                          type="button"
+                                          className="absolute right-3 top-4 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            field.onChange(null);
+                                          }}
+                                        >
+                                          <XIcon className="h-4 w-4 opacity-70" />
+                                        </button>
+                                      ) : (
+                                        <CalendarIcon className="absolute right-3 top-4 -translate-y-1/2 h-4 w-4 opacity-50" />
+                                      )}
+                                    </Button>
+                                  </div>
                                 </FormControl>
                               </PopoverTrigger>
                               <PopoverContent
-                                style={{ zIndex: 1000 }}
                                 className="w-auto p-0"
                                 align="start"
                               >
                                 <Calendar
                                   mode="single"
-                                  selected={field.value as Date | undefined}
+                                  selected={field.value || undefined}
                                   onSelect={field.onChange}
                                   disabled={(date) =>
-                                    date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
                                   initialFocus
@@ -643,44 +638,56 @@ const UpdateAssignmentPage = () => {
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <div className="grid grid-cols-1 mt-4 gap-3 sm:gap-4 md:grid-cols-2">
                       <FormField
                         control={form.control}
                         name="exam_config.end_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>End Date</FormLabel>
+                            <FormLabel className="mt-2">End Date : </FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                      "w-full pl-3 bg-gray-100 dark:bg-gray-700 text-left font-normal",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value as Date, "PPP")
-                                    ) : (
-                                      <span>Pick a date</span>
-                                    )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                  </Button>
+                                <FormControl className="mt-8">
+                                  <div className="relative">
+                                    <Button
+                                      type="button"
+                                      variant={"outline"}
+                                      className={cn(
+                                        "w-full pl-3 bg-gray-100 relative dark:bg-gray-700 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value ? (
+                                        format(field.value as Date, "PPP")
+                                      ) : (
+                                        <span>Pick a date</span>
+                                      )}
+                                      {field.value ? (
+                                        <button
+                                          type="button"
+                                          className="absolute right-3 top-4 -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            field.onChange(null);
+                                          }}
+                                        >
+                                          <XIcon className="h-4 w-4 opacity-70" />
+                                        </button>
+                                      ) : (
+                                        <CalendarIcon className="absolute right-3 top-4 -translate-y-1/2 h-4 w-4 opacity-50" />
+                                      )}
+                                    </Button>
+                                  </div>
                                 </FormControl>
                               </PopoverTrigger>
                               <PopoverContent
-                                style={{ zIndex: 1000 }}
                                 className="w-auto p-0"
                                 align="start"
                               >
                                 <Calendar
                                   mode="single"
-                                  selected={field.value as Date | undefined}
+                                  selected={field.value || undefined}
                                   onSelect={field.onChange}
                                   disabled={(date) =>
-                                    date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
                                   initialFocus
@@ -899,28 +906,21 @@ const UpdateAssignmentPage = () => {
                     <div className="space-y-4 sm:space-y-6 dark:text-white">
                       <FormField
                         control={form.control}
-                        name="exam_config.time_exam"
+                        name="duration_in_minutes"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Exam Time : </FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="dark:bg-gray-700">
-                                  <SelectValue placeholder="Select time" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="dark:bg-gray-700 bg-gray-100">
-                                <SelectItem value="30 Minutes">
-                                  30 Minutes
-                                </SelectItem>
-                                <SelectItem value="1 Hour">1 Hour</SelectItem>
-                                <SelectItem value="2 Hours">2 Hours</SelectItem>
-                                <SelectItem value="3 Hours">3 Hours</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <FormLabel>Duration in Minutes :</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(Number(e.target.value))
+                                }
+                                className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
+                                placeholder="e.g. 3"
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1128,7 +1128,6 @@ const UpdateAssignmentPage = () => {
                         name="field_requirement.field_requirement_id"
                         render={({ field }) => {
                           const currentValues = field.value || [];
-
                           return (
                             <FormItem className="space-y-3">
                               <div className="flex flex-col space-y-2">
@@ -1144,22 +1143,14 @@ const UpdateAssignmentPage = () => {
                                             requirement.id
                                           )}
                                           onChange={(e) => {
-                                            const newValue = [...currentValues];
-                                            const conditionIndex =
-                                              newValue.indexOf(requirement.id);
-
-                                            if (e.target.checked) {
-                                              if (conditionIndex === -1) {
-                                                newValue.push(requirement.id);
-                                              }
-                                            } else {
-                                              if (conditionIndex > -1) {
-                                                newValue.splice(
-                                                  conditionIndex,
-                                                  1
+                                            const newValue = e.target.checked
+                                              ? [
+                                                  ...currentValues,
+                                                  requirement.id,
+                                                ]
+                                              : currentValues.filter(
+                                                  (id) => id !== requirement.id
                                                 );
-                                              }
-                                            }
                                             field.onChange(newValue);
                                           }}
                                         />

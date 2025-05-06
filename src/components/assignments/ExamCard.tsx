@@ -66,6 +66,8 @@ const ExamCard = ({
     refetch: refetchAssignment,
   } = useFetchWithId<Assignment>(fetchAssignmentById, Number(examId));
 
+  console.log(assignment);
+
   useEffect(() => {
     if (
       assignment?.grade_percentage !== undefined &&

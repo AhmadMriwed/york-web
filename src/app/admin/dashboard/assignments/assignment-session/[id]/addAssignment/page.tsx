@@ -128,13 +128,15 @@ const Page = () => {
                   required
                 />
                 {/* Subtitle */}
-                <CustomFormField
-                  fieldType={FormFieldType.INPUT}
-                  control={form.control}
-                  label="SubTitle :"
-                  name="sub_title"
-                  placeholder="Enter a subtitle .. "
-                />
+                <div className="mt-2">
+                  <CustomFormField
+                    fieldType={FormFieldType.INPUT}
+                    control={form.control}
+                    label="SubTitle :"
+                    name="sub_title"
+                    placeholder="Enter a subtitle .. "
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
@@ -166,7 +168,7 @@ const Page = () => {
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="mb-1 -mt-1">
                       <p className={"w-full gap-2 flex"}>
                         <FormLabel className="text-gray-700 dark:text-white">
                           Status :

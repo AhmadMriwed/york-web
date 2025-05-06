@@ -1,5 +1,6 @@
 "use client";
 
+import { images } from "@/constants/images";
 import { useFetchWithId } from "@/hooks/useFetch";
 import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
 import {
@@ -28,6 +29,7 @@ type Field = {
   field: string;
 };
 type UserAnswer = string | string[] | boolean | null;
+
 const QuizQuestionPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
@@ -56,8 +58,17 @@ const QuizQuestionPage = () => {
   const [visitedPages, setVisitedPages] = useState<Set<number>>(new Set([1]));
   const [perPage, setPerPage] = useState<number>(5);
   const [pageIndex, setPageIndex] = useState<number>(1);
-  const [answerPageIndex, setAnswerPageIndex] = useState(1);
-  const [istherePrevios, setIstherePrevios] = useState(false);
+  const [answerPagesMap, setAnswerPagesMap] = useState<Map<number, number>>(
+    new Map()
+  );
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
+
+  useEffect(() => {
+    const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
+    if (isSubmitted === "true") {
+      router.push(`/exam/${url}/result?user_id=${user_id}`);
+    }
+  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -70,7 +81,7 @@ const QuizQuestionPage = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      setIsLoading(true);
+      console.log(examData?.forms[0]?.id!), setIsLoading(true);
       const values = {
         form_id: Number(examData?.forms[0]?.id!),
         page: pageIndex,
@@ -98,7 +109,9 @@ const QuizQuestionPage = () => {
       }
     };
 
-    fetchQuestions();
+    if (examData?.forms[0]?.id) {
+      fetchQuestions();
+    }
   }, [examData?.forms[0]?.id, pageIndex]);
 
   useEffect(() => {
@@ -109,11 +122,10 @@ const QuizQuestionPage = () => {
         if (!data || !assignmentData) {
           throw new Error("no data");
         }
-        setUserData(data?.data);
-        setExamData(assignmentData);
-        console.log(examData);
-        console.log(assignmentData?.duration_in_minutes!);
-        setTimeLeft(Number(examData?.duration_in_minutes!) * 60);
+        setUserData(data?.data!);
+        console.log(assignmentData!);
+        setExamData(assignmentData!);
+        setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
       } catch (error) {
         console.error("Error fetching exam data:", error);
         toast.error("Failed to load exam data");
@@ -211,7 +223,7 @@ const QuizQuestionPage = () => {
 
     return {
       user_id: Number(user_id),
-      answer_page_id: istherePrevios ? answerPageIndex : null,
+      answer_page_id: answerPagesMap.get(currentPage) || null,
       page: currentPage,
       question_forms: questionForms,
       start_time: startTime,
@@ -220,15 +232,21 @@ const QuizQuestionPage = () => {
 
   const submitAnswersForCurrentPage = async () => {
     const payload = prepareAnswerPayload();
-
+    localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
     console.log("Submitting payload:", payload);
     setIsSubmitLoading(true);
     try {
       const response = await createAnswer(payload);
       console.log(response?.data);
-      console.log(response.data["answer-pages"][0].id);
-      setAnswerPageIndex(response.data["answer-pages"][0].id);
+
+      // Update the answerPagesMap with the new answer_page_id for this page
+      const newAnswerPageId = response.data["answer-pages"][0].id;
+      setAnswerPagesMap((prev) =>
+        new Map(prev).set(currentPage, newAnswerPageId)
+      );
+
       // toast.success("Answers saved successfully");
+      return newAnswerPageId;
     } catch (error) {
       console.error("Error submitting answers:", error);
       toast.error("Failed to save answers");
@@ -240,9 +258,12 @@ const QuizQuestionPage = () => {
 
   const handlePrevious = async () => {
     if (currentPage > 1) {
-      setIstherePrevios(true);
+      setIsNavigatingBack(true);
       try {
-        setCurrentPage(currentPage - 1);
+        // Save current page answers before navigating
+        // await submitAnswersForCurrentPage();
+
+        setCurrentPage((prev) => prev - 1);
         setVisitedPages((prev) => new Set(prev).add(currentPage - 1));
       } catch (error) {
         console.error("Error saving answers before navigation:", error);
@@ -252,14 +273,14 @@ const QuizQuestionPage = () => {
 
   const handleNext = async () => {
     if (currentPage < totalPages) {
-      setIstherePrevios(false);
+      setIsNavigatingBack(false);
       try {
         await submitAnswersForCurrentPage();
 
         if (currentPage === Math.ceil(questions.length / perPage)) {
           setPageIndex(currentPage + 1);
         }
-        setCurrentPage(currentPage + 1);
+        setCurrentPage((prev) => prev + 1);
         setVisitedPages((prev) => new Set(prev).add(currentPage + 1));
       } catch (error) {
         console.error("Error saving answers before navigation:", error);
@@ -271,7 +292,11 @@ const QuizQuestionPage = () => {
     try {
       await submitAnswersForCurrentPage();
       const response = await getGradeAfterCreate(Number(user_id));
-
+      // Prevent going back to the quiz
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("popstate", () => {
+        window.history.pushState(null, "", window.location.href);
+      });
       toast.success("Quiz submitted successfully!");
       router.push(`/exam/${url}/result?user_id=${user_id}`);
     } catch (error) {
@@ -319,7 +344,7 @@ const QuizQuestionPage = () => {
               <div className="md:hidden flex flex-col gap-2">
                 <div className="flex justify-between items-center -mb-8">
                   <Image
-                    src="/logo dark.png"
+                    src={images.logo}
                     height={40}
                     width={120}
                     alt="Logo"
@@ -367,7 +392,7 @@ const QuizQuestionPage = () => {
               <div className="hidden md:flex h-20 items-center justify-between gap-4">
                 <div className="flex-shrink-0">
                   <Image
-                    src="/logo dark.png"
+                    src={images.logo}
                     height={100}
                     width={150}
                     alt="Logo"
@@ -390,7 +415,7 @@ const QuizQuestionPage = () => {
                     <div className="px-3 py-1">
                       <p className="text-xs text-gray-600">Student ID</p>
                       <p className="font-medium text-gray-900">
-                        {userData?.id}
+                        {userData?.id_number}
                       </p>
                     </div>
                   </div>
@@ -557,8 +582,8 @@ const QuizQuestionPage = () => {
                         <label
                           className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
                             currentAnswer === true
-                              ? "border-green-500 bg-green-50 shadow-xs"
-                              : "border-gray-200 hover:border-green-300"
+                              ? "border-blue-500 bg-blue-50 shadow-xs"
+                              : "border-gray-200 hover:border-blue-300"
                           }`}
                         >
                           <input
@@ -573,8 +598,8 @@ const QuizQuestionPage = () => {
                         <label
                           className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
                             currentAnswer === false
-                              ? "border-red-500 bg-red-50 shadow-xs"
-                              : "border-gray-200 hover:border-red-300"
+                              ? "border-blue-500 bg-blue-50 shadow-xs"
+                              : "border-gray-200 hover:border-blue-300"
                           }`}
                         >
                           <input
@@ -645,7 +670,7 @@ const QuizQuestionPage = () => {
             className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${
               currentPage === totalPages
                 ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                : "bg-gradient-to-r from-primary-color1 to-primary-color2 hover:from-primary-color2 hover:to-primary-color3"
+                : "bg-gradient-to-r from-primary-color1 to-primary-color2"
             } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
           >
             {isSubmitLoading ? (

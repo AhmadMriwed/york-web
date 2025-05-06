@@ -24,14 +24,7 @@ import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import CustomFormField, {
   FormFieldType,
@@ -40,29 +33,36 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { assignUser, fetchExamFiles } from "@/lib/action/user/userr_action";
-import Loading from "@/components/Pars/Loading";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { GrMultiple } from "react-icons/gr";
+
 import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { icons } from "@/constants/icons";
 
-const UserFormValidation = z.object({
-  first_name: z.string().min(2, "First name must be at least 2 characters."),
-  id_number: z.string(),
-  last_name: z.string().min(2, "Last name must be at least 2 characters."),
-  email: z.string().email("Invalid email address"),
-  role: z.enum(["Trainer", "Trainee"], {
-    required_error: "Please select your role",
-  }),
-});
+const createValidationSchema = (fieldRequirements: any) => {
+  const schema: Record<string, any> = {
+    id_number: z.string().min(1, "ID number is required"),
+  };
 
+  fieldRequirements.forEach((field: any) => {
+    switch (field.name) {
+      case "first_name":
+        schema.first_name = z
+          .string()
+          .min(2, "First name must be at least 2 characters");
+        break;
+      case "last_name":
+        schema.last_name = z
+          .string()
+          .min(2, "Last name must be at least 2 characters");
+        break;
+      case "email":
+        schema.email = z.string().email("Invalid email address");
+        break;
+    }
+  });
+
+  return z.object(schema);
+};
 interface ExamFile {
   id: number;
   exam_id: number;
@@ -133,7 +133,6 @@ const Page = () => {
     }
   };
 
-  // Function to format file size
   const formatFileSize = (bytes: string) => {
     const size = parseInt(bytes);
     if (size < 1024) return `${size} bytes`;
@@ -141,31 +140,37 @@ const Page = () => {
     return `${(size / 1048576).toFixed(1)} MB`;
   };
 
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<ReturnType<typeof createValidationSchema>>>({
+    resolver: zodResolver(
+      createValidationSchema(examData?.field_requirements || [])
+    ),
     defaultValues: {
-      first_name: "",
       id_number: "",
+      // Initialize all possible fields (they'll only be validated if required)
+      first_name: "",
       last_name: "",
       email: "",
-      role: undefined,
     },
   });
 
   const onSubmit = async (values: any) => {
     const toastId = toast.loading("Registering for exam ...");
 
-    const payload = {
+    // Prepare payload with only the required fields
+    const payload: any = {
       form_id: examData?.id,
-      ...values,
+      id_number: values.id_number,
     };
-    console.log(payload);
+
+    // Add only the fields that are required
+    examData?.field_requirements?.forEach((field: any) => {
+      payload[field.name] = values[field.name];
+    });
+
     try {
       const response = await assignUser(payload);
-      console.log("API Response:", response);
-      console.log(response.data.id);
-      toast.success("register success", {
-        description: "The  registeration has been completed successfully.",
+      toast.success("Registration success", {
+        description: "The registration has been completed successfully.",
         duration: 4000,
         id: toastId,
       });
@@ -183,7 +188,6 @@ const Page = () => {
       setIsLoading(false);
     }
   };
-
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -212,37 +216,36 @@ const Page = () => {
   const formattedExamInfo = {
     title: examData.title,
     description: examData.sub_title,
+    image: examData.start_forms[0].image,
     duration: `${examData.duration_in_minutes} minutes`,
-    date: new Date(examData.exam_config.start_date).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    ),
+    date: examData.exam_config.start_date
+      ? new Date(examData.exam_config.start_date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null,
     totalQuestions: examData.number_of_questions,
     instructor: "Dr. Instructor Name", // You might need to fetch this separately
     examType: examData.exam_type.type,
-    examDescription: examData.exam_type.description,
-    endDate: new Date(examData.exam_config.end_date).toLocaleDateString(
-      "en-US",
-      {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    ),
+    examDescription: examData.start_forms[0].description,
+    endDate: examData.exam_config.end_date
+      ? new Date(examData.exam_config.end_date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null,
   };
 
   return (
     <>
       <main className="flex max-md:flex-col-reverse md:h-screen md:max-h-screen max-md:min-h-screen w-full items-center rounded-lg overflow-hidden max-md:overflow-auto">
-        <section className="max-md:w-full remove-scrollbar container mb-16 w-[50%] h-full bg-white overflow-y-auto">
-          <div className="max-w-[600px] mx-auto py-12 pt-28 md:pt-[120px] px-6">
+        <section className="max-md:w-full scrollbar-hide container mb-16 w-[50%] h-full bg-white overflow-y-auto">
+          <div className="max-w-[600px]  mx-auto py-12 pt-28 md:pt-[120px] px-6">
             <div className="mb-8">
-              <h1 className="text-2xl md:text-3xl font-bold text-[#037f85] ml-2 mb-3">
-                {formattedExamInfo.title} :
+              <h1 className="text-2xl text-center md:text-3xl font-bold text-[#037f85] mb-3">
+                {formattedExamInfo.title}
               </h1>
 
               {/* Test Instructions Section */}
@@ -401,11 +404,15 @@ const Page = () => {
 
         <div className="max-md:hidden flex items-center justify-center w-[50%] bg-[#037f85]/20 h-[90vh] md:min-h-screen z-50">
           <Image
-            src={images.onlineTest}
+            src={
+              formattedExamInfo.image
+                ? `${process.env.NEXT_PUBLIC_ASSIGNMENT_STORAGE_URL}/${formattedExamInfo.image}`
+                : images.onlineTest
+            }
             width={480}
             height={480}
             alt="Online exam illustration"
-            className="object-contain"
+            className="h-full w-full object-cover"
           />
         </div>
       </main>
@@ -456,69 +463,67 @@ const Page = () => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 flex-1 text-white mb-4"
           >
+            {/* Always show id_number */}
             <CustomFormField
               fieldType={FormFieldType.INPUT}
               control={form.control}
               name="id_number"
-              label={"Id : "}
-              placeholder={"Enter your Id "}
+              label={"ID Number"}
+              placeholder={"Enter your ID number"}
               iconSrc={icons.id}
-              iconAlt="user"
-            />
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="first_name"
-              label={"First Name : "}
-              placeholder={"Enter your first name "}
-              iconSrc="/icons/user.svg"
-              iconAlt="user"
+              iconAlt="id"
               required={true}
             />
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="last_name"
-              label={"Last Name : "}
-              placeholder={"Enter your last name "}
-              iconSrc="/icons/user.svg"
-              iconAlt="user"
-              required={true}
-            />
-            <CustomFormField
-              fieldType={FormFieldType.INPUT}
-              control={form.control}
-              name="email"
-              label={"Email : "}
-              placeholder={"Enter your email"}
-              iconSrc="/icons/mail.svg"
-              iconAlt="email"
-              required={true}
-            />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-black mb-2">Role : </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="flex  text-dark rounded-md border border-dark-500  bg-gray-100 dark:bg-gray-700 dark:text-white focus-within:border focus-within:border-primary-color1 ">
-                        <SelectValue
-                          className="text-dark "
-                          placeholder="Select your role"
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="z-[1000]">
-                      <SelectItem value="Trainer">Trainer</SelectItem>
-                      <SelectItem value="Trainee">Trainee</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {/* Dynamically show required fields */}
+            {examData?.field_requirements?.map((field) => {
+              switch (field.name) {
+                case "first_name":
+                  return (
+                    <CustomFormField
+                      key={field.id}
+                      fieldType={FormFieldType.INPUT}
+                      control={form.control}
+                      name="first_name"
+                      label={"First Name"}
+                      placeholder={"Enter your first name"}
+                      iconSrc="/icons/user.svg"
+                      iconAlt="user"
+                      required={true}
+                    />
+                  );
+                case "last_name":
+                  return (
+                    <CustomFormField
+                      key={field.id}
+                      fieldType={FormFieldType.INPUT}
+                      control={form.control}
+                      name="last_name"
+                      label={"Last Name"}
+                      placeholder={"Enter your last name"}
+                      iconSrc="/icons/user.svg"
+                      iconAlt="user"
+                      required={true}
+                    />
+                  );
+                case "email":
+                  return (
+                    <CustomFormField
+                      key={field.id}
+                      fieldType={FormFieldType.INPUT}
+                      control={form.control}
+                      name="email"
+                      label={"Email"}
+                      placeholder={"Enter your email"}
+                      iconSrc="/icons/mail.svg"
+                      iconAlt="email"
+                      required={true}
+                    />
+                  );
+                default:
+                  return null;
+              }
+            })}
           </form>
         </Form>
       </Modal>

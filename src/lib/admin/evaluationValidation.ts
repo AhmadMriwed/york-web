@@ -32,7 +32,6 @@ export const updateEvaluationValidationSchema = z.object({
     
     evaluation_config: z.object({
       condition_exams_id: z.string().optional(),
-      time_exam: z.string().optional(),
       view_results: z.string().optional(),
       language: z.string().optional(),
       date_view: z.string().optional(),
@@ -40,8 +39,8 @@ export const updateEvaluationValidationSchema = z.object({
       time_questions_page: z.string().optional(),
       count_return_exam: z.number().optional(),
       view_answer: z.string().optional(),
-      start_date: z.date().optional(),
-      end_date: z.date().optional(),
+      start_date: z.date().optional().nullable(),
+      end_date: z.date().optional().nullable(),
     }).optional().nullable(),
   
     start_form: z.object({

@@ -69,6 +69,7 @@ const Page = () => {
       const submissionData = {
         ...values,
       };
+      console.log(submissionData);
 
       const response = await createEvaluation(submissionData);
       const evaluationId = response.data.id;
@@ -123,14 +124,16 @@ const Page = () => {
                   placeholder="Enter a title .. "
                   required
                 />
-                {/* Subtitle */}
-                <CustomFormField
-                  fieldType={FormFieldType.INPUT}
-                  control={form.control}
-                  label="SubTitle :"
-                  name="sub_title"
-                  placeholder="Enter a subtitle .. "
-                />
+                <div className="mt-2">
+                  {/* Subtitle */}
+                  <CustomFormField
+                    fieldType={FormFieldType.INPUT}
+                    control={form.control}
+                    label="SubTitle :"
+                    name="sub_title"
+                    placeholder="Enter a subtitle .. "
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">

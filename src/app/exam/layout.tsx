@@ -1,5 +1,6 @@
 "use client";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { images } from "@/constants/images";
 import Image from "next/image";
 import { useContext } from "react";
 
@@ -10,7 +11,7 @@ const AssignmentsLayout = ({ children }: { children: React.ReactNode }) => {
     <div>
       <header className="px-8 h-20   w-full bg-white  fixed z-10">
         <Image
-          src={"/logo dark.png"}
+          src={images.logo}
           height={70}
           width={150}
           alt="logo"

@@ -5,10 +5,7 @@ export  const addExamValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   sub_title: z.string().optional(),
   status: z.string().min(1, "status is required"),
-  number_of_questions: z
-    .number()
-    .min(1, "Must have at least 1 question")
-    .optional(),
+
   duration_in_minutes: z
     .number()
     .min(1, "Duration must be at least 1 minute")
@@ -37,7 +34,6 @@ export const updateExamValidationSchema = z.object({
   
   exam_config: z.object({
     condition_exams_id: z.string().optional(),
-    time_exam: z.string().optional(),
     view_results: z.string().optional(),
     language: z.string().optional(),
     date_view: z.string().optional(),
@@ -45,8 +41,8 @@ export const updateExamValidationSchema = z.object({
     time_questions_page: z.string().optional(),
     count_return_exam: z.number().optional(),
     view_answer: z.string().optional(),
-    start_date: z.date().optional(),
-    end_date: z.date().optional(),
+    start_date: z.date().optional().nullable(),
+    end_date: z.date().optional().nullable(),
   }).optional().nullable(),
 
   start_form: z.object({

@@ -504,6 +504,7 @@ const Page = () => {
       }
     }
   };
+
   const deletteEndForm = async (id: number) => {
     if (id) {
       const toastId = toast.loading("deleting start form ...");
@@ -734,16 +735,6 @@ const Page = () => {
                     value={`${assignmentData?.exam_config?.end_date}`}
                   />
                   <div className="flex items-center gap-3 md:gap-5">
-                    {assignmentData?.duration_in_minutes !== null && (
-                      <InfoItem
-                        icon={
-                          <Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Duration"
-                        value={`${assignmentData?.duration_in_minutes} mins`}
-                      />
-                    )}
-
                     {assignmentData?.number_of_questions !== null && (
                       <InfoItem
                         icon={
@@ -785,8 +776,18 @@ const Page = () => {
                     />
                   )}
                   {assignmentData?.url && (
-                    <Snippet symbol="" variant="bordered" className="fit">
-                      {`https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`}
+                    <Snippet
+                      symbol=""
+                      variant="bordered"
+                      className="pb-2 hide-scrollbar"
+                      onCopy={() => {
+                        navigator.clipboard.writeText(
+                          `https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`
+                        );
+                        return false;
+                      }}
+                    >
+                      {assignmentData?.url}
                     </Snippet>
                   )}
                 </div>

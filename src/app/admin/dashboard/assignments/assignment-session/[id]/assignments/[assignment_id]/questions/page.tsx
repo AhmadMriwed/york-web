@@ -24,7 +24,11 @@ import { toast } from "sonner";
 import Loading from "@/components/Pars/Loading";
 import { MdQuestionMark } from "react-icons/md";
 import { Tooltip as ReactTooltip } from "react-tooltip"; // Note the named import
-import { deletedQuestions, deleteQuestion } from "@/lib/action/exam_action";
+import {
+  deletedQuestions,
+  deleteQuestion,
+  markAll,
+} from "@/lib/action/exam_action";
 import { getQuestionsByFormId } from "@/lib/action/user/userr_action";
 
 type Field = {
@@ -68,7 +72,8 @@ const QuestionManager = () => {
   const router = useRouter();
   const { id, assignment_id } = useParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [markForAll, setMarkForAll] = useState(0);
+  const [correctAnswerGrade, setCorrectAnswerGrade] = useState(0);
+  const [wrongAnswerGrade, setWrongAnswerGrade] = useState(0);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [showMarkDialog, setShowMarkDialog] = useState(false);
@@ -140,6 +145,28 @@ const QuestionManager = () => {
   const handleMarkForAllChange = () => {
     // Implement API call to update all marks if needed
     toast.info("This feature requires backend implementation");
+  };
+
+  const markAllFunc = async () => {
+    const toastId = toast.loading("updating marks for all questions ..");
+
+    try {
+      const response = await markAll(
+        {
+          correct_answer_grade: correctAnswerGrade,
+          wrong_answer_grade: wrongAnswerGrade,
+        },
+        Number(assignment_id)
+      );
+      console.log(response);
+      toast.success("marks updating successfully", {
+        id: toastId,
+      });
+    } catch (error) {
+      toast.error("error happened", {
+        id: toastId,
+      });
+    }
   };
 
   const filteredQuestions = transformedQuestions.filter((q) =>
@@ -335,36 +362,31 @@ const QuestionManager = () => {
 
             {/* Desktop - Original Controls */}
             <div className="hidden lg:flex items-center gap-2">
-              <label className="text-sm text-gray-600 dark:text-gray-300">
+              <label className="text-sm mr-2 text-gray-600 dark:text-gray-300">
                 Mark all:
               </label>
+              <span className="font-bold text-green-500">✓</span> Correct :
               <input
                 type="number"
                 min="0"
-                value={markForAll}
-                onChange={(e) => setMarkForAll(Number(e.target.value))}
+                value={correctAnswerGrade}
+                onChange={(e) => setCorrectAnswerGrade(Number(e.target.value))}
                 className="w-16 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-color1"
               />
+              <span className="font-bold text-red-500">✗</span>
+              Incorrect :
+              <input
+                type="number"
+                max="0"
+                value={wrongAnswerGrade}
+                onChange={(e) => setWrongAnswerGrade(Number(e.target.value))}
+                className="w-16 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
               <Button
-                appearance="ghost"
-                className="!text-primary-color1 !border-[1px] hover:!border-primary-color1
-            hover:!bg-primary-color1 
-            hover:!text-white
-             !border-primary-color1
-            focus:!shadow-none
-            focus:!outline-none
-            active:!outline-none
-            active:!border-primary-color1"
-                onClick={handleMarkForAllChange}
+                onClick={markAllFunc}
+                className="bg-primary-color1 text-white mx-4"
               >
-                <style>
-                  {`
-                      .rs-btn-ghost {
-                          --rs-btn-ghost-hover-border: var(--primary-color1);
-                      }
-                    `}
-                </style>
-                Save
+                save
               </Button>
             </div>
 
@@ -389,8 +411,19 @@ const QuestionManager = () => {
                       <input
                         type="number"
                         min="0"
-                        value={markForAll}
-                        onChange={(e) => setMarkForAll(Number(e.target.value))}
+                        value={correctAnswerGrade}
+                        onChange={(e) =>
+                          setCorrectAnswerGrade(Number(e.target.value))
+                        }
+                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        value={wrongAnswerGrade}
+                        onChange={(e) =>
+                          setWrongAnswerGrade(Number(e.target.value))
+                        }
                         className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
                       />
                     </div>

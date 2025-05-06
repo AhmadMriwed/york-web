@@ -184,9 +184,9 @@ const Page = () => {
         console.log("try to fetch data");
         const data = await fetchEvaluationById(Number(evaluation_id));
         setIsThereErrorWhileFetchData(false);
-        const users = await fetchExamUsers(Number(evaluation_id));
-        console.log(users.data);
-        setExamUsers(users.data);
+        // const users = await fetchExamUsers(Number(evaluation_id));
+        // console.log(users.data);
+        // setExamUsers(users.data);
 
         if (!data) {
           throw new Error("no data");
@@ -796,8 +796,18 @@ const Page = () => {
                     />
                   )}
                   {assignmentData?.url && (
-                    <Snippet symbol="" variant="bordered" className="fit">
-                      {`https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`}
+                    <Snippet
+                      symbol=""
+                      variant="bordered"
+                      className="pb-2 hide-scrollbar"
+                      onCopy={() => {
+                        navigator.clipboard.writeText(
+                          `https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`
+                        );
+                        return false;
+                      }}
+                    >
+                      {assignmentData?.url}
                     </Snippet>
                   )}
                 </div>
@@ -1484,7 +1494,7 @@ const Page = () => {
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Student Results
             </h2>
-            <StudentResultsTable data={examUsers} />
+            {/* <StudentResultsTable /> */}
           </div>
         </>
       )}

@@ -568,3 +568,64 @@ export const createEndFormF = async ( values: any) => {
     throw new Error("Unexpected error");
   }
 };
+
+
+interface GradeSettings {
+  correct_answer_grade: number;
+  wrong_answer_grade: number;
+}
+
+export const markAll = async (
+  values: GradeSettings, 
+  examId: number
+): Promise<GradeSettings> => {
+  try {
+    const response = await axios.post<GradeSettings>(
+      `/assignment/exams/${examId}/update-question-grades`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json", 
+        },
+      }
+    );
+    console.log
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || 
+                         error.message || 
+                         "Failed to update grading settings";
+      console.error("API Error:", errorMessage, error.response?.data);
+      throw new Error(errorMessage);
+    }
+    console.error("Unexpected error:", error);
+    throw new Error("An unexpected error occurred while updating grading settings");
+  }
+};
+
+
+export const createCategory = async ( title: string) => {
+  try {
+    const payload = {
+      title: title
+    }
+    console.log(payload);
+    const response = await axios.post(
+      `/assignment/categories`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
