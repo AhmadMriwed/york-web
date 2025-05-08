@@ -244,15 +244,11 @@ const UpdateEvaluationPage = () => {
         end_form_image: endForm?.image!,
         field_requirement: {
           field_requirement_id:
-            evaluation?.field_requirements?.map(
-              (f) => f.field_requirement_id
-            ) || [],
+            evaluation.field_requirements?.map((f) => f.id) || [],
         },
       });
     }
   }, [evaluation, evaluation_id, id, form]);
-
-  console.log(evaluation);
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);

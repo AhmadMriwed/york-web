@@ -46,6 +46,8 @@ import {
 } from "@/components/ui/accordion";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { Control, FieldValues, useForm } from "react-hook-form";
 import {
   Form,
@@ -94,7 +96,7 @@ import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
 import ImageUploader from "@/components/upload/ImageUploader";
-import { Modal } from "antd";
+import { Modal, TimePicker } from "antd";
 import { Snippet } from "@heroui/react";
 import { fetchExamUsers } from "@/lib/action/assignment_action";
 
@@ -153,9 +155,7 @@ const Page = () => {
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
   const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] =
     useState(false);
-  const [requimrentFields, setRequimrentFields] = useState<RequirementField[]>(
-    []
-  );
+
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
     useState<boolean>(false);
 
@@ -170,8 +170,7 @@ const Page = () => {
         if (!id) {
           throw new Error("Missing session ID in URL");
         }
-        const requirdata = await fetchRequirmentFieldsData();
-        setRequimrentFields(requirdata.data);
+
         console.log("try to fetch data");
         const data = await fetchAssignmentById(Number(assignment_id));
         setIsThereErrorWhileFetchData(false);
@@ -185,7 +184,7 @@ const Page = () => {
           setIsThereErrorWhileFetchData(true);
         }
         setAssignmentData(data?.data);
-
+        setIsEdittingExamSettings(false);
         console.log(assignmentData);
       } catch (err) {
         setIsThereErrorWhileFetchData(true);
@@ -206,33 +205,13 @@ const Page = () => {
     isViewAnsersChanged,
   ]);
 
-  const [isSubmittingExamConditions, setIsSubmittingExamConditions] =
-    useState(false);
-  const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] =
-    useState(false);
   const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
     useState(false);
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
 
-  const [isEdittingExamConditions, setIsEdittingExamConditions] =
-    useState(false);
-  const [isEdittingExamRequirments, setIsEdittingExamRequirments] =
-    useState(false);
-  const [
-    isThereAddFieldForExamRequirments,
-    setIsThereAddFieldForExamRequirments,
-  ] = useState(false);
-
   const editExamSettingsSchema = z.object({
-    time_exam: z
-      .string()
-      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)",
-      }),
-    language: z.enum(["en", "ar", "fn"]),
-    date_view: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
-      message: "Date must be in YYYY-MM-DD format",
-    }),
+    duration_in_minutes: z.number(),
+
     count_questions_page: z.number().min(1),
     time_questions_page: z
       .string()
@@ -241,7 +220,6 @@ const Page = () => {
       }),
     view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
     count_return_exam: z.number().min(0),
-    view_answer: z.enum(["after_completion", "manually", "after_each_answer"]),
   });
 
   type FormValues = z.infer<typeof editExamSettingsSchema>;
@@ -249,14 +227,12 @@ const Page = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
-      time_exam: "00:00:00",
-      language: "en",
-      date_view: "",
+      duration_in_minutes: 0,
+
       count_questions_page: 1,
-      time_questions_page: "00:00:00",
+      time_questions_page: "00:00",
       view_results: "manually",
       count_return_exam: 0,
-      view_answer: "manually",
     },
   });
 
@@ -264,87 +240,23 @@ const Page = () => {
     if (assignmentData) {
       const { exam_config } = assignmentData;
       form.reset({
-        time_exam: exam_config?.time_exam,
-        language: exam_config?.language as "en" | "ar" | "fn",
-        date_view: exam_config?.date_view,
+        duration_in_minutes: assignmentData.duration_in_minutes,
+
         count_questions_page: exam_config?.count_questions_page,
-        time_questions_page: exam_config?.time_questions_page,
+        time_questions_page:
+          exam_config?.time_questions_page.split(":").slice(0, 2).join(":") ||
+          "00:00",
         view_results: exam_config?.view_results as
           | "after_completion"
           | "manually"
           | "after_each_answer",
         count_return_exam: exam_config?.count_return_exam,
-        view_answer: exam_config?.view_answer as
-          | "after_completion"
-          | "manually"
-          | "after_each_answer",
       });
     }
   }, [assignmentData, form]);
 
   const formatDateForInput = (date: Date) => {
     return date.toISOString().split("T")[0];
-  };
-
-  const editExamRequirmentsSchema = z.object({
-    label: z.string().min(1, "Label is required"),
-    type: z.string().min(1, "Type is required"),
-  });
-  type RequirmentsFormValue = z.infer<typeof editExamRequirmentsSchema>;
-
-  const formForRequirments = useForm<RequirmentsFormValue>({
-    resolver: zodResolver(editExamRequirmentsSchema),
-    defaultValues: {
-      label: "",
-      type: "",
-    },
-  });
-
-  const editExamConditionsSchema = z.object({
-    conditions: z.record(z.boolean()), // Record of condition IDs to booleans
-  });
-  type ConditionsFormValues = z.infer<typeof editExamConditionsSchema>;
-  const formForConditions = useForm<ConditionsFormValues>({
-    resolver: zodResolver(editExamConditionsSchema),
-    defaultValues: {
-      conditions: assignmentData?.exam_config?.condition_exams?.reduce(
-        (acc, condition) => {
-          acc[condition.id] = true; // Assume all existing conditions are selected
-          return acc;
-        },
-        {} as Record<number, boolean>
-      ),
-    },
-  });
-  const onSubmitExamConditions = async (values: ConditionsFormValues) => {
-    setIsSubmittingExamConditions(true);
-    try {
-      const submissionData = {
-        ...values,
-      };
-
-      console.log("Form submitted:", submissionData);
-    } catch (error) {
-      console.error("Failed to create assignment:", error);
-    } finally {
-      setIsSubmittingExamConditions(false);
-    }
-  };
-  const onSubmitExamRequirments = async (values: RequirmentsFormValue) => {
-    setIsSubmittingExamRequirments(true);
-    try {
-      const submissionData = {
-        ...values,
-      };
-
-      console.log("Form submitted:", submissionData);
-      formForRequirments.reset();
-    } catch (error) {
-      console.error("Failed to create assignment:", error);
-    } finally {
-      setIsSubmittingExamRequirments(false);
-      setIsThereAddFieldForExamRequirments(false);
-    }
   };
 
   const EditeAnswersView = async () => {
@@ -1058,15 +970,18 @@ const Page = () => {
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
                             <FormField
                               control={form.control}
-                              name="time_exam"
+                              name="duration_in_minutes"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Exam Time :</FormLabel>
+                                  <FormLabel>Duration in Minutes: </FormLabel>
                                   <FormControl>
                                     <Input
                                       type="text"
-                                      placeholder="HH:MM"
+                                      placeholder=""
                                       {...field}
+                                      onChange={(value) =>
+                                        field.onChange(Number(value))
+                                      }
                                       className="dark:bg-gray-800"
                                     />
                                   </FormControl>
@@ -1075,7 +990,7 @@ const Page = () => {
                               )}
                             />
 
-                            <FormField
+                            {/* <FormField
                               control={form.control}
                               name="language"
                               render={({ field }) => (
@@ -1103,8 +1018,8 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
-                            <FormField
+                            /> */}
+                            {/* <FormField
                               control={form.control}
                               name="date_view"
                               render={({ field }) => (
@@ -1120,7 +1035,7 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
+                            /> */}
 
                             <FormField
                               control={form.control}
@@ -1144,28 +1059,44 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
-
                             <FormField
                               control={form.control}
                               name="time_questions_page"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Time For Page :</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="text"
-                                      placeholder="HH:MM"
-                                      {...field}
-                                      className="dark:bg-gray-800"
-                                    />
-                                  </FormControl>
+                                  <FormLabel>Time per Page :</FormLabel>
+                                  <TimePicker
+                                    format="HH:mm"
+                                    value={
+                                      field.value
+                                        ? dayjs(
+                                            typeof field.value === "string" &&
+                                              field.value.includes(":")
+                                              ? field.value
+                                              : `00:${field.value}`.slice(-5),
+                                            "HH:mm"
+                                          )
+                                        : null
+                                    }
+                                    onChange={(time, timeString) => {
+                                      if (timeString) {
+                                        field.onChange(timeString);
+                                      } else {
+                                        field.onChange(
+                                          assignmentData?.exam_config
+                                            ?.time_questions_page || ""
+                                        );
+                                      }
+                                    }}
+                                    className="w-full bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
+                                  />
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
 
                             {/* Results Display */}
-                            <FormField
+                            {/* <FormField
                               control={form.control}
                               name="view_answer"
                               render={({ field }) => (
@@ -1196,7 +1127,7 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
+                            /> */}
 
                             <FormField
                               control={form.control}
@@ -1290,15 +1221,15 @@ const Page = () => {
                           </div>
                           <div className="space-y-1">
                             <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Exam Time
+                              Duration in Minutes
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.time_exam}
+                              {assignmentData?.duration_in_minutes}
                             </p>
                           </div>
                         </div>
                         {/* Exam Language */}
-                        <div className="flex items-center space-x-4">
+                        {/* <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <FaLanguage className="text-lg" />
                           </div>
@@ -1310,8 +1241,8 @@ const Page = () => {
                               {assignmentData?.exam_config?.language}
                             </p>
                           </div>
-                        </div>
-
+                        </div> */}
+                        {/* 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <CiCalendarDate className="text-lg" />
@@ -1324,7 +1255,7 @@ const Page = () => {
                               {assignmentData?.exam_config?.date_view}
                             </p>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1342,7 +1273,7 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
-
+                        {/* 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <RiSlideshowLine className="text-lg " />
@@ -1355,7 +1286,7 @@ const Page = () => {
                               {assignmentData?.exam_config?.view_results}
                             </p>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1393,7 +1324,7 @@ const Page = () => {
                               Results View
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.view_answer}
+                              {assignmentData?.exam_config?.view_results}
                             </p>
                           </div>
                         </div>
@@ -1422,73 +1353,13 @@ const Page = () => {
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    {isEdittingExamConditions ? (
-                      <Form {...formForConditions}>
-                        <form
-                          onSubmit={formForConditions.handleSubmit(
-                            onSubmitExamConditions
-                          )}
-                          className="space-y-6 mt-2"
-                        >
-                          {assignmentData?.exam_config?.condition_exams.map(
-                            (condition) => (
-                              <FormField
-                                key={condition.id}
-                                control={formForConditions.control}
-                                name={`conditions.${condition.id}`}
-                                render={({ field }) => (
-                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={Boolean(field.value)}
-                                        onCheckedChange={field.onChange}
-                                        color="primary"
-                                      />
-                                    </FormControl>
-                                    <FormLabel className="space-y-1 leading-none">
-                                      {condition.name}
-                                    </FormLabel>
-                                  </FormItem>
-                                )}
-                              />
-                            )
-                          )}
-                          <div className="flex items-center justify-end mt-3">
-                            <Button
-                              type="submit"
-                              appearance="primary"
-                              className="py-2 !bg-primary-color1 !px-4"
-                            >
-                              {isSubmittingExamConditions ? (
-                                <>
-                                  <Loader2 className="mr-2  h-4 w-4 animate-spin" />
-                                  <p className="">Saving...</p>
-                                </>
-                              ) : (
-                                <p className="">Save</p>
-                              )}
-                            </Button>
-                          </div>
-                        </form>
-                      </Form>
-                    ) : (
-                      <div className="mt-2 flex flex-col gap-y-1">
-                        {assignmentData?.exam_config?.condition_exams.map(
-                          (condition) => (
-                            <p key={condition.id}>{condition.name}</p>
-                          )
-                        )}
-                        {/* <div className="flex items-center justify-end mt-3">
-                            <Button
-                              appearance="primary"
-                              className="py-2 !bg-primary-color1 !px-4"
-                              onClick={() => setIsEdittingExamConditions(true)}
-                            >
-                              <p className="tracking-wide py-0 my-0">Edit</p>
-                            </Button>
-                          </div> */}
-                      </div>
-                    )}
+                    <div className="mt-2 flex flex-col gap-y-1">
+                      {assignmentData?.exam_config?.condition_exams.map(
+                        (condition) => (
+                          <p key={condition.id}>{condition.name}</p>
+                        )
+                      )}
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -1505,14 +1376,7 @@ const Page = () => {
                   <AccordionContent>
                     <div className="mt-2 flex flex-col gap-y-1">
                       {assignmentData?.field_requirements?.map((r) => {
-                        const matchedField = requimrentFields.find(
-                          (field) => field.id === r.field_requirement_id
-                        );
-                        return (
-                          <p key={r.id}>
-                            {matchedField?.name || "Unknown field"}
-                          </p>
-                        );
+                        return <p key={r.id}>{r?.name || "Unknown field"}</p>;
                       })}
                     </div>
                   </AccordionContent>
@@ -1580,7 +1444,7 @@ const InfoItem = ({
   value: string | number;
   icon?: React.ReactNode;
 }) => (
-  <div className="flex items-center gap-3 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-sm:gap-2 max-sm:p-2">
+  <div className="flex items-center gap-3 px-3 rounded-lg  transition-colors max-sm:gap-2 max-sm:p-2">
     <div className="flex items-center gap-2">
       {icon && (
         <span className="text-[var(--primary-color1)] max-sm:[&>svg]:w-4 max-sm:[&>svg]:h-4">

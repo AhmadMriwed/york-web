@@ -28,7 +28,8 @@ import { More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import {
   MdTitle,
   MdSubtitles,
@@ -83,6 +84,7 @@ import {
   changeEvaluationStatus,
   fetchEvaluationById,
   updateEvaluationSettings,
+  generateUrl,
 } from "@/lib/action/evaluation_action";
 
 import Loading from "@/components/Pars/Loading";
@@ -95,13 +97,8 @@ import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
 import ImageUploader from "@/components/upload/ImageUploader";
-import { Modal } from "antd";
-import {
-  createEndFormF,
-  createStartFormF,
-  fetchRequirmentFieldsData,
-  generateUrl,
-} from "@/lib/action/exam_action";
+import { Modal, TimePicker } from "antd";
+import { createEndFormF, createStartFormF } from "@/lib/action/exam_action";
 import { Snippet } from "@heroui/react";
 import { fetchExamUsers } from "@/lib/action/assignment_action";
 
@@ -160,9 +157,7 @@ const Page = () => {
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
   const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] =
     useState(false);
-  const [requimrentFields, setRequimrentFields] = useState<RequirementField[]>(
-    []
-  );
+
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
     useState<boolean>(false);
 
@@ -179,14 +174,10 @@ const Page = () => {
         if (!id) {
           throw new Error("Missing session ID in URL");
         }
-        const requirdata = await fetchRequirmentFieldsData();
-        setRequimrentFields(requirdata.data);
         console.log("try to fetch data");
         const data = await fetchEvaluationById(Number(evaluation_id));
+        console.log(data);
         setIsThereErrorWhileFetchData(false);
-        // const users = await fetchExamUsers(Number(evaluation_id));
-        // console.log(users.data);
-        // setExamUsers(users.data);
 
         if (!data) {
           throw new Error("no data");
@@ -232,15 +223,7 @@ const Page = () => {
   ] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    time_exam: z
-      .string()
-      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)",
-      }),
-    language: z.enum(["en", "ar", "fn"]),
-    date_view: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
-      message: "Date must be in YYYY-MM-DD format",
-    }),
+    duration_in_minutes: z.number(),
     count_questions_page: z.number().min(1),
     time_questions_page: z
       .string()
@@ -249,7 +232,6 @@ const Page = () => {
       }),
     view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
     count_return_exam: z.number().min(0),
-    view_answer: z.enum(["after_completion", "manually", "after_each_answer"]),
   });
 
   type FormValues = z.infer<typeof editExamSettingsSchema>;
@@ -257,14 +239,12 @@ const Page = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
-      time_exam: "00:00:00",
-      language: "en",
-      date_view: "",
+      duration_in_minutes: 0,
+
       count_questions_page: 1,
-      time_questions_page: "00:00:00",
+      time_questions_page: "00:00",
       view_results: "manually",
       count_return_exam: 0,
-      view_answer: "manually",
     },
   });
 
@@ -272,20 +252,19 @@ const Page = () => {
     if (assignmentData) {
       const { evaluation_config } = assignmentData;
       form.reset({
-        time_exam: evaluation_config?.time_exam,
-        language: evaluation_config?.language as "en" | "ar" | "fn",
-        date_view: evaluation_config?.date_view,
+        duration_in_minutes: assignmentData.duration_in_minutes,
+
         count_questions_page: evaluation_config?.count_questions_page,
-        time_questions_page: evaluation_config?.time_questions_page,
+        time_questions_page:
+          evaluation_config?.time_questions_page
+            ?.split(":")
+            .slice(0, 2)
+            .join(":") || "00:00",
         view_results: evaluation_config?.view_results as
           | "after_completion"
           | "manually"
           | "after_each_answer",
         count_return_exam: evaluation_config?.count_return_exam,
-        view_answer: evaluation_config?.view_answer as
-          | "after_completion"
-          | "manually"
-          | "after_each_answer",
       });
     }
   }, [assignmentData, form]);
@@ -293,68 +272,6 @@ const Page = () => {
   const formatDateForInput = (date: Date) => {
     return date.toISOString().split("T")[0];
   };
-
-  const editExamRequirmentsSchema = z.object({
-    label: z.string().min(1, "Label is required"),
-    type: z.string().min(1, "Type is required"),
-  });
-  type RequirmentsFormValue = z.infer<typeof editExamRequirmentsSchema>;
-
-  const formForRequirments = useForm<RequirmentsFormValue>({
-    resolver: zodResolver(editExamRequirmentsSchema),
-    defaultValues: {
-      label: "",
-      type: "",
-    },
-  });
-
-  const editExamConditionsSchema = z.object({
-    conditions: z.record(z.boolean()), // Record of condition IDs to booleans
-  });
-  type ConditionsFormValues = z.infer<typeof editExamConditionsSchema>;
-  const formForConditions = useForm<ConditionsFormValues>({
-    resolver: zodResolver(editExamConditionsSchema),
-    defaultValues: {
-      conditions: assignmentData?.evaluation_config?.condition_exams?.reduce(
-        (acc, condition) => {
-          acc[condition.id] = true; // Assume all existing conditions are selected
-          return acc;
-        },
-        {} as Record<number, boolean>
-      ),
-    },
-  });
-  const onSubmitExamConditions = async (values: ConditionsFormValues) => {
-    setIsSubmittingExamConditions(true);
-    try {
-      const submissionData = {
-        ...values,
-      };
-
-      console.log("Form submitted:", submissionData);
-    } catch (error) {
-      console.error("Failed to create assignment:", error);
-    } finally {
-      setIsSubmittingExamConditions(false);
-    }
-  };
-  const onSubmitExamRequirments = async (values: RequirmentsFormValue) => {
-    setIsSubmittingExamRequirments(true);
-    try {
-      const submissionData = {
-        ...values,
-      };
-
-      console.log("Form submitted:", submissionData);
-      formForRequirments.reset();
-    } catch (error) {
-      console.error("Failed to create assignment:", error);
-    } finally {
-      setIsSubmittingExamRequirments(false);
-      setIsThereAddFieldForExamRequirments(false);
-    }
-  };
-
   const EditeAnswersView = async () => {
     setIsSubmittingExamSettings(true);
     const toastId = toast.loading("changing answers view to manually ...");
@@ -397,6 +314,7 @@ const Page = () => {
     try {
       const payload = {
         ...values,
+        exam_id: null,
         evaluation_id: Number(evaluation_id),
         condition_exams_id: null,
         old_condition_exams_id: null,
@@ -802,7 +720,7 @@ const Page = () => {
                       className="pb-2 hide-scrollbar"
                       onCopy={() => {
                         navigator.clipboard.writeText(
-                          `https://york-web-wheat.vercel.app/exam/${assignmentData?.url}`
+                          `https://york-web-wheat.vercel.app/evaluation/${assignmentData?.url}`
                         );
                         return false;
                       }}
@@ -1070,6 +988,7 @@ const Page = () => {
                       </p>
                     </div>
                   </AccordionTrigger>
+
                   <AccordionContent>
                     {isEdittingExamSettings ? (
                       <Form {...form}>
@@ -1080,62 +999,18 @@ const Page = () => {
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
                             <FormField
                               control={form.control}
-                              name="time_exam"
+                              name="duration_in_minutes"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Evaluation Time :</FormLabel>
+                                  <FormLabel>Duration in Minutes: </FormLabel>
                                   <FormControl>
                                     <Input
                                       type="text"
-                                      placeholder="HH:MM"
+                                      placeholder=""
                                       {...field}
-                                      className="dark:bg-gray-800"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="language"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Evaluation Language : </FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
-                                        <SelectValue placeholder="Select language" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="dark:bg-gray-800">
-                                      <SelectItem value="en">
-                                        English
-                                      </SelectItem>
-                                      <SelectItem value="ar">
-                                        العربية
-                                      </SelectItem>
-                                      <SelectItem value="fn">Fransh</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name="date_view"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel> Date View :</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="date"
-                                      {...field}
+                                      onChange={(value) =>
+                                        field.onChange(Number(value))
+                                      }
                                       className="dark:bg-gray-800"
                                     />
                                   </FormControl>
@@ -1166,55 +1041,37 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
-
                             <FormField
                               control={form.control}
                               name="time_questions_page"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Time For Page :</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="text"
-                                      placeholder="HH:MM"
-                                      {...field}
-                                      className="dark:bg-gray-800"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Results Display */}
-                            <FormField
-                              control={form.control}
-                              name="view_answer"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Answers View :</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    defaultValue="Manual"
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
-                                        <SelectValue placeholder="Select option" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="dark:bg-gray-800">
-                                      <SelectItem value="after_completion">
-                                        After Finish
-                                      </SelectItem>
-                                      <SelectItem value="manually">
-                                        Manual
-                                      </SelectItem>
-                                      <SelectItem value="after_each_answer">
-                                        After Each Answer
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
+                                  <FormLabel>Time per Page :</FormLabel>
+                                  <TimePicker
+                                    format="HH:mm"
+                                    value={
+                                      field.value
+                                        ? dayjs(
+                                            typeof field.value === "string" &&
+                                              field.value.includes(":")
+                                              ? field.value
+                                              : `00:${field.value}`.slice(-5),
+                                            "HH:mm"
+                                          )
+                                        : null
+                                    }
+                                    onChange={(time, timeString) => {
+                                      if (timeString) {
+                                        field.onChange(timeString);
+                                      } else {
+                                        field.onChange(
+                                          assignmentData?.evaluation_config
+                                            ?.time_questions_page || ""
+                                        );
+                                      }
+                                    }}
+                                    className="w-full bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
+                                  />
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -1253,7 +1110,7 @@ const Page = () => {
                                   <Select
                                     onValueChange={field.onChange}
                                     value={field.value}
-                                    defaultValue="Manual"
+                                    defaultValue="manually"
                                   >
                                     <FormControl>
                                       <SelectTrigger className="dark:bg-gray-800">
@@ -1276,7 +1133,7 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
-                            <div className="flex items-center justify-end gap-3 mt-3">
+                            <div className="flex items-center justify-end mt-3 gap-3">
                               <button
                                 className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
                                 onClick={() => setIsEdittingExamSettings(false)}
@@ -1314,38 +1171,10 @@ const Page = () => {
                           </div>
                           <div className="space-y-1">
                             <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Evaluation Time
+                              Duration in Minutes
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.evaluation_config?.time_exam}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Exam Language */}
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <FaLanguage className="text-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Evaluation Language
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.evaluation_config?.language}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <CiCalendarDate className="text-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Evaluation Date
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.evaluation_config?.date_view}
+                              {assignmentData?.duration_in_minutes}
                             </p>
                           </div>
                         </div>
@@ -1363,20 +1192,6 @@ const Page = () => {
                                 assignmentData?.evaluation_config
                                   ?.count_questions_page
                               }
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <RiSlideshowLine className="text-lg " />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Answers View
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.evaluation_config?.view_results}
                             </p>
                           </div>
                         </div>
@@ -1423,7 +1238,7 @@ const Page = () => {
                               Results View
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.evaluation_config?.view_answer}
+                              {assignmentData?.evaluation_config?.view_results}
                             </p>
                           </div>
                         </div>
@@ -1457,14 +1272,7 @@ const Page = () => {
                   <AccordionContent>
                     <div className="mt-2 flex flex-col gap-y-1">
                       {assignmentData?.field_requirements?.map((r) => {
-                        const matchedField = requimrentFields.find(
-                          (field) => field.id === r.field_requirement_id
-                        );
-                        return (
-                          <p key={r.id}>
-                            {matchedField?.name || "Unknown field"}
-                          </p>
-                        );
+                        return <p key={r.id}>{r?.name || "Unknown field"}</p>;
                       })}
                     </div>
                   </AccordionContent>
@@ -1532,7 +1340,7 @@ const InfoItem = ({
   value: string | number;
   icon?: React.ReactNode;
 }) => (
-  <div className="flex items-center gap-3 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors max-sm:gap-2 max-sm:p-2">
+  <div className="flex items-center gap-3 px-3 rounded-lg  transition-colors max-sm:gap-2 max-sm:p-2">
     <div className="flex items-center gap-2">
       {icon && (
         <span className="text-[var(--primary-color1)] max-sm:[&>svg]:w-4 max-sm:[&>svg]:h-4">

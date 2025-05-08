@@ -68,13 +68,14 @@ export const fetchExamFiles = async () => {
 
 
   export const getQuestionsByFormId = async (
-    form_id: number
+    form_id: number,
+    pageNumber?:number
   ) => {
     const payload = {
-      form_id: form_id
+      form_id: form_id,
     }
     try {
-      const response = await axios.post(`/assignment/question-forms/get-questions-by-id`, payload, {
+      const response = await axios.post(`/assignment/question-forms/get-questions-by-id?page=${pageNumber}`, payload, {
         headers: {
          "Content-Type": "application/json",
         },
@@ -154,6 +155,65 @@ export const fetchExamFiles = async () => {
     } catch (error: any) {
       console.error("Error creating evaluation:", error);
       toast.error(error.response?.data?.message || "Failed to create evaluation");
+      throw error;
+    }
+  };
+  export const submitRating = async (data: {
+    assignment_user_id: number;
+    rating: number;
+    comment?: string;
+  }) => {
+    try {
+      const response = await axios.post('/assignment/form-ratings', data);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  export const getQuestions = async (
+    form_id: number
+  ) => {
+    const payload = {
+      form_id: form_id
+    }
+    try {
+      const response = await axios.post(`/assignment/question-forms/get-questions-by-id`, payload, {
+        headers: {
+         "Content-Type": "application/json",
+        },
+      });
+      console.log(response);
+      if (response.status === 200) {
+        return response.data;
+      }
+      
+      throw new Error(response.data?.message ||  "Failed to create evaluation");
+      
+    } catch (error: any) {
+      console.error("Error creating evaluation:", error);
+      toast.error(error.response?.data?.message || "Failed to create evaluation");
+      throw error;
+    }
+  };
+ 
+  // start assignment : 
+  export const startAssignment = async (user_id: number) => {
+    try {
+      const response = await axios.get(`/assignment/assignment-users/start-assignment/${user_id}`, {
+        headers: {
+         "Content-Type": "application/json",
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      }
+      
+      throw new Error(response.data?.message ||  "Failed to start assignment");
+      
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to start assignment");
       throw error;
     }
   };

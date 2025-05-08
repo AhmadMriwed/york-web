@@ -107,8 +107,9 @@ type Form = {
 }
 type FieldRequirment = {
   id: number;
-  form_id: number;
-  field_requirement_id: number;
+  form_id?: number;
+  name:string; 
+  field_requirement_id?: number;
 }
 
 export interface Assignment {
@@ -120,7 +121,7 @@ export interface Assignment {
   forms: Form[];
   title: string;
   sub_title: string;
-  status: "Active" | "Inactive" | "Draft"; // Update with possible statuses
+  status: "Active" | "Inactive" | "Draft"; 
   image: string | null;
   number_of_questions: number;
   number_of_students: number;

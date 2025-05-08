@@ -9,6 +9,7 @@ import {
   fetchAssignmentById,
   getGradeAfterCreate,
   getQuestionsByFormId,
+  getQuestions,
 } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import {
@@ -88,7 +89,7 @@ const QuizQuestionPage = () => {
       };
 
       try {
-        const response = await getQuestionsByFormId(values.form_id);
+        const response = await getQuestions(values.form_id);
         if (response.data) {
           if (pageIndex === 1) {
             setQuestions(response.data);
@@ -470,7 +471,13 @@ const QuizQuestionPage = () => {
                         <span className="text-primary-color1 font-bold">
                           Question {questionNumber}:
                         </span>{" "}
-                        {question?.question} ?
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: question?.question,
+                          }}
+                          className="ml-3 inline-block text-gray-700"
+                        />
+                        ?
                       </h2>
                     </div>
                     {question.hint && (

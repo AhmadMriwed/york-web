@@ -6,7 +6,7 @@ type Props = {};
 
 const Page = (props: Props) => {
   const router = useRouter();
-  const { url } = useParams();
+  const { url, test } = useParams();
 
   useEffect(() => {
     router.push(`/exam/${url}/startPage`);

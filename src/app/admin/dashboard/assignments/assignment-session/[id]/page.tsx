@@ -239,7 +239,7 @@ const Page = () => {
                       <div className="space-y-2">
                         <InfoItem
                           label="Category"
-                          value={assignmentSession?.category.title!}
+                          value={assignmentSession?.category?.title!}
                           icon={<MdCategory className="w-4 h-4" />}
                         />
                         <InfoItem

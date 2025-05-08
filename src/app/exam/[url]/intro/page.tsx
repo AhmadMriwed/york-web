@@ -1,9 +1,13 @@
 "use client";
 
 import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
-import { fetchAssignmentById } from "@/lib/action/user/userr_action";
+import {
+  fetchAssignmentById,
+  startAssignment,
+} from "@/lib/action/user/userr_action";
 import { ExamData } from "@/types/adminTypes/assignments/assignExamTypes";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { Button } from "antd";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
@@ -17,6 +21,7 @@ const Intro = () => {
   const [examData, setExamData] = useState<Assignment>();
   const router = useRouter();
   const { url } = useParams();
+  const [isStarting, setIsStarting] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -36,6 +41,20 @@ const Intro = () => {
 
     fetchExamData();
   }, []);
+
+  const startExam = async () => {
+    setIsStarting(true);
+    try {
+      const response = await startAssignment(Number(user_id));
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsStarting(false);
+    }
+
+    router.push(`/exam/${url}/questions?user_id=${user_id}`);
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -97,14 +116,13 @@ const Intro = () => {
               )}
             </div>
           </div>
-          <button
-            onClick={() => {
-              router.push(`/exam/${url}/questions?user_id=${user_id}`);
-            }}
-            className="px-8 py-3 bg-gradient-to-r from-primary-color2 to-primary-color2 text-white rounded-lg font-medium hover:from-primary-color1 hover:to-primary-color2 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          <Button
+            onClick={startExam}
+            loading={isStarting}
+            className="bg-primary-color1 p-4 text-white"
           >
             Start Quiz Now
-          </button>
+          </Button>
         </div>
       </div>
     </div>

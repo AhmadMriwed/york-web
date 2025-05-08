@@ -3,6 +3,7 @@ import { z } from "zod";
 export  const addEvaluationValidationSchema = z.object({
   title: z.string().min(1, "Title is required"),
   sub_title: z.string().optional(),
+  code: z.string().optional(),
   status: z.string().optional(),
   number_of_questions: z
     .number()

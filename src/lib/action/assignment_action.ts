@@ -646,23 +646,22 @@ export const uploadFileToEndForm = async (
 
 
 // evaluation : 
+
 export const createEvaluation = async (values: {
   title: string;
   sub_title?: string;
   status?: string;
-  number_of_questions?: number;
-  duration_in_minutes?: number;
-  exam_type_id?: number;
+  evaluation_type_id?: number;
   exam_section_id?: number;
 }) => {
   try {
-    const response = await axios.post(`/evaluation/evaluations`, values, {
+    const response = await axios.post(`/assignment/evaluations`, values, {
       headers: {
        "Content-Type": "multipart/form-data",
       },
     });
-    if (response.status === 200) {
-      toast.success('Evaluation created successfully');
+    if (response.status === 201) {
+      toast.success('evaluation created successfully');
       return response.data;
     }
     
@@ -683,7 +682,7 @@ export const updateEvaluation = async (
     status?: string;
     number_of_questions?: number;
     duration_in_minutes?: number;
-    exam_type_id?: number;
+    evaluation_type_id?: number;
     exam_section_id?: number;
     image?: string;
     exam_config?: {
@@ -729,7 +728,7 @@ export const updateEvaluation = async (
     formData.append('status', values.status || "");
     formData.append('number_of_questions', values.number_of_questions?.toString() || "");
     formData.append('duration_in_minutes', values.duration_in_minutes?.toString() || "");
-    formData.append('exam_type_id', values.exam_type_id?.toString() || "");
+    formData.append('evaluation_type_id', values.evaluation_type_id?.toString() || "");
     formData.append('exam_section_id', values.exam_section_id?.toString() || "");
 
     if (values.exam_config) {
@@ -985,4 +984,6 @@ export const fetchResultViewById = async (id:number): Promise<ResultQuestionData
     throw new Error(errorMessage);
   }
 };
+
+
 

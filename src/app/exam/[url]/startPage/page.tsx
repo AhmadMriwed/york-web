@@ -83,7 +83,9 @@ const Page = () => {
   const [examFiles, setExamFiles] = useState<ExamFile[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const router = useRouter();
-  const { url } = useParams();
+  const { url, test } = useParams();
+
+  console.log(test);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -212,7 +214,6 @@ const Page = () => {
     );
   }
 
-  // Format the exam data for display
   const formattedExamInfo = {
     title: examData.title,
     description: examData.sub_title,
@@ -226,7 +227,7 @@ const Page = () => {
         })
       : null,
     totalQuestions: examData.number_of_questions,
-    instructor: "Dr. Instructor Name", // You might need to fetch this separately
+    instructor: "Dr. Instructor Name",
     examType: examData.exam_type.type,
     examDescription: examData.start_forms[0].description,
     endDate: examData.exam_config.end_date

@@ -147,7 +147,12 @@ const Page = () => {
                   name="duration_in_minutes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Duration in Minutes :</FormLabel>
+                      <p className={"w-full gap-2 flex"}>
+                        <FormLabel className="text-gray-700 dark:text-white">
+                          Duration in Minutes :
+                        </FormLabel>
+                        <span className="text-red-400 text-2xl -mt-2 ">*</span>
+                      </p>
                       <FormControl>
                         <Input
                           type="number"
