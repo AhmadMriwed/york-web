@@ -210,8 +210,6 @@ const Page = () => {
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    duration_in_minutes: z.number(),
-
     count_questions_page: z.number().min(1),
     time_questions_page: z
       .string()
@@ -227,8 +225,6 @@ const Page = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
-      duration_in_minutes: 0,
-
       count_questions_page: 1,
       time_questions_page: "00:00",
       view_results: "manually",
@@ -240,11 +236,9 @@ const Page = () => {
     if (assignmentData) {
       const { exam_config } = assignmentData;
       form.reset({
-        duration_in_minutes: assignmentData.duration_in_minutes,
-
         count_questions_page: exam_config?.count_questions_page,
         time_questions_page:
-          exam_config?.time_questions_page.split(":").slice(0, 2).join(":") ||
+          exam_config?.time_questions_page?.split(":").slice(0, 2).join(":") ||
           "00:00",
         view_results: exam_config?.view_results as
           | "after_completion"
@@ -613,24 +607,20 @@ const Page = () => {
                 </div>
 
                 <div className=" sm:col-span-5   space-y-1 sm:space-y-4  ">
-                  {assignmentData?.exam_config?.language && (
-                    <InfoItem
-                      icon={
-                        <Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                      }
-                      label="Language"
-                      value={assignmentData?.exam_config?.language}
-                    />
-                  )}
-                  {assignmentData?.exam_type.type && (
-                    <InfoItem
-                      icon={
-                        <MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                      }
-                      label="Exam Type"
-                      value={assignmentData?.exam_type.type}
-                    />
-                  )}
+                  <InfoItem
+                    icon={
+                      <Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Language"
+                    value={assignmentData?.exam_config?.language || " "}
+                  />
+                  <InfoItem
+                    icon={
+                      <MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Exam Type"
+                    value={assignmentData?.exam_type.type || " "}
+                  />
 
                   <InfoItem
                     icon={
@@ -647,46 +637,34 @@ const Page = () => {
                     value={`${assignmentData?.exam_config?.end_date}`}
                   />
                   <div className="flex items-center gap-3 md:gap-5">
-                    {assignmentData?.number_of_questions !== null && (
-                      <InfoItem
-                        icon={
-                          <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Questions"
-                        value={`${assignmentData?.number_of_questions}.`}
-                      />
-                    )}
+                    <InfoItem
+                      icon={
+                        <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                      }
+                      label="Questions"
+                      value={`${assignmentData?.number_of_questions}.`}
+                    />
                   </div>
 
                   <div className="flex items-center gap-3 md:gap-4">
-                    {assignmentData?.number_of_students !== null && (
-                      <InfoItem
-                        icon={
-                          <Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Students"
-                        value={`${assignmentData?.number_of_students}.`}
-                      />
-                    )}
-                    {assignmentData?.percentage !== null && (
-                      <InfoItem
-                        icon={
-                          <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Passing "
-                        value={`${assignmentData?.percentage}%`}
-                      />
-                    )}
-                  </div>
-                  {assignmentData?.exam_config?.view_answer && (
+                    <InfoItem
+                      icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Students"
+                      value={`${assignmentData?.number_of_students}.`}
+                    />
                     <InfoItem
                       icon={
-                        <EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                       }
-                      label="Answers View "
-                      value={assignmentData?.exam_config?.view_answer}
+                      label="Passing "
+                      value={`${assignmentData?.percentage}%`}
                     />
-                  )}
+                  </div>
+                  <InfoItem
+                    icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                    label="Answers View "
+                    value={assignmentData?.exam_config?.view_answer || " "}
+                  />
                   {assignmentData?.url && (
                     <Snippet
                       symbol=""
@@ -968,7 +946,7 @@ const Page = () => {
                           className="space-y-6"
                         >
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
-                            <FormField
+                            {/* <FormField
                               control={form.control}
                               name="duration_in_minutes"
                               render={({ field }) => (
@@ -988,7 +966,7 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
+                            /> */}
 
                             {/* <FormField
                               control={form.control}
@@ -1191,10 +1169,9 @@ const Page = () => {
                                 Cancel
                               </button>
 
-                              <Button
+                              <button
                                 type="submit"
-                                appearance="primary"
-                                className="py-0 !bg-primary-color1 !px-4"
+                                className="py-0 text-white flex justify-center items-center gap-2 !bg-primary-color1 !px-4 rounded-lg"
                               >
                                 {isSubmittingExamSettings ? (
                                   <>
@@ -1204,59 +1181,17 @@ const Page = () => {
                                     </p>
                                   </>
                                 ) : (
-                                  <p className="tracking-wide py-2 my-0">
+                                  <p className="tracking-wide py-2 text-white  my-0">
                                     Save
                                   </p>
                                 )}
-                              </Button>
+                              </button>
                             </div>
                           </div>
                         </form>
                       </Form>
                     ) : (
                       <div className="grid grid-cols-1 gap-6 pt-4">
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <CiTimer className="text-lg " />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Duration in Minutes
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.duration_in_minutes}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Exam Language */}
-                        {/* <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <FaLanguage className="text-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Exam Language
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.language}
-                            </p>
-                          </div>
-                        </div> */}
-                        {/* 
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <CiCalendarDate className="text-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Date View :{" "}
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.date_view}
-                            </p>
-                          </div>
-                        </div> */}
-
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <FaRegNewspaper className="text-lg" />

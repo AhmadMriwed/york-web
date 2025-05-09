@@ -796,6 +796,16 @@ export const fetchEvaluationById = async (id:number): Promise<Evaluation> => {
     throw new Error(errorMessage);
   }
 };
+export const fetchEvaluationByUrl = async (url:string): Promise<Evaluation> => {
+  try {
+    return await get<Evaluation>(`/evaluations/by-url/${url}`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.details || 
+                       error.message || 
+                       "Failed to fetch evaluation";
+    throw new Error(errorMessage);
+  }
+};
 
 export const changeEvaluationStatus = async (id: number): Promise<void> => {
   try {
@@ -976,7 +986,8 @@ export const fetchResultById = async (id:number): Promise<UserResponse> => {
 };
 export const fetchResultViewById = async (id:number): Promise<ResultQuestionData[]> => {
   try {
-    return await get<ResultQuestionData[]>(`/answers/${id}/correctness`);
+    console.log(await get<ResultQuestionData[]>(`/answers/17/correctness`))
+    return await get<ResultQuestionData[]>(`/answers/17/correctness`);
   } catch (error: any) {
     const errorMessage = error.response?.data?.message || 
     error.message || 

@@ -517,20 +517,20 @@ const UpdateEvaluationPage = () => {
                         control={form.control}
                         name="evaluation_config.language"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="-mt-1">
                             <FormLabel>Exam Language : </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100 -mt-2">
                                   <SelectValue placeholder="Select language" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent className="dark:bg-gray-800">
-                                <SelectItem value="english">English</SelectItem>
-                                <SelectItem value="arabic">Arabic</SelectItem>
+                                <SelectItem value="en">English</SelectItem>
+                                <SelectItem value="ar">Arabic</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

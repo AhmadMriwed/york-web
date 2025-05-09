@@ -42,6 +42,7 @@ type QuestionType =
 
 type QuestionData = {
   questionText: string;
+  question_number: number;
   type: QuestionType;
   options?: string[];
   correctAnswer?: string | string[] | boolean;
@@ -73,6 +74,7 @@ const QuestionCreator: React.FC = () => {
     questionText: "",
     type: "true-false",
     correctAnswerGrade: 1,
+    question_number: 1,
     wrongAnswerGrade: 0,
     hint: "",
     required: true,
@@ -282,6 +284,7 @@ const QuestionCreator: React.FC = () => {
       setQuestionData({
         questionText: "",
         type: "true-false",
+        question_number: 1,
         correctAnswerGrade: 1,
         wrongAnswerGrade: 0,
         hint: "",
@@ -607,7 +610,7 @@ const QuestionCreator: React.FC = () => {
                           errors.correctAnswer
                             ? "border-red-500"
                             : "border-gray-300 dark:border-gray-600"
-                        } rounded-lg bg-gray-50 dark:bg-gray-500 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
+                        } rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
                         placeholder="Enter a correct answer"
                       />
                     </div>

@@ -41,6 +41,7 @@ import {
 } from "@/lib/action/exam_action";
 import { getQuestionsByFormId } from "@/lib/action/user/userr_action";
 import Image from "next/image";
+import { markAllEvaluationQuestions } from "@/lib/action/evaluation_action";
 import { images } from "@/constants/images";
 
 type Field = {
@@ -62,10 +63,11 @@ type QuestionData = {
   question: string;
   fields: Field[];
   question_type_id: number;
+  question_number: number;
   required: number;
   correct_answers: CorrectAnswers[];
   correct_answer_grade: number;
-  wrong_answer_grade: number;
+  wrong_answer_grade: number; // Add this
   hint: string;
   form_id: number;
 };
@@ -96,6 +98,7 @@ const QuestionManager = () => {
   const [questionsData, setQuestionsData] = useState<QuestionData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isChangeGrades, setIsChangGrades] = useState(false);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -118,7 +121,7 @@ const QuestionManager = () => {
     };
 
     fetchQuestions();
-  }, [refreshCount, currentPage, form_id]);
+  }, [refreshCount, currentPage, isChangeGrades, form_id]);
 
   const refreshData = () => {
     setRefreshCount((prev) => prev + 1);
@@ -127,9 +130,12 @@ const QuestionManager = () => {
   const transformedQuestions = questionsData.map((q) => ({
     id: q.id,
     questionText: q.question,
+    question_number: q.question_number,
+
     options: q.fields.map((field, index) => ({
       id: field.id,
       text: field.field,
+      // isCorrect: q.correct_answers.some(ca => ca.id === field.id)
       isCorrect: q.correct_answers.some(
         (ca) => ca.correct_value === field.field
       ),
@@ -160,7 +166,6 @@ const QuestionManager = () => {
   };
 
   const handleMarkForAllChange = () => {
-    // Implement API call to update all marks if needed
     toast.info("This feature requires backend implementation");
   };
 
@@ -168,13 +173,14 @@ const QuestionManager = () => {
     const toastId = toast.loading("updating marks for all questions ..");
 
     try {
-      const response = await markAll(
+      const response = await markAllEvaluationQuestions(
         {
           correct_answer_grade: correctAnswerGrade,
           wrong_answer_grade: wrongAnswerGrade,
         },
         Number(evaluation_id)
       );
+      setIsChangGrades(!isChangeGrades);
       console.log(response);
       toast.success("marks updating successfully", {
         id: toastId,
@@ -261,17 +267,17 @@ const QuestionManager = () => {
             Questions Manager
           </h3>
         </Header>
-        <Button
+        <button
           onClick={() =>
             router.push(
-              `/admin/dashboard/assignments/assignment-session/${id}/assignments/${evaluation_id}/addQuestion?form_id=${form_id}`
+              `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/addQuestion?form_id=${form_id}`
             )
           }
-          className="px-6 max-sm:px-3 py-2 sm:py-[9px]    !bg-primary-color1 active:!bg-primary-color1
+          className="px-6 max-sm:px-3 py-2 rounded-[8px] sm:py-[9px]    !bg-primary-color1 active:!bg-primary-color1
       !text-white"
         >
           <p className="sm:tracking-wide max-sm:text-[15px] ">Add Question</p>
-        </Button>
+        </button>
       </div>
 
       <div className="flex justify-between items-center bg-white mx-1 mb-4 dark:bg-gray-800 py-3 px-3 rounded-sm gap-5">
@@ -560,7 +566,7 @@ const QuestionManager = () => {
                         </label>
 
                         <p className="text-lg text-gray-800 dark:text-gray-200">
-                          Q.{q.id}
+                          Q.{q.question_number}
                         </p>
                         <span className="text-red-500 mt-1">
                           {q.required === 0 ? "" : "require"}

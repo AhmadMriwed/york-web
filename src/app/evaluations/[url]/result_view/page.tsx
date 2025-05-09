@@ -1,7 +1,6 @@
 "use client";
 import { useFetchWithId } from "@/hooks/useFetch";
 import {
-  fetchAssignmentByUrl,
   fetchEvaluationById,
   fetchEvaluationByUrl,
   fetchResultViewById,
@@ -13,6 +12,7 @@ import { ResultQuestionData } from "@/types/adminTypes/assignments/examTypes";
 import { Progress } from "antd";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const QuizResultsViewPage = () => {
   const params = useSearchParams();
@@ -20,17 +20,17 @@ const QuizResultsViewPage = () => {
   const user_id = params.get("user_id");
   const { url } = useParams();
 
-  const exam_id = params.get("exam_id");
+  const evaluation_id = params.get("evaluation_id");
   const [resultData, setResultData] = useState<ResultQuestionData[]>([]);
-  const [exam, setExam] = useState<Assignment | any>();
+  const [evaluation, setEvaluation] = useState<Evaluation | any>();
 
   useEffect(() => {
     const fetchResult = async () => {
       try {
         const response = await getResultView(Number(user_id));
         setResultData(response.data);
-        const data = await fetchAssignmentByUrl(String(url));
-        setExam(data);
+        const data = await fetchEvaluationByUrl(String(url));
+        setEvaluation(data);
       } catch (error) {
         console.log(error);
       }
@@ -53,7 +53,7 @@ const QuizResultsViewPage = () => {
       <div className="max-w-5xl mx-auto bg-white mt-8 rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
         <div className="w-full text-center mt-4">
-          <h1 className="text-3xl text-primary-color1">{exam?.title}</h1>
+          <h1 className="text-3xl text-primary-color1">{evaluation?.title}</h1>
         </div>
 
         {/* Main content */}

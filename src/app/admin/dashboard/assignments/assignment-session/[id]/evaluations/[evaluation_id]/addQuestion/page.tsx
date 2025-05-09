@@ -607,7 +607,7 @@ const QuestionCreator: React.FC = () => {
                           errors.correctAnswer
                             ? "border-red-500"
                             : "border-gray-300 dark:border-gray-600"
-                        } rounded-lg bg-gray-50 dark:bg-gray-500 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
+                        } rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
                         placeholder="Enter a correct answer"
                       />
                     </div>

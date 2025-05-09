@@ -2,12 +2,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const Page = () => {
+type Props = {};
+
+const Page = (props: Props) => {
   const router = useRouter();
-  const { url } = useParams();
+  const { url, type } = useParams();
 
   useEffect(() => {
-    router.push(`/exam/${url}/startPage`);
+    router.push(`/evaluations/${url}/startPage`);
   }, []);
 
   return null;

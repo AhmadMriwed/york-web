@@ -32,14 +32,11 @@ import CustomFormField, {
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
-import {
-  assignUser,
-  fetchStartFormFiles,
-} from "@/lib/action/user/userr_action";
+import { assignUser } from "@/lib/action/user/userr_action";
 
-import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { icons } from "@/constants/icons";
+import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 
 const createValidationSchema = (fieldRequirements: any) => {
   const schema: Record<string, any> = {
@@ -82,7 +79,7 @@ interface ExamFile {
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [examData, setExamData] = useState<Assignment>();
+  const [examData, setExamData] = useState<Evaluation | any>();
   const [examFiles, setExamFiles] = useState<ExamFile[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   const router = useRouter();
@@ -91,44 +88,31 @@ const Page = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        const data = await fetchAssignmentByUrl(String(url));
-
+        const data = await getEvaluationByUrl(String(url));
+        // const files = await fetchExamFiles();
         if (!data) {
           throw new Error("no data");
         }
-        setExamData(data);
+        console.log(data.data);
+        setExamData(data.data);
+        // if (files) {
+        //   console.log(files.data);
+        //   setExamFiles(files?.data || []);
+        // }
       } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
+        console.error("Error fetching evaluation data:", error);
+        toast.error("Failed to load evaluation data");
       } finally {
         setIsFetching(false);
       }
     };
+
     fetchExamData();
   }, []);
 
-  useEffect(() => {
-    const fetchExamData = async () => {
-      try {
-        const files = await fetchStartFormFiles(
-          Number(examData?.start_forms[0].id)
-        );
-        if (files) {
-          console.log(files.data);
-          setExamFiles(files?.data || []);
-        }
-      } catch (error) {
-        console.error("Error fetching exam files:", error);
-        toast.error("Failed to load exam data");
-      } finally {
-      }
-    };
-
-    fetchExamData();
-  }, [examData?.start_forms[0].id]);
-
   console.log(examData);
 
+  // Function to get file icon based on file type
   const getFileIcon = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();
     switch (extension) {
@@ -175,7 +159,7 @@ const Page = () => {
 
     // Prepare payload with only the required fields
     const payload: any = {
-      form_id: examData?.id,
+      form_id: examData?.forms[0].id,
       id_number: values.id_number,
     };
 
@@ -194,7 +178,7 @@ const Page = () => {
 
       form.reset();
       setIsModalOpen(false);
-      router.push(`/exam/${url}/intro?user_id=${response.data.id}`);
+      router.push(`/evaluations/${url}/intro?user_id=${response.data.id}`);
     } catch (error: any) {
       toast.error("Oops! Something went wrong", {
         description: error.message || "Failed to register user",
@@ -235,8 +219,8 @@ const Page = () => {
     description: examData?.sub_title,
     image: examData?.start_forms[0]?.image,
     duration: `${examData?.duration_in_minutes} minutes`,
-    date: examData?.exam_config?.start_date
-      ? new Date(examData?.exam_config?.start_date).toLocaleDateString(
+    date: examData?.evaluation_config?.start_date
+      ? new Date(examData?.evaluation_config?.start_date).toLocaleDateString(
           "en-US",
           {
             year: "numeric",
@@ -247,14 +231,17 @@ const Page = () => {
       : null,
     totalQuestions: examData?.number_of_questions,
     instructor: "Dr. Instructor Name", // You might need to fetch this separately
-    examType: examData?.exam_type.type,
+    examType: examData?.exam_type?.type,
     examDescription: examData?.start_forms[0]?.description,
-    endDate: examData?.exam_config?.end_date
-      ? new Date(examData?.exam_config?.end_date).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+    endDate: examData?.evaluation_config?.end_date
+      ? new Date(examData?.evaluation_config?.end_date).toLocaleDateString(
+          "en-US",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        )
       : null,
   };
 
@@ -496,7 +483,7 @@ const Page = () => {
             />
 
             {/* Dynamically show required fields */}
-            {examData?.field_requirements?.map((field) => {
+            {examData?.field_requirements?.map((field: any) => {
               switch (field.name) {
                 case "first_name":
                   return (

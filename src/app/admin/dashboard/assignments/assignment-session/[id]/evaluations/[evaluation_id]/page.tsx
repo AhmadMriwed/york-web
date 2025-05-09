@@ -85,6 +85,7 @@ import {
   fetchEvaluationById,
   updateEvaluationSettings,
   generateUrl,
+  getEvaluationUsers,
 } from "@/lib/action/evaluation_action";
 
 import Loading from "@/components/Pars/Loading";
@@ -100,7 +101,6 @@ import ImageUploader from "@/components/upload/ImageUploader";
 import { Modal, TimePicker } from "antd";
 import { createEndFormF, createStartFormF } from "@/lib/action/exam_action";
 import { Snippet } from "@heroui/react";
-import { fetchExamUsers } from "@/lib/action/assignment_action";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -204,6 +204,30 @@ const Page = () => {
     isSuccess,
     isViewAnsersChanged,
   ]);
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        if (!id) {
+          throw new Error("Missing session ID in URL");
+        }
+
+        const users = await getEvaluationUsers(Number(evaluation_id));
+        console.log(users.data);
+        setExamUsers(users.data);
+
+        console.log(assignmentData);
+      } catch (err) {
+        setIsThereErrorWhileFetchData(true);
+        setError(
+          err instanceof Error ? err.message : "Failed to fetch session"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, []);
 
   const [isSubmittingExamConditions, setIsSubmittingExamConditions] =
     useState(false);
@@ -223,7 +247,6 @@ const Page = () => {
   ] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    duration_in_minutes: z.number(),
     count_questions_page: z.number().min(1),
     time_questions_page: z
       .string()
@@ -239,8 +262,6 @@ const Page = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
-      duration_in_minutes: 0,
-
       count_questions_page: 1,
       time_questions_page: "00:00",
       view_results: "manually",
@@ -252,8 +273,6 @@ const Page = () => {
     if (assignmentData) {
       const { evaluation_config } = assignmentData;
       form.reset({
-        duration_in_minutes: assignmentData.duration_in_minutes,
-
         count_questions_page: evaluation_config?.count_questions_page,
         time_questions_page:
           evaluation_config?.time_questions_page
@@ -629,90 +648,82 @@ const Page = () => {
                 </div>
 
                 <div className=" sm:col-span-5   space-y-1 sm:space-y-4  ">
-                  {assignmentData?.evaluation_config?.language && (
-                    <InfoItem
-                      icon={
-                        <Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                      }
-                      label="Language"
-                      value={assignmentData?.evaluation_config?.language}
-                    />
-                  )}
-                  {assignmentData?.evaluation_type?.type && (
-                    <InfoItem
-                      icon={
-                        <MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                      }
-                      label="Evaluation Type"
-                      value={assignmentData?.evaluation_type?.type}
-                    />
-                  )}
+                  <InfoItem
+                    icon={
+                      <Languages className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Language"
+                    value={assignmentData?.evaluation_config?.language || " "}
+                  />
+
+                  <InfoItem
+                    icon={
+                      <MdCategory className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Evaluation Type"
+                    value={assignmentData?.evaluation_type?.type || " "}
+                  />
 
                   <InfoItem
                     icon={
                       <Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                     }
                     label="Start Date"
-                    value={`${assignmentData?.evaluation_config?.start_date}`}
+                    value={`${
+                      assignmentData?.evaluation_config?.start_date || " "
+                    }`}
                   />
                   <InfoItem
                     icon={
                       <Calendar className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                     }
                     label="End Date"
-                    value={`${assignmentData?.evaluation_config?.end_date}`}
+                    value={`${
+                      assignmentData?.evaluation_config?.end_date || " "
+                    }`}
                   />
                   <div className="flex items-center gap-3 md:gap-5">
-                    {assignmentData?.duration_in_minutes !== null && (
-                      <InfoItem
-                        icon={
-                          <Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Duration"
-                        value={`${assignmentData?.duration_in_minutes} mins`}
-                      />
-                    )}
+                    <InfoItem
+                      icon={<Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Duration"
+                      value={`${
+                        assignmentData?.duration_in_minutes || " "
+                      } mins`}
+                    />
 
-                    {assignmentData?.number_of_questions !== null && (
-                      <InfoItem
-                        icon={
-                          <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Questions"
-                        value={`${assignmentData?.number_of_questions}.`}
-                      />
-                    )}
+                    <InfoItem
+                      icon={
+                        <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                      }
+                      label="Questions"
+                      value={`${assignmentData?.number_of_questions || " "}.`}
+                    />
                   </div>
 
                   <div className="flex items-center gap-3 md:gap-4">
-                    {assignmentData?.number_of_students !== null && (
-                      <InfoItem
-                        icon={
-                          <Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Students"
-                        value={`${assignmentData?.number_of_students}.`}
-                      />
-                    )}
-                    {assignmentData?.grade_percentage !== null && (
-                      <InfoItem
-                        icon={
-                          <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                        }
-                        label="Passing "
-                        value={`${assignmentData?.grade_percentage}%`}
-                      />
-                    )}
-                  </div>
-                  {assignmentData?.evaluation_config?.view_answer && (
+                    <InfoItem
+                      icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                      label="Students"
+                      value={`${assignmentData?.number_of_students || " "}.`}
+                    />
+
                     <InfoItem
                       icon={
-                        <EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                        <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                       }
-                      label="Answers View "
-                      value={assignmentData?.evaluation_config?.view_answer}
+                      label="Passing "
+                      value={`${assignmentData?.grade_percentage}%`}
                     />
-                  )}
+                  </div>
+
+                  <InfoItem
+                    icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
+                    label="Answers View "
+                    value={
+                      assignmentData?.evaluation_config?.view_answer || " "
+                    }
+                  />
+
                   {assignmentData?.url && (
                     <Snippet
                       symbol=""
@@ -720,7 +731,7 @@ const Page = () => {
                       className="pb-2 hide-scrollbar"
                       onCopy={() => {
                         navigator.clipboard.writeText(
-                          `https://york-web-wheat.vercel.app/evaluation/${assignmentData?.url}`
+                          `https://york-web-wheat.vercel.app/evaluations/${assignmentData?.url}`
                         );
                         return false;
                       }}
@@ -997,7 +1008,7 @@ const Page = () => {
                           className="space-y-6"
                         >
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
-                            <FormField
+                            {/* <FormField
                               control={form.control}
                               name="duration_in_minutes"
                               render={({ field }) => (
@@ -1017,7 +1028,7 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
+                            /> */}
 
                             <FormField
                               control={form.control}
@@ -1141,10 +1152,9 @@ const Page = () => {
                                 Cancel
                               </button>
 
-                              <Button
+                              <button
                                 type="submit"
-                                appearance="primary"
-                                className="py-0 !bg-primary-color1 !px-4"
+                                className="py-0 text-white flex justify-center items-center gap-2 !bg-primary-color1 !px-4 rounded-lg"
                               >
                                 {isSubmittingExamSettings ? (
                                   <>
@@ -1154,18 +1164,18 @@ const Page = () => {
                                     </p>
                                   </>
                                 ) : (
-                                  <p className="tracking-wide py-2 my-0">
+                                  <p className="tracking-wide py-2 text-white  my-0">
                                     Save
                                   </p>
                                 )}
-                              </Button>
+                              </button>
                             </div>
                           </div>
                         </form>
                       </Form>
                     ) : (
                       <div className="grid grid-cols-1 gap-6 pt-4">
-                        <div className="flex items-center space-x-4">
+                        {/* <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <CiTimer className="text-lg " />
                           </div>
@@ -1177,7 +1187,7 @@ const Page = () => {
                               {assignmentData?.duration_in_minutes}
                             </p>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1302,7 +1312,7 @@ const Page = () => {
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Student Results
             </h2>
-            {/* <StudentResultsTable /> */}
+            <StudentResultsTable data={examUsers} />
           </div>
         </>
       )}

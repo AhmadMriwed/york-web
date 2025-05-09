@@ -95,6 +95,7 @@ export interface Assignment {
   number_of_questions: number;
   duration_in_minutes: number;
   exam_type: Type;
+  evaluation_type?: Type;
   exam_section_id: number;
   exam_type_id: number;
   created_at: string;
@@ -148,6 +149,7 @@ export interface FilterAssignmentSessionsParams {
 export interface Evaluation extends Assignment {
   evaluation_type_id:number;
   evaluation_config:ExamConfig; 
+  evaluation_type:Type
 }
 
 

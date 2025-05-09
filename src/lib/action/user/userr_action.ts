@@ -217,3 +217,42 @@ export const fetchExamFiles = async () => {
       throw error;
     }
   };
+
+
+  export const getSolution = async (user_id: number) => {
+    try {
+      const response = await axios.get(`/assignment/answers/${user_id}/full`, {
+        headers: {
+         "Content-Type": "application/json",
+        },
+      });
+      if (response.status === 200) {
+        return response.data;
+      }
+      
+      throw new Error(response.data?.message ||  "Failed to start assignment");
+      
+    } catch (error: any) {
+      console.log('error');
+    }
+  };
+
+  export const fetchStartFormFiles = async (start_form_id: number) => {
+    try {
+      const response = await axios.get(
+        `/assignment/start-form-files/${start_form_id}/files`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };

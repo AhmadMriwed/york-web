@@ -8,6 +8,7 @@ import SessionSidebar from "@/components/sessions/SessionSidebar";
 import { usePathname } from "next/navigation";
 import CourseSidebar from "@/components/courses/CourseSidebar";
 import Sidebar from "@/components/sidebar/Sidebar";
+import { AntDProvider } from "@/components/theme/antdDesignProvider";
 // import ReduxProvider from '@/store/provider'
 
 // interface UserResponse {
@@ -59,18 +60,20 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <ThemeProvider>
-        <section className=" flex flex-col  md:grid  md:grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
-          {sidebar === "default" ? (
-            <Sidebar />
-          ) : sidebar === "sessions" ? (
-            <SessionSidebar />
-          ) : (
-            <CourseSidebar />
-          )}
-          <Topbar setOpenProfile={setOpenProfile} />
-          {children}
-          <Profile open={openProfile} setOpen={setOpenProfile} />
-        </section>
+        <AntDProvider>
+          <section className=" flex flex-col  md:grid  md:grid-cols-[auto_1fr] grid-rows-[auto_1fr] min-h-screen relative">
+            {sidebar === "default" ? (
+              <Sidebar />
+            ) : sidebar === "sessions" ? (
+              <SessionSidebar />
+            ) : (
+              <CourseSidebar />
+            )}
+            <Topbar setOpenProfile={setOpenProfile} />
+            {children}
+            <Profile open={openProfile} setOpen={setOpenProfile} />
+          </section>
+        </AntDProvider>
       </ThemeProvider>
     </div>
   );

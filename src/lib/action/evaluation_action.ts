@@ -63,7 +63,7 @@ export const deleteQuestion = async (id: number) => {
   export const fetchEvaluationById = async (evaluation_id: number) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_ASSIGNMENT_URL}/evaluations/${evaluation_id}`,
+        `/assignment/evaluations/${evaluation_id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -207,6 +207,109 @@ export const deleteQuestion = async (id: number) => {
   
       console.log(response.data);
       return response;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };
+
+
+    export const getEvaluationUsers = async (evaluation_id: number) => {
+    try {
+   
+      const response = await axios.get(
+        `/assignment/evaluations/${evaluation_id}/assignment-users`,
+        {
+          headers: {
+        
+            "Content-Type": "application/json",
+   
+          },
+        }
+      );
+  
+      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };
+  export const getEvaluationByUrl = async (url: string) => {
+    try {
+   
+      const response = await axios.get(
+        `/assignment/evaluations/by-url/${url}`,
+        {
+          headers: {
+        
+            "Content-Type": "application/json",
+   
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };
+
+
+  export const markAllEvaluationQuestions = async (
+  values: any , 
+  evaluation_id: number
+) => {
+  try {
+    const response = await axios.post(
+      `/assignment/evaluations/${evaluation_id}/update-question-grades`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json", 
+        },
+      }
+    );
+    console.log
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || 
+          error.message || 
+          "Failed to update grading settings";
+      console.error("API Error:", errorMessage, error.response?.data);
+      throw new Error(errorMessage);
+    }
+    console.error("Unexpected error:", error);
+    throw new Error("An unexpected error occurred while updating grading settings");
+  }
+};
+
+  export const getResultView  = async (user_id: number) => {
+    try {
+   
+      const response = await axios.get(
+        `/assignment/answers/${user_id}/correctness`,
+        {
+          headers: {
+        
+            "Content-Type": "application/json",
+   
+          },
+        }
+      );
+
+      return response.data;
     } catch (error: any) {
       console.log(error);
       if (axios.isAxiosError(error)) {

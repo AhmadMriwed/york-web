@@ -103,6 +103,7 @@ export interface UserResponse {
       id: number;
       form_id: number;
       question_type_id: number;
+      question_number: number;
       question: string;
       correct_answer_grade: number;
       wrong_answer_grade: number;

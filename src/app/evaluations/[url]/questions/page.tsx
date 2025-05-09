@@ -1,8 +1,7 @@
 "use client";
 
 import { images } from "@/constants/images";
-import { useFetchWithId } from "@/hooks/useFetch";
-import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
+import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
 import {
   createAnswer,
   getUserById,
@@ -77,7 +76,7 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
+      router.push(`/evaluations/${url}/result?user_id=${user_id}`);
     }
   }, []);
 
@@ -157,13 +156,13 @@ const QuizQuestionPage = () => {
     const fetchExamData = async () => {
       try {
         const data = await getUserById(Number(user_id));
-        const assignmentData = await fetchAssignmentByUrl(String(url));
+        const assignmentData = await getEvaluationByUrl(String(url));
         if (!data || !assignmentData) {
           throw new Error("no data");
         }
         setUserData(data?.data!);
-        setExamData(assignmentData!);
-        setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
+        setExamData(assignmentData.data!);
+        setTimeLeft(Number(assignmentData?.data?.duration_in_minutes!) * 60);
       } catch (error) {
         console.error("Error fetching exam data:", error);
         toast.error("Failed to load exam data");
@@ -309,8 +308,7 @@ const QuizQuestionPage = () => {
   const handleSubmit = async () => {
     try {
       await submitAnswersForCurrentPage();
-      await getGradeAfterCreate(Number(user_id));
-
+      const response = await getGradeAfterCreate(Number(user_id));
       localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
       setIsSubmitLoading(true);
       window.history.pushState(null, "", window.location.href);
@@ -318,7 +316,7 @@ const QuizQuestionPage = () => {
         window.history.pushState(null, "", window.location.href);
       });
       toast.success("Quiz submitted successfully!");
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
+      router.push(`/evaluations/${url}/result?user_id=${user_id}`);
     } catch (error) {
       console.error("Error submitting quiz:", error);
       toast.error("Failed to submit quiz");
@@ -486,7 +484,7 @@ const QuizQuestionPage = () => {
                     <div className="flex-1">
                       <h2 className="text-lg font-semibold text-gray-800 mb-4">
                         <span className="text-primary-color1 font-bold">
-                          Question {question.id}:
+                          Question {question.question_number}:
                         </span>{" "}
                         <div
                           dangerouslySetInnerHTML={{

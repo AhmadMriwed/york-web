@@ -1,9 +1,10 @@
 "use client";
 import { icons } from "@/constants/icons";
-import { useFetch, useFetchWithId } from "@/hooks/useFetch";
+import { useFetchWithId } from "@/hooks/useFetch";
 import {
   fetchAssignmentById,
   fetchAssignmentByUrl,
+  fetchEvaluationByUrl,
   fetchResultById,
 } from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
@@ -20,11 +21,12 @@ import { LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { submitRating } from "@/lib/action/user/userr_action";
 import { Snippet } from "@heroui/react";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
-  const [examData, setExamData] = useState<Assignment>();
+  const [examData, setExamData] = useState<Evaluation | any>();
   const [isLoading, setIsLoading] = useState(true);
   const [hasShownRating, setHasShownRating] = useState(() => {
     if (typeof window !== "undefined") {
@@ -37,7 +39,6 @@ const QuizResultsPage = () => {
 
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
-  const [finalGrade, setFinalGrade] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
@@ -45,7 +46,7 @@ const QuizResultsPage = () => {
     const fetchExamData = async () => {
       setIsLoading(true);
       try {
-        const data = await fetchAssignmentByUrl(String(url));
+        const data = await fetchEvaluationByUrl(String(url));
         setExamData(data);
       } catch (error) {
         console.error("Error fetching exam data:", error);
@@ -61,8 +62,6 @@ const QuizResultsPage = () => {
     fetchResultById,
     Number(user_id)
   );
-
-  console.log(result);
 
   useEffect(() => {
     if (result && !isLoading && !hasShownRating) {
@@ -112,6 +111,7 @@ const QuizResultsPage = () => {
 
   const handleSkipRating = () => {
     setIsRatingModalOpen(false);
+    // Persist to localStorage
     localStorage.setItem("hasShownRating", "true");
     setHasShownRating(true);
   };
@@ -352,17 +352,17 @@ const QuizResultsPage = () => {
                 </div>
               </div>
             </div>
-            {examData?.exam_config.view_results !== "manually" && (
+            {examData?.evaluation_config.view_results !== "manually" && (
               <div className="flex justify-center">
                 <button
                   onClick={() => {
                     router.push(
-                      `/exam/${url}/result_view?exam_id=${examData?.id}&user_id=${user_id}`
+                      `/evaluations/${url}/result_view?evaluation_id=${examData?.id}&user_id=${user_id}`
                     );
                   }}
                   className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"
                 >
-                  Show My Answers
+                  Show My Answers s
                   <FiChevronRight className="ml-2" />
                 </button>
               </div>
