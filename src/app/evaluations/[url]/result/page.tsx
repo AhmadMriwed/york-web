@@ -2,13 +2,12 @@
 import { icons } from "@/constants/icons";
 import { useFetchWithId } from "@/hooks/useFetch";
 import {
-  fetchAssignmentById,
-  fetchAssignmentByUrl,
+
   fetchEvaluationByUrl,
   fetchResultById,
   fetchResultByIdNumber,
 } from "@/lib/action/assignment_action";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+
 import { UserResponse } from "@/types/adminTypes/assignments/examTypes";
 import { Progress } from "antd";
 import Image from "next/image";
@@ -51,6 +50,7 @@ const QuizResultsPage = () => {
       try {
         const data = await fetchEvaluationByUrl(String(url));
         setExamData(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching exam data:", error);
       } finally {
@@ -297,7 +297,7 @@ const QuizResultsPage = () => {
                 </div>
               )}
               <div className="space-y-6">
-                {examData?.end_forms[0].url && (
+                {examData?.end_forms[0]?.url && (
                   <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h2 className="font-bold text-gray-800 mb-4">
                       RESOURCE LINK
@@ -311,7 +311,7 @@ const QuizResultsPage = () => {
                         className="pb-2 w-full flex items-center hide-scrollbar"
                       >
                         <p className="inline-block">
-                          {examData?.end_forms[0].url}
+                          {examData?.end_forms[0]?.url}
                         </p>
                       </Snippet>
                     </div>
@@ -362,7 +362,7 @@ const QuizResultsPage = () => {
                 </div>
               </div>
             </div>
-            {examData?.evaluation_config.view_results !== "manually" && (
+            {examData?.evaluation_config?.view_results !== "manually" && (
               <div className="flex justify-center">
                 <button
                   onClick={() => {

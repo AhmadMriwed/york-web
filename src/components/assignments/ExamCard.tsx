@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { MdQuestionAnswer } from "react-icons/md";
 import DeleteModal from "./DeleteModal";
+import copy from "copy-to-clipboard";
 
 type ExamCardProps = {
   examId: number;
@@ -81,6 +82,8 @@ const ExamCard = ({
 
   const { id } = useParams();
 
+  console.log(assignment);
+
   const onToggleStatus = async () => {
     try {
       await changeExamStatus(examId);
@@ -107,8 +110,24 @@ const ExamCard = ({
     router.push(
       `/admin/dashboard/assignments/assignment-session/${id}/assignments/${examId}/updateAssignment`
     );
-  const onCopyLink = () => {
-    console.log("copy");
+  const onCopyLink = async () => {
+    if (!assignment?.url) {
+      toast.error("No URL available to copy");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        `https://york-web-wheat.vercel.app/exam/${assignment?.url}`
+      );
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      toast.error("Failed to copy link");
+      // Fallback to older method if Clipboard API isn't available
+      copy(`https://york-web-wheat.vercel.app/exam/${assignment?.url}`);
+      toast.success("Link copied to clipboard!");
+    }
   };
 
   const onDeleteClick = async () => {

@@ -639,7 +639,7 @@ const QuestionManager = () => {
                                 text: "Edit",
                                 action: () =>
                                   router.push(
-                                    `/admin/dashboard/assignments/assignment-session/${id}/assignments/${evaluation_id}/questions/${q.id}/update?form_id=${q.form_id}`
+                                    `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions/${q.id}/update?form_id=${q.form_id}`
                                   ),
                               },
                               {
@@ -695,11 +695,11 @@ const QuestionManager = () => {
                       </div>
                     </div>
                     <div className="pb-3  px-2 sm:pt-3 pr-4 flex flex-col gap-y-3">
-                      <p>
+                      <div className="prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
                         <p
                           dangerouslySetInnerHTML={{ __html: q.questionText }}
                         />
-                      </p>
+                      </div>
                       <div className="flex flex-col gap-y-2 items-start justify-start">
                         {q.options.map((option) => (
                           <div
@@ -737,14 +737,13 @@ const QuestionManager = () => {
                                 </svg>
                               </div>
                             </label>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              {" "}
+                            <div className="prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
                               <p
                                 dangerouslySetInnerHTML={{
                                   __html: option.text,
                                 }}
                               />
-                            </p>
+                            </div>
                           </div>
                         ))}
                       </div>

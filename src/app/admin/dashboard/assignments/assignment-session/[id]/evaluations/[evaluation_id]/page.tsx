@@ -514,7 +514,7 @@ const Page = () => {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-start gap-2">
                       <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                      <h1 className="text-[17px] sm:text-[22px] font-bold">
+                      <h1 className="text-[17px] line-clamp-1 sm:text-[22px] font-bold">
                         {assignmentData?.title}
                       </h1>
                     </div>

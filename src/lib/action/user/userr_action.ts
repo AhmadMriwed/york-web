@@ -256,3 +256,43 @@ export const fetchExamFiles = async () => {
       throw new Error("Unexpected error");
     }
   };
+
+  
+  export const checkIfUserIsFinish = async (user_id: number) => {
+    try {
+      const response = await axios.get(
+        `/assignment/assignment-users/check-user-finish/${user_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };
+  export const getTimers = async (form_id: number) => {
+    try {
+      const response = await axios.get(
+        `/assignment/forms/${form_id}/remaining-time`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data?.message || "Unknown error");
+      }
+      throw new Error("Unexpected error");
+    }
+  };

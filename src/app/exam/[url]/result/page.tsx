@@ -294,7 +294,7 @@ const QuizResultsPage = () => {
               )}
 
               <div className="space-y-6">
-                {examData?.end_forms[0].url && (
+                {examData?.end_forms[0]?.url && (
                   <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h2 className="font-bold text-gray-800 mb-4">
                       RESOURCE LINK
@@ -308,7 +308,7 @@ const QuizResultsPage = () => {
                         className="pb-2 w-full flex items-center hide-scrollbar"
                       >
                         <p className="inline-block">
-                          {examData?.end_forms[0].url}
+                          {examData?.end_forms[0]?.url}
                         </p>
                       </Snippet>
                     </div>

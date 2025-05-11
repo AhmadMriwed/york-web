@@ -8,6 +8,8 @@ import {
   getQuestionsByFormId,
   getSolution,
   getGradeAfterCreate,
+  checkIfUserIsFinish,
+  getTimers,
 } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import {
@@ -79,12 +81,44 @@ const QuizQuestionPage = () => {
   );
   const [solutionData, setSolutionData] = useState<SolutionData | null>(null);
 
+
+
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
       router.push(`/evaluations/${url}/result?user_id=${user_id}`);
     }
   }, []);
+  useEffect(() => {
+    const checkuserfinish = async () => {
+      try {
+
+        const data = await checkIfUserIsFinish(Number(user_id));
+        console.log(data);
+        if (data.status !== false) {
+          router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+        }
+      } catch (error) {
+        router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+
+
+      }
+    }
+    checkuserfinish();
+  }, []);
+
+  useEffect(() => {
+    const gettimsers = async () => {
+
+      if (examData?.forms[0]?.id) {
+        const data = await getTimers(examData?.forms[0]?.id);
+        console.log(data);
+
+        setTimeLeft(Number(data?.remaining_minutes!) * 60);
+      }
+    }
+    gettimsers();
+  }, [examData?.forms[0]?.id]);
 
   useEffect(() => {
     const now = new Date();
@@ -334,17 +368,17 @@ const QuizQuestionPage = () => {
   const handleSubmit = async () => {
     setPendingAction(() => async () => {
       try {
+        setIsSubmitLoading(true);
         await submitAnswersForCurrentPage();
         await getGradeAfterCreate(Number(user_id));
 
         localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-        setIsSubmitLoading(true);
         window.history.pushState(null, "", window.location.href);
         window.addEventListener("popstate", () => {
           window.history.pushState(null, "", window.location.href);
         });
         toast.success("Quiz submitted successfully!");
-        router.push(`/exam/${url}/result?user_id=${user_id}`);
+        router.push(`/evaluations/${url}/result?user_id=${user_id}`);
       } catch (error) {
         console.error("Error submitting quiz:", error);
         toast.error("Failed to submit quiz");
@@ -494,13 +528,13 @@ const QuizQuestionPage = () => {
         </div>
       </div>
 
-    <div className="flex-1 overflow-y-auto mt-52 md:mt-40 py-6 px-4 sm:px-6">
-           <div className="max-w-4xl mx-auto space-y-6">
-             {isLoading ? (
-               <div className="flex justify-center items-center h-[50vh]">
-                 <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
-               </div>
-             ) : (
+      <div className="flex-1 overflow-y-auto mt-52 md:mt-40 py-6 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {isLoading ? (
+            <div className="flex justify-center items-center h-[50vh]">
+              <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
+            </div>
+          ) : (
             questions.map((question, index) => {
               const currentAnswer = getCurrentPageAnswers()[index];
               const questionNumber = index + 1;
@@ -525,7 +559,7 @@ const QuizQuestionPage = () => {
                           dangerouslySetInnerHTML={{
                             __html: question?.question,
                           }}
-                          className="ml-3 inline-block text-gray-700"
+                          className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] inline-block text-gray-700"
                         />
                         ?
                       </h2>
@@ -565,8 +599,8 @@ const QuizQuestionPage = () => {
                           <label
                             key={optionIndex}
                             className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${currentAnswer === optionIndex.toString()
-                                ? "border-primary-color1 bg-[#0378f6]/10 shadow-xs"
-                                : "border-gray-200"
+                              ? "border-primary-color1 bg-[#0378f6]/10 shadow-xs"
+                              : "border-gray-200"
                               }`}
                           >
                             <input
@@ -580,7 +614,7 @@ const QuizQuestionPage = () => {
                             />
                             <div
                               dangerouslySetInnerHTML={{ __html: option.field }}
-                              className="ml-3 text-gray-700"
+                              className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] text-gray-700"
                             />
                           </label>
                         ))}
@@ -593,9 +627,9 @@ const QuizQuestionPage = () => {
                           <label
                             key={optionIndex}
                             className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${Array.isArray(currentAnswer) &&
-                                currentAnswer.includes(optionIndex.toString())
-                                ? "border-primary-color1 bg-[#0372f8]/10 shadow-xs"
-                                : "border-gray-200 hover:border-indigo-300"
+                              currentAnswer.includes(optionIndex.toString())
+                              ? "border-primary-color1 bg-[#0372f8]/10 shadow-xs"
+                              : "border-gray-200 hover:border-indigo-300"
                               }`}
                           >
                             <input
@@ -622,7 +656,7 @@ const QuizQuestionPage = () => {
                             />
                             <div
                               dangerouslySetInnerHTML={{ __html: option.field }}
-                              className="ml-3 text-gray-700"
+                              className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] text-gray-700"
                             />
                           </label>
                         ))}
@@ -633,8 +667,8 @@ const QuizQuestionPage = () => {
                       <div className="grid grid-cols-2 gap-3">
                         <label
                           className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === true
-                              ? "border-blue-500 bg-blue-50 shadow-xs"
-                              : "border-gray-200 hover:border-blue-300"
+                            ? "border-blue-500 bg-blue-50 shadow-xs"
+                            : "border-gray-200 hover:border-blue-300"
                             }`}
                         >
                           <input
@@ -648,8 +682,8 @@ const QuizQuestionPage = () => {
                         </label>
                         <label
                           className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === false
-                              ? "border-blue-500 bg-blue-50 shadow-xs"
-                              : "border-gray-200 hover:border-blue-300"
+                            ? "border-blue-500 bg-blue-50 shadow-xs"
+                            : "border-gray-200 hover:border-blue-300"
                             }`}
                         >
                           <input
@@ -712,8 +746,8 @@ const QuizQuestionPage = () => {
             onClick={handlePrevious}
             disabled={currentPage === 1}
             className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-xs"
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-xs"
               }`}
           >
             <FiChevronLeft className="mr-2 text-lg" />
@@ -723,8 +757,8 @@ const QuizQuestionPage = () => {
             onClick={currentPage === totalPages ? handleSubmit : handleNext}
             disabled={isSubmitLoading}
             className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${currentPage === totalPages
-                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                : "bg-gradient-to-r from-primary-color1 to-primary-color2"
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+              : "bg-gradient-to-r from-primary-color1 to-primary-color2"
               } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
           >
             {isSubmitLoading ? (
@@ -741,9 +775,9 @@ const QuizQuestionPage = () => {
           </button>
         </div>
       </div>
-   
+
       <ConfirmationDialog
-      className="bg-red-600 hover:bg-red-700"
+        className="bg-red-600 hover:bg-red-700"
         isOpen={showUnansweredConfirm}
         onConfirm={() => {
           setShowUnansweredConfirm(false);
@@ -754,9 +788,9 @@ const QuizQuestionPage = () => {
         message="You haven't answered all questions on this page. If you proceed, unanswered questions will be marked as incorrect. Are you sure you want to continue?"
       />
 
-    
+
       <ConfirmationDialog
-      className="bg-primary-color1 hover:bg-primary-color2"
+        className="bg-primary-color1 hover:bg-primary-color2"
         isOpen={showSubmitConfirm}
         onConfirm={() => {
           setShowSubmitConfirm(false);

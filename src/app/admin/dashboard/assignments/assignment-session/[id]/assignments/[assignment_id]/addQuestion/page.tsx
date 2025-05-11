@@ -60,7 +60,7 @@ type BackendQuestionRequest = {
   show_grade: 0 | 1;
   hint: string;
   correct_answer_grade: number;
-  wrong_answer_grade: number;
+  wrong_answer_grade: number | null;
   required: 0 | 1;
   fields: any[];
   field_types: any[];
@@ -214,7 +214,11 @@ const QuestionCreator: React.FC = () => {
       show_grade: questionData.showGrade ? 1 : 0,
       hint: questionData.hint,
       correct_answer_grade: questionData.correctAnswerGrade,
-      wrong_answer_grade: questionData.wrongAnswerGrade,
+      wrong_answer_grade:
+        questionData.type == "short-answer" ||
+        questionData.type == "long-answer"
+          ? null
+          : questionData.wrongAnswerGrade,
       required: questionData.required ? 1 : 0,
       fields: fields,
       field_types: fieldTypes,
@@ -708,6 +712,7 @@ const QuestionCreator: React.FC = () => {
                         />
                         Points for Correct Answer
                       </label>
+
                       <div className="relative rounded-md shadow-sm">
                         <input
                           type="number"
@@ -723,33 +728,37 @@ const QuestionCreator: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                        <Image
-                          src={"/icons/incorrect.svg"}
-                          height={16}
-                          width={16}
-                          alt="incorrect"
-                        />
-                        Points for Wrong Answer :
-                      </label>
-                      <div className="relative rounded-md">
-                        <input
-                          type="number"
-                          value={questionData.wrongAnswerGrade}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "wrongAnswerGrade",
-                              Number(e.target.value)
-                            )
-                          }
-                          className="block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200"
-                        />
-                        <span className="mt-4 text-gray-500 dark:text-gray-400 text-xs">
-                          Warning! Number of points must be negative or zero.
-                        </span>
-                      </div>
-                    </div>
+                    {questionData.type !== "long-answer" &&
+                      questionData.type !== "short-answer" && (
+                        <div className="space-y-2">
+                          <label className="gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                            <Image
+                              src={"/icons/incorrect.svg"}
+                              height={16}
+                              width={16}
+                              alt="incorrect"
+                            />
+                            Points for Wrong Answer :
+                          </label>
+                          <div className="relative rounded-md">
+                            <input
+                              type="number"
+                              value={questionData.wrongAnswerGrade}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  "wrongAnswerGrade",
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200"
+                            />
+                            <span className="mt-4 text-gray-500 dark:text-gray-400 text-xs">
+                              Warning! Number of points must be negative or
+                              zero.
+                            </span>
+                          </div>
+                        </div>
+                      )}
                   </div>
                 </div>
 

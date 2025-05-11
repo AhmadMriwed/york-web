@@ -30,6 +30,7 @@
     "@reduxjs/toolkit": "^2.6.1",
     "@rsuite/icons": "^1.0.3",
     "@tailwindcss/postcss": "^4.1.4",
+    "@tailwindcss/typography": "github:tailwindcss/typography",
     "@tanstack/react-query": "^5.65.0",
     "@tiptap/extension-image": "^2.11.7",
     "@tiptap/extension-link": "^2.11.7",

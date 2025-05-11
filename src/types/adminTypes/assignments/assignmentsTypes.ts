@@ -90,6 +90,7 @@ export interface Assignment {
   code: string;
   title: string;
   sub_title: string;
+  url?:string; 
   status: string;
   image: string | null;
   number_of_questions: number;

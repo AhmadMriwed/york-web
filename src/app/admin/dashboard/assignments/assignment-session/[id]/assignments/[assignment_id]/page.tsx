@@ -474,20 +474,19 @@ const Page = () => {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-start gap-2">
                       <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                      <h1 className="text-[17px] sm:text-[22px] font-bold">
+                      <h1 className="text-[15px] line-clamp-1 sm:text-[22px] font-bold">
                         {assignmentData?.title}
                       </h1>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          assignmentData?.status === "Active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {assignmentData?.status}
+                      </span>
                     </div>
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        assignmentData?.status === "Active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {assignmentData?.status}
-                    </span>
                   </div>
                   <div className="flex flex-col items-start justify-start pl-2 sm:pl-3 -mt-5 sm:-mt-3 sm:gap-1">
                     {assignmentData?.sub_title && (

@@ -4,7 +4,9 @@ import React, { useContext, useState } from "react";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -59,7 +61,7 @@ type BackendQuestionRequest = {
   show_grade: 0 | 1;
   hint: string;
   correct_answer_grade: number;
-  wrong_answer_grade: number;
+  wrong_answer_grade: number | null;
   required: 0 | 1;
   fields: any[];
   field_types: any[];
@@ -212,7 +214,11 @@ const QuestionCreator: React.FC = () => {
       show_grade: questionData.showGrade ? 1 : 0,
       hint: questionData.hint,
       correct_answer_grade: questionData.correctAnswerGrade,
-      wrong_answer_grade: questionData.wrongAnswerGrade,
+      wrong_answer_grade:
+        questionData.type == "short-answer" ||
+        questionData.type == "long-answer"
+          ? null
+          : questionData.wrongAnswerGrade,
       required: questionData.required ? 1 : 0,
       fields: fields,
       field_types: fieldTypes,
@@ -278,6 +284,10 @@ const QuestionCreator: React.FC = () => {
       const response = await createQuestion(backendData);
       console.log("API Response:", response);
 
+      toast.success("Exam section added successfully", {
+        description: "The exam section has been created successfully.",
+        duration: 4000,
+      });
       toast.success("Question saved successfully!");
       setQuestionData({
         questionText: "",
@@ -340,32 +350,45 @@ const QuestionCreator: React.FC = () => {
 
               {/* Main Form */}
               <div className="lg:col-span-2 space-y-6">
+                {/* Question Text */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Question Text <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <div
-                    className={`relative ${
-                      errors.questionText
-                        ? "border-red-500 rounded-lg border"
-                        : ""
-                    }`}
-                  >
-                    <ReactQuill
-                      theme="snow"
+                  <div className="relative">
+                    <input
+                      type="text"
                       value={questionData.questionText}
-                      onChange={(value) =>
-                        handleInputChange("questionText", value)
+                      onChange={(e) =>
+                        handleInputChange("questionText", e.target.value)
                       }
-                      // placeholder="What would you like to ask?"
-                      modules={modules}
-                      className="dark:text-white"
+                      placeholder="What would you like to ask?"
+                      className={`block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border ${
+                        errors.questionText
+                          ? "border-red-500"
+                          : "border-gray-300 dark:border-gray-600"
+                      } rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
+                      required
                     />
                     {errors.questionText && (
                       <span className="text-red-500 text-xs mt-1">
                         {errors.questionText}
                       </span>
                     )}
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-primary-color1 dark:text-primary-color1-light"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
@@ -489,7 +512,7 @@ const QuestionCreator: React.FC = () => {
                               disabled={
                                 (questionData.options?.length || 0) <= 2
                               }
-                              className="h-10 w-10 flex items-center justify-center text-red-500 dark:text-red-400 sm:self-center hover:bg-red-50 dark:hover:bg-gray-600 rounded"
+                              className="h-10 w-10 flex items-center justify-center text-red-500 dark:text-red-400 sm:self-center hover:bg-red-50 dark:hover:bg-gray-700 rounded"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -720,33 +743,37 @@ const QuestionCreator: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
-                        <Image
-                          src={"/icons/incorrect.svg"}
-                          height={16}
-                          width={16}
-                          alt="incorrect"
-                        />
-                        Points for Wrong Answer :
-                      </label>
-                      <div className="relative rounded-md">
-                        <input
-                          type="number"
-                          value={questionData.wrongAnswerGrade}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "wrongAnswerGrade",
-                              Number(e.target.value)
-                            )
-                          }
-                          className="block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200"
-                        />
-                        <span className="mt-4 text-gray-500 dark:text-gray-400 text-xs">
-                          Warning! Number of points must be negative or zero.
-                        </span>
-                      </div>
-                    </div>
+                    {questionData.type !== "long-answer" &&
+                      questionData.type !== "short-answer" && (
+                        <div className="space-y-2">
+                          <label className="gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                            <Image
+                              src={"/icons/incorrect.svg"}
+                              height={16}
+                              width={16}
+                              alt="incorrect"
+                            />
+                            Points for Wrong Answer :
+                          </label>
+                          <div className="relative rounded-md">
+                            <input
+                              type="number"
+                              value={questionData.wrongAnswerGrade}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  "wrongAnswerGrade",
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200"
+                            />
+                            <span className="mt-4 text-gray-500 dark:text-gray-400 text-xs">
+                              Warning! Number of points must be negative or
+                              zero.
+                            </span>
+                          </div>
+                        </div>
+                      )}
                   </div>
                 </div>
 

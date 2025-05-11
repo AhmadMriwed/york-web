@@ -11,6 +11,7 @@ import {
   FaToggleOff,
   FaCalendarAlt,
   FaHourglassHalf,
+  FaLink,
 } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import { Progress, Empty } from "antd";
@@ -29,6 +30,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import DeleteModal from "./DeleteModal";
 import { More, Edit, Trash, Paragraph } from "@rsuite/icons";
+import copy from "copy-to-clipboard";
 
 type EvaluationCardProps = {
   evaluationId: number;
@@ -151,6 +153,26 @@ const EvaluationCard = ({
       `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluationId}/updateEvaluation`
     );
 
+  const onCopyLink = async () => {
+    if (!evaluation?.url) {
+      toast.error("No URL available to copy");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        `https://york-web-wheat.vercel.app/evaluations/${evaluation?.url}`
+      );
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      toast.error("Failed to copy link");
+      // Fallback to older method if Clipboard API isn't available
+      copy(`https://york-web-wheat.vercel.app/evaluations/${evaluation?.url}`);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   return (
     <div
       className={`p-4 sm:p-5 rounded-xl shadow-sm border ${currentColor.border} ${currentColor.bg} ${className}`}
@@ -215,6 +237,13 @@ const EvaluationCard = ({
                     className="flex items-center gap-2"
                   >
                     Export
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    icon={<FaLink className="text-blue-400" />}
+                    onClick={onCopyLink}
+                    className="flex items-center gap-2"
+                  >
+                    Copy Link
                   </Dropdown.Item>
                   <Dropdown.Item
                     icon={

@@ -9,6 +9,8 @@ import {
   getQuestionsByFormId,
   getSolution,
   getGradeAfterCreate,
+  checkIfUserIsFinish,
+  getTimers,
 } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import {
@@ -84,6 +86,35 @@ const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
       router.push(`/exam/${url}/result?user_id=${user_id}`);
     }
   }, []);
+    useEffect(() => {
+        const checkuserfinish = async () => {
+          try{
+  
+            const data = await checkIfUserIsFinish(Number(user_id));
+            console.log(data);
+            if (data.status !== false) {
+              router.push(`/exam/${url}/result?user_id=${user_id}`);
+            }}catch(error) {
+              router.push(`/exam/${url}/result?user_id=${user_id}`);
+  
+            
+      }
+    }
+    checkuserfinish();
+    }, []);
+  
+      useEffect(() => {
+        const gettimsers = async() => {
+  
+          if (examData?.forms[0]?.id) {
+            const data = await getTimers(examData?.forms[0]?.id);
+      console.log(data);
+  
+  setTimeLeft(Number(data?.remaining_minutes!) * 60);
+          }
+        }
+        gettimsers();
+    }, [examData?.forms[0]?.id]);
 
   useEffect(() => {
     const now = new Date();
@@ -333,11 +364,11 @@ const handleNext = async () => {
 const handleSubmit = async () => {
   setPendingAction(() => async () => {
     try {
+      setIsSubmitLoading(true);
       await submitAnswersForCurrentPage();
       await getGradeAfterCreate(Number(user_id));
 
       localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-      setIsSubmitLoading(true);
       window.history.pushState(null, "", window.location.href);
       window.addEventListener("popstate", () => {
         window.history.pushState(null, "", window.location.href);
@@ -527,7 +558,7 @@ const handleSubmit = async () => {
                           dangerouslySetInnerHTML={{
                             __html: question?.question,
                           }}
-                          className="ml-3 inline-block text-gray-700"
+                          className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] inline-block text-gray-700"
                         />
                         ?
                       </h2>
@@ -583,7 +614,7 @@ const handleSubmit = async () => {
                             />
                             <div
                               dangerouslySetInnerHTML={{ __html: option.field }}
-                              className="ml-3 text-gray-700"
+                              className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] text-gray-700"
                             />
                           </label>
                         ))}
@@ -626,7 +657,7 @@ const handleSubmit = async () => {
                             />
                             <div
                               dangerouslySetInnerHTML={{ __html: option.field }}
-                              className="ml-3 text-gray-700"
+                              className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] text-gray-700"
                             />
                           </label>
                         ))}
