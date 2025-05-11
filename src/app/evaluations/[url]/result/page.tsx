@@ -6,6 +6,7 @@ import {
   fetchAssignmentByUrl,
   fetchEvaluationByUrl,
   fetchResultById,
+  fetchResultByIdNumber,
 } from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { UserResponse } from "@/types/adminTypes/assignments/examTypes";
@@ -26,6 +27,8 @@ import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
+  const id_number = searchparams.get("id_number");
+
   const [examData, setExamData] = useState<Evaluation | any>();
   const [isLoading, setIsLoading] = useState(true);
   const [hasShownRating, setHasShownRating] = useState(() => {
@@ -59,8 +62,8 @@ const QuizResultsPage = () => {
   }, [url]);
 
   const { data: result } = useFetchWithId<UserResponse>(
-    fetchResultById,
-    Number(user_id)
+    id_number ? fetchResultByIdNumber : fetchResultById,
+    Number(id_number || user_id)
   );
 
   useEffect(() => {
@@ -240,52 +243,59 @@ const QuizResultsPage = () => {
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              className={`grid grid-cols-1 ${
+                examData?.evaluation_config.view_results !== "manually"
+                  ? "md:grid-cols-2"
+                  : ""
+              }   gap-6`}
+            >
               {/* Result card - unchanged */}
-              <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                <h2 className="font-bold text-gray-800 mb-4">RESULT</h2>
-                <div className="flex items-center flex-col gap-7">
-                  <div className="mr-6">
-                    <Progress
-                      type="circle"
-                      percent={Number(result?.grade)}
-                      width={150}
-                      strokeWidth={8}
-                      strokeColor={"#037f85"}
-                      trailColor={"#eee"}
-                      format={() => (
-                        <span className="text-xl font-bold text-primary-color1">
-                          {Number(result?.grade)}%
-                        </span>
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-3">
-                      {Number(result?.grade) >= 70
-                        ? "Excellent work! You have done so well "
-                        : Number(result?.grade) >= 50
-                        ? "Good effort! Review the answers to improve your knowledge."
-                        : "Keep practicing! Review the material and try again."}
-                    </p>
-                    <div className="flex space-x-4 justify-center  text-center">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-500">Correct</p>
-                        <p className="text-lg font-bold text-green-600">
-                          {result?.correct_answers_count}
-                        </p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-500">Incorrect</p>
-                        <p className="text-lg font-bold text-red-600">
-                          {result?.wrong_answers_count}
-                        </p>
+              {examData?.evaluation_config.view_results !== "manually" && (
+                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                  <h2 className="font-bold text-gray-800 mb-4">RESULT</h2>
+                  <div className="flex items-center flex-col gap-7">
+                    <div className="mr-6">
+                      <Progress
+                        type="circle"
+                        percent={Number(result?.grade)}
+                        width={150}
+                        strokeWidth={8}
+                        strokeColor={"#037f85"}
+                        trailColor={"#eee"}
+                        format={() => (
+                          <span className="text-xl font-bold text-primary-color1">
+                            {Number(result?.grade)}%
+                          </span>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-gray-600 mb-3">
+                        {Number(result?.grade) >= 70
+                          ? "Excellent work! You have done so well "
+                          : Number(result?.grade) >= 50
+                          ? "Good effort! Review the answers to improve your knowledge."
+                          : "Keep practicing! Review the material and try again."}
+                      </p>
+                      <div className="flex space-x-4 justify-center  text-center">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500">Correct</p>
+                          <p className="text-lg font-bold text-green-600">
+                            {result?.correct_answers_count}
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm text-gray-500">Incorrect</p>
+                          <p className="text-lg font-bold text-red-600">
+                            {result?.wrong_answers_count}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
+              )}
               <div className="space-y-6">
                 {examData?.end_forms[0].url && (
                   <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">

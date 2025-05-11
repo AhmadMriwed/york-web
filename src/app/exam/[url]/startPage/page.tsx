@@ -1,6 +1,6 @@
 "use client";
 import { images } from "@/constants/images";
-import { Modal, Space } from "antd";
+import { Modal, Space, Input } from "antd";
 import Image from "next/image";
 import {
   FaClock,
@@ -36,7 +36,6 @@ import {
   assignUser,
   fetchStartFormFiles,
 } from "@/lib/action/user/userr_action";
-
 import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { icons } from "@/constants/icons";
@@ -66,6 +65,7 @@ const createValidationSchema = (fieldRequirements: any) => {
 
   return z.object(schema);
 };
+
 interface ExamFile {
   id: number;
   exam_id: number;
@@ -88,11 +88,16 @@ const Page = () => {
   const router = useRouter();
   const { url } = useParams();
 
+  // New states for dialogs
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [showIdVerificationDialog, setShowIdVerificationDialog] =
+    useState(false);
+  const [idNumberInput, setIdNumberInput] = useState("");
+
   useEffect(() => {
     const fetchExamData = async () => {
       try {
         const data = await fetchAssignmentByUrl(String(url));
-
         if (!data) {
           throw new Error("no data");
         }
@@ -105,29 +110,27 @@ const Page = () => {
       }
     };
     fetchExamData();
-  }, []);
+  }, [url]);
 
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        const files = await fetchStartFormFiles(
-          Number(examData?.start_forms[0].id)
-        );
-        if (files) {
-          console.log(files.data);
-          setExamFiles(files?.data || []);
+        if (examData?.start_forms[0]?.id) {
+          const files = await fetchStartFormFiles(
+            Number(examData.start_forms[0].id)
+          );
+          if (files) {
+            setExamFiles(files?.data || []);
+          }
         }
       } catch (error) {
         console.error("Error fetching exam files:", error);
-        toast.error("Failed to load exam data");
-      } finally {
+        toast.error("Failed to load exam files");
       }
     };
 
     fetchExamData();
-  }, [examData?.start_forms[0].id]);
-
-  console.log(examData);
+  }, [examData?.start_forms[0]?.id]);
 
   const getFileIcon = (fileName: string) => {
     const extension = fileName.split(".").pop()?.toLowerCase();
@@ -163,29 +166,51 @@ const Page = () => {
     ),
     defaultValues: {
       id_number: "",
-      // Initialize all possible fields (they'll only be validated if required)
       first_name: "",
       last_name: "",
       email: "",
     },
   });
 
-  const onSubmit = async (values: any) => {
-    const toastId = toast.loading("Registering for exam ...");
+  const hasExamEnded = () => {
+    if (!examData?.exam_config?.end_date) return false;
+    const endDate = new Date(examData.exam_config.end_date);
+    return endDate < new Date();
+  };
 
-    // Prepare payload with only the required fields
+  const showModal = () => {
+    if (hasExamEnded()) {
+      setShowResultDialog(true);
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onSubmit = async (values: any) => {
+    const toastId = toast.loading("Registering for exam...");
+
+    if (hasExamEnded()) {
+      toast.dismiss(toastId);
+      setShowResultDialog(true);
+      return;
+    }
+
     const payload: any = {
       form_id: examData?.id,
       id_number: values.id_number,
     };
 
-    // Add only the fields that are required
     examData?.field_requirements?.forEach((field: any) => {
       payload[field.name] = values[field.name];
     });
 
     try {
       const response = await assignUser(payload);
+
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
         duration: 4000,
@@ -196,21 +221,28 @@ const Page = () => {
       setIsModalOpen(false);
       router.push(`/exam/${url}/intro?user_id=${response.data.id}`);
     } catch (error: any) {
-      toast.error("Oops! Something went wrong", {
-        description: error.message || "Failed to register user",
-        duration: 5000,
-        id: toastId,
-      });
+      toast.dismiss(toastId);
+
+      if (error.message.includes("already been taken")) {
+        setIdNumberInput(payload.id_number);
+        setShowIdVerificationDialog(true);
+        setIsModalOpen(false);
+      } else {
+        toast.error("Oops! Something went wrong", {
+          description: error.message || "Failed to register user",
+          duration: 5000,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
+  const handleIdVerification = () => {
+    if (idNumberInput.trim()) {
+      router.push(`/exam/${url}/result?id_number=${idNumberInput}`);
+      setShowIdVerificationDialog(false);
+    }
   };
 
   if (isFetching) {
@@ -246,7 +278,7 @@ const Page = () => {
         )
       : null,
     totalQuestions: examData?.number_of_questions,
-    instructor: "Dr. Instructor Name", // You might need to fetch this separately
+    instructor: "Dr. Instructor Name",
     examType: examData?.exam_type.type,
     examDescription: examData?.start_forms[0]?.description,
     endDate: examData?.exam_config?.end_date
@@ -262,19 +294,17 @@ const Page = () => {
     <>
       <main className="flex max-md:flex-col-reverse md:h-screen md:max-h-screen max-md:min-h-screen w-full items-center rounded-lg overflow-hidden max-md:overflow-auto">
         <section className="max-md:w-full scrollbar-hide container mb-16 w-[50%] h-full bg-white overflow-y-auto">
-          <div className="max-w-[600px]  mx-auto py-12 pt-28 md:pt-[120px] px-6">
+          <div className="max-w-[600px] mx-auto py-12 pt-28 md:pt-[120px] px-6">
             <div className="mb-8">
               <h1 className="text-2xl text-center md:text-3xl font-bold text-[#037f85] mb-3">
                 {formattedExamInfo.title}
               </h1>
 
-              {/* Test Instructions Section */}
               <div className="bg-blue-50 rounded-lg p-6 border border-blue-100 mb-6">
                 <h2 className="text-xl font-semibold text-blue-800 mb-4 flex items-center">
                   <FaInfoCircle className="mr-2 text-blue-600" /> Test
                   Instructions
                 </h2>
-
                 <div className="space-y-3 text-blue-900">
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
@@ -286,7 +316,6 @@ const Page = () => {
                       .
                     </p>
                   </div>
-
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>
@@ -297,7 +326,6 @@ const Page = () => {
                       .
                     </p>
                   </div>
-
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>
@@ -308,12 +336,10 @@ const Page = () => {
                       .
                     </p>
                   </div>
-
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>{formattedExamInfo.examDescription}</p>
                   </div>
-
                   <div className="pt-2 mt-3 border-t border-blue-200">
                     <p className="text-lg font-semibold text-blue-700">
                       Good luck!
@@ -322,12 +348,10 @@ const Page = () => {
                 </div>
               </div>
 
-              {/* Exam Details Section */}
               <div className="bg-[#f8fafc] rounded-lg p-6 border border-gray-200 mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                   <FaBook className="mr-2 text-[#037f85]" /> Exam Details
                 </h2>
-
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center">
@@ -375,7 +399,6 @@ const Page = () => {
                   <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                     <FaBook className="mr-2 text-[#037f85]" /> Exam Materials
                   </h2>
-
                   <div className="space-y-3">
                     {examFiles.map((fileItem) => (
                       <div
@@ -411,7 +434,6 @@ const Page = () => {
 
               <div className="mt-8">
                 <Button
-                  color="yellow"
                   onClick={showModal}
                   className="w-full bg-[#037f85] hover:bg-[#036a70] text-white h-10 rounded-lg text-lg font-medium"
                 >
@@ -437,10 +459,11 @@ const Page = () => {
         </div>
       </main>
 
+      {/* Start Exam Modal */}
       <Modal
         title={
           <div className="flex items-center">
-            <FaPlayCircle className="mr-2 text-primary-color1" />
+            <FaPlayCircle className="mr-2 text-[#037f85]" />
             <span>Start The Exam</span>
           </div>
         }
@@ -451,9 +474,8 @@ const Page = () => {
             <Button
               onClick={handleCancel}
               disabled={isLoading}
-              color="danger"
               variant={"outline"}
-              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white "
+              className="border-gray-500 text-gray-500 hover:bg-gray-100"
             >
               <FaTimes />
               Cancel
@@ -461,15 +483,15 @@ const Page = () => {
             <Button
               type="submit"
               onClick={form.handleSubmit(onSubmit)}
-              className="bg-primary-color1 hover:bg-primary-color2"
+              className="bg-[#037f85] hover:bg-[#036a70]"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className=" animate-spin" /> Starting..
+                  <Loader2 className="animate-spin" /> Starting..
                 </>
               ) : (
                 <>
-                  <FaPlay className=" text-xs size-2 h-1" />
+                  <FaPlay className="text-xs size-2 h-1" />
                   Start Exam
                 </>
               )}
@@ -481,9 +503,8 @@ const Page = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 flex-1 text-white mb-4"
+            className="space-y-6 flex-1 mb-4"
           >
-            {/* Always show id_number */}
             <CustomFormField
               fieldType={FormFieldType.INPUT}
               control={form.control}
@@ -495,7 +516,6 @@ const Page = () => {
               required={true}
             />
 
-            {/* Dynamically show required fields */}
             {examData?.field_requirements?.map((field) => {
               switch (field.name) {
                 case "first_name":
@@ -546,6 +566,89 @@ const Page = () => {
             })}
           </form>
         </Form>
+      </Modal>
+
+      {/* Exam Ended Dialog */}
+      <Modal
+        title={
+          <div className="flex items-center">
+            <FaInfoCircle className="mr-2 text-red-500" />
+            <span>Exam Period Ended</span>
+          </div>
+        }
+        open={showResultDialog}
+        onCancel={() => setShowResultDialog(false)}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setShowResultDialog(false)}
+            variant="outline"
+            className="mr-3"
+          >
+            Close
+          </Button>,
+          <Button
+            key="view"
+            onClick={() => {
+              setShowResultDialog(false);
+              setShowIdVerificationDialog(true);
+            }}
+            className="bg-[#037f85] hover:bg-[#036a70]"
+          >
+            View Results
+          </Button>,
+        ]}
+      >
+        <div className="p-4">
+          <p className="text-gray-700 mb-4">
+            The exam period has ended. Registration is no longer available.
+          </p>
+          <p className="text-gray-700">
+            If you have already taken this exam, you can view your results by
+            verifying your ID number.
+          </p>
+        </div>
+      </Modal>
+
+      {/* ID Verification Dialog */}
+      <Modal
+        title={
+          <div className="flex items-center">
+            <FaUserAlt className="mr-2 text-[#037f85]" />
+            <span>Verify Your ID Number</span>
+          </div>
+        }
+        open={showIdVerificationDialog}
+        onCancel={() => setShowIdVerificationDialog(false)}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setShowIdVerificationDialog(false)}
+            variant="outline"
+            className="mr-3"
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="verify"
+            onClick={handleIdVerification}
+            disabled={!idNumberInput.trim()}
+            className="bg-[#037f85] hover:bg-[#036a70]"
+          >
+            Verify and View Results
+          </Button>,
+        ]}
+      >
+        <div className="p-4">
+          <p className="text-gray-700 mb-4">
+            Please enter your ID number to view your exam results:
+          </p>
+          <Input
+            value={idNumberInput}
+            onChange={(e) => setIdNumberInput(e.target.value)}
+            placeholder="Enter your ID number"
+          />
+        </div>
       </Modal>
     </>
   );

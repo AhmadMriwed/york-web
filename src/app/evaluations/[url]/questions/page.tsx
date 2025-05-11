@@ -48,6 +48,12 @@ const QuizQuestionPage = () => {
   const { url } = useParams();
   const router = useRouter();
 
+
+
+  const [showUnansweredConfirm, setShowUnansweredConfirm] = useState(false);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -294,35 +300,60 @@ const QuizQuestionPage = () => {
   };
 
   const handleNext = async () => {
-    if (currentPage < totalPages) {
+    const currentAnswers = getCurrentPageAnswers();
+    const hasUnanswered = currentAnswers.some(answer =>
+      answer === "" || answer === null || (Array.isArray(answer) && answer.length === 0)
+    );
+
+    if (hasUnanswered) {
+      setPendingAction(() => async () => {
+        setIsSubmitLoading(true);
+        try {
+          await submitAnswersForCurrentPage();
+          setCurrentPage((prev) => prev + 1);
+        } catch (error) {
+          console.error("Error saving answers before navigation:", error);
+        } finally {
+          setIsSubmitLoading(false);
+        }
+      });
+      setShowUnansweredConfirm(true);
+    } else {
       setIsSubmitLoading(true);
       try {
         await submitAnswersForCurrentPage();
         setCurrentPage((prev) => prev + 1);
       } catch (error) {
         console.error("Error saving answers before navigation:", error);
+      } finally {
+        setIsSubmitLoading(false);
       }
     }
   };
 
   const handleSubmit = async () => {
-    try {
-      await submitAnswersForCurrentPage();
-      const response = await getGradeAfterCreate(Number(user_id));
-      localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-      setIsSubmitLoading(true);
-      window.history.pushState(null, "", window.location.href);
-      window.addEventListener("popstate", () => {
-        window.history.pushState(null, "", window.location.href);
-      });
-      toast.success("Quiz submitted successfully!");
-      router.push(`/evaluations/${url}/result?user_id=${user_id}`);
-    } catch (error) {
-      console.error("Error submitting quiz:", error);
-      toast.error("Failed to submit quiz");
-    }
-  };
+    setPendingAction(() => async () => {
+      try {
+        await submitAnswersForCurrentPage();
+        await getGradeAfterCreate(Number(user_id));
 
+        localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
+        setIsSubmitLoading(true);
+        window.history.pushState(null, "", window.location.href);
+        window.addEventListener("popstate", () => {
+          window.history.pushState(null, "", window.location.href);
+        });
+        toast.success("Quiz submitted successfully!");
+        router.push(`/exam/${url}/result?user_id=${user_id}`);
+      } catch (error) {
+        console.error("Error submitting quiz:", error);
+        toast.error("Failed to submit quiz");
+      } finally {
+        setIsSubmitLoading(false);
+      }
+    });
+    setShowSubmitConfirm(true);
+  };
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -463,22 +494,26 @@ const QuizQuestionPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto mt-32 md:mt-20 py-6 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-72">
-              <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
-            </div>
-          ) : (
+    <div className="flex-1 overflow-y-auto mt-52 md:mt-40 py-6 px-4 sm:px-6">
+           <div className="max-w-4xl mx-auto space-y-6">
+             {isLoading ? (
+               <div className="flex justify-center items-center h-[50vh]">
+                 <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
+               </div>
+             ) : (
             questions.map((question, index) => {
               const currentAnswer = getCurrentPageAnswers()[index];
               const questionNumber = index + 1;
               const solution = getQuestionSolution(question.id);
 
               return (
+                // In your question map function, add this className condition
                 <div
                   key={index}
-                  className="bg-white rounded-xl shadow-xs p-6 border border-gray-100 hover:shadow-sm transition-shadow"
+                  className={`bg-white rounded-xl shadow-xs p-6 border ${getCurrentPageAnswers()[index] === "" ||
+                    getCurrentPageAnswers()[index] === null ||
+                    (Array.isArray(getCurrentPageAnswers()[index]) &&
+                      (getCurrentPageAnswers()[index] as string[]).length === 0 ? "border-red-200 bg-red-50" : "border-gray-100")} hover:shadow-sm transition-shadow`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -529,11 +564,10 @@ const QuizQuestionPage = () => {
                         {question.fields.map((option, optionIndex) => (
                           <label
                             key={optionIndex}
-                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                              currentAnswer === optionIndex.toString()
+                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${currentAnswer === optionIndex.toString()
                                 ? "border-primary-color1 bg-[#0378f6]/10 shadow-xs"
                                 : "border-gray-200"
-                            }`}
+                              }`}
                           >
                             <input
                               type="radio"
@@ -558,12 +592,11 @@ const QuizQuestionPage = () => {
                         {question.fields.map((option, optionIndex) => (
                           <label
                             key={optionIndex}
-                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
-                              Array.isArray(currentAnswer) &&
-                              currentAnswer.includes(optionIndex.toString())
+                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${Array.isArray(currentAnswer) &&
+                                currentAnswer.includes(optionIndex.toString())
                                 ? "border-primary-color1 bg-[#0372f8]/10 shadow-xs"
                                 : "border-gray-200 hover:border-indigo-300"
-                            }`}
+                              }`}
                           >
                             <input
                               type="checkbox"
@@ -599,11 +632,10 @@ const QuizQuestionPage = () => {
                     {question.question_type_id === 3 && (
                       <div className="grid grid-cols-2 gap-3">
                         <label
-                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
-                            currentAnswer === true
+                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === true
                               ? "border-blue-500 bg-blue-50 shadow-xs"
                               : "border-gray-200 hover:border-blue-300"
-                          }`}
+                            }`}
                         >
                           <input
                             type="radio"
@@ -615,11 +647,10 @@ const QuizQuestionPage = () => {
                           <span className="font-medium">True</span>
                         </label>
                         <label
-                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
-                            currentAnswer === false
+                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === false
                               ? "border-blue-500 bg-blue-50 shadow-xs"
                               : "border-gray-200 hover:border-blue-300"
-                          }`}
+                            }`}
                         >
                           <input
                             type="radio"
@@ -680,11 +711,10 @@ const QuizQuestionPage = () => {
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${
-              currentPage === 1
+            className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${currentPage === 1
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-xs"
-            }`}
+              }`}
           >
             <FiChevronLeft className="mr-2 text-lg" />
             Previous
@@ -692,11 +722,10 @@ const QuizQuestionPage = () => {
           <button
             onClick={currentPage === totalPages ? handleSubmit : handleNext}
             disabled={isSubmitLoading}
-            className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${
-              currentPage === totalPages
+            className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${currentPage === totalPages
                 ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                 : "bg-gradient-to-r from-primary-color1 to-primary-color2"
-            } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
+              } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
           >
             {isSubmitLoading ? (
               <div className="flex items-center">
@@ -712,8 +741,79 @@ const QuizQuestionPage = () => {
           </button>
         </div>
       </div>
+   
+      <ConfirmationDialog
+      className="bg-red-600 hover:bg-red-700"
+        isOpen={showUnansweredConfirm}
+        onConfirm={() => {
+          setShowUnansweredConfirm(false);
+          pendingAction?.();
+        }}
+        onCancel={() => setShowUnansweredConfirm(false)}
+        title="Unanswered Question"
+        message="You haven't answered all questions on this page. If you proceed, unanswered questions will be marked as incorrect. Are you sure you want to continue?"
+      />
+
+    
+      <ConfirmationDialog
+      className="bg-primary-color1 hover:bg-primary-color2"
+        isOpen={showSubmitConfirm}
+        onConfirm={() => {
+          setShowSubmitConfirm(false);
+          pendingAction?.();
+        }}
+        onCancel={() => setShowSubmitConfirm(false)}
+        title="Confirm Submission"
+        message="Are you sure you want to submit the exam? You won't be able to make changes after submission."
+      />
     </div>
   );
 };
+
+
+const ConfirmationDialog = ({
+  isOpen,
+  onConfirm,
+  onCancel,
+  title,
+  message,
+  className
+}: {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  title: string;
+  message: string;
+  className?: string;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 className="text-lg font-bold text-gray-800 mb-2">{title}</h3>
+        <p className="text-gray-600 mb-6">{message}</p>
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`px-4 py-2 ${className}  text-white rounded-md `}
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+
 
 export default QuizQuestionPage;

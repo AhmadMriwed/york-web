@@ -283,7 +283,10 @@ const UpdateAssignmentPage = () => {
     try {
       const formData = new FormData();
       formData.append("form_id", assignment?.forms[0]?.id.toString()!);
-      formData.append("code", values.code || "");
+      if (values.code !== assignment?.code) {
+        formData.append("code", values.code || "");
+      }
+
       formData.append("title", values.title);
       formData.append("sub_title", values.sub_title || "");
       formData.append("status", values.status || "");
@@ -307,9 +310,15 @@ const UpdateAssignmentPage = () => {
           }
         }
       }
+
       if (values.exam_config) {
         Object.entries(values.exam_config).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
+          const currentValue =
+            assignment?.exam_config?.[
+              key as keyof typeof assignment.exam_config
+            ];
+
+          if (value !== currentValue && value !== undefined && value !== null) {
             if (key === "start_date" || key === "end_date") {
               if (value) {
                 formData.append(
@@ -320,33 +329,8 @@ const UpdateAssignmentPage = () => {
             } else if (key === "time_exam") {
               const timeExam = convertToHHMM((value as string) || "");
               formData.append(`exam_config[${key}]`, timeExam);
-            } else if (key === "time_questions_page") {
-              if (
-                value &&
-                value !== assignment?.exam_config?.time_questions_page
-              ) {
-                formData.append(`exam_config[${key}]`, String(value));
-              } else if (
-                !value &&
-                assignment?.exam_config?.time_questions_page
-              ) {
-                formData.append(
-                  `exam_config[${key}]`,
-                  assignment.exam_config.time_questions_page
-                );
-              }
             } else {
-              if (
-                !assignment?.exam_config ||
-                String(value) !==
-                  String(
-                    assignment.exam_config[
-                      key as keyof typeof assignment.exam_config
-                    ]
-                  )
-              ) {
-                formData.append(`exam_config[${key}]`, String(value));
-              }
+              formData.append(`exam_config[${key}]`, String(value));
             }
           }
         });

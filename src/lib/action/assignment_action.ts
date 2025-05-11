@@ -984,6 +984,18 @@ export const fetchResultById = async (id:number): Promise<UserResponse> => {
     throw new Error(errorMessage);
   }
 };
+export const fetchResultByIdNumber = async (id:number): Promise<UserResponse> => {
+  try {
+    return await get<UserResponse>(`/assignment-users/get-by-id-number/${id}`);
+  } catch (error: any) {
+    const errorMessage = error.response?.data?.message || 
+    error.message || 
+    "Failed to fetch end form";
+    throw new Error(errorMessage);
+  }
+};
+
+
 export const fetchResultViewById = async (id:number): Promise<ResultQuestionData[]> => {
   try {
     console.log(await get<ResultQuestionData[]>(`/answers/17/correctness`))

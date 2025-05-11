@@ -257,7 +257,10 @@ const UpdateEvaluationPage = () => {
       console.log("enter try block");
       const formData = new FormData();
       formData.append("form_id", evaluation?.forms[0].id.toString()!);
-      formData.append("code", values.code || "");
+      if (values.code !== evaluation?.code) {
+        formData.append("code", values.code || "");
+      }
+
       formData.append("title", values.title);
       formData.append("sub_title", values.sub_title || "");
       formData.append("status", values.status || "");
@@ -283,10 +286,14 @@ const UpdateEvaluationPage = () => {
           }
         }
       }
-
       if (values.evaluation_config) {
         Object.entries(values.evaluation_config).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
+          const currentValue =
+            evaluation?.evaluation_config?.[
+              key as keyof typeof evaluation.evaluation_config
+            ];
+
+          if (value !== currentValue && value !== undefined && value !== null) {
             if (key === "start_date" || key === "end_date") {
               if (value) {
                 formData.append(

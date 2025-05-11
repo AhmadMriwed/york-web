@@ -20,6 +20,7 @@ const StudentResultsTable = (data: any) => {
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+
   const statusColor = (status: string) => {
     switch (status) {
       case "Excellent":
@@ -45,35 +46,31 @@ const StudentResultsTable = (data: any) => {
         autoHeight
         className="custom-scrollbar-table"
       >
-        <Column width={55} fixed>
-          <HeaderCell className="pt-2 ">
-            <input
-              type="checkbox"
-              checked={checkAll}
-              onChange={handleCheckAll}
-              className="w-4 h-4 accent-[var(--primary-color1)] sm:w-5 sm:h-5 "
-            />
-          </HeaderCell>
-          <Cell className="dark:text-gray-200 text-gray-700">
-            {(rowData) => (
-              <input
-                type="checkbox"
-                checked={selectedIds.includes(rowData.id)}
-                onChange={() => handleCheck(rowData.id)}
-                className="w-4 h-4 accent-[var(--primary-color1)] sm:w-5 sm:h-5 "
-              />
-            )}
-          </Cell>
-        </Column>
-
         {/* Columns mapping */}
         {[
-          // Reduced widths for mobile
-          { label: "Student Name", dataKey: "first_name", width: 160 },
-          { label: "Student ID", dataKey: "id", width: 110 },
+          {
+            label: "Student Name",
+            dataKey: "full_name",
+            width: 160,
+            customRender: (rowData: any) =>
+              rowData.first_name + " " + rowData.last_name || "N/A",
+          },
+          { label: "Student ID", dataKey: "id_number", width: 110 },
           { label: "Email", dataKey: "email", width: 230 },
-          { label: "Submission Time", dataKey: "submissionTime", width: 190 },
-          { label: "Duration", dataKey: "duration", width: 110 },
+          {
+            label: "Submission Time",
+            dataKey: "submission_time",
+            width: 190,
+            customRender: (rowData: any) =>
+              rowData.answers?.[0]?.submission_time || "N/A",
+          },
+          {
+            label: "Duration",
+            dataKey: "duration",
+            width: 110,
+            customRender: (rowData: any) =>
+              rowData.answers?.[0]?.time_to_stay_until_the_answer || "N/A",
+          },
           { label: "Score", dataKey: "grade", width: 110 },
           {
             label: "Correct Answers",
@@ -93,7 +90,7 @@ const StudentResultsTable = (data: any) => {
             </HeaderCell>
             <Cell className="text-[13px] md:text-[15px] dark:text-gray-200 text-gray-700">
               {(rowData) => {
-                if (column.dataKey === "score")
+                if (column.dataKey === "grade")
                   return `${rowData[column.dataKey]}%`;
                 if (column.dataKey === "status")
                   return (
@@ -105,23 +102,24 @@ const StudentResultsTable = (data: any) => {
                       {rowData.status}
                     </span>
                   );
+                if (column.customRender) {
+                  return column.customRender(rowData);
+                }
                 return rowData[column.dataKey] || "N/A";
               }}
             </Cell>
           </Column>
         ))}
-      </Table>{" "}
+      </Table>
       <style>
         {`
-
-.rs-table-scrollbar-handle {
-          background-color: var(--primary-color1)
-}
+          .rs-table-scrollbar-handle {
+            background-color: var(--primary-color1)
+          }
           .rs-table-scrollbar-pressed .rs-table-scrollbar-handle {
-          background-color: var(--primary-color1)
-}
-
-          `}
+            background-color: var(--primary-color1)
+          }
+        `}
       </style>
     </div>
   );
