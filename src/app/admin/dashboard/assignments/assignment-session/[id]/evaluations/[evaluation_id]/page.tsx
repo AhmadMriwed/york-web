@@ -514,7 +514,7 @@ const Page = () => {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-start gap-2">
                       <MdTitle className="w-6 h-6 text-primary-color1 max-sm:w-4 max-sm:h-4" />
-                      <h1 className="text-[17px] line-clamp-1 sm:text-[22px] font-bold">
+                      <h1 className="text-[17px]  line-clamp-1 sm:text-[22px] font-bold">
                         {assignmentData?.title}
                       </h1>
                     </div>
@@ -538,7 +538,8 @@ const Page = () => {
                         </h4>
                       </div>
                     )}
-                    {assignmentData?.code && (
+                    
+                                        {assignmentData?.code && (
                       <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
                         <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                         <p className="text-[12px] sm:text-sm text-gray-500">

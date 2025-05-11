@@ -2,7 +2,6 @@
 import { icons } from "@/constants/icons";
 import { useFetchWithId } from "@/hooks/useFetch";
 import {
-
   fetchEvaluationByUrl,
   fetchResultById,
   fetchResultByIdNumber,
@@ -63,7 +62,8 @@ const QuizResultsPage = () => {
 
   const { data: result } = useFetchWithId<UserResponse>(
     id_number ? fetchResultByIdNumber : fetchResultById,
-    Number(id_number || user_id)
+    //@ts-ignore
+    id_number || Number(user_id)
   );
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const QuizResultsPage = () => {
       ? Math.round((timeSpentSeconds / examDurationSeconds) * 100)
       : 0;
 
-  console.log(examData);
+  console.log(result);
 
   if (isLoading) {
     return (

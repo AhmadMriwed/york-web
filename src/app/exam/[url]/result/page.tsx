@@ -44,7 +44,8 @@ const QuizResultsPage = () => {
 
   const { data: result } = useFetchWithId<UserResponse>(
     id_number ? fetchResultByIdNumber : fetchResultById,
-    Number(id_number || user_id)
+    //@ts-ignore
+    id_number || Number(user_id)
   );
 
   console.log(result);

@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import { getServerLanguage } from "@/app/(root)/[locale]/api/getServerLanguage";
-import { Assignment, AssignmentSession, Category, Condition, EndFormType, Evaluation, FilterAssignmentSessionsParams, Organization, Requirement, SectionType, StartFormType, Type } from "@/types/adminTypes/assignments/assignmentsTypes";
+import {  AssignmentSession, Category, Condition, EndFormType, Evaluation, FilterAssignmentSessionsParams, Organization, Requirement, SectionType, StartFormType, Type } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+
 import { toast } from "sonner";
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
 import { ResultQuestionData, UserResponse } from "@/types/adminTypes/assignments/examTypes";
@@ -984,7 +986,7 @@ export const fetchResultById = async (id:number): Promise<UserResponse> => {
     throw new Error(errorMessage);
   }
 };
-export const fetchResultByIdNumber = async (id:number): Promise<UserResponse> => {
+export const fetchResultByIdNumber = async (id:any): Promise<UserResponse> => {
   try {
     return await get<UserResponse>(`/assignment-users/get-by-id-number/${id}`);
   } catch (error: any) {
