@@ -50,8 +50,6 @@ const QuizQuestionPage = () => {
   const { url } = useParams();
   const router = useRouter();
 
-
-
   const [showUnansweredConfirm, setShowUnansweredConfirm] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -81,8 +79,6 @@ const QuizQuestionPage = () => {
   );
   const [solutionData, setSolutionData] = useState<SolutionData | null>(null);
 
-
-
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
@@ -92,7 +88,6 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const checkuserfinish = async () => {
       try {
-
         const data = await checkIfUserIsFinish(Number(user_id));
         console.log(data);
         if (data.status !== false) {
@@ -100,23 +95,20 @@ const QuizQuestionPage = () => {
         }
       } catch (error) {
         router.push(`/evaluations/${url}/result?user_id=${user_id}`);
-
-
       }
-    }
+    };
     checkuserfinish();
   }, []);
 
   useEffect(() => {
     const gettimsers = async () => {
-
       if (examData?.forms[0]?.id) {
-        const data = await getTimers(examData?.forms[0]?.id);
+        const data = await getTimers(Number(user_id));
         console.log(data);
 
         setTimeLeft(Number(data?.remaining_minutes!) * 60);
       }
-    }
+    };
     gettimsers();
   }, [examData?.forms[0]?.id]);
 
@@ -335,8 +327,11 @@ const QuizQuestionPage = () => {
 
   const handleNext = async () => {
     const currentAnswers = getCurrentPageAnswers();
-    const hasUnanswered = currentAnswers.some(answer =>
-      answer === "" || answer === null || (Array.isArray(answer) && answer.length === 0)
+    const hasUnanswered = currentAnswers.some(
+      (answer) =>
+        answer === "" ||
+        answer === null ||
+        (Array.isArray(answer) && answer.length === 0)
     );
 
     if (hasUnanswered) {
@@ -544,10 +539,14 @@ const QuizQuestionPage = () => {
                 // In your question map function, add this className condition
                 <div
                   key={index}
-                  className={`bg-white rounded-xl shadow-xs p-6 border ${getCurrentPageAnswers()[index] === "" ||
+                  className={`bg-white rounded-xl shadow-xs p-6 border ${
+                    getCurrentPageAnswers()[index] === "" ||
                     getCurrentPageAnswers()[index] === null ||
                     (Array.isArray(getCurrentPageAnswers()[index]) &&
-                      (getCurrentPageAnswers()[index] as string[]).length === 0 ? "border-red-200 bg-red-50" : "border-gray-100")} hover:shadow-sm transition-shadow`}
+                    (getCurrentPageAnswers()[index] as string[]).length === 0
+                      ? "border-red-200 bg-red-50"
+                      : "border-gray-100")
+                  } hover:shadow-sm transition-shadow`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -598,10 +597,11 @@ const QuizQuestionPage = () => {
                         {question.fields.map((option, optionIndex) => (
                           <label
                             key={optionIndex}
-                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${currentAnswer === optionIndex.toString()
-                              ? "border-primary-color1 bg-[#0378f6]/10 shadow-xs"
-                              : "border-gray-200"
-                              }`}
+                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                              currentAnswer === optionIndex.toString()
+                                ? "border-primary-color1 bg-[#0378f6]/10 shadow-xs"
+                                : "border-gray-200"
+                            }`}
                           >
                             <input
                               type="radio"
@@ -626,11 +626,12 @@ const QuizQuestionPage = () => {
                         {question.fields.map((option, optionIndex) => (
                           <label
                             key={optionIndex}
-                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${Array.isArray(currentAnswer) &&
+                            className={`flex items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                              Array.isArray(currentAnswer) &&
                               currentAnswer.includes(optionIndex.toString())
-                              ? "border-primary-color1 bg-[#0372f8]/10 shadow-xs"
-                              : "border-gray-200 hover:border-indigo-300"
-                              }`}
+                                ? "border-primary-color1 bg-[#0372f8]/10 shadow-xs"
+                                : "border-gray-200 hover:border-indigo-300"
+                            }`}
                           >
                             <input
                               type="checkbox"
@@ -666,10 +667,11 @@ const QuizQuestionPage = () => {
                     {question.question_type_id === 3 && (
                       <div className="grid grid-cols-2 gap-3">
                         <label
-                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === true
-                            ? "border-blue-500 bg-blue-50 shadow-xs"
-                            : "border-gray-200 hover:border-blue-300"
-                            }`}
+                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
+                            currentAnswer === true
+                              ? "border-blue-500 bg-blue-50 shadow-xs"
+                              : "border-gray-200 hover:border-blue-300"
+                          }`}
                         >
                           <input
                             type="radio"
@@ -681,10 +683,11 @@ const QuizQuestionPage = () => {
                           <span className="font-medium">True</span>
                         </label>
                         <label
-                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${currentAnswer === false
-                            ? "border-blue-500 bg-blue-50 shadow-xs"
-                            : "border-gray-200 hover:border-blue-300"
-                            }`}
+                          className={`p-3 rounded-lg border cursor-pointer text-center transition-all ${
+                            currentAnswer === false
+                              ? "border-blue-500 bg-blue-50 shadow-xs"
+                              : "border-gray-200 hover:border-blue-300"
+                          }`}
                         >
                           <input
                             type="radio"
@@ -745,10 +748,11 @@ const QuizQuestionPage = () => {
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${currentPage === 1
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-xs"
-              }`}
+            className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${
+              currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-xs"
+            }`}
           >
             <FiChevronLeft className="mr-2 text-lg" />
             Previous
@@ -756,10 +760,11 @@ const QuizQuestionPage = () => {
           <button
             onClick={currentPage === totalPages ? handleSubmit : handleNext}
             disabled={isSubmitLoading}
-            className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${currentPage === totalPages
-              ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-              : "bg-gradient-to-r from-primary-color1 to-primary-color2"
-              } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
+            className={`flex items-center px-4 py-2 rounded-lg font-medium text-white transition-all shadow-md ${
+              currentPage === totalPages
+                ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                : "bg-gradient-to-r from-primary-color1 to-primary-color2"
+            } ${isSubmitLoading ? "opacity-80 cursor-not-allowed" : ""}`}
           >
             {isSubmitLoading ? (
               <div className="flex items-center">
@@ -788,7 +793,6 @@ const QuizQuestionPage = () => {
         message="You haven't answered all questions on this page. If you proceed, unanswered questions will be marked as incorrect. Are you sure you want to continue?"
       />
 
-
       <ConfirmationDialog
         className="bg-primary-color1 hover:bg-primary-color2"
         isOpen={showSubmitConfirm}
@@ -804,14 +808,13 @@ const QuizQuestionPage = () => {
   );
 };
 
-
 const ConfirmationDialog = ({
   isOpen,
   onConfirm,
   onCancel,
   title,
   message,
-  className
+  className,
 }: {
   isOpen: boolean;
   onConfirm: () => void;
@@ -845,9 +848,5 @@ const ConfirmationDialog = ({
     </div>
   );
 };
-
-
-
-
 
 export default QuizQuestionPage;

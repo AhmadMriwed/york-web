@@ -277,10 +277,10 @@ export const fetchExamFiles = async () => {
       throw new Error("Unexpected error");
     }
   };
-  export const getTimers = async (form_id: number) => {
+  export const getTimers = async (user_id: number) => {
     try {
       const response = await axios.get(
-        `/assignment/forms/${form_id}/remaining-time`,
+        `/assignment/forms/${user_id}/remaining-time`,
         {
           headers: {
             "Content-Type": "application/json",

@@ -52,8 +52,8 @@ const QuizQuestionPage = () => {
   const router = useRouter();
 
   const [showUnansweredConfirm, setShowUnansweredConfirm] = useState(false);
-const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
-const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -86,35 +86,32 @@ const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
       router.push(`/exam/${url}/result?user_id=${user_id}`);
     }
   }, []);
-    useEffect(() => {
-        const checkuserfinish = async () => {
-          try{
-  
-            const data = await checkIfUserIsFinish(Number(user_id));
-            console.log(data);
-            if (data.status !== false) {
-              router.push(`/exam/${url}/result?user_id=${user_id}`);
-            }}catch(error) {
-              router.push(`/exam/${url}/result?user_id=${user_id}`);
-  
-            
-      }
-    }
-    checkuserfinish();
-    }, []);
-  
-      useEffect(() => {
-        const gettimsers = async() => {
-  
-          if (examData?.forms[0]?.id) {
-            const data = await getTimers(examData?.forms[0]?.id);
-      console.log(data);
-  
-  setTimeLeft(Number(data?.remaining_minutes!) * 60);
-          }
+  useEffect(() => {
+    const checkuserfinish = async () => {
+      try {
+        const data = await checkIfUserIsFinish(Number(user_id));
+        console.log(data);
+        if (data.status !== false) {
+          router.push(`/exam/${url}/result?user_id=${user_id}`);
         }
-        gettimsers();
-    }, [examData?.forms[0]?.id]);
+      } catch (error) {
+        router.push(`/exam/${url}/result?user_id=${user_id}`);
+      }
+    };
+    checkuserfinish();
+  }, []);
+
+  useEffect(() => {
+    const gettimsers = async () => {
+      if (examData?.forms[0]?.id) {
+        const data = await getTimers(Number(user_id));
+        console.log(data);
+
+        setTimeLeft(Number(data?.remaining_minutes!) * 60);
+      }
+    };
+    gettimsers();
+  }, [examData?.forms[0]?.id]);
 
   useEffect(() => {
     const now = new Date();
@@ -329,14 +326,29 @@ const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
     }
   };
 
-const handleNext = async () => {
-  const currentAnswers = getCurrentPageAnswers();
-  const hasUnanswered = currentAnswers.some(answer => 
-    answer === "" || answer === null || (Array.isArray(answer) && answer.length === 0)
-  );
+  const handleNext = async () => {
+    const currentAnswers = getCurrentPageAnswers();
+    const hasUnanswered = currentAnswers.some(
+      (answer) =>
+        answer === "" ||
+        answer === null ||
+        (Array.isArray(answer) && answer.length === 0)
+    );
 
-  if (hasUnanswered) {
-    setPendingAction(() => async () => {
+    if (hasUnanswered) {
+      setPendingAction(() => async () => {
+        setIsSubmitLoading(true);
+        try {
+          await submitAnswersForCurrentPage();
+          setCurrentPage((prev) => prev + 1);
+        } catch (error) {
+          console.error("Error saving answers before navigation:", error);
+        } finally {
+          setIsSubmitLoading(false);
+        }
+      });
+      setShowUnansweredConfirm(true);
+    } else {
       setIsSubmitLoading(true);
       try {
         await submitAnswersForCurrentPage();
@@ -346,44 +358,32 @@ const handleNext = async () => {
       } finally {
         setIsSubmitLoading(false);
       }
-    });
-    setShowUnansweredConfirm(true);
-  } else {
-    setIsSubmitLoading(true);
-    try {
-      await submitAnswersForCurrentPage();
-      setCurrentPage((prev) => prev + 1);
-    } catch (error) {
-      console.error("Error saving answers before navigation:", error);
-    } finally {
-      setIsSubmitLoading(false);
     }
-  }
-};
+  };
 
-const handleSubmit = async () => {
-  setPendingAction(() => async () => {
-    try {
-      setIsSubmitLoading(true);
-      await submitAnswersForCurrentPage();
-      await getGradeAfterCreate(Number(user_id));
+  const handleSubmit = async () => {
+    setPendingAction(() => async () => {
+      try {
+        setIsSubmitLoading(true);
+        await submitAnswersForCurrentPage();
+        await getGradeAfterCreate(Number(user_id));
 
-      localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-      window.history.pushState(null, "", window.location.href);
-      window.addEventListener("popstate", () => {
+        localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
         window.history.pushState(null, "", window.location.href);
-      });
-      toast.success("Quiz submitted successfully!");
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
-    } catch (error) {
-      console.error("Error submitting quiz:", error);
-      toast.error("Failed to submit quiz");
-    } finally {
-      setIsSubmitLoading(false);
-    }
-  });
-  setShowSubmitConfirm(true);
-};
+        window.addEventListener("popstate", () => {
+          window.history.pushState(null, "", window.location.href);
+        });
+        toast.success("Quiz submitted successfully!");
+        router.push(`/exam/${url}/result?user_id=${user_id}`);
+      } catch (error) {
+        console.error("Error submitting quiz:", error);
+        toast.error("Failed to submit quiz");
+      } finally {
+        setIsSubmitLoading(false);
+      }
+    });
+    setShowSubmitConfirm(true);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -538,15 +538,16 @@ const handleSubmit = async () => {
               const solution = getQuestionSolution(question.id);
 
               return (
-            
                 <div
                   key={index}
                   className={`bg-white rounded-xl shadow-xs p-6 border ${
-                    getCurrentPageAnswers()[index] === "" || 
-                    getCurrentPageAnswers()[index] === null || 
-                    (Array.isArray(getCurrentPageAnswers()[index]) && 
+                    getCurrentPageAnswers()[index] === "" ||
+                    getCurrentPageAnswers()[index] === null ||
+                    (Array.isArray(getCurrentPageAnswers()[index]) &&
                     (getCurrentPageAnswers()[index] as string[]).length === 0
-                      ? "border-red-200 bg-red-50": "border-gray-100")} hover:shadow-sm transition-shadow`}
+                      ? "border-red-200 bg-red-50"
+                      : "border-gray-100")
+                  } hover:shadow-sm transition-shadow`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -780,9 +781,9 @@ const handleSubmit = async () => {
           </button>
         </div>
       </div>
-     {/* Unanswered Questions Confirmation */}
+      {/* Unanswered Questions Confirmation */}
       <ConfirmationDialog
-      className="bg-red-600 hover:bg-red-700"
+        className="bg-red-600 hover:bg-red-700"
         isOpen={showUnansweredConfirm}
         onConfirm={() => {
           setShowUnansweredConfirm(false);
@@ -795,7 +796,7 @@ const handleSubmit = async () => {
 
       {/* Submit Quiz Confirmation */}
       <ConfirmationDialog
-      className="bg-primary-color1 hover:bg-primary-color2"
+        className="bg-primary-color1 hover:bg-primary-color2"
         isOpen={showSubmitConfirm}
         onConfirm={() => {
           setShowSubmitConfirm(false);
@@ -809,15 +810,13 @@ const handleSubmit = async () => {
   );
 };
 
-
-
 const ConfirmationDialog = ({
   isOpen,
   onConfirm,
   onCancel,
   title,
   message,
-  className
+  className,
 }: {
   isOpen: boolean;
   onConfirm: () => void;
@@ -851,7 +850,5 @@ const ConfirmationDialog = ({
     </div>
   );
 };
-
-
 
 export default QuizQuestionPage;
