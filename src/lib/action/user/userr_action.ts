@@ -280,7 +280,7 @@ export const fetchExamFiles = async () => {
   export const getTimers = async (user_id: number) => {
     try {
       const response = await axios.get(
-        `/assignment/forms/${user_id}/remaining-time`,
+        `/assignment/assignment-users/${user_id}/remaining-time`,
         {
           headers: {
             "Content-Type": "application/json",

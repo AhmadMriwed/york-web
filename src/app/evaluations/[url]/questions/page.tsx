@@ -102,15 +102,11 @@ const QuizQuestionPage = () => {
 
   useEffect(() => {
     const gettimsers = async () => {
-      if (examData?.forms[0]?.id) {
-        const data = await getTimers(Number(user_id));
-        console.log(data);
-
-        setTimeLeft(Number(data?.remaining_minutes!) * 60);
-      }
+      const data = await getTimers(Number(user_id));
+      setTimeLeft(Number(data?.remaining_minutes!) * 60);
     };
     gettimsers();
-  }, [examData?.forms[0]?.id]);
+  }, []);
 
   useEffect(() => {
     const now = new Date();

@@ -17,6 +17,7 @@ import {
   QuestionData,
   UserData,
 } from "@/types/adminTypes/assignments/examTypes";
+import { data } from "jquery";
 import { BookmarkIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -103,15 +104,12 @@ const QuizQuestionPage = () => {
 
   useEffect(() => {
     const gettimsers = async () => {
-      if (examData?.forms[0]?.id) {
-        const data = await getTimers(Number(user_id));
-        console.log(data);
-
-        setTimeLeft(Number(data?.remaining_minutes!) * 60);
-      }
+      const data = await getTimers(Number(user_id));
+      setTimeLeft(Number(data?.remaining_minutes!) * 60);
+      console.log(data);
     };
     gettimsers();
-  }, [examData?.forms[0]?.id]);
+  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -195,7 +193,7 @@ const QuizQuestionPage = () => {
         }
         setUserData(data?.data!);
         setExamData(assignmentData!);
-        setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
+        // setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
       } catch (error) {
         console.error("Error fetching exam data:", error);
         toast.error("Failed to load exam data");
