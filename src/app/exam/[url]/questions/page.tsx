@@ -551,7 +551,7 @@ const QuizQuestionPage = () => {
                     <div className="flex-1">
                       <h2 className="text-lg font-semibold text-gray-800 mb-4">
                         <span className="text-primary-color1 font-bold">
-                          Question {question.id}:
+                          Question {question.question_number}:
                         </span>{" "}
                         <div
                           dangerouslySetInnerHTML={{
