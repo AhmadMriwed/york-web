@@ -125,7 +125,6 @@ const Page = () => {
         }
       } catch (error) {
         console.error("Error fetching exam files:", error);
-        toast.error("Failed to load exam files");
       }
     };
 
