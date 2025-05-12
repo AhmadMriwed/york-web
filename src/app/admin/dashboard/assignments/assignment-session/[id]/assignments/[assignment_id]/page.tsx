@@ -945,75 +945,6 @@ const Page = () => {
                           className="space-y-6"
                         >
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
-                            {/* <FormField
-                              control={form.control}
-                              name="duration_in_minutes"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Duration in Minutes: </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="text"
-                                      placeholder=""
-                                      {...field}
-                                      onChange={(value) =>
-                                        field.onChange(Number(value))
-                                      }
-                                      className="dark:bg-gray-800"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            /> */}
-
-                            {/* <FormField
-                              control={form.control}
-                              name="language"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Exam Language : </FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
-                                        <SelectValue placeholder="Select language" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="dark:bg-gray-800">
-                                      <SelectItem value="en">
-                                        English
-                                      </SelectItem>
-                                      <SelectItem value="ar">
-                                        العربية
-                                      </SelectItem>
-                                      <SelectItem value="fn">Fransh</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            /> */}
-                            {/* <FormField
-                              control={form.control}
-                              name="date_view"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel> Date View :</FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="date"
-                                      {...field}
-                                      className="dark:bg-gray-800"
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            /> */}
-
                             <FormField
                               control={form.control}
                               name="count_questions_page"
@@ -1319,7 +1250,7 @@ const Page = () => {
                   <button
                     onClick={() => {
                       router.push(
-                        `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions?form_id=${assignmentData?.forms[0]?.id}`
+                        `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/questions?form_id=${assignmentData?.forms[0]?.id}&configId=${assignmentData?.exam_config?.id}&questionsType=${assignmentData?.exam_config?.question_type_for_all}`
                       );
                     }}
                     className="h-14 p-1"

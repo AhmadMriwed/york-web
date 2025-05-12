@@ -68,7 +68,8 @@ export interface ExamConfig {
   language: "en" | "fn"| 'ar' | string; // Update with possible language codes
   created_at: string;
   updated_at: string;
-  condition_exams: ConditionExam[]
+  condition_exams: ConditionExam[];
+  question_type_for_all:any; 
 }
 
 interface StartForm {
@@ -164,6 +165,7 @@ export interface EvaluationConfig {
   created_at: string;
   updated_at: string;
   condition_exams: ConditionExam[]
+  question_type_for_all?:any; 
 }
 
 export interface Evaluation {
@@ -188,6 +190,7 @@ export interface Evaluation {
   updated_at: string;
   evaluation_config: EvaluationConfig;
   field_requirements: FieldRequirment[];
+
 }
 
 export interface ExamData {

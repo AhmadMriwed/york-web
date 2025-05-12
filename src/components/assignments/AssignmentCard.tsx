@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { Calendar, More, Edit, Trash, Paragraph } from "@rsuite/icons";
+import { Calendar, More, Edit, Trash, Paragraph, Copy } from "@rsuite/icons";
 import { PiToggleRightFill, PiToggleLeft } from "react-icons/pi";
 import Image from "next/image";
 import { Dropdown, IconButton, Progress } from "rsuite";
@@ -12,8 +12,10 @@ import { icons } from "@/constants/icons";
 import {
   changeStatus,
   deleteAssignmentSession,
+  duplicateAssignmentSession,
 } from "@/lib/action/assignment_action";
 import { toast } from "sonner";
+import DuplicateModal from "./assignmentSessionA/DuplicateModal";
 
 interface AssignmentCardProps {
   assignmentSession: AssignmentSession;
@@ -32,8 +34,10 @@ const AssignmentCard = ({
   const router = useRouter();
   const [showDeleteAssignmentSession, setShowDeleteAssignmentSession] =
     useState<boolean>(false);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isDuplicating, setIsDuplicating] = useState<boolean>(false);
 
   const deleteAssignment = async () => {
     setIsDeleting(true);
@@ -46,6 +50,20 @@ const AssignmentCard = ({
       setIsDeleting(false);
     }
     setShowDeleteAssignmentSession(false);
+    router.replace("/admin/dashboard/assignments/assignment-session");
+  };
+
+  const handleDuplicate = async () => {
+    setIsDuplicating(true);
+    try {
+      await duplicateAssignmentSession(Number(assignmentSession.id));
+      refetch();
+    } catch (error) {
+      toast.error("Failed to duplicateAssignmentSession assignment");
+    } finally {
+      setIsDeleting(false);
+    }
+    setIsDuplicateModalOpen(false);
     router.replace("/admin/dashboard/assignments/assignment-session");
   };
 
@@ -111,9 +129,8 @@ const AssignmentCard = ({
 
               {assignmentSession?.code}
             </p>
-            <p className="text text-gray-500 flex items-center gap-2 ">
+            <p className="text text-gray-500  flex items-center gap-2 ">
               <Image src={icons.trainer} height={18} width={18} alt="trainer" />
-
               {assignmentSession?.trainer}
             </p>
           </div>
@@ -125,20 +142,17 @@ const AssignmentCard = ({
               Edit
             </Dropdown.Item>
             <Dropdown.Item
+              icon={<Copy />}
+              onClick={() => setIsDuplicateModalOpen(true)}
+            >
+              Duplicate
+            </Dropdown.Item>
+            <Dropdown.Item
               icon={<Trash />}
               onClick={() => setShowDeleteAssignmentSession(true)}
             >
               Delete
             </Dropdown.Item>
-            <DeleteModal
-              title="Are you sure you want to delete this assignment Session?"
-              note="This action cannot be undone. All data related to this assignment session will
-                      be  removed."
-              open={showDeleteAssignmentSession}
-              onCancel={() => setShowDeleteAssignmentSession(false)}
-              onConfirm={deleteAssignment}
-              isDeleting={isDeleting}
-            />
             <Dropdown.Item
               icon={
                 assignmentSession?.status === "Active" ? (
@@ -147,6 +161,7 @@ const AssignmentCard = ({
                   <PiToggleLeft />
                 )
               }
+              onClick={changeSessionStatus}
             >
               {assignmentSession?.status === "Active"
                 ? "Deactivate"
@@ -154,6 +169,23 @@ const AssignmentCard = ({
             </Dropdown.Item>
           </Dropdown>
         </div>
+        <DeleteModal
+          title="Are you sure you want to delete this assignment Session?"
+          note="This action cannot be undone. All data related to this assignment session will
+                      be  removed."
+          open={showDeleteAssignmentSession}
+          onCancel={() => setShowDeleteAssignmentSession(false)}
+          onConfirm={deleteAssignment}
+          isDeleting={isDeleting}
+        />
+        <DuplicateModal
+          open={isDuplicateModalOpen}
+          onCancel={() => setIsDuplicateModalOpen(false)}
+          onConfirm={handleDuplicate}
+          isDuplicating={isDuplicating}
+          title="Duplicate this item?"
+          note="All settings and configurations will be copied."
+        />
 
         <div className="flex items-center justify-between">
           <div className="space-y-2">
@@ -225,13 +257,18 @@ const AssignmentCard = ({
                     Edit
                   </Dropdown.Item>
                   <Dropdown.Item
+                    icon={<Copy />}
+                    onClick={() => setIsDuplicateModalOpen(true)}
+                  >
+                    Duplicate
+                  </Dropdown.Item>
+                  <Dropdown.Item
                     icon={<Trash />}
                     onClick={() => setShowDeleteAssignmentSession(true)}
                   >
                     Delete
                   </Dropdown.Item>
                   <Dropdown.Item
-                    className="flex items-center gap-2"
                     icon={
                       assignmentSession?.status === "Active" ? (
                         <PiToggleRightFill />
@@ -243,7 +280,7 @@ const AssignmentCard = ({
                   >
                     {assignmentSession?.status === "Active"
                       ? "Deactivate"
-                      : "Aactivate"}
+                      : "Activate"}
                   </Dropdown.Item>
                 </Dropdown>
               </div>

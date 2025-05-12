@@ -1,4 +1,5 @@
 "use client";
+import MyEditor from "@/components/editor/QuillEditor";
 import Image from "next/image";
 import React, { useContext, useState } from "react";
 import {
@@ -17,9 +18,9 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { createQuestion } from "@/lib/action/exam_action";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-
 import "react-quill/dist/quill.snow.css";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const modules = {
@@ -41,6 +42,31 @@ type QuestionType =
   | "true-false"
   | "short-answer"
   | "long-answer";
+
+const typeNumberToTypeMap: Record<number, QuestionType> = {
+  1: "single-select",
+  2: "multi-select",
+  3: "true-false",
+  4: "short-answer",
+  5: "long-answer",
+};
+
+const typeToNumberMap: Record<QuestionType, number> = {
+  "single-select": 1,
+  "multi-select": 2,
+  "true-false": 3,
+  "short-answer": 4,
+  "long-answer": 5,
+};
+
+const typeDisplayMap = [
+  "oindex",
+  "Single choice",
+  "Multi choice",
+  "True/False",
+  "Short answer",
+  "Long answer",
+];
 
 type QuestionData = {
   questionText: string;
@@ -71,9 +97,12 @@ type BackendQuestionRequest = {
 const QuestionCreator: React.FC = () => {
   const searchParams = useSearchParams();
   const form_id = searchParams.get("form_id");
+  const questionsTypeForAll = searchParams.get("questionsType");
   const [questionData, setQuestionData] = useState<QuestionData>({
     questionText: "",
-    type: "true-false",
+    type: questionsTypeForAll
+      ? typeNumberToTypeMap[Number(questionsTypeForAll)]
+      : "true-false",
     correctAnswerGrade: 1,
     wrongAnswerGrade: 0,
     hint: "",
@@ -183,13 +212,11 @@ const QuestionCreator: React.FC = () => {
       fieldTypes = Array(fields.length).fill("text");
 
       if (questionData.type === "single-select") {
-        // Get the text of the selected option
         const correctIndex = parseInt(
           (questionData.correctAnswer as string) || "0"
         );
         correctValues = [fields[correctIndex]];
       } else {
-        // Get texts of all selected options
         const indices = ((questionData.correctAnswer as string[]) || []).map(
           Number
         );
@@ -198,10 +225,9 @@ const QuestionCreator: React.FC = () => {
     } else if (questionData.type === "true-false") {
       fields = ["True", "False"];
       fieldTypes = ["boolean", "boolean"];
-      // Convert boolean to text representation
+
       correctValues = [questionData.correctAnswer ? "True" : "False"];
     } else {
-      // For text answers, use the answer text directly
       fields = [questionData.correctAnswer || ""];
       fieldTypes = ["text"];
       correctValues = [questionData.correctAnswer || ""];
@@ -284,14 +310,12 @@ const QuestionCreator: React.FC = () => {
       const response = await createQuestion(backendData);
       console.log("API Response:", response);
 
-      toast.success("Exam section added successfully", {
-        description: "The exam section has been created successfully.",
-        duration: 4000,
-      });
       toast.success("Question saved successfully!");
       setQuestionData({
         questionText: "",
-        type: "true-false",
+        type: questionsTypeForAll
+          ? typeNumberToTypeMap[Number(questionsTypeForAll)]
+          : "true-false",
         correctAnswerGrade: 1,
         wrongAnswerGrade: 0,
         hint: "",
@@ -401,6 +425,8 @@ const QuestionCreator: React.FC = () => {
                   <Select
                     value={questionData.type}
                     onValueChange={(newType) => {
+                      if (questionsTypeForAll !== "null") return;
+
                       setQuestionData({
                         ...questionData,
                         type: newType as QuestionType,
@@ -411,7 +437,6 @@ const QuestionCreator: React.FC = () => {
                           : undefined,
                         correctAnswer: undefined,
                       });
-                      // Clear related errors when type changes
                       setErrors((prev) => {
                         const newErrors = { ...prev };
                         delete newErrors.options;
@@ -419,20 +444,47 @@ const QuestionCreator: React.FC = () => {
                         return newErrors;
                       });
                     }}
+                    disabled={questionsTypeForAll !== "null"}
                   >
                     <SelectTrigger className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white dark:bg-gray-700">
-                      <SelectItem value="single-select">
-                        Single Select
-                      </SelectItem>
-                      <SelectItem value="multi-select">Multi Select</SelectItem>
-                      <SelectItem value="true-false">True/False</SelectItem>
-                      <SelectItem value="short-answer">Short Answer</SelectItem>
-                      <SelectItem value="long-answer">Long Answer</SelectItem>
+                      {questionsTypeForAll == "null" ? (
+                        <>
+                          <SelectItem value="single-select">
+                            Single Select
+                          </SelectItem>
+                          <SelectItem value="multi-select">
+                            Multi Select
+                          </SelectItem>
+                          <SelectItem value="true-false">True/False</SelectItem>
+                          <SelectItem value="short-answer">
+                            Short Answer
+                          </SelectItem>
+                          <SelectItem value="long-answer">
+                            Long Answer
+                          </SelectItem>
+                        </>
+                      ) : (
+                        <SelectItem
+                          value={
+                            typeNumberToTypeMap[Number(questionsTypeForAll)]
+                          }
+                        >
+                          {typeDisplayMap[Number(questionsTypeForAll)]}
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
+
+                  {questionsTypeForAll && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Question type is set to{" "}
+                      {typeDisplayMap[Number(questionsTypeForAll)]} for all
+                      questions in this form.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-6">

@@ -538,8 +538,8 @@ const Page = () => {
                         </h4>
                       </div>
                     )}
-                    
-                                        {assignmentData?.code && (
+
+                    {assignmentData?.code && (
                       <div className="flex items-center justify-center gap-2 -mt-1 sm:mt-0">
                         <Hash className="w-4 h-4 text-primary-color1 max-sm:w-4 max-sm:h-4" />
                         <p className="text-[12px] sm:text-sm text-gray-500">
@@ -1292,7 +1292,7 @@ const Page = () => {
                   <button
                     onClick={() => {
                       router.push(
-                        `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions?form_id=${assignmentData?.forms[0]?.id}`
+                        `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions?form_id=${assignmentData?.forms[0]?.id}&configId=${assignmentData?.evaluation_config?.id}&questionsType=${assignmentData?.evaluation_config?.question_type_for_all}`
                       );
                     }}
                     className="h-14 p-1"

@@ -123,6 +123,8 @@ const StudentResultsTable = (data: any) => {
       </style>
     </div>
   );
+
+  
 };
 
 export default StudentResultsTable;

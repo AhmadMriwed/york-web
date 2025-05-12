@@ -25,7 +25,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { IoArrowBackSharp, IoSearch, IoClose } from "react-icons/io5";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { Button, Header } from "rsuite";
@@ -37,12 +37,13 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
   deletedQuestions,
   deleteQuestion,
-  markAll,
+  updateExamSettings,
 } from "@/lib/action/exam_action";
 import { getQuestionsByFormId } from "@/lib/action/user/userr_action";
 import Image from "next/image";
-import { markAllEvaluationQuestions } from "@/lib/action/evaluation_action";
 import { images } from "@/constants/images";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { markAllEvaluationQuestions } from "@/lib/action/evaluation_action";
 
 type Field = {
   id: number;
@@ -60,20 +61,20 @@ type CorrectAnswers = {
 
 type QuestionData = {
   id: number;
+  question_number: number;
   question: string;
   fields: Field[];
   question_type_id: number;
-  question_number: number;
   required: number;
   correct_answers: CorrectAnswers[];
   correct_answer_grade: number;
-  wrong_answer_grade: number; // Add this
+  wrong_answer_grade: number;
   hint: string;
   form_id: number;
 };
 
 const typeDisplayMap = [
-  "oindex",
+  "All",
   "Single choice",
   "Multi choice",
   "True/False",
@@ -83,9 +84,12 @@ const typeDisplayMap = [
 const QuestionManager = () => {
   const searchParams = useSearchParams();
   const form_id = searchParams.get("form_id");
+  const examConfigId = searchParams.get("configId");
+  const questionsTypeFromUrl = searchParams.get("questionsType");
   const router = useRouter();
   const { id, evaluation_id } = useParams();
   const [searchQuery, setSearchQuery] = useState("");
+  const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
   const [correctAnswerGrade, setCorrectAnswerGrade] = useState(0);
   const [wrongAnswerGrade, setWrongAnswerGrade] = useState(0);
   const [selectedQuestions, setSelectedQuestions] = useState<number[]>([]);
@@ -99,6 +103,7 @@ const QuestionManager = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isChangeGrades, setIsChangGrades] = useState(false);
+  const [questionnsTypeAll, setQuesitonnsTypeAll] = useState<any>();
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -131,11 +136,9 @@ const QuestionManager = () => {
     id: q.id,
     questionText: q.question,
     question_number: q.question_number,
-
     options: q.fields.map((field, index) => ({
       id: field.id,
       text: field.field,
-      // isCorrect: q.correct_answers.some(ca => ca.id === field.id)
       isCorrect: q.correct_answers.some(
         (ca) => ca.correct_value === field.field
       ),
@@ -253,6 +256,48 @@ const QuestionManager = () => {
     }
   };
 
+  const editeQuestionsTypeForAll = async (type: number) => {
+    const toastId = toast.loading(
+      "changing questions type for all questions ..."
+    );
+    const quesstionstype = type == 0 ? null : type;
+
+    // if(type == 0 && questionsTypeAll == 'null' ) return ;
+    // if (type == Number(questionsTypeAll)) return; // Skip if same type
+    try {
+      const payload = {
+        evaluation_id: Number(evaluation_id),
+        condition_exams_id: null,
+        old_condition_exams_id: null,
+        question_type_for_all: quesstionstype,
+      };
+      console.log(payload);
+      console.log(examConfigId);
+      const response = await updateExamSettings(payload, Number(examConfigId));
+      console.log("API Response:", response);
+      const params = new URLSearchParams(window.location.search);
+      params.set("questionsType", quesstionstype?.toString() || "null");
+
+      router.replace(`?${params.toString()}`, { scroll: false });
+
+      toast.success(" Changed successfully", {
+        description:
+          "The questions type for all questions has been updated successfully.",
+        duration: 4000,
+        id: toastId,
+      });
+      setQuesitonnsTypeAll(quesstionstype);
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+        id: toastId,
+      });
+    } finally {
+    }
+  };
+
   return (
     <div
       className={`bg-gray-100 overflow-x-hidden dark:bg-gray-900  my-3 mx-1 sm:mx-2 rounded-lg  px-1 sm:px-4 py-2  min-h-screen `}
@@ -270,10 +315,10 @@ const QuestionManager = () => {
         <button
           onClick={() =>
             router.push(
-              `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/addQuestion?form_id=${form_id}`
+              `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/addQuestion?form_id=${form_id}&questionsType=${questionsTypeFromUrl}`
             )
           }
-          className="px-6 max-sm:px-3 py-2 rounded-[8px] sm:py-[9px]    !bg-primary-color1 active:!bg-primary-color1
+          className="px-6 max-sm:px-3 py-2 sm:py-[9px]  rounded-[8px]   !bg-primary-color1 active:!bg-primary-color1
       !text-white"
         >
           <p className="sm:tracking-wide max-sm:text-[15px] ">Add Question</p>
@@ -358,6 +403,29 @@ const QuestionManager = () => {
             selectedQuestions.length > 0 ? "max-xxs:hidden xxs:flex" : "flex"
           } items-center gap-4 max-sm:gap-2`}
         >
+          <div className="max-sm:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex items-center gap-2 !bg-gray-100 dark:!bg-gray-700 hover:!bg-gray-200 dark:hover:!bg-gray-600">
+                  <span>
+                    Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 0]}
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
+                {typeDisplayMap.map((type, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={() => editeQuestionsTypeForAll(index)}
+                    className="hover:!bg-gray-100 dark:hover:!bg-gray-700"
+                  >
+                    {type}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div
             className={`${
               isSearchExpanded ? "hidden sm:flex" : "flex"
@@ -510,6 +578,29 @@ const QuestionManager = () => {
           )}
         </div>
       </div>
+      <div className="sm:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="flex items-center gap-2 !bg-gray-100 dark:!bg-gray-700 hover:!bg-gray-200 dark:hover:!bg-gray-600">
+              <span>
+                Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 1]}
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="dark:bg-gray-800 dark:border-gray-700">
+            {typeDisplayMap.map((type, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => editeQuestionsTypeForAll(index)}
+                className="hover:!bg-gray-100 dark:hover:!bg-gray-700"
+              >
+                {type}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       {isLoading ? (
         <div className="flex justify-center my-16">
           <Loading />
@@ -532,7 +623,7 @@ const QuestionManager = () => {
             </div>
           ) : (
             <div>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-3 py-3 px-1 rounded-sm">
+              <div className="grid grid-cols-1  gap-x-3 py-3 px-1 rounded-sm">
                 {filteredQuestions.map((q) => (
                   <div
                     key={q.id}
@@ -639,7 +730,7 @@ const QuestionManager = () => {
                                 text: "Edit",
                                 action: () =>
                                   router.push(
-                                    `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions/${q.id}/update?form_id=${q.form_id}`
+                                    `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/questions/${q.id}/update?form_id=${q.form_id}&questionsType=${questionsTypeFromUrl}`
                                   ),
                               },
                               {
@@ -737,7 +828,7 @@ const QuestionManager = () => {
                                 </svg>
                               </div>
                             </label>
-                            <div className="prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
+                            <div className="text-gray-700 dark:text-gray-300 prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
                               <p
                                 dangerouslySetInnerHTML={{
                                   __html: option.text,
@@ -801,6 +892,35 @@ const QuestionManager = () => {
             </div>
           )}
         </>
+      )}
+      <style>
+        {`
+          .rs-btn {
+  transition: all 0.2s ease;
+}
+
+.rs-btn:hover {
+  transform: translateY(-1px);
+}
+
+.dropdown-menu-content {
+  z-index: 1000;
+  min-width: 220px;
+}
+          `}
+      </style>
+
+      {mode === "dark" && (
+        <style>
+          {`
+          
+          
+          .rs-btn {
+  color: white !important;
+}
+
+          `}
+        </style>
       )}
     </div>
   );

@@ -152,6 +152,19 @@ export const deleteAssignmentSession = async (id: number): Promise<void> => {
               console.error("Error:", error);
            }
     }
+export const duplicateAssignmentSession = async (id: number): Promise<void> => {
+            try {
+              const res = await axios.get(`/assignment/exam-sections/duplicate/${id}`, getAuthHeaders()); 
+              
+              console.log(res);
+              if (res.status === 200) {
+              toast.success('Assignment Session duplicated Successfully')
+
+            }
+           } catch (error: any) {
+              console.error("Error:", error);
+           }
+    }
 
 
 export const changeStatus = async (id: number): Promise<void> => {

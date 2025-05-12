@@ -1,10 +1,13 @@
 "use client";
+import MyEditor from "@/components/editor/QuillEditor";
 import Image from "next/image";
 import React, { useContext, useState } from "react";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -15,9 +18,9 @@ import { IoArrowBackSharp } from "react-icons/io5";
 import { createQuestion } from "@/lib/action/exam_action";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-
 import "react-quill/dist/quill.snow.css";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const modules = {
@@ -40,9 +43,33 @@ type QuestionType =
   | "short-answer"
   | "long-answer";
 
+const typeNumberToTypeMap: Record<number, QuestionType> = {
+  1: "single-select",
+  2: "multi-select",
+  3: "true-false",
+  4: "short-answer",
+  5: "long-answer",
+};
+
+const typeToNumberMap: Record<QuestionType, number> = {
+  "single-select": 1,
+  "multi-select": 2,
+  "true-false": 3,
+  "short-answer": 4,
+  "long-answer": 5,
+};
+
+const typeDisplayMap = [
+  "oindex",
+  "Single choice",
+  "Multi choice",
+  "True/False",
+  "Short answer",
+  "Long answer",
+];
+
 type QuestionData = {
   questionText: string;
-  question_number: number;
   type: QuestionType;
   options?: string[];
   correctAnswer?: string | string[] | boolean;
@@ -70,11 +97,13 @@ type BackendQuestionRequest = {
 const QuestionCreator: React.FC = () => {
   const searchParams = useSearchParams();
   const form_id = searchParams.get("form_id");
+  const questionsTypeForAll = searchParams.get("questionsType");
   const [questionData, setQuestionData] = useState<QuestionData>({
     questionText: "",
-    type: "true-false",
+    type: questionsTypeForAll
+      ? typeNumberToTypeMap[Number(questionsTypeForAll)]
+      : "true-false",
     correctAnswerGrade: 1,
-    question_number: 1,
     wrongAnswerGrade: 0,
     hint: "",
     required: true,
@@ -183,13 +212,11 @@ const QuestionCreator: React.FC = () => {
       fieldTypes = Array(fields.length).fill("text");
 
       if (questionData.type === "single-select") {
-        // Get the text of the selected option
         const correctIndex = parseInt(
           (questionData.correctAnswer as string) || "0"
         );
         correctValues = [fields[correctIndex]];
       } else {
-        // Get texts of all selected options
         const indices = ((questionData.correctAnswer as string[]) || []).map(
           Number
         );
@@ -198,10 +225,9 @@ const QuestionCreator: React.FC = () => {
     } else if (questionData.type === "true-false") {
       fields = ["True", "False"];
       fieldTypes = ["boolean", "boolean"];
-      // Convert boolean to text representation
+
       correctValues = [questionData.correctAnswer ? "True" : "False"];
     } else {
-      // For text answers, use the answer text directly
       fields = [questionData.correctAnswer || ""];
       fieldTypes = ["text"];
       correctValues = [questionData.correctAnswer || ""];
@@ -287,8 +313,9 @@ const QuestionCreator: React.FC = () => {
       toast.success("Question saved successfully!");
       setQuestionData({
         questionText: "",
-        type: "true-false",
-        question_number: 1,
+        type: questionsTypeForAll
+          ? typeNumberToTypeMap[Number(questionsTypeForAll)]
+          : "true-false",
         correctAnswerGrade: 1,
         wrongAnswerGrade: 0,
         hint: "",
@@ -347,32 +374,45 @@ const QuestionCreator: React.FC = () => {
 
               {/* Main Form */}
               <div className="lg:col-span-2 space-y-6">
+                {/* Question Text */}
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Question Text <span className="text-red-500 ml-1">*</span>
                   </label>
-                  <div
-                    className={`relative ${
-                      errors.questionText
-                        ? "border-red-500 rounded-lg border"
-                        : ""
-                    }`}
-                  >
-                    <ReactQuill
-                      theme="snow"
+                  <div className="relative">
+                    <input
+                      type="text"
                       value={questionData.questionText}
-                      onChange={(value) =>
-                        handleInputChange("questionText", value)
+                      onChange={(e) =>
+                        handleInputChange("questionText", e.target.value)
                       }
-                      // placeholder="What would you like to ask?"
-                      modules={modules}
-                      className="dark:text-white"
+                      placeholder="What would you like to ask?"
+                      className={`block w-full px-3 py-2 text-gray-900 dark:text-gray-100 border ${
+                        errors.questionText
+                          ? "border-red-500"
+                          : "border-gray-300 dark:border-gray-600"
+                      } rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-1 focus:ring-primary-color1 dark:focus:ring-primary-color1-light focus:outline-0 transition duration-200`}
+                      required
                     />
                     {errors.questionText && (
                       <span className="text-red-500 text-xs mt-1">
                         {errors.questionText}
                       </span>
                     )}
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-primary-color1 dark:text-primary-color1-light"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
@@ -385,6 +425,8 @@ const QuestionCreator: React.FC = () => {
                   <Select
                     value={questionData.type}
                     onValueChange={(newType) => {
+                      if (questionsTypeForAll !== "null") return;
+
                       setQuestionData({
                         ...questionData,
                         type: newType as QuestionType,
@@ -395,7 +437,6 @@ const QuestionCreator: React.FC = () => {
                           : undefined,
                         correctAnswer: undefined,
                       });
-                      // Clear related errors when type changes
                       setErrors((prev) => {
                         const newErrors = { ...prev };
                         delete newErrors.options;
@@ -403,20 +444,47 @@ const QuestionCreator: React.FC = () => {
                         return newErrors;
                       });
                     }}
+                    disabled={questionsTypeForAll !== "null"}
                   >
                     <SelectTrigger className="bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                       <SelectValue placeholder="Select question type" />
                     </SelectTrigger>
                     <SelectContent className="bg-white dark:bg-gray-700">
-                      <SelectItem value="single-select">
-                        Single Select
-                      </SelectItem>
-                      <SelectItem value="multi-select">Multi Select</SelectItem>
-                      <SelectItem value="true-false">True/False</SelectItem>
-                      <SelectItem value="short-answer">Short Answer</SelectItem>
-                      <SelectItem value="long-answer">Long Answer</SelectItem>
+                      {questionsTypeForAll == "null" ? (
+                        <>
+                          <SelectItem value="single-select">
+                            Single Select
+                          </SelectItem>
+                          <SelectItem value="multi-select">
+                            Multi Select
+                          </SelectItem>
+                          <SelectItem value="true-false">True/False</SelectItem>
+                          <SelectItem value="short-answer">
+                            Short Answer
+                          </SelectItem>
+                          <SelectItem value="long-answer">
+                            Long Answer
+                          </SelectItem>
+                        </>
+                      ) : (
+                        <SelectItem
+                          value={
+                            typeNumberToTypeMap[Number(questionsTypeForAll)]
+                          }
+                        >
+                          {typeDisplayMap[Number(questionsTypeForAll)]}
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
+
+                  {questionsTypeForAll && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      Question type is set to{" "}
+                      {typeDisplayMap[Number(questionsTypeForAll)]} for all
+                      questions in this form.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-6">
@@ -496,7 +564,7 @@ const QuestionCreator: React.FC = () => {
                               disabled={
                                 (questionData.options?.length || 0) <= 2
                               }
-                              className="h-10 w-10 flex items-center justify-center text-red-500 dark:text-red-400 sm:self-center hover:bg-red-50 dark:hover:bg-gray-600 rounded"
+                              className="h-10 w-10 flex items-center justify-center text-red-500 dark:text-red-400 sm:self-center hover:bg-red-50 dark:hover:bg-gray-700 rounded"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -712,7 +780,6 @@ const QuestionCreator: React.FC = () => {
                         />
                         Points for Correct Answer
                       </label>
-
                       <div className="relative rounded-md shadow-sm">
                         <input
                           type="number"
