@@ -200,7 +200,7 @@ const Page = () => {
     }
 
     const payload: any = {
-      form_id: examData?.id,
+      form_id: examData?.forms[0]?.id,
       id_number: values.id_number,
     };
 
