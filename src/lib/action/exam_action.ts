@@ -388,7 +388,57 @@ export const deleteQuestion = async (id: number) => {
     throw new Error("Unexpected error");
   }
 };
+export const addExamMessages = async (
+  formData: any,
+) => {
+  try {
+ 
+    console.log(formData);
 
+    const response = await axios.post(
+      `/assignment/exam-messages`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+export const updateExamMessages = async (
+  formData: any,
+  messageId: number
+) => {
+  try {
+ 
+    console.log(formData);
+
+    const response = await axios.put(
+      `/assignment/exam-messages/${messageId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
 
 
 export const deleteStartForm = async ( form_id: number) => {

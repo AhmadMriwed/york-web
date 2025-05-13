@@ -28,6 +28,7 @@ import { More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
+import { GrCertificate } from "react-icons/gr";
 
 import {
   MdTitle,
@@ -78,6 +79,7 @@ import {
 import { RiSlideshowLine } from "react-icons/ri";
 import { AiOutlineFieldTime } from "react-icons/ai";
 import {
+  addExamMessages,
   changeExamStatus,
   createEndFormF,
   createStartFormF,
@@ -87,8 +89,24 @@ import {
   fetchAssignmentById,
   fetchRequirmentFieldsData,
   generateUrl,
+  updateExamMessages,
   updateExamSettings,
 } from "@/lib/action/exam_action";
+import {
+  FaEnvelopeOpenText,
+  FaEdit,
+  FaTimes,
+  FaPlus,
+  FaSave,
+  FaSpinner,
+  FaPercent,
+  FaCertificate,
+  FaLink,
+  FaComment,
+  FaExternalLinkAlt,
+  FaCopy,
+} from "react-icons/fa";
+import { FaRegSmile, FaRegFrown } from "react-icons/fa";
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
 import { Assignment } from "@/types/adminTypes/assignments/assignExamTypes";
@@ -155,7 +173,9 @@ const Page = () => {
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
   const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] =
     useState(false);
-
+  const [isEditingMessages, setIsEditingMessages] = useState(false);
+  const [isAddingMessages, setIsAddingMessages] = useState(false);
+  const [isSubmittingMessages, setIsSubmittingMessages] = useState(false);
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
     useState<boolean>(false);
 
@@ -163,6 +183,7 @@ const Page = () => {
     useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [examUsers, setExamUsers] = useState();
+
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
@@ -231,6 +252,76 @@ const Page = () => {
       count_return_exam: 0,
     },
   });
+
+  const messagesFormSchema = z.object({
+    success_degree: z.string().min(1, "Passing score is required"),
+    success_message: z.string().optional(),
+    failure_message: z.string().optional(),
+    certificate_url: z.string().url("Invalid URL").optional(),
+  });
+
+  type MessagesFormValues = z.infer<typeof messagesFormSchema>;
+
+  const messagesForm = useForm<MessagesFormValues>({
+    resolver: zodResolver(messagesFormSchema),
+    defaultValues: {
+      success_degree: assignmentData?.exam_messages?.success_degree || "",
+      success_message: assignmentData?.exam_messages?.success_message || "",
+      failure_message: assignmentData?.exam_messages?.failure_message || "",
+      certificate_url: assignmentData?.exam_messages?.certificate_url || "",
+    },
+  });
+  useEffect(() => {
+    if (assignmentData?.exam_messages) {
+      messagesForm.reset({
+        success_degree: assignmentData.exam_messages.success_degree,
+        success_message: assignmentData.exam_messages.success_message,
+        failure_message: assignmentData.exam_messages.failure_message,
+        certificate_url: assignmentData.exam_messages.certificate_url,
+      });
+    }
+  }, [assignmentData, messagesForm]);
+
+  const onSubmitMessages = async (values: MessagesFormValues) => {
+    setIsSubmittingMessages(true);
+    // const toastId = toast.loading("Updating exam messages...");
+    const payload = {
+      ...values,
+      exam_id: assignment_id,
+    };
+
+    try {
+      if (assignmentData?.exam_messages != null) {
+        const data = await updateExamMessages(
+          values,
+          Number(assignmentData?.exam_messages?.id)
+        );
+      } else {
+        const data = await addExamMessages(payload);
+      }
+      if (assignmentData?.exam_messages != null) {
+        toast.success("Exam messages updated successfully");
+      } else {
+        toast.success("Exam messages Added successfully");
+      }
+
+      toast.success("Exam messages updated successfully");
+      setIsEditingMessages(false);
+      setIsSuccess(!isSuccess); // Refresh data
+    } catch (error: any) {
+      if (assignmentData?.exam_messages != null) {
+        toast.error("Failed to update exam messages", {
+          description: error.message,
+        });
+      } else {
+        toast.error("Failed to Add exam messages", {
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsSubmittingMessages(false);
+    }
+  };
 
   useEffect(() => {
     if (assignmentData) {
@@ -1003,40 +1094,6 @@ const Page = () => {
                               )}
                             />
 
-                            {/* Results Display */}
-                            {/* <FormField
-                              control={form.control}
-                              name="view_answer"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Answers View :</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    defaultValue="Manual"
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
-                                        <SelectValue placeholder="Select option" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="dark:bg-gray-800">
-                                      <SelectItem value="after_completion">
-                                        After Finish
-                                      </SelectItem>
-                                      <SelectItem value="manually">
-                                        Manual
-                                      </SelectItem>
-                                      <SelectItem value="after_each_answer">
-                                        After Each Answer
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            /> */}
-
                             <FormField
                               control={form.control}
                               name="count_return_exam"
@@ -1138,20 +1195,6 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
-                        {/* 
-                        <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <RiSlideshowLine className="text-lg " />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Answers View
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.view_results}
-                            </p>
-                          </div>
-                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1266,7 +1309,271 @@ const Page = () => {
               </Accordion>
             </div>
           </div>
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-5 md:pb-6 border border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+                <FaEnvelopeOpenText className="text-primary-color1 text-lg" />
+                <span>Exam Messages & Certificate</span>
+              </h2>
 
+              {!isEditingMessages && assignmentData?.exam_messages ? (
+                <Button
+                  appearance="primary"
+                  className="!bg-primary-color1 flex items-center gap-2"
+                  onClick={() => setIsEditingMessages(!isEditingMessages)}
+                >
+                  <>
+                    <FaEdit /> Edit
+                  </>
+                </Button>
+              ) : !isAddingMessages && !assignmentData?.exam_messages ? (
+                <Button
+                  appearance="primary"
+                  className="!bg-primary-color1 flex items-center gap-2"
+                  onClick={() => setIsAddingMessages(true)}
+                >
+                  <FaPlus /> Add Messages
+                </Button>
+              ) : null}
+            </div>
+            {isEditingMessages || isAddingMessages ? (
+              <Form {...messagesForm}>
+                <form
+                  onSubmit={messagesForm.handleSubmit(onSubmitMessages)}
+                  className="space-y-4"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={messagesForm.control}
+                      name="success_degree"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="flex items-center gap-1 text-sm">
+                            <FaPercent className="text-primary-color1 text-sm" />
+                            Passing Score
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type="number"
+                                placeholder="e.g. 60"
+                                {...field}
+                                className="dark:bg-gray-700 pl-7 h-9 text-sm border focus-within::border-primary-color1 transition duration-500"
+                              />
+                              <FaPercent className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-xs" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={messagesForm.control}
+                      name="certificate_url"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="flex items-center gap-1 text-sm">
+                            <GrCertificate className="text-primary-color1 text-sm" />
+                            Certificate URL
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="https://example.com/certificate"
+                                {...field}
+                                className="dark:bg-gray-700 pl-7 h-9 text-sm border focus-within::border-primary-color1 transition duration-500"
+                              />
+                              <FaLink className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-xs" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={messagesForm.control}
+                      name="success_message"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="flex items-center gap-1 text-sm">
+                            <FaRegSmile className="text-green-500 text-sm" />
+                            Success Message
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <textarea
+                                rows={3}
+                                className="flex w-full rounded-md border focus-within::border-primary-color1 bg-background px-2.5 py-1.5 text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 pl-7 focus:border-primary-color1 focus:outline-none focus:ring-0"
+                                placeholder="Congratulations message for passing"
+                                {...field}
+                              />
+                              <FaComment className="absolute left-2.5 top-3 text-gray-400 text-sm" />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-xs" />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={messagesForm.control}
+                      name="failure_message"
+                      render={({ field }) => (
+                        <FormItem className="space-y-1">
+                          <FormLabel className="flex items-center gap-1 text-sm">
+                            <FaRegFrown className="text-red-500 text-sm" />
+                            Failure Message
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <textarea
+                                rows={3}
+                                className="flex w-full rounded-md border focus-within::border-primary-color1 bg-background px-2.5 py-1.5 text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 pl-7 focus:border-primary-color1 focus:outline-none focus:ring-0"
+                                placeholder="Encouragement message for failing"
+                                {...field}
+                              />
+                              <FaComment className="absolute left-2.5 top-3 text-gray-400 text-sm" />
+                            </div>
+                          </FormControl>
+                          <FormMessage className="text-xs" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2">
+                    <button
+                      type="button"
+                      className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1 flex items-center gap-2"
+                      onClick={() => {
+                        setIsEditingMessages(false);
+                        setIsAddingMessages(false);
+                      }}
+                    >
+                      <FaTimes /> Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="text-white rounded-[8px] px-3 py-[6px] bg-primary-color1 hover:bg-primary-color2 flex items-center gap-2"
+                      disabled={isSubmittingMessages}
+                    >
+                      {isSubmittingMessages ? (
+                        <>
+                          <FaSpinner className="animate-spin" /> Saving...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave />{" "}
+                          {isAddingMessages ? "Add Messages" : "Save Changes"}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </Form>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Passing Requirements Card */}
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-[6px] border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-md">
+                      <FaCheckCircle className="text-green-500 text-base" />
+                    </div>
+                    <h3 className="font-semibold text-base">Passing Score</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">
+                      {assignmentData?.exam_messages?.success_degree ||
+                        "Not set"}
+                    </span>{" "}
+                    out of 100
+                  </p>
+                </div>
+
+                {/* Certificate Card */}
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-[6px] border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-md">
+                      <GrCertificate className="text-yellow-500 text-base" />
+                    </div>
+                    <h3 className="font-semibold text-base">Certificate</h3>
+                  </div>
+                  {assignmentData?.exam_messages?.certificate_url ? (
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={assignmentData.exam_messages.certificate_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline break-all flex items-center gap-1 text-sm"
+                      >
+                        <FaExternalLinkAlt className="text-xs" />
+                        <span className="truncate">Certificate Link</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            assignmentData.exam_messages.certificate_url
+                          );
+                          toast.success("URL copied");
+                        }}
+                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 ml-1"
+                        title="Copy URL"
+                      >
+                        <FaCopy className="text-xs" />
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                      None
+                    </p>
+                  )}
+                </div>
+
+                {/* Success Message Card */}
+                <div className="bg-green-50 dark:bg-green-700/10 p-4 rounded-[6px] border border-green-200 dark:border-green-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-md">
+                      <FaRegSmile className="text-green-500 text-base" />
+                    </div>
+                    <h3 className="font-semibold text-base">Success Message</h3>
+                  </div>
+                  {assignmentData?.exam_messages?.success_message ? (
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                        {assignmentData.exam_messages.success_message}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 italic text-sm text-gray-500 dark:text-gray-400">
+                      None configured
+                    </div>
+                  )}
+                </div>
+
+                {/* Failure Message Card */}
+                <div className="bg-red-50 dark:bg-red-700/10 p-4 rounded-[6px] border border-red-200 dark:border-red-800 ">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-md">
+                      <FaRegFrown className="text-red-500 text-base" />
+                    </div>
+                    <h3 className="font-semibold text-base">Failure Message</h3>
+                  </div>
+                  {assignmentData?.exam_messages?.failure_message ? (
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                        {assignmentData.exam_messages.failure_message}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 italic text-sm text-gray-500 dark:text-gray-400">
+                      None configured
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <div className="mt-8 ">
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Student Results

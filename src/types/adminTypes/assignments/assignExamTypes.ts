@@ -113,6 +113,15 @@ type FieldRequirment = {
   field_requirement_id?: number;
 }
 
+export interface ExamMessage{
+       id?: number,
+      exam_id: number,
+      success_degree: string,
+      success_message: string,
+      failure_message: string,
+      certificate_url: string
+}
+
 export interface Assignment {
   start_forms: StartForm[];
   end_forms: EndForm[];
@@ -135,6 +144,7 @@ export interface Assignment {
   updated_at: string;
   exam_config: ExamConfig;
   field_requirements: FieldRequirment[];
+  exam_messages:ExamMessage;
 }
 
 
