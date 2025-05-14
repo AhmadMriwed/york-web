@@ -1,3 +1,5 @@
+import { ExamMessage } from "./assignExamTypes";
+
 export interface Category {
   id: number;
   img: string;
@@ -110,7 +112,7 @@ export interface Assignment {
   field_requirements: Requirement[];
   condition_exams?: Condition[];
   grade_percentage?:number; 
-  
+    exam_messages:ExamMessage;
 }
 
 export interface AssignmentSession {

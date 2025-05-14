@@ -22,6 +22,7 @@ import oclock from '../../public/icons/oclock.svg'
 import requirement from '../../public/icons/requirement.svg'
 import update from '../../public/icons/update.svg'
 import id from '../../public/icons/id.svg'
+import cretification from '../../public/icons/certification.svg'
 
 
 export const icons = {
@@ -29,6 +30,7 @@ export const icons = {
     oclock,
     id,
     requirement,
+    cretification,
     update,
     checkmarkOutline,
     bell,

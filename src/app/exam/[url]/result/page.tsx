@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiChevronRight } from "react-icons/fi";
-import { Modal, Button, message } from "antd";
+import { Modal, Button, message, Form, Input } from "antd";
 import { Rate } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { LinkIcon } from "lucide-react";
@@ -42,6 +42,13 @@ const QuizResultsPage = () => {
   const [comment, setComment] = useState("");
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
+  // New states for certification
+  const [isCertificationModalOpen, setIsCertificationModalOpen] =
+    useState(false);
+  const [isSubmittingCertification, setIsSubmittingCertification] =
+    useState(false);
+  const [form] = Form.useForm();
+
   const { data: result } = useFetchWithId<UserResponse>(
     id_number ? fetchResultByIdNumber : fetchResultById,
     //@ts-ignore
@@ -49,6 +56,7 @@ const QuizResultsPage = () => {
   );
 
   console.log(result);
+  console.log(examData);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -116,6 +124,43 @@ const QuizResultsPage = () => {
     setIsRatingModalOpen(false);
     localStorage.setItem("hasShownRating", "true");
     setHasShownRating(true);
+  };
+
+  // Certification functions
+  const handleGetCertification = () => {
+    setIsCertificationModalOpen(true);
+  };
+
+  const handleCertificationSubmit = async () => {
+    try {
+      await form.validateFields();
+      setIsSubmittingCertification(true);
+
+      const values = form.getFieldsValue();
+      console.log("Submitted ID:", values.studentId);
+
+      const certificateUrl = examData?.exam_messages?.certificate_url;
+
+      if (!certificateUrl) {
+        throw new Error("Certificate URL not available");
+      }
+
+      const fullCertificateUrl = `${certificateUrl}${result?.id_number}`;
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      window.open(fullCertificateUrl, "_blank");
+
+      message.success("Certificate generated successfully!");
+      setIsCertificationModalOpen(false);
+    } catch (error) {
+      console.error("Error submitting certification request:", error);
+      if (error instanceof Error) {
+        message.error(error.message || "Failed to generate certificate");
+      }
+    } finally {
+      setIsSubmittingCertification(false);
+    }
   };
 
   const timeSpentSeconds = result?.answers[0]?.time_to_stay_until_the_answer
@@ -193,6 +238,61 @@ const QuizResultsPage = () => {
         </div>
       </Modal>
 
+      {/* Certification Modal */}
+      <Modal
+        title="Get Your Certification"
+        open={isCertificationModalOpen}
+        onCancel={() => setIsCertificationModalOpen(false)}
+        footer={[
+          <Button key="back" onClick={() => setIsCertificationModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={isSubmittingCertification}
+            onClick={handleCertificationSubmit}
+            className="bg-primary-color1 hover:!bg-primary-color2"
+          >
+            Generate Certification
+          </Button>,
+        ]}
+        centered
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="studentId"
+            label="Enter Your Student ID"
+            rules={[
+              { required: true, message: "Please enter your student ID" },
+              { min: 3, message: "ID must be at least 3 characters" },
+              {
+                validator: (_, value) => {
+                  if (value && value !== result?.id_number) {
+                    return Promise.reject(
+                      new Error("Student ID does not match")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+            validateTrigger="onSubmit"
+          >
+            <Input placeholder="Your student ID" />
+          </Form.Item>
+          <p className="text-gray-500 text-sm">
+            Your certification will be generated based on your exam results.
+          </p>
+          {result?.id_number && (
+            <p className="text-gray-500 text-sm mt-2">
+              Your registered student ID:{" "}
+              <span className="font-medium">{result.id_number}</span>
+            </p>
+          )}
+        </Form>
+      </Modal>
+
       {/* Results Page */}
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto bg-white mt-8 rounded-xl shadow-lg overflow-hidden">
@@ -233,7 +333,7 @@ const QuizResultsPage = () => {
                   <h2 className="font-semibold text-gray-800">SUMMARY</h2>
                   <p className="text-gray-600 text-sm md:text-base">
                     {examData?.end_forms[0]?.description ||
-                      "You've completed the exam successfully!"}
+                      "You have completed the exam successfully!"}
                   </p>
                 </div>
               </div>
@@ -269,11 +369,10 @@ const QuizResultsPage = () => {
                     </div>
                     <div>
                       <p className="text-gray-600 mb-3">
-                        {Number(result?.grade) >= 70
-                          ? "Excellent work! You have done so well "
-                          : Number(result?.grade) >= 50
-                          ? "Good effort! Review the answers to improve your knowledge."
-                          : "Keep practicing! Review the material and try again."}
+                        {result?.grade! >=
+                        examData?.exam_messages.success_degree!
+                          ? examData?.exam_messages.success_message
+                          : examData?.exam_messages.failure_message}
                       </p>
                       <div className="flex space-x-4 justify-center  text-center">
                         <div className="text-center">
@@ -360,6 +459,40 @@ const QuizResultsPage = () => {
                 </div>
               </div>
             </div>
+            {examData?.exam_type?.id === 2 &&
+              Number(result?.grade) >=
+                Number(examData?.exam_messages?.success_degree) && (
+                <div className="bg-gradient-to-r from-[#037f86]/10 to-blue-50 p-6 rounded-lg border border-green-200 shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-white p-3 rounded-full shadow-sm flex-shrink-0">
+                      <Image
+                        src={icons.cretification}
+                        width={24}
+                        height={24}
+                        alt="Certificate"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="font-bold text-gray-800 mb-2">
+                        CONGRATULATIONS!
+                      </h2>
+                      <p className="text-gray-600 mb-4">
+                        You have passed the exam with a score of {result?.grade}
+                        %. You are now eligible to receive your certification.
+                      </p>
+                      <Button
+                        type="primary"
+                        className="bg-primary-color1 hover:!bg-primary-color2"
+                        onClick={handleGetCertification}
+                      >
+                        Get Certification
+                        <FiChevronRight className="ml-2" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             {examData?.exam_config.view_results !== "manually" && (
               <div className="flex justify-center">
                 <button

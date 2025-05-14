@@ -28,8 +28,8 @@ export interface UserResponse {
     question: string;
     correct_answer_grade: number;
     wrong_answer_grade: number;
-    user_answer: string;
-    correct_answer: string;
+    user_answers: string[];
+    correct_answers: string[];
     status: "Correct" | "InCorrect";
   };
 

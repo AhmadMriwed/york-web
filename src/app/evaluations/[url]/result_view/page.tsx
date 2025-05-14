@@ -95,23 +95,32 @@ const QuizResultsViewPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-2">
-                      Your answer:
+                      Your answer{question.user_answers.length > 1 ? "s" : ""}:
                     </p>
-                    <div
-                      className="bg-white p-3 rounded border border-gray-200 min-h-12"
-                      dangerouslySetInnerHTML={{ __html: question.user_answer }}
-                    />
+                    <div className="bg-white p-3 rounded border border-gray-200 space-y-2">
+                      {question.user_answers.map((answer, i) => (
+                        <div
+                          key={i}
+                          dangerouslySetInnerHTML={{ __html: answer }}
+                          className="border-b last:border-b-0 pb-2 last:pb-0"
+                        />
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-2">
-                      Correct answer:
+                      Correct answer
+                      {question.correct_answers.length > 1 ? "s" : ""}:
                     </p>
-                    <div
-                      className="bg-white p-3 rounded border border-gray-200 min-h-12"
-                      dangerouslySetInnerHTML={{
-                        __html: question.correct_answer,
-                      }}
-                    />
+                    <div className="bg-white p-3 rounded border border-gray-200 space-y-2">
+                      {question.correct_answers.map((answer, i) => (
+                        <div
+                          key={i}
+                          dangerouslySetInnerHTML={{ __html: answer }}
+                          className="border-b last:border-b-0 pb-2 last:pb-0"
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div className="mt-3 text-sm text-gray-600">
