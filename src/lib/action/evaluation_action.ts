@@ -297,13 +297,16 @@ export const getResultView = async (user_id: number) => {
   }
 };
 
-export const getTrainees = async () => {
+export const getTrainees = async (id: number) => {
   try {
-    const response = await axios.get(`/assignment/rated-assignment-user`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `/assignment/rated-assignment-user/${id}/get-by-exam-section`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     return response.data;
   } catch (error: any) {
@@ -351,5 +354,107 @@ export const addNewStudent = async (studentData: StudentData): Promise<any> => {
     }
     console.error("Unexpected error:", error);
     throw new Error("An unexpected error occurred while adding the student");
+  }
+};
+
+//generate url for trainer :
+
+export const generateUrlForTrainer = async (
+  evaluation_id: number,
+  trainerData: {
+    id_number: string;
+    password: string;
+    exam_section_id: number;
+  }
+): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `/assignment/evaluation-trainers/${evaluation_id}`,
+      trainerData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return {
+      data: response.data,
+      message: "Student added successfully",
+    };
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to add new student";
+      console.error("API Error:", errorMessage, error.response?.data);
+      throw new Error(errorMessage);
+    }
+    console.error("Unexpected error:", error);
+    throw new Error("An unexpected error occurred while adding the student");
+  }
+};
+/// trainer login :
+export const loginTrainer = async (
+  evaluation_id: number,
+  trainerData: {
+    id_number: string;
+    password: string;
+  }
+): Promise<any> => {
+  try {
+    const response = await axios.post(
+      `/assignment/evaluation-trainers/${evaluation_id}/trainer-login`,
+      trainerData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return {
+      data: response.data,
+      message: "trainer login successfully",
+    };
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed";
+      console.error("API Error:", errorMessage, error.response?.data);
+      throw new Error(errorMessage);
+    }
+    console.error("Unexpected error:", error);
+    throw new Error("An unexpected error occurred while login");
+  }
+};
+
+// get trainee id for evaluation :
+export const getTraineeId = async (
+  evaluation_id: number,
+  assignment_user_id: number
+) => {
+  try {
+    const response = await axios.get(
+      `/assignment/evaluation-trainers/${evaluation_id}/rate/${assignment_user_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
   }
 };

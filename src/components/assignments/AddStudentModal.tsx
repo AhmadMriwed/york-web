@@ -32,12 +32,14 @@ interface AddNewStudentModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
   refetch?: () => Promise<void>;
+  setRefetchStudentsResult?: any;
 }
 
 const AddNewStudentModal = ({
   isModalOpen,
   setIsModalOpen,
   refetch,
+  setRefetchStudentsResult,
 }: AddNewStudentModalProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { id } = useParams();
@@ -64,6 +66,7 @@ const AddNewStudentModal = ({
       if (refetch) {
         await refetch();
       }
+      setRefetchStudentsResult((prev: any) => !prev);
     } catch (error) {
       console.error("Error adding student:", error);
       toast.error(
@@ -124,7 +127,6 @@ const AddNewStudentModal = ({
                 />
               </div>
             </div>
-
             <div className="flex justify-end gap-4 pt-4">
               <Button
                 className="border-primary-color1 text-primary-color1 hover:bg-primary-color1 hover:text-white dark:text-gray-100 dark:hover:text-white"

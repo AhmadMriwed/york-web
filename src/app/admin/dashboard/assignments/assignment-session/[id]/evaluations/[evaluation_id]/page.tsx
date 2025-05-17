@@ -29,14 +29,12 @@ import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
 import {
   MdTitle,
   MdSubtitles,
   MdCategory,
   MdVisibility,
   MdVisibilityOff,
-  MdOutlineAppSettingsAlt,
 } from "react-icons/md";
 import StudentResultsTable from "@/components/assignments/assignmentSessionA/StudentResultsTable ";
 import {
@@ -63,17 +61,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FiFlag, FiPlay, FiPlus } from "react-icons/fi";
 import { IoArrowBackSharp } from "react-icons/io5";
-import {
-  FaCheckCircle,
-  FaClock,
-  FaLanguage,
-  FaQuestionCircle,
-  FaRedo,
-  FaRegNewspaper,
-} from "react-icons/fa";
+import { FaCheckCircle, FaRedo, FaRegNewspaper } from "react-icons/fa";
 
 import { AiOutlineFieldTime } from "react-icons/ai";
 import {
@@ -85,14 +75,13 @@ import {
   updateEvaluationSettings,
   generateUrl,
   getEvaluationUsers,
+  generateUrlForTrainer,
+  getTrainees,
 } from "@/lib/action/evaluation_action";
 
 import Loading from "@/components/Pars/Loading";
 import { toast } from "sonner";
-import {
-  Assignment,
-  Evaluation,
-} from "@/types/adminTypes/assignments/assignExamTypes";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
@@ -137,12 +126,6 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
   );
 };
 
-interface RequirementField {
-  id: number; // or string, depending on your data
-  name: string;
-  // other fields if they exist
-}
-
 const Page = () => {
   const { id, evaluation_id } = useParams();
   const [assignmentData, setAssignmentData] = useState<Evaluation | null>(null);
@@ -157,6 +140,7 @@ const Page = () => {
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
   const [isThereErrorWhileFetchData, setIsThereErrorWhileFetchData] =
     useState(false);
+  const [refetchStudensResults, setRefetchStudentsResult] = useState(false);
 
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
     useState<boolean>(false);
@@ -165,6 +149,17 @@ const Page = () => {
     useState<boolean>(false);
 
   const [examUsers, setExamUsers] = useState();
+
+  const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
+    useState(false);
+  const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
+
+  const [
+    openGenerateTraineeEvaluationUrlModal,
+    setOpenGenerateTraineeEvaluationUrlModal,
+  ] = useState(false);
+
+  const [isSuccessGenerateUrl, setIsSuccessGenerateUrl] = useState(false);
 
   const [showAddEndingInterfaceModal, setShowAddEndingInterfaceModal] =
     useState<boolean>(false);
@@ -206,6 +201,7 @@ const Page = () => {
     isExamStatusChanged,
     isSuccess,
     isViewAnsersChanged,
+    isSuccessGenerateUrl,
   ]);
   useEffect(() => {
     const fetch = async () => {
@@ -214,10 +210,15 @@ const Page = () => {
         if (!id) {
           throw new Error("Missing session ID in URL");
         }
-
-        const users = await getEvaluationUsers(Number(evaluation_id));
-        console.log(users.data);
-        setExamUsers(users.data);
+        if (assignmentData?.evaluation_type?.id === 1) {
+          const users = await getEvaluationUsers(Number(evaluation_id));
+          console.log(users.data);
+          setExamUsers(users.data);
+        } else {
+          const users = await getTrainees(Number(id));
+          console.log(users.data);
+          setExamUsers(users.data);
+        }
 
         console.log(assignmentData);
       } catch (err) {
@@ -230,24 +231,15 @@ const Page = () => {
       }
     };
     fetch();
-  }, []);
-
-  const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
-    useState(false);
-  const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
-
-  const [
-    openGenerateTraineeEvaluationUrlModal,
-    setOpenGenerateTraineeEvaluationUrlModal,
-  ] = useState(false);
+  }, [assignmentData?.evaluation_type?.id, refetchStudensResults]);
 
   const editExamSettingsSchema = z.object({
     count_questions_page: z.number().min(1),
-    time_questions_page: z
-      .string()
-      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)",
-      }),
+    // time_questions_page: z
+    //   .string()
+    //   .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
+    //     message: "Invalid time format (HH:MM or HH:MM:SS required)",
+    //   }),
     view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
     count_return_exam: z.number().min(0),
   });
@@ -258,7 +250,7 @@ const Page = () => {
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
       count_questions_page: 1,
-      time_questions_page: "00:00",
+      // time_questions_page: "00:00",
       view_results: "manually",
       count_return_exam: 0,
     },
@@ -269,11 +261,11 @@ const Page = () => {
       const { evaluation_config } = assignmentData;
       form.reset({
         count_questions_page: evaluation_config?.count_questions_page,
-        time_questions_page:
-          evaluation_config?.time_questions_page
-            ?.split(":")
-            .slice(0, 2)
-            .join(":") || "00:00",
+        // time_questions_page:
+        //   evaluation_config?.time_questions_page
+        //     ?.split(":")
+        //     .slice(0, 2)
+        //     .join(":") || "00:00",
         view_results: evaluation_config?.view_results as
           | "after_completion"
           | "manually"
@@ -456,7 +448,7 @@ const Page = () => {
         duration: 300,
         id: toastId,
       });
-      setIsExamStatusChanged((prev) => !prev);
+      setIsSuccessGenerateUrl((prev) => !prev);
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error("Oops! Something went wrong", {
@@ -580,11 +572,7 @@ const Page = () => {
                           },
                         ]
                       : []),
-                    {
-                      icon: <CiExport className=" size-5 max-sm:size-4" />,
-                      text: "Export to Excel",
-                      action: () => {},
-                    },
+
                     {
                       icon: (
                         <PiToggleRightFill className=" size-5 max-sm:size-4" />
@@ -597,11 +585,7 @@ const Page = () => {
                         changgeExamStatus();
                       },
                     },
-                    {
-                      icon: <MdVisibility className=" size-5 max-sm:size-4" />,
-                      text: "Preview Evaluation",
-                      action: () => {},
-                    },
+
                     {
                       icon: <Link className=" size-5 max-sm:size-4" />,
                       text: "Generate Url",
@@ -626,6 +610,7 @@ const Page = () => {
                 </Dropdown>
               </div>
               <GenerateTraineeEvaluationUrlModal
+                setIsSuccessGenerateUrl={setIsSuccessGenerateUrl}
                 isModalOpen={openGenerateTraineeEvaluationUrlModal}
                 setIsModalOpen={setOpenGenerateTraineeEvaluationUrlModal}
               />
@@ -681,23 +666,14 @@ const Page = () => {
                       assignmentData?.evaluation_config?.end_date || " "
                     }`}
                   />
-                  <div className="flex items-center gap-3 md:gap-5">
-                    <InfoItem
-                      icon={<Clock className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                      label="Duration"
-                      value={`${
-                        assignmentData?.duration_in_minutes || " "
-                      } mins`}
-                    />
 
-                    <InfoItem
-                      icon={
-                        <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
-                      }
-                      label="Questions"
-                      value={`${assignmentData?.number_of_questions || " "}.`}
-                    />
-                  </div>
+                  <InfoItem
+                    icon={
+                      <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
+                    }
+                    label="Questions"
+                    value={`${assignmentData?.number_of_questions || " "}.`}
+                  />
 
                   <div className="flex items-center gap-3 md:gap-4">
                     <InfoItem
@@ -1068,7 +1044,7 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
-                            <FormField
+                            {/* <FormField
                               control={form.control}
                               name="time_questions_page"
                               render={({ field }) => (
@@ -1102,7 +1078,7 @@ const Page = () => {
                                   <FormMessage />
                                 </FormItem>
                               )}
-                            />
+                            /> */}
 
                             <FormField
                               control={form.control}
@@ -1222,7 +1198,7 @@ const Page = () => {
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-4">
+                        {/* <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <AiOutlineFieldTime className="text-lg" />
                           </div>
@@ -1237,7 +1213,7 @@ const Page = () => {
                               }
                             </p>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1283,26 +1259,28 @@ const Page = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem
-                  value="item-3"
-                  className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                >
-                  <AccordionTrigger className="h-14 p-1">
-                    <div className="flex items-center  gap-2 sm:gap-4">
-                      <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                      <p className="text-sm sm:text-base">
-                        Evaluation Requirments
-                      </p>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="mt-2 flex flex-col gap-y-1">
-                      {assignmentData?.field_requirements?.map((r) => {
-                        return <p key={r.id}>{r?.name || "Unknown field"}</p>;
-                      })}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                {assignmentData?.evaluation_type.id === 1 && (
+                  <AccordionItem
+                    value="item-3"
+                    className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <AccordionTrigger className="h-14 p-1">
+                      <div className="flex items-center  gap-2 sm:gap-4">
+                        <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Evaluation Requirments
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="mt-2 flex flex-col gap-y-1">
+                        {assignmentData?.field_requirements?.map((r) => {
+                          return <p key={r.id}>{r?.name || "Unknown field"}</p>;
+                        })}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
                 <div className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700">
                   <button
                     onClick={() => {
@@ -1339,6 +1317,7 @@ const Page = () => {
                 <AddNewStudentModal
                   isModalOpen={isAddStudentModalOpen}
                   setIsModalOpen={setIsAddStudentModalOpen}
+                  setRefetchStudentsResult={setRefetchStudentsResult}
                 />
               </div>
             )}
@@ -1735,29 +1714,56 @@ const AddStartFormInterface = ({
 };
 
 const GenerateTraineeEvaluationUrlModal = ({
+  setIsSuccessGenerateUrl,
   isModalOpen,
   setIsModalOpen,
 }: {
+  setIsSuccessGenerateUrl: any;
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
 }) => {
-  const generateTraineeEvaluationUrl = z.object({
-    id: z.string(),
-    password: z.string(),
+  const generateTraineeEvaluationUrlSchema = z.object({
+    id_number: z.string().min(1, "ID number is required"),
+    password: z.string().min(1, "Password is required"),
+    exam_section_id: z.number(),
   });
 
-  type StartFormValues = z.infer<typeof generateTraineeEvaluationUrl>;
+  const { id, evaluation_id } = useParams();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const form = useForm<StartFormValues>({
-    resolver: zodResolver(generateTraineeEvaluationUrl),
-    defaultValues: {},
+  type GenerateFormValues = z.infer<typeof generateTraineeEvaluationUrlSchema>;
+
+  const form = useForm<GenerateFormValues>({
+    resolver: zodResolver(generateTraineeEvaluationUrlSchema),
+    defaultValues: {
+      id_number: "",
+      password: "",
+      exam_section_id: Number(id),
+    },
   });
 
-  const onSubmit = async (values: StartFormValues) => {};
+  const onSubmit = async (values: GenerateFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const data = await generateUrlForTrainer(Number(evaluation_id), values);
+
+      console.log(data);
+      toast.success("Url generated successfully");
+      setIsModalOpen(false);
+      setIsSuccessGenerateUrl((prev: any) => !prev);
+      form.reset();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate url"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Modal
-      title="Generate Url "
+      title="Generate URL"
       open={isModalOpen}
       onCancel={() => setIsModalOpen(false)}
       footer={null}
@@ -1770,9 +1776,9 @@ const GenerateTraineeEvaluationUrlModal = ({
               <CustomFormField
                 fieldType={FormFieldType.INPUT}
                 control={form.control}
-                label="Id:"
-                name="id"
-                placeholder="Enter Id"
+                label="ID Number:"
+                name="id_number"
+                placeholder="Enter ID number"
               />
             </div>
             <div className="md:col-span-1">
@@ -1791,14 +1797,23 @@ const GenerateTraineeEvaluationUrlModal = ({
               type="button"
               className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1"
               onClick={() => setIsModalOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="text-white rounded-[8px] px-3 py-[px] bg-primary-color1 hover:bg-primary-color2"
+              className="text-white rounded-[8px] px-3 py-[6px] bg-primary-color1 hover:bg-primary-color2"
+              disabled={isSubmitting}
             >
-              Generate
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="animate-spin mr-2" />
+                  Generating...
+                </div>
+              ) : (
+                "Generate"
+              )}
             </button>
           </div>
         </form>

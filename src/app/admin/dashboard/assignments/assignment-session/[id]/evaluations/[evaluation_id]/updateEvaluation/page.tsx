@@ -145,8 +145,7 @@ const UpdateEvaluationPage = () => {
               evaluation.evaluation_config.count_return_exam || undefined,
             count_questions_page:
               evaluation.evaluation_config.count_questions_page || undefined,
-            time_questions_page:
-              evaluation.evaluation_config.time_questions_page || "",
+
             language: evaluation.evaluation_config.language || "",
             start_date: evaluation.evaluation_config.start_date
               ? new Date(evaluation.evaluation_config.start_date)
@@ -206,8 +205,7 @@ const UpdateEvaluationPage = () => {
               count_questions_page:
                 evaluation?.evaluation_config?.count_questions_page ||
                 undefined,
-              time_questions_page:
-                evaluation?.evaluation_config?.time_questions_page || "",
+
               language: evaluation?.evaluation_config?.language || "",
               start_date: evaluation?.evaluation_config?.start_date
                 ? new Date(evaluation?.evaluation_config?.start_date)
@@ -910,26 +908,7 @@ const UpdateEvaluationPage = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="evaluation_config.time_questions_page"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Time per Page :</FormLabel>
-                            <TimePicker
-                              format="HH:mm"
-                              value={
-                                field.value ? dayjs(field.value, "HH:mm") : null
-                              }
-                              onChange={(time, timeString) =>
-                                field.onChange(timeString || undefined)
-                              }
-                              className="w-full bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
-                            />
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                       <FormField
                         control={form.control}
                         name="evaluation_config.count_return_exam"
@@ -955,73 +934,77 @@ const UpdateEvaluationPage = () => {
                   </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem
-                  value="item-3"
-                  className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
-                >
-                  <AccordionTrigger className="h-11 p-1">
-                    <div className="flex items-center h-16 gap-2 sm:gap-4">
-                      <Image
-                        src={icons.requirement}
-                        height={6}
-                        width={6}
-                        alt="requiremet"
-                        className="size-6"
-                      />
-                      <p className="text-sm px-0.5 sm:text-base">
-                        Evaluation Requirements
-                      </p>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="mt-2">
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="field_requirement.field_requirement_id"
-                        render={({ field }) => {
-                          const currentValues = field.value || [];
-                          return (
-                            <FormItem className="space-y-3">
-                              <div className="flex flex-col space-y-2">
-                                {requirementsField?.map(
-                                  (requirement: Requirement) => (
-                                    <FormItem
-                                      key={requirement.id}
-                                      className="flex flex-row items-start space-x-3 space-y-0"
-                                    >
-                                      <FormControl>
-                                        <Checkbox
-                                          checked={currentValues.includes(
-                                            requirement.id
-                                          )}
-                                          onChange={(e) => {
-                                            const newValue = e.target.checked
-                                              ? [
-                                                  ...currentValues,
-                                                  requirement.id,
-                                                ]
-                                              : currentValues.filter(
-                                                  (id) => id !== requirement.id
-                                                );
-                                            field.onChange(newValue);
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormLabel className="font-normal">
-                                        {requirement.name}
-                                      </FormLabel>
-                                    </FormItem>
-                                  )
-                                )}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+                {evaluation?.evaluation_type.id === 1 && (
+                  <AccordionItem
+                    value="item-3"
+                    className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  >
+                    <AccordionTrigger className="h-11 p-1">
+                      <div className="flex items-center h-16 gap-2 sm:gap-4">
+                        <Image
+                          src={icons.requirement}
+                          height={6}
+                          width={6}
+                          alt="requiremet"
+                          className="size-6"
+                        />
+                        <p className="text-sm px-0.5 sm:text-base">
+                          Evaluation Requirements
+                        </p>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="mt-2">
+                      <div className="space-y-4">
+                        <FormField
+                          control={form.control}
+                          name="field_requirement.field_requirement_id"
+                          render={({ field }) => {
+                            const currentValues = field.value || [];
+                            return (
+                              <FormItem className="space-y-3">
+                                <div className="flex flex-col space-y-2">
+                                  {requirementsField?.map(
+                                    (requirement: Requirement) => (
+                                      <FormItem
+                                        key={requirement.id}
+                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                      >
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={currentValues.includes(
+                                              requirement.id
+                                            )}
+                                            onChange={(e) => {
+                                              const newValue = e.target.checked
+                                                ? [
+                                                    ...currentValues,
+                                                    requirement.id,
+                                                  ]
+                                                : currentValues.filter(
+                                                    (id) =>
+                                                      id !== requirement.id
+                                                  );
+                                              field.onChange(newValue);
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">
+                                          {requirement.name}
+                                        </FormLabel>
+                                      </FormItem>
+                                    )
+                                  )}
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
                 <button type="submit" className="w-full">
                   <div
                     className="border flex border-gray-200 cursor-pointer gap-6 p-6 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden"

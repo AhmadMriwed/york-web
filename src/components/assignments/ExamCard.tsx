@@ -21,7 +21,7 @@ import {
   FaHourglassHalf,
 } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
-import { Progress } from "antd";
+import { Progress, Empty, Modal, Space, Button, Typography } from "antd";
 import { Dropdown, IconButton } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
@@ -36,7 +36,8 @@ import { useParams, useRouter } from "next/navigation";
 import { MdQuestionAnswer } from "react-icons/md";
 import DeleteModal from "./DeleteModal";
 import copy from "copy-to-clipboard";
-import ExportExam from "./ExportExam";
+import { generateUrl } from "@/lib/action/exam_action";
+import { RiAiGenerate } from "react-icons/ri";
 
 type ExamCardProps = {
   examId: number;
@@ -57,8 +58,9 @@ const ExamCard = ({
   const [progress, setProgress] = useState<number | null>(null);
   const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
     useState<boolean>(false);
-  const [showExportAssignmentModal, setShowExportAssignmentModal] =
-    useState<boolean>(false);
+
+  const [isModalForGenerateUrlOpen, setIsModalForGenerateUrlOpen] =
+    useState(false);
 
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -115,7 +117,8 @@ const ExamCard = ({
     );
   const onCopyLink = async () => {
     if (!assignment?.url) {
-      toast.error("No URL available to copy");
+      // toast.error("No URL available to copy");
+      setIsModalForGenerateUrlOpen(true);
       return;
     }
 
@@ -224,7 +227,7 @@ const ExamCard = ({
                     </Dropdown.Item>
                     <Dropdown.Item
                       icon={<FaFileExport className="text-purple-500" />}
-                      onClick={() => setShowExportAssignmentModal(true)}
+                      onClick={onExportClick}
                       className="flex items-center gap-2"
                     >
                       Export
@@ -261,13 +264,6 @@ const ExamCard = ({
                   </Dropdown>
                 </div>
               )}
-
-              <ExportExam
-                isModalOpen={showExportAssignmentModal}
-                setIsModalOpen={setShowExportAssignmentModal}
-                assignmentId={Number(assignment?.id)}
-                defaultTitle={assignment?.title}
-              />
               <DeleteModal
                 title="Are you sure you want to delete this Assignment?"
                 note="This action cannot be undone. All data related to this Assignment . "
@@ -391,8 +387,98 @@ const ExamCard = ({
           </div>
         </div>
       </div>
+      {isModalForGenerateUrlOpen && (
+        <GenerateUrlModal
+          // setIsSuccessGenerateUrl={setIsSuccessGenerateUrl}
+          ExamId={examId}
+          isModalOpen={isModalForGenerateUrlOpen}
+          setIsModalOpen={setIsModalForGenerateUrlOpen}
+        />
+      )}
     </div>
   );
 };
 
 export default ExamCard;
+
+const GenerateUrlModal = ({
+  // setIsSuccessGenerateUrl,
+  ExamId,
+  isModalOpen,
+  setIsModalOpen,
+}: {
+  // setIsSuccessGenerateUrl: any;
+  ExamId: number | undefined;
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+}) => {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const onSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const data = await generateUrl(Number(ExamId));
+      await navigator.clipboard.writeText(
+        `https://york-web-wheat.vercel.app/exam/${
+          data?.data?.data?.url || undefined
+        }`
+      );
+
+      console.log(data);
+      toast.success(
+        "Url generated successfully, and Link copied to clipboard!"
+      );
+      setIsModalOpen(false);
+      // setIsSuccessGenerateUrl((prev: any) => !prev);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate url"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const { Text, Title } = Typography;
+  return (
+    <Modal
+      title={
+        <Space>
+          <RiAiGenerate style={{ color: "#037f85", fontSize: 20 }} />
+          <span>Generate Url</span>
+        </Space>
+      }
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={
+        <Space>
+          <Button onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            //  icon={isSubmitting ? null : <DeleteOutlined />}
+            onClick={onSubmit}
+            loading={isSubmitting}
+            className="pb-1"
+          >
+            {isSubmitting ? "Generating..." : "Generate"}
+          </Button>
+        </Space>
+      }
+      centered
+      width={450}
+    >
+      <div style={{ padding: "16px 0" }}>
+        <Title level={5} style={{ marginBottom: 8 }}>
+          {"Generate Url for exam"}
+        </Title>
+        <Text type="secondary">
+          {
+            "The exam does not have url yet , do you want to generate url for it "
+          }
+        </Text>
+      </div>
+    </Modal>
+  );
+};

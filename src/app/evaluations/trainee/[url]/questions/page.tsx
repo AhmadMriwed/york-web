@@ -82,7 +82,7 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
-      router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+      router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
     }
   }, []);
   useEffect(() => {
@@ -91,10 +91,10 @@ const QuizQuestionPage = () => {
         const data = await checkIfUserIsFinish(Number(user_id));
         console.log(data);
         if (data.status !== false) {
-          router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+          router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
         }
       } catch (error) {
-        router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+        router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
       }
     };
     checkuserfinish();
@@ -192,8 +192,8 @@ const QuizQuestionPage = () => {
         setExamData(assignmentData.data!);
         setTimeLeft(Number(assignmentData?.data?.duration_in_minutes!) * 60);
       } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
+        console.error("Error fetching evaluation data:", error);
+        toast.error("Failed to load evaluation data");
       }
     };
 
@@ -368,8 +368,8 @@ const QuizQuestionPage = () => {
         window.addEventListener("popstate", () => {
           window.history.pushState(null, "", window.location.href);
         });
-        toast.success("Quiz submitted successfully!");
-        router.push(`/evaluations/${url}/result?user_id=${user_id}`);
+        toast.success("Evaluation submitted successfully!");
+        router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
       } catch (error) {
         console.error("Error submitting quiz:", error);
         toast.error("Failed to submit quiz");
@@ -424,14 +424,6 @@ const QuizQuestionPage = () => {
                     alt="Logo"
                     className="h-20 object-contain"
                   />
-                  <div className="flex items-center gap-2">
-                    <div className="bg-white p-1.5 rounded shadow-xs">
-                      <FiClock className="text-primary-color1 text-md" />
-                    </div>
-                    <p className="text-lg font-bold text-primary-color1 tabular-nums">
-                      {formatTime(timeLeft)}
-                    </p>
-                  </div>
                 </div>
 
                 <h2 className="text-lg font-bold text-primary-color1 text-center">
@@ -491,15 +483,6 @@ const QuizQuestionPage = () => {
                         {userData?.id_number}
                       </p>
                     </div>
-                  </div>
-
-                  <div className="flex items-center bg-blue-50 px-3 py-1 rounded-lg">
-                    <div className="bg-white p-1.5 rounded shadow-xs mr-2">
-                      <FiClock className="text-primary-color1 text-lg" />
-                    </div>
-                    <p className="text-xl font-bold text-primary-color1 tabular-nums">
-                      {formatTime(timeLeft)}
-                    </p>
                   </div>
 
                   <div className="flex items-center bg-teal-50 rounded-full px-3 py-1 border border-teal-100">
@@ -720,6 +703,59 @@ const QuizQuestionPage = () => {
                         placeholder="Type your detailed answer here..."
                       />
                     )}
+                    {question.question_type_id === 6 && (
+                      <div className="space-y-4">
+                        <div className="text-gray-700 dark:text-gray-300 prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
+                          <div className="">
+                            <input
+                              type="range"
+                              min="1"
+                              max={Number(question.fields?.[0]?.field) || 10}
+                              step="1"
+                              value={
+                                typeof currentAnswer === "string"
+                                  ? Number(currentAnswer)
+                                  : 1
+                              }
+                              onChange={(e) =>
+                                onAnswerChange(index, e.target.value)
+                              }
+                              className="!w-3/4 md:!w-1/2 h-1.5 bg-gray-300 rounded-lg cursor-pointer dark:bg-gray-600 accent-primary-color1 dark:accent-primary-color1-light"
+                            />
+                            <div className=" !w-3/4 md:!w-1/2 flex justify-between mt-2 gap-4">
+                              {Array.from(
+                                {
+                                  length:
+                                    Number(question.fields?.[0]?.field) || 10,
+                                },
+                                (_, i) => i + 1
+                              ).map((num) => (
+                                <span
+                                  key={num}
+                                  className={`text-xs ${
+                                    (typeof currentAnswer === "string"
+                                      ? Number(currentAnswer)
+                                      : 0) === num
+                                      ? "font-bold text-primary-color1 dark:text-primary-color1-light"
+                                      : "text-gray-500 dark:text-gray-400"
+                                  }`}
+                                >
+                                  {num}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <span className="text-sm font-medium">
+                            Selected Value:{" "}
+                            {typeof currentAnswer === "string"
+                              ? currentAnswer
+                              : "Not selected"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {/* {solution && (
                     <div className={`mt-4 p-4 rounded-lg border bg-green-50`}>
@@ -769,7 +805,7 @@ const QuizQuestionPage = () => {
               </div>
             ) : (
               <div className="flex items-center">
-                {currentPage === totalPages ? "Submit Quiz" : "Next"}
+                {currentPage === totalPages ? "Submit " : "Next"}
                 <FiChevronRight className="ml-2 text-lg" />
               </div>
             )}
@@ -798,7 +834,7 @@ const QuizQuestionPage = () => {
         }}
         onCancel={() => setShowSubmitConfirm(false)}
         title="Confirm Submission"
-        message="Are you sure you want to submit the exam? You won't be able to make changes after submission."
+        message="Are you sure you want to submit the evaluation? You won't be able to make changes after submission."
       />
     </div>
   );

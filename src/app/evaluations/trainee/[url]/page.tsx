@@ -9,7 +9,7 @@ const Page = (props: Props) => {
   const { url, type } = useParams();
 
   useEffect(() => {
-    router.push(`/evaluations/${url}/startPage`);
+    router.push(`/evaluations/trainee/${url}/startPage`);
   }, []);
 
   return null;

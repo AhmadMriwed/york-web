@@ -13,9 +13,17 @@ import {
   FaHourglassHalf,
   FaLink,
 } from "react-icons/fa";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { HiDotsVertical } from "react-icons/hi";
-import { Progress, Empty } from "antd";
-import { Dropdown, IconButton } from "rsuite";
+import { Progress, Empty, Modal, Space, Button, Typography } from "antd";
+import { Dropdown, IconButton, Loader } from "rsuite";
 import { ThemeContext } from "../Pars/ThemeContext";
 import { useParams, useRouter } from "next/navigation";
 import { MdTitle } from "react-icons/md";
@@ -31,6 +39,18 @@ import Image from "next/image";
 import DeleteModal from "./DeleteModal";
 import { More, Edit, Trash, Paragraph } from "@rsuite/icons";
 import copy from "copy-to-clipboard";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  generateUrl,
+  generateUrlForTrainer,
+} from "@/lib/action/evaluation_action";
+
+import { Loader2 } from "lucide-react";
+import CustomFormField, { FormFieldType } from "../review/CustomFormField";
+import { useForm } from "react-hook-form";
+import { RiAiGenerate } from "react-icons/ri";
 
 type EvaluationCardProps = {
   evaluationId: number;
@@ -54,6 +74,9 @@ const EvaluationCard = ({
   const router = useRouter();
   const { id } = useParams();
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalForGenerateUrlOpen, setIsModalForGenerateUrlOpen] =
+    useState(false);
 
   const { mode } = useContext(ThemeContext) as { mode: "dark" | "light" };
 
@@ -155,12 +178,17 @@ const EvaluationCard = ({
 
   const onCopyLink = async () => {
     if (!evaluation?.url) {
-      toast.error("No URL available to copy");
+      if (evaluation?.evaluation_type.id === 2) {
+        setIsModalOpen(true);
+      } else {
+        //  toast.error("url not found");
+        setIsModalForGenerateUrlOpen(true);
+      }
       return;
     }
 
     try {
-      if (evaluation?.evaluation_type?.id === 1) {
+      if (evaluation?.evaluation_type.id === 1) {
         await navigator.clipboard.writeText(
           `https://york-web-wheat.vercel.app/evaluations/trainer/${evaluation?.url}`
         );
@@ -172,6 +200,9 @@ const EvaluationCard = ({
       toast.success("Link copied to clipboard!");
     } catch (err) {
       console.error("Failed to copy: ", err);
+      toast.error("Failed to copy link");
+      // Fallback to older method if Clipboard API isn't available
+      copy(`https://york-web-wheat.vercel.app/evaluations/${evaluation?.url}`);
       toast.success("Link copied to clipboard!");
     }
   };
@@ -234,13 +265,7 @@ const EvaluationCard = ({
                   >
                     Edit
                   </Dropdown.Item>
-                  <Dropdown.Item
-                    icon={<FaFileExport className="text-purple-500" />}
-                    onClick={onExportClick}
-                    className="flex items-center gap-2"
-                  >
-                    Export
-                  </Dropdown.Item>
+
                   <Dropdown.Item
                     icon={<FaLink className="text-blue-400" />}
                     onClick={onCopyLink}
@@ -346,8 +371,219 @@ const EvaluationCard = ({
           </div>
         )}
       </div>
+      <GenerateTraineeEvaluationUrlModal
+        // setIsSuccessGenerateUrl={setIsSuccessGenerateUrl}
+        idEvaluation={evaluation?.id}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+      />
+      {isModalForGenerateUrlOpen && (
+        <GenerateUrlModal
+          // setIsSuccessGenerateUrl={setIsSuccessGenerateUrl}
+          idEvaluation={evaluation?.id}
+          isModalOpen={isModalForGenerateUrlOpen}
+          setIsModalOpen={setIsModalForGenerateUrlOpen}
+        />
+      )}
     </div>
   );
 };
 
 export default EvaluationCard;
+
+const GenerateTraineeEvaluationUrlModal = ({
+  // setIsSuccessGenerateUrl,
+  idEvaluation,
+  isModalOpen,
+  setIsModalOpen,
+}: {
+  // setIsSuccessGenerateUrl: any;
+  idEvaluation: number | undefined;
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+}) => {
+  const generateTraineeEvaluationUrlSchema = z.object({
+    id_number: z.string().min(1, "ID number is required"),
+    password: z.string().min(1, "Password is required"),
+    exam_section_id: z.number(),
+  });
+
+  const { id } = useParams();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  type GenerateFormValues = z.infer<typeof generateTraineeEvaluationUrlSchema>;
+
+  const form = useForm<GenerateFormValues>({
+    resolver: zodResolver(generateTraineeEvaluationUrlSchema),
+    defaultValues: {
+      id_number: "",
+      password: "",
+      exam_section_id: Number(id),
+    },
+  });
+
+  const onSubmit = async (values: GenerateFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const data = await generateUrlForTrainer(Number(idEvaluation), values);
+      await navigator.clipboard.writeText(
+        `https://york-web-wheat.vercel.app/evaluations/trainee/${data.data?.url}`
+      );
+
+      console.log(data);
+      toast.success(
+        "Url generated successfully, and Link copied to clipboard!"
+      );
+      setIsModalOpen(false);
+      // setIsSuccessGenerateUrl((prev: any) => !prev);
+      form.reset();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate url"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal
+      title="Generate URL"
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={null}
+      width={800}
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="ID Number:"
+                name="id_number"
+                placeholder="Enter ID number"
+              />
+            </div>
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="Password:"
+                name="password"
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1"
+              onClick={() => setIsModalOpen(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="text-white rounded-[8px] px-3 py-[6px] bg-primary-color1 hover:bg-primary-color2"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader className="animate-spin mr-2" />
+                  Generating...
+                </div>
+              ) : (
+                "Generate"
+              )}
+            </button>
+          </div>
+        </form>
+      </Form>
+    </Modal>
+  );
+};
+const GenerateUrlModal = ({
+  // setIsSuccessGenerateUrl,
+  idEvaluation,
+  isModalOpen,
+  setIsModalOpen,
+}: {
+  // setIsSuccessGenerateUrl: any;
+  idEvaluation: number | undefined;
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+}) => {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const onSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const data = await generateUrl(Number(idEvaluation));
+      await navigator.clipboard.writeText(
+        `https://york-web-wheat.vercel.app/evaluations/trainer/${
+          data?.data?.data?.url || undefined
+        }`
+      );
+
+      console.log(data);
+      toast.success(
+        "Url generated successfully, and Link copied to clipboard!"
+      );
+      setIsModalOpen(false);
+      // setIsSuccessGenerateUrl((prev: any) => !prev);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate url"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const { Text, Title } = Typography;
+  return (
+    <Modal
+      title={
+        <Space>
+          <RiAiGenerate style={{ color: "#037f85", fontSize: 20 }} />
+          <span>Generate Url</span>
+        </Space>
+      }
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={
+        <Space>
+          <Button onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            //  icon={isSubmitting ? null : <DeleteOutlined />}
+            onClick={onSubmit}
+            loading={isSubmitting}
+            className="pb-1"
+          >
+            {isSubmitting ? "Generating..." : "Generate"}
+          </Button>
+        </Space>
+      }
+      centered
+      width={450}
+    >
+      <div style={{ padding: "16px 0" }}>
+        <Title level={5} style={{ marginBottom: 8 }}>
+          {"Generate Url for evaluation"}
+        </Title>
+        <Text type="secondary">
+          {
+            "The evaluation does not have url yet , do you want to generate url for it "
+          }
+        </Text>
+      </div>
+    </Modal>
+  );
+};

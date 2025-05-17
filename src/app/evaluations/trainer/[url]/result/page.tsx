@@ -372,7 +372,7 @@ const QuizResultsPage = () => {
                   }}
                   className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"
                 >
-                  Show My Answers s
+                  Show My Answers
                   <FiChevronRight className="ml-2" />
                 </button>
               </div>

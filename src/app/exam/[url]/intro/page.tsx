@@ -58,7 +58,7 @@ const Intro = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full mx-auto p-8 bg-white rounded-xl shadow-lg border border-indigo-100">
+      <div className="max-w-2xl w-full mx-auto p-2 md:p-8 bg-white rounded-xl shadow-lg border border-indigo-100">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-primary-color1 mb-6">
             Welcome to the {examData?.exam_type.type}

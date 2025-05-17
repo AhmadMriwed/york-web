@@ -368,7 +368,7 @@ const QuizQuestionPage = () => {
         window.addEventListener("popstate", () => {
           window.history.pushState(null, "", window.location.href);
         });
-        toast.success("Quiz submitted successfully!");
+        toast.success("Evaluation submitted successfully!");
         router.push(`/evaluations/trainer/${url}/result?user_id=${user_id}`);
       } catch (error) {
         console.error("Error submitting quiz:", error);

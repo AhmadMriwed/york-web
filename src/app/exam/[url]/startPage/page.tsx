@@ -115,10 +115,12 @@ const Page = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        if (examData?.start_forms[0]?.id) {
+        if (examData?.start_forms[0]?.form_id) {
           const files = await fetchStartFormFiles(
-            Number(examData.start_forms[0].id)
+            Number(examData.start_forms[0].form_id)
           );
+          console.log(examData?.start_forms[0]?.form_id);
+          console.log(files);
           if (files) {
             setExamFiles(files?.data || []);
           }

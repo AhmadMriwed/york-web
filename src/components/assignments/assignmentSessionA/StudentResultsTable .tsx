@@ -24,8 +24,12 @@ const StudentResultsTable = (data: any) => {
   const statusColor = (status: string) => {
     switch (status) {
       case "excellent":
+      case "Excellent":
+      case "Completed":
         return "bg-green-100 text-green-800";
       case "very good":
+      case "VeryGood":
+      case "InProgress":
         return "bg-blue-100 text-blue-800";
       case "good":
         return "bg-yellow-100 text-yellow-800";
@@ -45,6 +49,28 @@ const StudentResultsTable = (data: any) => {
         rowHeight={60}
         autoHeight
         className="custom-scrollbar-table"
+        renderEmpty={() => (
+          <div
+            className={`flex flex-col items-center justify-center py-8 ${
+              mode === "dark" ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <h3
+              className={`text-lg font-medium ${
+                mode === "dark" ? "text-gray-200" : "text-gray-700"
+              }`}
+            >
+              No Data Found
+            </h3>
+            <p
+              className={`mt-1 ${
+                mode === "dark" ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              There are no student results to display at this time.
+            </p>
+          </div>
+        )}
       >
         {/* Columns mapping */}
         {[
@@ -95,7 +121,7 @@ const StudentResultsTable = (data: any) => {
                 if (column.dataKey === "status")
                   return (
                     <span
-                      className={`px-4 py-2 rounded-full text-base max-sm:px-2 max-sm:py-1 max-sm:text-sm ${statusColor(
+                      className={`px-3 py-[6px] rounded-full text-[14px] max-sm:px-2 max-sm:py-1 max-sm:text-[13px] ${statusColor(
                         rowData?.status
                       )}`}
                     >
@@ -119,12 +145,18 @@ const StudentResultsTable = (data: any) => {
           .rs-table-scrollbar-pressed .rs-table-scrollbar-handle {
             background-color: var(--primary-color1)
           }
+      .rs-table-cell {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+          .rs-table-header-cell {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
         `}
       </style>
     </div>
   );
-
-  
 };
 
 export default StudentResultsTable;

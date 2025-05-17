@@ -13,12 +13,6 @@ import {
   FaPlayCircle,
   FaPlay,
   FaTimes,
-  FaFilePdf,
-  FaFileWord,
-  FaFileExcel,
-  FaFileImage,
-  FaFileAlt,
-  FaDownload,
 } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,71 +28,38 @@ import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { assignUser } from "@/lib/action/user/userr_action";
 import { icons } from "@/constants/icons";
-import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
+import {
+  getEvaluationByUrl,
+  loginTrainer,
+} from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 
-const createValidationSchema = (fieldRequirements: any) => {
-  const schema: Record<string, any> = {
-    id_number: z.string().min(1, "ID number is required"),
-  };
-
-  fieldRequirements.forEach((field: any) => {
-    switch (field.name) {
-      case "first_name":
-        schema.first_name = z
-          .string()
-          .min(2, "First name must be at least 2 characters");
-        break;
-      case "last_name":
-        schema.last_name = z
-          .string()
-          .min(2, "Last name must be at least 2 characters");
-        break;
-      case "email":
-        schema.email = z.string().email("Invalid email address");
-        break;
-    }
-  });
-
-  return z.object(schema);
-};
-
-interface ExamFile {
-  id: number;
-  exam_id: number;
-  file_id: number;
-  file: {
-    id: number;
-    name: string;
-    path: string;
-    type: string;
-    size: string;
-  };
-}
+const trainerSchema = z.object({
+  id_number: z.string().min(1, "Student ID is required"),
+  password: z.string(),
+});
 
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [examData, setExamData] = useState<Evaluation | any>();
-  const [examFiles, setExamFiles] = useState<ExamFile[]>([]);
+  const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
   const [isFetching, setIsFetching] = useState(true);
   const router = useRouter();
   const { url } = useParams();
 
-  // New states for dialogs
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [showIdVerificationDialog, setShowIdVerificationDialog] =
     useState(false);
   const [idNumberInput, setIdNumberInput] = useState("");
 
   useEffect(() => {
-    const fetchExamData = async () => {
+    const fetchEvaluationData = async () => {
       try {
         const data = await getEvaluationByUrl(String(url));
         if (!data) {
           throw new Error("no data");
         }
-        setExamData(data.data);
+        setEvaluationData(data.data);
       } catch (error) {
         console.error("Error fetching evaluation data:", error);
         toast.error("Failed to load evaluation data");
@@ -107,17 +68,17 @@ const Page = () => {
       }
     };
 
-    fetchExamData();
+    fetchEvaluationData();
   }, [url]);
 
-  const hasExamEnded = () => {
-    if (!examData?.evaluation_config?.end_date) return false;
-    const endDate = new Date(examData.evaluation_config.end_date);
+  const hasEvaluationEnded = () => {
+    if (!evaluationData?.evaluation_config?.end_date) return false;
+    const endDate = new Date(evaluationData.evaluation_config.end_date);
     return endDate < new Date();
   };
 
   const showModal = () => {
-    if (hasExamEnded()) {
+    if (hasEvaluationEnded()) {
       setShowResultDialog(true);
       return;
     }
@@ -129,25 +90,21 @@ const Page = () => {
   };
 
   const onSubmit = async (values: any) => {
-    const toastId = toast.loading("Registering for exam...");
+    const toastId = toast.loading("Registering for evaluation...");
 
-    if (hasExamEnded()) {
+    if (hasEvaluationEnded()) {
       toast.dismiss(toastId);
       setShowResultDialog(true);
       return;
     }
 
     const payload: any = {
-      form_id: examData?.forms[0].id,
       id_number: values.id_number,
+      password: values.password,
     };
 
-    examData?.field_requirements?.forEach((field: any) => {
-      payload[field.name] = values[field.name];
-    });
-
     try {
-      const response = await assignUser(payload);
+      const response = await loginTrainer(Number(evaluationData?.id), payload);
 
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
@@ -167,7 +124,7 @@ const Page = () => {
         setShowIdVerificationDialog(true);
       } else {
         toast.error("Oops! Something went wrong", {
-          description: error.message || "Failed to register user",
+          description: error.message || "Failed to register trainer",
           duration: 5000,
         });
       }
@@ -178,22 +135,22 @@ const Page = () => {
 
   const handleIdVerification = () => {
     if (idNumberInput.trim()) {
-      router.push(`/evaluations/${url}/result?id_number=${idNumberInput}`);
+      router.push(
+        `/evaluations/trainee/${url}/result?id_number=${idNumberInput}`
+      );
       setShowIdVerificationDialog(false);
     }
   };
-
-  const form = useForm<z.infer<ReturnType<typeof createValidationSchema>>>({
-    resolver: zodResolver(
-      createValidationSchema(examData?.field_requirements || [])
-    ),
+  type TrainerFormValues = z.infer<typeof trainerSchema>;
+  const form = useForm<TrainerFormValues>({
+    resolver: zodResolver(trainerSchema),
     defaultValues: {
       id_number: "",
-      first_name: "",
-      last_name: "",
-      email: "",
+      password: "",
     },
   });
+
+  console.log(evaluationData);
 
   if (isFetching) {
     return (
@@ -203,7 +160,7 @@ const Page = () => {
     );
   }
 
-  if (!examData) {
+  if (!evaluationData) {
     return (
       <div className="flex items-start my-20 justify-center h-screen">
         <p className="text-red-500">Failed to load exam data</p>
@@ -211,35 +168,31 @@ const Page = () => {
     );
   }
 
-  // Format the exam data for display
   const formattedExamInfo = {
-    title: examData?.title,
-    description: examData?.sub_title,
-    image: examData?.start_forms[0]?.image,
-    duration: `${examData?.duration_in_minutes} minutes`,
-    date: examData?.evaluation_config?.start_date
-      ? new Date(examData?.evaluation_config?.start_date).toLocaleDateString(
-          "en-US",
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        )
+    title: evaluationData?.title,
+    description: evaluationData?.sub_title,
+    image: evaluationData?.start_forms[0]?.image,
+    date: evaluationData?.evaluation_config?.start_date
+      ? new Date(
+          evaluationData?.evaluation_config?.start_date
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
       : null,
-    totalQuestions: examData?.number_of_questions,
+    totalQuestions: evaluationData?.number_of_questions,
     instructor: "Dr. Instructor Name",
-    examType: examData?.exam_type?.type,
-    examDescription: examData?.start_forms[0]?.description,
-    endDate: examData?.evaluation_config?.end_date
-      ? new Date(examData?.evaluation_config?.end_date).toLocaleDateString(
-          "en-US",
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        )
+    examType: evaluationData?.evaluation_type?.type,
+    examDescription: evaluationData?.start_forms[0]?.description,
+    endDate: evaluationData?.evaluation_config?.end_date
+      ? new Date(
+          evaluationData?.evaluation_config?.end_date
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
       : null,
   };
 
@@ -255,7 +208,7 @@ const Page = () => {
 
               <div className="bg-blue-50 rounded-lg p-6 border border-blue-100 mb-6">
                 <h2 className="text-xl font-semibold text-blue-800 mb-4 flex items-center">
-                  <FaInfoCircle className="mr-2 text-blue-600" /> Test
+                  <FaInfoCircle className="mr-2 text-blue-600" /> Evaluation
                   Instructions
                 </h2>
                 <div className="space-y-3 text-blue-900">
@@ -269,16 +222,7 @@ const Page = () => {
                       .
                     </p>
                   </div>
-                  <div className="flex items-start">
-                    <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
-                    <p>
-                      The total duration is{" "}
-                      <span className="font-bold">
-                        {formattedExamInfo.duration}
-                      </span>
-                      .
-                    </p>
-                  </div>
+
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>
@@ -308,19 +252,19 @@ const Page = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center">
-                      <FaClock className="mr-3 text-[#037f85] w-5 h-5" />
+                      <FaCalendarAlt className="mr-3 text-[#037f85] w-5 h-5" />
                       <div>
-                        <p className="text-sm text-gray-500">Duration</p>
-                        <p className="font-medium">
-                          {formattedExamInfo.duration}
-                        </p>
+                        <p className="text-sm text-gray-500">Start Date</p>
+                        <p className="font-medium">{formattedExamInfo.date}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
                       <FaCalendarAlt className="mr-3 text-[#037f85] w-5 h-5" />
                       <div>
-                        <p className="text-sm text-gray-500">Start Date</p>
-                        <p className="font-medium">{formattedExamInfo.date}</p>
+                        <p className="text-sm text-gray-500">End Date</p>
+                        <p className="font-medium">
+                          {formattedExamInfo.endDate}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -331,15 +275,6 @@ const Page = () => {
                         <p className="text-sm text-gray-500">Total Questions</p>
                         <p className="font-medium">
                           {formattedExamInfo.totalQuestions}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <FaCalendarAlt className="mr-3 text-[#037f85] w-5 h-5" />
-                      <div>
-                        <p className="text-sm text-gray-500">End Date</p>
-                        <p className="font-medium">
-                          {formattedExamInfo.endDate}
                         </p>
                       </div>
                     </div>
@@ -431,54 +366,16 @@ const Page = () => {
               required={true}
             />
 
-            {examData?.field_requirements?.map((field: any) => {
-              switch (field.name) {
-                case "first_name":
-                  return (
-                    <CustomFormField
-                      key={field.id}
-                      fieldType={FormFieldType.INPUT}
-                      control={form.control}
-                      name="first_name"
-                      label={"First Name"}
-                      placeholder={"Enter your first name"}
-                      iconSrc="/icons/user.svg"
-                      iconAlt="user"
-                      required={true}
-                    />
-                  );
-                case "last_name":
-                  return (
-                    <CustomFormField
-                      key={field.id}
-                      fieldType={FormFieldType.INPUT}
-                      control={form.control}
-                      name="last_name"
-                      label={"Last Name"}
-                      placeholder={"Enter your last name"}
-                      iconSrc="/icons/user.svg"
-                      iconAlt="user"
-                      required={true}
-                    />
-                  );
-                case "email":
-                  return (
-                    <CustomFormField
-                      key={field.id}
-                      fieldType={FormFieldType.INPUT}
-                      control={form.control}
-                      name="email"
-                      label={"Email"}
-                      placeholder={"Enter your email"}
-                      iconSrc="/icons/mail.svg"
-                      iconAlt="email"
-                      required={true}
-                    />
-                  );
-                default:
-                  return null;
-              }
-            })}
+            <CustomFormField
+              fieldType={FormFieldType.INPUT}
+              control={form.control}
+              name="password"
+              label={"Password"}
+              placeholder={"Enter your password"}
+              iconSrc={icons.lock}
+              iconAlt="lock"
+              required={true}
+            />
           </form>
         </Form>
       </Modal>
