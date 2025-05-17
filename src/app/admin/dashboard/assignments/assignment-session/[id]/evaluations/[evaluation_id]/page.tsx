@@ -74,9 +74,8 @@ import {
   FaRedo,
   FaRegNewspaper,
 } from "react-icons/fa";
-import { RiSlideshowLine } from "react-icons/ri";
+
 import { AiOutlineFieldTime } from "react-icons/ai";
-// import { changeExamStatus, createEndFormF, createStartFormF, deleteEndForm, deleteExam, deleteStartForm, fetchAssignmentById, fetchRequirmentFieldsData, updateExamSettings } from "@/lib/action/exam_action";
 import {
   deleteEndForm,
   deleteEvaluation,
@@ -101,6 +100,7 @@ import ImageUploader from "@/components/upload/ImageUploader";
 import { Modal, TimePicker } from "antd";
 import { createEndFormF, createStartFormF } from "@/lib/action/exam_action";
 import { Snippet } from "@heroui/react";
+import AddNewStudentModal from "@/components/assignments/AddStudentModal";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -159,6 +159,9 @@ const Page = () => {
     useState(false);
 
   const [showAddStartingInterfaceModal, setShowAddStartingInterfaceModal] =
+    useState<boolean>(false);
+
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] =
     useState<boolean>(false);
 
   const [examUsers, setExamUsers] = useState();
@@ -229,21 +232,13 @@ const Page = () => {
     fetch();
   }, []);
 
-  const [isSubmittingExamConditions, setIsSubmittingExamConditions] =
-    useState(false);
-  const [isSubmittingExamRequirments, setIsSubmittingExamRequirments] =
-    useState(false);
   const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
     useState(false);
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
 
-  const [isEdittingExamConditions, setIsEdittingExamConditions] =
-    useState(false);
-  const [isEdittingExamRequirments, setIsEdittingExamRequirments] =
-    useState(false);
   const [
-    isThereAddFieldForExamRequirments,
-    setIsThereAddFieldForExamRequirments,
+    openGenerateTraineeEvaluationUrlModal,
+    setOpenGenerateTraineeEvaluationUrlModal,
   ] = useState(false);
 
   const editExamSettingsSchema = z.object({
@@ -288,9 +283,6 @@ const Page = () => {
     }
   }, [assignmentData, form]);
 
-  const formatDateForInput = (date: Date) => {
-    return date.toISOString().split("T")[0];
-  };
   const EditeAnswersView = async () => {
     setIsSubmittingExamSettings(true);
     const toastId = toast.loading("changing answers view to manually ...");
@@ -614,7 +606,9 @@ const Page = () => {
                       icon: <Link className=" size-5 max-sm:size-4" />,
                       text: "Generate Url",
                       action: () => {
-                        generate();
+                        assignmentData?.evaluation_type.id === 1
+                          ? generate()
+                          : setOpenGenerateTraineeEvaluationUrlModal(true);
                       },
                     },
                   ].map((item, index) => (
@@ -631,6 +625,10 @@ const Page = () => {
                   ))}
                 </Dropdown>
               </div>
+              <GenerateTraineeEvaluationUrlModal
+                isModalOpen={openGenerateTraineeEvaluationUrlModal}
+                setIsModalOpen={setOpenGenerateTraineeEvaluationUrlModal}
+              />
 
               <div className=" px-6 grid grid-cols-1 sm:grid-cols-8 gap-6 max-sm:px-4 max-sm:gap-4 pt-4">
                 <div className="max-sm:px-4 max-sm:py-2 sm:col-span-3 ">
@@ -725,21 +723,38 @@ const Page = () => {
                     }
                   />
 
-                  {assignmentData?.url && (
-                    <Snippet
-                      symbol=""
-                      variant="bordered"
-                      className="pb-2 hide-scrollbar"
-                      onCopy={() => {
-                        navigator.clipboard.writeText(
-                          `https://york-web-wheat.vercel.app/evaluations/${assignmentData?.url}`
-                        );
-                        return false;
-                      }}
-                    >
-                      {assignmentData?.url}
-                    </Snippet>
-                  )}
+                  {assignmentData?.evaluation_type.id === 1 &&
+                    assignmentData?.url && (
+                      <Snippet
+                        symbol=""
+                        variant="bordered"
+                        className="pb-2 hide-scrollbar"
+                        onCopy={() => {
+                          navigator.clipboard.writeText(
+                            `https://york-web-wheat.vercel.app/evaluations/trainer/${assignmentData?.url}`
+                          );
+                          return false;
+                        }}
+                      >
+                        {assignmentData?.url}
+                      </Snippet>
+                    )}
+                  {assignmentData?.evaluation_type.id === 2 &&
+                    assignmentData?.url && (
+                      <Snippet
+                        symbol=""
+                        variant="bordered"
+                        className="pb-2 hide-scrollbar"
+                        onCopy={() => {
+                          navigator.clipboard.writeText(
+                            `https://york-web-wheat.vercel.app/evaluations/trainee/${assignmentData?.url}`
+                          );
+                          return false;
+                        }}
+                      >
+                        {assignmentData?.url}
+                      </Snippet>
+                    )}
                 </div>
               </div>
 
@@ -1311,8 +1326,22 @@ const Page = () => {
 
           <div className="mt-8 ">
             <h2 className="text-xl md:text-2xl font-bold mb-4">
-              Student Results
+              Student Results :
             </h2>
+            {assignmentData?.evaluation_type.id === 2 && (
+              <div className="w-full flex justify-end mb-4">
+                <Button
+                  className="bg-primary-color1 hover:!bg-primary-color2 text-white"
+                  onClick={() => setIsAddStudentModalOpen(true)}
+                >
+                  Add student
+                </Button>
+                <AddNewStudentModal
+                  isModalOpen={isAddStudentModalOpen}
+                  setIsModalOpen={setIsAddStudentModalOpen}
+                />
+              </div>
+            )}
             <StudentResultsTable data={examUsers} />
           </div>
         </>
@@ -1697,6 +1726,79 @@ const AddStartFormInterface = ({
               className="text-white rounded-[8px] px-3 py-[px] bg-primary-color1 hover:bg-primary-color2"
             >
               Submit
+            </button>
+          </div>
+        </form>
+      </Form>
+    </Modal>
+  );
+};
+
+const GenerateTraineeEvaluationUrlModal = ({
+  isModalOpen,
+  setIsModalOpen,
+}: {
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
+}) => {
+  const generateTraineeEvaluationUrl = z.object({
+    id: z.string(),
+    password: z.string(),
+  });
+
+  type StartFormValues = z.infer<typeof generateTraineeEvaluationUrl>;
+
+  const form = useForm<StartFormValues>({
+    resolver: zodResolver(generateTraineeEvaluationUrl),
+    defaultValues: {},
+  });
+
+  const onSubmit = async (values: StartFormValues) => {};
+
+  return (
+    <Modal
+      title="Generate Url "
+      open={isModalOpen}
+      onCancel={() => setIsModalOpen(false)}
+      footer={null}
+      width={800}
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="Id:"
+                name="id"
+                placeholder="Enter Id"
+              />
+            </div>
+            <div className="md:col-span-1">
+              <CustomFormField
+                fieldType={FormFieldType.INPUT}
+                control={form.control}
+                label="Password:"
+                name="password"
+                placeholder="Enter password"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4">
+            <button
+              type="button"
+              className="rounded-[8px] hover:text-white px-3 py-[6px] bg-transparent border-1 border-primary-color1 hover:bg-primary-color1"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="text-white rounded-[8px] px-3 py-[px] bg-primary-color1 hover:bg-primary-color2"
+            >
+              Generate
             </button>
           </div>
         </form>

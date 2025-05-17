@@ -1,5 +1,6 @@
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
 import axios from "axios";
+import { toast } from "sonner";
 import Cookie from "universal-cookie";
 
 const cookie = new Cookie();
@@ -169,15 +170,14 @@ export const updateQuestion = async (formData: any, form_id: number) => {
 };
 export const deletedQuestionOptions = async (deletedIds: any) => {
   try {
-   
     console.log(deletedIds);
     const response = await axios.delete(
-      '/assignment/question-fields/bulk-destroy',
+      "/assignment/question-fields/bulk-destroy",
       {
-        data: { "ids": deletedIds },  // Axios DELETE payload needs to be in config.data
+        data: { ids: deletedIds }, // Axios DELETE payload needs to be in config.data
         headers: {
-          'Content-Type': 'application/json'  // Explicit content type
-        }
+          "Content-Type": "application/json", // Explicit content type
+        },
       }
     );
     return response;
@@ -388,22 +388,15 @@ export const deleteQuestion = async (id: number) => {
     throw new Error("Unexpected error");
   }
 };
-export const addExamMessages = async (
-  formData: any,
-) => {
+export const addExamMessages = async (formData: any) => {
   try {
- 
     console.log(formData);
 
-    const response = await axios.post(
-      `/assignment/exam-messages`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.post(`/assignment/exam-messages`, formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
     return response.data;
   } catch (error: any) {
     console.log(error);
@@ -413,12 +406,8 @@ export const addExamMessages = async (
     throw new Error("Unexpected error");
   }
 };
-export const updateExamMessages = async (
-  formData: any,
-  messageId: number
-) => {
+export const updateExamMessages = async (formData: any, messageId: number) => {
   try {
- 
     console.log(formData);
 
     const response = await axios.put(
@@ -440,19 +429,14 @@ export const updateExamMessages = async (
   }
 };
 
-
-export const deleteStartForm = async ( form_id: number) => {
+export const deleteStartForm = async (form_id: number) => {
   try {
-
     console.log(form_id);
-    const response = await axios.delete(
-      `/assignment/start-forms/${form_id}`,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.delete(`/assignment/start-forms/${form_id}`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     console.log(response);
     return response;
   } catch (error: any) {
@@ -463,18 +447,14 @@ export const deleteStartForm = async ( form_id: number) => {
     throw new Error("Unexpected error");
   }
 };
-export const deleteEndForm = async ( form_id: number) => {
+export const deleteEndForm = async (form_id: number) => {
   try {
-
     console.log(form_id);
-    const response = await axios.delete(
-      `/assignment/end-forms/${form_id}`,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.delete(`/assignment/end-forms/${form_id}`, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     console.log(response);
     return response;
   } catch (error: any) {
@@ -486,19 +466,16 @@ export const deleteEndForm = async ( form_id: number) => {
   }
 };
 
-
-
-export const deletedQuestions= async (ids: number[]) => {
+export const deletedQuestions = async (ids: number[]) => {
   try {
-   
     console.log(ids);
     const response = await axios.delete(
-      '/assignment/question-forms/bulk-destroy',
+      "/assignment/question-forms/bulk-destroy",
       {
-        data: { "ids": ids }, 
+        data: { ids: ids },
         headers: {
-          'Content-Type': 'application/json' 
-        }
+          "Content-Type": "application/json",
+        },
       }
     );
     return response;
@@ -510,19 +487,17 @@ export const deletedQuestions= async (ids: number[]) => {
     throw new Error("Unexpected error");
   }
 };
-
 
 export const deletedQuestionCorrectAnswers = async (deletedIds: any) => {
   try {
-   
     console.log(deletedIds);
     const response = await axios.delete(
-      '/assignment/correct-answers/bulk-destroy',
+      "/assignment/correct-answers/bulk-destroy",
       {
-        data: { "ids": deletedIds },  // Axios DELETE payload needs to be in config.data
+        data: { ids: deletedIds }, // Axios DELETE payload needs to be in config.data
         headers: {
-          'Content-Type': 'application/json'  // Explicit content type
-        }
+          "Content-Type": "application/json", // Explicit content type
+        },
       }
     );
     return response;
@@ -534,8 +509,6 @@ export const deletedQuestionCorrectAnswers = async (deletedIds: any) => {
     throw new Error("Unexpected error");
   }
 };
-
-
 
 export const getSectionById = async (id: number) => {
   try {
@@ -552,8 +525,6 @@ export const getSectionById = async (id: number) => {
     throw new Error("Unexpected error");
   }
 };
-
-
 
 export const fetchRequirmentFieldsData = async () => {
   try {
@@ -575,18 +546,14 @@ export const fetchRequirmentFieldsData = async () => {
   }
 };
 
-export const createStartFormF = async ( values: any) => {
+export const createStartFormF = async (values: any) => {
   try {
     console.log(values);
-    const response = await axios.post(
-      `/assignment/start-forms`,
-      values,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`/assignment/start-forms`, values, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response;
   } catch (error: any) {
     console.log(error);
@@ -597,18 +564,14 @@ export const createStartFormF = async ( values: any) => {
   }
 };
 
-export const createEndFormF = async ( values: any) => {
+export const createEndFormF = async (values: any) => {
   try {
     console.log(values);
-    const response = await axios.post(
-      `/assignment/end-forms`,
-      values,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`/assignment/end-forms`, values, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response;
   } catch (error: any) {
     console.log(error);
@@ -618,7 +581,6 @@ export const createEndFormF = async ( values: any) => {
     throw new Error("Unexpected error");
   }
 };
-
 
 interface GradeSettings {
   correct_answer_grade: number;
@@ -626,7 +588,7 @@ interface GradeSettings {
 }
 
 export const markAll = async (
-  values: GradeSettings, 
+  values: GradeSettings,
   examId: number
 ): Promise<GradeSettings> => {
   try {
@@ -635,42 +597,107 @@ export const markAll = async (
       values,
       {
         headers: {
-          "Content-Type": "application/json", 
+          "Content-Type": "application/json",
         },
       }
     );
-    console.log
+    console.log;
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 
-                         error.message || 
-                         "Failed to update grading settings";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update grading settings";
       console.error("API Error:", errorMessage, error.response?.data);
       throw new Error(errorMessage);
     }
     console.error("Unexpected error:", error);
-    throw new Error("An unexpected error occurred while updating grading settings");
+    throw new Error(
+      "An unexpected error occurred while updating grading settings"
+    );
   }
 };
 
-
-export const createCategory = async ( title: string) => {
+export const createCategory = async (title: string) => {
   try {
     const payload = {
-      title: title
-    }
+      title: title,
+    };
     console.log(payload);
-    const response = await axios.post(
-      `/assignment/categories`,
-      payload,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axios.post(`/assignment/categories`, payload, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+
+export const exportExam = async ({
+  id,
+  fileName,
+  type,
+}: {
+  id?: number;
+  fileName: string;
+  type: string;
+}) => {
+  try {
+    const validFormats = ["xlsx", "csv", "pdf", "docx"];
+    if (!validFormats.includes(type)) {
+      throw new Error(
+        `Invalid format. Allowed types: ${validFormats.join(", ")}`
+      );
+    }
+
+    const payload: Record<string, any> = {
+      file_name: fileName,
+      type: type,
+      id: id,
+    };
+
+    const res = await axios.post("/assignment/exams/export-exam", payload, {
+      headers: {
+        ...getAuthHeaders("application/json").headers,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      responseType: "blob",
+    });
+
+    if (res.status === 200) {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${fileName}.${type}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("File exported successfully");
+      return res.data;
+    }
+  } catch (error: any) {
+    console.error("Export Error:", error);
+    toast.error(error.response?.data?.message || "Failed to export file(s)");
+    throw error;
+  }
+};
+export const getQuestionTypes = async () => {
+  try {
+    const response = await axios.get(`/assignment/question-types`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
   } catch (error: any) {
     console.log(error);
     if (axios.isAxiosError(error)) {

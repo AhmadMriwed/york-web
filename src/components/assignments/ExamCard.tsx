@@ -36,6 +36,7 @@ import { useParams, useRouter } from "next/navigation";
 import { MdQuestionAnswer } from "react-icons/md";
 import DeleteModal from "./DeleteModal";
 import copy from "copy-to-clipboard";
+import ExportExam from "./ExportExam";
 
 type ExamCardProps = {
   examId: number;
@@ -55,6 +56,8 @@ const ExamCard = ({
   const { mode } = useContext(ThemeContext) as { mode: "dark" | "light" };
   const [progress, setProgress] = useState<number | null>(null);
   const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
+    useState<boolean>(false);
+  const [showExportAssignmentModal, setShowExportAssignmentModal] =
     useState<boolean>(false);
 
   const router = useRouter();
@@ -221,7 +224,7 @@ const ExamCard = ({
                     </Dropdown.Item>
                     <Dropdown.Item
                       icon={<FaFileExport className="text-purple-500" />}
-                      onClick={onExportClick}
+                      onClick={() => setShowExportAssignmentModal(true)}
                       className="flex items-center gap-2"
                     >
                       Export
@@ -258,6 +261,13 @@ const ExamCard = ({
                   </Dropdown>
                 </div>
               )}
+
+              <ExportExam
+                isModalOpen={showExportAssignmentModal}
+                setIsModalOpen={setShowExportAssignmentModal}
+                assignmentId={Number(assignment?.id)}
+                defaultTitle={assignment?.title}
+              />
               <DeleteModal
                 title="Are you sure you want to delete this Assignment?"
                 note="This action cannot be undone. All data related to this Assignment . "

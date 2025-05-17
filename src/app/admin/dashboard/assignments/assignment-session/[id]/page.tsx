@@ -15,7 +15,6 @@ import EvaluationCard from "@/components/assignments/EvaluationCard";
 import ExamCard from "@/components/assignments/ExamCard";
 import AddNewItem from "@/components/assignments/AddNewItem";
 import DeleteModal from "@/components/assignments/DeleteModal";
-import ExportAssignment from "@/components/assignments/ExportAssignment";
 import { CiExport } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
 import {
@@ -39,6 +38,7 @@ import { Image } from "antd";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/headers/header";
 import { useFetchWithId } from "@/hooks/useFetch";
+import ExportAssignmentSession from "@/components/assignments/ExportAssignmentSession";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -80,7 +80,7 @@ const Page = () => {
     router.replace("/admin/dashboard/assignments/assignment-session");
   };
 
-  // export  assignment:
+  // export  assignment sessions:
   const [showAssignmentExportModal, setShowAssignmentExportModal] =
     useState<boolean>(false);
 
@@ -202,7 +202,7 @@ const Page = () => {
                     </p>
                   </div>
 
-                  <ExportAssignment
+                  <ExportAssignmentSession
                     isModalOpen={showAssignmentExportModal}
                     setIsModalOpen={setShowAssignmentExportModal}
                     assignmentSessionId={Number(assignmentSession.id)}

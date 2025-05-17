@@ -80,6 +80,7 @@ const typeDisplayMap = [
   "True/False",
   "Short answer",
   "Long answer",
+  "Rating Scale",
 ];
 const QuestionManager = () => {
   const searchParams = useSearchParams();
@@ -136,6 +137,7 @@ const QuestionManager = () => {
     id: q.id,
     questionText: q.question,
     question_number: q.question_number,
+    correct_answers: q.correct_answers,
     options: q.fields.map((field, index) => ({
       id: field.id,
       text: field.field,
@@ -791,53 +793,93 @@ const QuestionManager = () => {
                           dangerouslySetInnerHTML={{ __html: q.questionText }}
                         />
                       </div>
-                      <div className="flex flex-col gap-y-2 items-start justify-start">
-                        {q.options.map((option) => (
-                          <div
-                            key={option.id}
-                            className={`w-full flex justify-start rounded-[5px] p-2 items-start gap-3 ${
-                              option.isCorrect
-                                ? "w-full   bg-[#f0fdf8] dark:bg-[#102b27]/70"
-                                : ""
-                            }`}
-                          >
-                            <label className="relative flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                readOnly
-                                checked={option.isCorrect}
-                                className="appearance-none peer h-4 w-4 border-2 border-gray-300 rounded-sm 
+                      {q.type !== "Rating Scale" ? (
+                        <div className="flex flex-col gap-y-2 items-start justify-start">
+                          {q.options.map((option) => (
+                            <div
+                              key={option.id}
+                              className={`w-full flex justify-start rounded-[5px] p-2 items-start gap-3 ${
+                                option.isCorrect
+                                  ? "w-full   bg-[#f0fdf8] dark:bg-[#102b27]/70"
+                                  : ""
+                              }`}
+                            >
+                              <label className="relative flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  readOnly
+                                  checked={option.isCorrect}
+                                  className="appearance-none peer h-4 w-4 border-2 border-gray-300 rounded-sm 
                                  checked:bg-primary-color1 checked:border-0 dark:checked:bg-primary-color1
                                  transition-colors duration-200"
-                              />
-                              <div
-                                className="absolute pointer-events-none flex items-center justify-center 
+                                />
+                                <div
+                                  className="absolute pointer-events-none flex items-center justify-center 
                                      text-white h-4 w-4 left-0 top-0 opacity-0 peer-checked:opacity-100"
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-4 w-4"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
                                 >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </div>
+                              </label>
+                              <div className="text-gray-700 dark:text-gray-300 prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
+                                <p
+                                  dangerouslySetInnerHTML={{
+                                    __html: option.text,
+                                  }}
+                                />
                               </div>
-                            </label>
-                            <div className="text-gray-700 dark:text-gray-300 prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
-                              <p
-                                dangerouslySetInnerHTML={{
-                                  __html: option.text,
-                                }}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-y-2 items-start justify-start">
+                          <div className="text-gray-700 dark:text-gray-300 prose-sm prose-img:max-w-[250px] prose-img:h-[220px] prose-img:block prose-img:my-2 dark:prose-invert">
+                            <div className="">
+                              <input
+                                type="range"
+                                min="1"
+                                max={Number(q?.options[0]?.text) || 10} // Use q.options[0].text as max, fallback to 10
+                                step="1"
+                                value={
+                                  Number(
+                                    q?.correct_answers[0]?.correct_value
+                                  ) || 1
+                                }
+                                className="!w-full h-1.5 bg-gray-300 rounded-lg cursor-pointer dark:bg-gray-600 accent-primary-color1 dark:accent-primary-color1-light"
                               />
+                              <div className="flex justify-between mt-2 gap-4">
+                                {Array.from(
+                                  { length: Number(q?.options[0]?.text) || 10 },
+                                  (_, i) => i + 1
+                                ).map((num) => (
+                                  <span
+                                    key={num}
+                                    className={`text-xs ${
+                                      Number(
+                                        q?.correct_answers[0]?.correct_value
+                                      ) === num
+                                        ? "font-bold text-primary-color1 dark:text-primary-color1-light"
+                                        : "text-gray-500 dark:text-gray-400"
+                                    }`}
+                                  >
+                                    {num}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
-import { More } from "@rsuite/icons";
+import { Export, More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
@@ -117,6 +117,8 @@ import ImageUploader from "@/components/upload/ImageUploader";
 import { Modal, TimePicker } from "antd";
 import { Snippet } from "@heroui/react";
 import { fetchExamUsers } from "@/lib/action/assignment_action";
+import DeleteModal from "@/components/assignments/DeleteModal";
+import ExportExam from "@/components/assignments/ExportExam";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -168,6 +170,7 @@ const Page = () => {
   const router = useRouter();
   const [isExamStatusChanged, setIsExamStatusChanged] = useState(false);
   const [isExamDeleted, setIsExamDeleted] = useState(false);
+  const [isExamDeleting, setIsExamDeleting] = useState(false);
   const [isViewAnsersChanged, setIsViewAnswersChanged] = useState(false);
   const [isStartFormDeleted, setIsStartFormDeleted] = useState(false);
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
@@ -181,8 +184,15 @@ const Page = () => {
 
   const [showAddEndingInterfaceModal, setShowAddEndingInterfaceModal] =
     useState<boolean>(false);
+  const [showAssignmentExportModal, setShowAssignmentExportModal] =
+    useState<boolean>(false);
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [examUsers, setExamUsers] = useState();
+  const [showExportAssignmentModal, setShowExportAssignmentModal] =
+    useState(false);
+  const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
+    useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -305,8 +315,8 @@ const Page = () => {
         toast.success("Exam messages Added successfully");
       }
 
-      toast.success("Exam messages updated successfully");
       setIsEditingMessages(false);
+      setIsAddingMessages(false);
       setIsSuccess(!isSuccess); // Refresh data
     } catch (error: any) {
       if (assignmentData?.exam_messages != null) {
@@ -459,6 +469,7 @@ const Page = () => {
 
   const deletteExam = async () => {
     try {
+      setIsExamDeleting(true);
       const response = await deleteExam(Number(assignment_id));
       console.log("API Response:", response);
 
@@ -474,6 +485,7 @@ const Page = () => {
         duration: 5000,
       });
     } finally {
+      setIsExamDeleting(false);
     }
   };
 
@@ -618,7 +630,7 @@ const Page = () => {
                       ),
                       text: "Delete",
                       action: () => {
-                        deletteExam();
+                        setShowDeleteAssignmentModal(true);
                       },
                     },
                     ...(assignmentData?.exam_config?.view_answer !== "manually"
@@ -637,9 +649,11 @@ const Page = () => {
                         ]
                       : []),
                     {
-                      icon: <CiExport className=" size-5 max-sm:size-4" />,
-                      text: "Export to Excel",
-                      action: () => {},
+                      icon: <Export className=" size-5 max-sm:size-4" />,
+                      text: "Export ",
+                      action: () => {
+                        setShowExportAssignmentModal(true);
+                      },
                     },
                     {
                       icon: (
@@ -656,7 +670,11 @@ const Page = () => {
                     {
                       icon: <MdVisibility className=" size-5 max-sm:size-4" />,
                       text: "Preview Exam",
-                      action: () => {},
+                      action: () => {
+                        router.push(
+                          `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/preview`
+                        );
+                      },
                     },
                     {
                       icon: <Link className=" size-5 max-sm:size-4" />,
@@ -772,6 +790,21 @@ const Page = () => {
                   )}
                 </div>
               </div>
+
+              <ExportExam
+                isModalOpen={showExportAssignmentModal}
+                setIsModalOpen={setShowExportAssignmentModal}
+                assignmentId={Number(assignment_id)}
+                defaultTitle={assignmentData?.title}
+              />
+              <DeleteModal
+                title="Are you sure you want to delete this Assignment?"
+                note="This action cannot be undone. All data related to this Assignment . "
+                open={showDeleteAssignmentModal}
+                onCancel={() => setShowDeleteAssignmentModal(false)}
+                onConfirm={deletteExam}
+                isDeleting={isExamDeleting}
+              />
 
               <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:px-10 p-1.5 mt-8 sm:mt-16 px-4 xl:gap-7 sm:px-6 ">
                 {assignmentData?.start_forms[0]?.id ? (
@@ -1539,15 +1572,13 @@ const Page = () => {
                     <h3 className="font-semibold text-base">Success Message</h3>
                   </div>
                   {assignmentData?.exam_messages?.success_message ? (
-                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                    <div className=" p-2">
                       <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
                         {assignmentData.exam_messages.success_message}
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 italic text-sm text-gray-500 dark:text-gray-400">
-                      None configured
-                    </div>
+                    <div className=" p-2">None configured</div>
                   )}
                 </div>
 
@@ -1560,15 +1591,13 @@ const Page = () => {
                     <h3 className="font-semibold text-base">Failure Message</h3>
                   </div>
                   {assignmentData?.exam_messages?.failure_message ? (
-                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700">
+                    <div className=" p-2 ">
                       <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
                         {assignmentData.exam_messages.failure_message}
                       </p>
                     </div>
                   ) : (
-                    <div className="bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 italic text-sm text-gray-500 dark:text-gray-400">
-                      None configured
-                    </div>
+                    <div className=" p-2">None configured</div>
                   )}
                 </div>
               </div>

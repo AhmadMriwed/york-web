@@ -22,7 +22,7 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Loader2 } from "lucide-react";
-import { exportFile } from "@/lib/action/assignment_action";
+import { exportExam } from "@/lib/action/exam_action";
 
 export const ExportExamStatsValidation = z.object({
   reportType: z.string(),
@@ -32,17 +32,15 @@ export const ExportExamStatsValidation = z.object({
 type Props = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
-  assignmentSessionId: number;
+  assignmentId: number;
   defaultTitle?: string;
-  refetch?: () => void;
 };
 
-const ExportAssignment = ({
+const ExportExam = ({
   isModalOpen,
   setIsModalOpen,
-  assignmentSessionId,
+  assignmentId,
   defaultTitle = "",
-  refetch,
 }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -64,15 +62,13 @@ const ExportAssignment = ({
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      await exportFile({
-        url: "/assignment/exam-sections/export-exam-sections",
+      await exportExam({
         fileName: values.title,
-        format: values.reportType === "word" ? "docx" : "xlsx",
-        ids: [assignmentSessionId],
+        type: values.reportType === "word" ? "docx" : "xlsx",
+        id: assignmentId,
       });
 
       handleCancel();
-      await refetch?.();
     } catch (error) {
       console.error("Export failed:", error);
     } finally {
@@ -82,7 +78,7 @@ const ExportAssignment = ({
 
   return (
     <Modal
-      title="Export Assignment Session"
+      title="Export Assignment"
       open={isModalOpen}
       onCancel={handleCancel}
       footer={null}
@@ -98,7 +94,11 @@ const ExportAssignment = ({
                 <FormItem>
                   <FormLabel>Title:</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter export title" {...field} />
+                    <Input
+                      placeholder="Enter export title"
+                      {...field}
+                      className=" focus:outline-none border focus:ring-2 ring-primary-color1"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,4 +159,4 @@ const ExportAssignment = ({
   );
 };
 
-export default ExportAssignment;
+export default ExportExam;

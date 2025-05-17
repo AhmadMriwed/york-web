@@ -134,8 +134,6 @@ const UpdateEvaluationPage = () => {
       sub_title: evaluation?.sub_title || "",
       status: evaluation?.status || "",
       evaluation_type_id: evaluation?.evaluation_type_id || undefined,
-      number_of_questions: evaluation?.number_of_questions || undefined,
-      duration_in_minutes: evaluation?.duration_in_minutes || undefined,
       exam_section_id: Number(id),
       image: evaluation?.image!,
       evaluation_config: evaluation?.evaluation_config
@@ -195,8 +193,6 @@ const UpdateEvaluationPage = () => {
         sub_title: evaluation?.sub_title || "",
         status: evaluation?.status || "",
         evaluation_type_id: evaluation?.evaluation_type_id || undefined,
-        number_of_questions: evaluation?.number_of_questions || undefined,
-        duration_in_minutes: evaluation?.duration_in_minutes || undefined,
         exam_section_id: Number(id),
         image: evaluation?.image || undefined,
         evaluation_config: evaluation?.evaluation_config
@@ -264,14 +260,7 @@ const UpdateEvaluationPage = () => {
       formData.append("title", values.title);
       formData.append("sub_title", values.sub_title || "");
       formData.append("status", values.status || "");
-      formData.append(
-        "number_of_questions",
-        values.number_of_questions?.toString() || ""
-      );
-      formData.append(
-        "duration_in_minutes",
-        values.duration_in_minutes?.toString() || ""
-      );
+
       formData.append(
         "evaluation_type_id",
         values.evaluation_type_id?.toString() || ""
@@ -416,8 +405,6 @@ const UpdateEvaluationPage = () => {
       setIsSubmitting(false);
     }
   };
-
-  console.log(evaluation);
 
   const navigateToQuestionsPage = () => {
     router.push(
@@ -872,27 +859,6 @@ const UpdateEvaluationPage = () => {
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-4 sm:space-y-6 dark:text-white">
-                      <FormField
-                        control={form.control}
-                        name="duration_in_minutes"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Duration in Minutes :</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) =>
-                                  field.onChange(Number(e.target.value))
-                                }
-                                className="flex rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
-                                placeholder="e.g. 3"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                       <FormField
                         control={form.control}
                         name="evaluation_config.count_questions_page"

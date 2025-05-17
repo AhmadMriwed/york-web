@@ -90,7 +90,6 @@ const Page = () => {
   const [showIdVerificationDialog, setShowIdVerificationDialog] =
     useState(false);
   const [idNumberInput, setIdNumberInput] = useState("");
-  const [existingUserId, setExistingUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchExamData = async () => {
@@ -158,7 +157,7 @@ const Page = () => {
 
       form.reset();
       setIsModalOpen(false);
-      router.push(`/evaluations/${url}/intro?user_id=${response.data.id}`);
+      router.push(`/evaluations/trainee/${url}/students`);
     } catch (error: any) {
       toast.dismiss(toastId);
 

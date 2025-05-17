@@ -160,15 +160,18 @@ const EvaluationCard = ({
     }
 
     try {
-      await navigator.clipboard.writeText(
-        `https://york-web-wheat.vercel.app/evaluations/${evaluation?.url}`
-      );
+      if (evaluation?.evaluation_type?.id === 1) {
+        await navigator.clipboard.writeText(
+          `https://york-web-wheat.vercel.app/evaluations/trainer/${evaluation?.url}`
+        );
+      } else {
+        await navigator.clipboard.writeText(
+          `https://york-web-wheat.vercel.app/evaluations/trainee/${evaluation?.url}`
+        );
+      }
       toast.success("Link copied to clipboard!");
     } catch (err) {
       console.error("Failed to copy: ", err);
-      toast.error("Failed to copy link");
-      // Fallback to older method if Clipboard API isn't available
-      copy(`https://york-web-wheat.vercel.app/evaluations/${evaluation?.url}`);
       toast.success("Link copied to clipboard!");
     }
   };
