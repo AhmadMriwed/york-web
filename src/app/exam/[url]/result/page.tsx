@@ -2,7 +2,6 @@
 import { icons } from "@/constants/icons";
 import { useFetch, useFetchWithId } from "@/hooks/useFetch";
 import {
-  fetchAssignmentById,
   fetchAssignmentByUrl,
   fetchResultById,
   fetchResultByIdNumber,
@@ -38,7 +37,6 @@ const QuizResultsPage = () => {
 
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [rating, setRating] = useState(0);
-  const [finalGrade, setFinalGrade] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
@@ -367,9 +365,9 @@ const QuizResultsPage = () => {
                     <div>
                       <p className="text-gray-600 mb-3">
                         {result?.grade! >=
-                        examData?.exam_messages.success_degree!
-                          ? examData?.exam_messages.success_message
-                          : examData?.exam_messages.failure_message}
+                        examData?.exam_messages?.success_degree!
+                          ? examData?.exam_messages?.success_message
+                          : examData?.exam_messages?.failure_message}
                       </p>
                       <div className="flex space-x-4 justify-center  text-center">
                         <div className="text-center">

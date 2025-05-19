@@ -210,7 +210,7 @@ const Page = () => {
   };
 
   const onSubmit = async (values: any) => {
-    const toastId = toast.loading("Registering for exam...");
+    setIsLoading(true);
 
     const payload: any = {
       form_id: examData?.forms[0]?.id,
@@ -227,15 +227,12 @@ const Page = () => {
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
         duration: 4000,
-        id: toastId,
       });
 
       form.reset();
       setIsModalOpen(false);
       router.push(`/exam/${url}/intro?user_id=${response.data.id}`);
     } catch (error: any) {
-      toast.dismiss(toastId);
-
       if (error.message.includes("already been taken")) {
         setIdNumberInput(payload.id_number);
         setShowIdVerificationDialog(true);

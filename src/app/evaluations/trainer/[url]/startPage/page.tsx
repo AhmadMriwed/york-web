@@ -1,6 +1,6 @@
 "use client";
 import { images } from "@/constants/images";
-import { Modal, Space, Input } from "antd";
+import { Modal, Space, Input, Result } from "antd";
 import Image from "next/image";
 import {
   FaClock,
@@ -36,6 +36,8 @@ import { assignUser } from "@/lib/action/user/userr_action";
 import { icons } from "@/constants/icons";
 import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { fetchResultByIdNumber } from "@/lib/action/assignment_action";
+import { AxiosError } from "axios";
 
 const createValidationSchema = (fieldRequirements: any) => {
   const schema: Record<string, any> = {
@@ -63,25 +65,16 @@ const createValidationSchema = (fieldRequirements: any) => {
   return z.object(schema);
 };
 
-interface ExamFile {
-  id: number;
-  exam_id: number;
-  file_id: number;
-  file: {
-    id: number;
-    name: string;
-    path: string;
-    type: string;
-    size: string;
-  };
-}
-
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [examData, setExamData] = useState<Evaluation | any>();
-  const [examFiles, setExamFiles] = useState<ExamFile[]>([]);
+  const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
   const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState<{
+    message: string;
+    isEnded: boolean;
+  } | null>(null);
+
   const router = useRouter();
   const { url } = useParams();
 
@@ -90,19 +83,36 @@ const Page = () => {
   const [showIdVerificationDialog, setShowIdVerificationDialog] =
     useState(false);
   const [idNumberInput, setIdNumberInput] = useState("");
-  const [existingUserId, setExistingUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchExamData = async () => {
       try {
         const data = await getEvaluationByUrl(String(url));
-        if (!data) {
-          throw new Error("no data");
+        if (!data) throw new Error("No evaluation data available");
+        setEvaluationData(data.data);
+      } catch (err) {
+        let errorMessage = "This evaluation cannot be started.";
+        let isEnded = false;
+
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 403) {
+            const serverMessage = err.response.data?.message?.toLowerCase();
+            if (serverMessage?.includes("ended")) {
+              errorMessage =
+                "This evaluation has already ended and cannot be started.";
+              isEnded = true;
+            } else {
+              errorMessage =
+                "This evaluation is inactive and cannot be started.";
+            }
+          } else if (err.response?.status === 404) {
+            errorMessage = "evaluation not found. Please check the URL.";
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message || errorMessage;
         }
-        setExamData(data.data);
-      } catch (error) {
-        console.error("Error fetching evaluation data:", error);
-        toast.error("Failed to load evaluation data");
+
+        setError({ message: errorMessage, isEnded });
       } finally {
         setIsFetching(false);
       }
@@ -111,17 +121,7 @@ const Page = () => {
     fetchExamData();
   }, [url]);
 
-  const hasExamEnded = () => {
-    if (!examData?.evaluation_config?.end_date) return false;
-    const endDate = new Date(examData.evaluation_config.end_date);
-    return endDate < new Date();
-  };
-
   const showModal = () => {
-    if (hasExamEnded()) {
-      setShowResultDialog(true);
-      return;
-    }
     setIsModalOpen(true);
   };
 
@@ -130,30 +130,21 @@ const Page = () => {
   };
 
   const onSubmit = async (values: any) => {
-    const toastId = toast.loading("Registering for evaluation...");
-
-    if (hasExamEnded()) {
-      toast.dismiss(toastId);
-      setShowResultDialog(true);
-      return;
-    }
-
     const payload: any = {
-      form_id: examData?.forms[0].id,
+      form_id: evaluationData?.forms[0].id,
       id_number: values.id_number,
     };
 
-    examData?.field_requirements?.forEach((field: any) => {
+    evaluationData?.field_requirements?.forEach((field: any) => {
       payload[field.name] = values[field.name];
     });
-
+    setIsLoading(true);
     try {
       const response = await assignUser(payload);
 
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
         duration: 4000,
-        id: toastId,
       });
 
       form.reset();
@@ -162,8 +153,6 @@ const Page = () => {
         `/evaluations/trainer/${url}/intro?user_id=${response.data.id}`
       );
     } catch (error: any) {
-      toast.dismiss(toastId);
-
       if (error.message.includes("already been taken")) {
         setIdNumberInput(payload.id_number);
         setIsModalOpen(false);
@@ -179,18 +168,45 @@ const Page = () => {
     }
   };
 
-  const handleIdVerification = () => {
-    if (idNumberInput.trim()) {
-      router.push(
-        `/evaluations/trainer/${url}/result?id_number=${idNumberInput}`
-      );
-      setShowIdVerificationDialog(false);
+  const handleIdVerification = async () => {
+    if (!idNumberInput.trim()) return;
+
+    try {
+      setIsLoading(true);
+      const result = await fetchResultByIdNumber(idNumberInput);
+
+      if (result.message === "User Not Found") {
+        toast.error("User not found", {
+          description: "No evaluation results found for this ID number",
+          duration: 5000,
+        });
+      } else {
+        router.push(
+          `/evaluations/trainer/${url}/result?id_number=${idNumberInput}`
+        );
+        setShowIdVerificationDialog(false);
+        setShowResultDialog(false);
+      }
+    } catch (error: any) {
+      if (error.message.includes("User Not Found")) {
+        toast.error("User not found", {
+          description: "No evaluation results found for this ID number",
+          duration: 5000,
+        });
+      } else {
+        toast.error("Error", {
+          description: error.message || "Failed to fetch results",
+          duration: 5000,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const form = useForm<z.infer<ReturnType<typeof createValidationSchema>>>({
     resolver: zodResolver(
-      createValidationSchema(examData?.field_requirements || [])
+      createValidationSchema(evaluationData?.field_requirements || [])
     ),
     defaultValues: {
       id_number: "",
@@ -208,43 +224,130 @@ const Page = () => {
     );
   }
 
-  if (!examData) {
+  if (error || !evaluationData) {
     return (
-      <div className="flex items-start my-20 justify-center h-screen">
-        <p className="text-red-500">Failed to load exam data</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <Result
+          status="403"
+          title="Exam Access Restricted"
+          subTitle={
+            <span className="text-gray-600">
+              {error?.isEnded ? (
+                <>
+                  This evaluation has already{" "}
+                  <span className="font-bold text-primary-color1">ended</span>.
+                  <br />
+                  The submission period is closed.
+                </>
+              ) : (
+                <>
+                  This evaluation is currently{" "}
+                  <span className="font-bold text-primary-color1">
+                    inactive
+                  </span>
+                  .
+                  <br />
+                  You will be notified once it becomes available.
+                </>
+              )}
+            </span>
+          }
+        />
+        <p className="text-gray-500 text-sm italic mt-4">
+          Details: <span className="text-red-500">{error?.message}</span>
+        </p>
+        <div className="mt-6 flex flex-col items-center space-y-4">
+          <p className="text-gray-600">
+            If you have already taken this evaluation, you can view your
+            results:
+          </p>
+          <Button
+            onClick={() => setShowIdVerificationDialog(true)}
+            className="bg-[#037f85] hover:bg-[#036a70] text-white"
+          >
+            View My Results
+          </Button>
+        </div>
+        {/* ID Verification Dialog */}
+        <Modal
+          title={
+            <div className="flex items-center">
+              <FaUserAlt className="mr-2 text-[#037f85]" />
+              <span>Verify Your ID Number</span>
+            </div>
+          }
+          open={showIdVerificationDialog}
+          onCancel={() => setShowIdVerificationDialog(false)}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => setShowIdVerificationDialog(false)}
+              variant="outline"
+              className="mr-3"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>,
+            <Button
+              key="verify"
+              onClick={handleIdVerification}
+              disabled={!idNumberInput.trim() || isLoading}
+              className="bg-[#037f85] hover:bg-[#036a70]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify and View Results"
+              )}
+            </Button>,
+          ]}
+        >
+          <div className="p-4">
+            <p className="text-gray-700 mb-4">
+              Please enter your ID number to view your evaluation results:
+            </p>
+            <Input
+              value={idNumberInput}
+              onChange={(e) => setIdNumberInput(e.target.value)}
+              placeholder="Enter your ID number"
+              disabled={isLoading}
+            />
+          </div>
+        </Modal>
       </div>
     );
   }
 
-  // Format the exam data for display
+  // Format the evaluation data for display
   const formattedExamInfo = {
-    title: examData?.title,
-    description: examData?.sub_title,
-    image: examData?.start_forms[0]?.image,
-    duration: `${examData?.duration_in_minutes} minutes`,
-    date: examData?.evaluation_config?.start_date
-      ? new Date(examData?.evaluation_config?.start_date).toLocaleDateString(
-          "en-US",
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        )
+    title: evaluationData?.title,
+    description: evaluationData?.sub_title,
+    image: evaluationData?.start_forms[0]?.image,
+    duration: `${evaluationData?.duration_in_minutes} minutes`,
+    date: evaluationData?.evaluation_config?.start_date
+      ? new Date(
+          evaluationData?.evaluation_config?.start_date
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
       : null,
-    totalQuestions: examData?.number_of_questions,
+    totalQuestions: evaluationData?.number_of_questions,
     instructor: "Dr. Instructor Name",
-    examType: examData?.exam_type?.type,
-    examDescription: examData?.start_forms[0]?.description,
-    endDate: examData?.evaluation_config?.end_date
-      ? new Date(examData?.evaluation_config?.end_date).toLocaleDateString(
-          "en-US",
-          {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }
-        )
+    examType: evaluationData?.exam_type?.type,
+    examDescription: evaluationData?.start_forms[0]?.description,
+    endDate: evaluationData?.evaluation_config?.end_date
+      ? new Date(
+          evaluationData?.evaluation_config?.end_date
+        ).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
       : null,
   };
 
@@ -289,7 +392,7 @@ const Page = () => {
 
               <div className="bg-[#f8fafc] rounded-lg p-6 border border-gray-200 mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaBook className="mr-2 text-[#037f85]" /> Exam Details
+                  <FaBook className="mr-2 text-[#037f85]" /> Evaluation Details
                 </h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -330,7 +433,7 @@ const Page = () => {
                   onClick={showModal}
                   className="w-full bg-[#037f85] hover:bg-[#036a70] text-white h-10 rounded-lg text-lg font-medium"
                 >
-                  Start Exam
+                  Start Evaluation
                 </Button>
               </div>
             </div>
@@ -346,18 +449,18 @@ const Page = () => {
             }
             width={480}
             height={480}
-            alt="Online exam illustration"
+            alt="Online evaluation illustration"
             className="h-full w-full object-cover"
           />
         </div>
       </main>
 
-      {/* Start Exam Modal */}
+      {/* Start Evaluation Modal */}
       <Modal
         title={
           <div className="flex items-center">
             <FaPlayCircle className="mr-2 text-[#037f85]" />
-            <span>Start The Exam</span>
+            <span>Start The Evaluation</span>
           </div>
         }
         open={isModalOpen}
@@ -385,7 +488,7 @@ const Page = () => {
               ) : (
                 <>
                   <FaPlay className="text-xs size-2 h-1" />
-                  Start Exam
+                  Start Evaluation
                 </>
               )}
             </Button>
@@ -409,7 +512,7 @@ const Page = () => {
               required={true}
             />
 
-            {examData?.field_requirements?.map((field: any) => {
+            {evaluationData?.field_requirements?.map((field: any) => {
               switch (field.name) {
                 case "first_name":
                   return (
@@ -461,48 +564,6 @@ const Page = () => {
         </Form>
       </Modal>
 
-      {/* Exam Ended Dialog */}
-      <Modal
-        title={
-          <div className="flex items-center">
-            <FaInfoCircle className="mr-2 text-red-500" />
-            <span>Exam Period Ended</span>
-          </div>
-        }
-        open={showResultDialog}
-        onCancel={() => setShowResultDialog(false)}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => setShowResultDialog(false)}
-            variant="outline"
-            className="mr-3"
-          >
-            Close
-          </Button>,
-          <Button
-            key="view"
-            onClick={() => {
-              setShowResultDialog(false);
-              setShowIdVerificationDialog(true);
-            }}
-            className="bg-[#037f85] hover:bg-[#036a70]"
-          >
-            View Results
-          </Button>,
-        ]}
-      >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            The exam period has ended. Registration is no longer available.
-          </p>
-          <p className="text-gray-700">
-            If you have already taken this exam, you can view your results by
-            verifying your ID number.
-          </p>
-        </div>
-      </Modal>
-
       {/* ID Verification Dialog */}
       <Modal
         title={
@@ -534,7 +595,7 @@ const Page = () => {
       >
         <div className="p-4">
           <p className="text-gray-700 mb-4">
-            Please enter your ID number to view your exam results:
+            Please enter your ID number to view your evaluation results:
           </p>
           <Input
             value={idNumberInput}

@@ -32,8 +32,8 @@ const Intro = () => {
         console.log(data.data);
         setExamData(data.data);
       } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
+        console.error("Error fetching evaluation data:", error);
+        toast.error("Failed to load evaluation data");
       } finally {
         setIsFetching(false);
       }
@@ -67,7 +67,7 @@ const Intro = () => {
           </h1>
           <div className="bg-[#037f85]/10 p-8 rounded-lg mb-8 border border-[#037f85]/40">
             <h2 className="text-xl font-semibold text-primary-color1 mb-4">
-              Quiz Details
+              Evaluation Details
             </h2>
             <div className="space-y-4 text-left">
               <div className="flex items-center bg-gray-50 p-2">
@@ -103,7 +103,7 @@ const Intro = () => {
             loading={isStarting}
             className="bg-primary-color1 p-4 text-white"
           >
-            Start Quiz Now
+            Start Evaluation Now
           </Button>
         </div>
       </div>

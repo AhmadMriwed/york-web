@@ -1,32 +1,12 @@
 "use client";
-import { Table, Pagination } from "rsuite"; // Added Pagination import
+import { Table } from "rsuite";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import { useContext, useState } from "react";
 
 const { Column, HeaderCell, Cell } = Table;
 
-const StudentResultsTable = (data: any) => {
+const TraineesTable = (data: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [checkAll, setCheckAll] = useState(false);
-  const [limit, setLimit] = useState(10); // Added limit state
-  const [page, setPage] = useState(1); // Added page state
-
-  const handleCheckAll = () => {
-    setCheckAll(!checkAll);
-    setSelectedIds(checkAll ? [] : data.data.map((student: any) => student.id));
-  };
-
-  const handleCheck = (id: number) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleChangeLimit = (dataKey: number) => {
-    setPage(1); // Reset to first page when changing limit
-    setLimit(dataKey);
-  };
 
   const statusColor = (status: string) => {
     switch (status) {
@@ -45,13 +25,10 @@ const StudentResultsTable = (data: any) => {
     }
   };
 
-  // Pagination logic
-  const paginatedData = data?.data?.slice((page - 1) * limit, page * limit);
-
   return (
     <div className="max-sm:text-sm">
       <Table
-        data={paginatedData} // Changed from data.data to paginatedData
+        data={data.data}
         rowClassName={`${
           mode === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-50"
         }`}
@@ -82,7 +59,7 @@ const StudentResultsTable = (data: any) => {
           </div>
         )}
       >
-        {/* Columns mapping - unchanged */}
+        {/* Columns mapping */}
         {[
           {
             label: "Student Name",
@@ -141,49 +118,12 @@ const StudentResultsTable = (data: any) => {
                 if (column.customRender) {
                   return column.customRender(rowData);
                 }
-                return rowData[column.dataKey] || "N/A";
+                return rowData[column.dataKey] || "0";
               }}
             </Cell>
           </Column>
         ))}
       </Table>
-
-      {/* Pagination Component */}
-      <div
-        className={`mt-4 p-2 flex flex-col sm:flex-row justify-between items-center 
-        ${mode === "dark" ? "bg-gray-800" : "bg-gray-50"} rounded-b-lg`}
-      >
-        <div className="mb-2 sm:mb-0">
-          <span
-            className={`text-sm ${
-              mode === "dark" ? "text-gray-300" : "text-gray-600"
-            }`}
-          >
-            Showing {(page - 1) * limit + 1} to{" "}
-            {Math.min(page * limit, data?.data?.length)} of {data?.data?.length}{" "}
-            entries
-          </span>
-        </div>
-        <Pagination
-          prev
-          next
-          first
-          last
-          ellipsis
-          boundaryLinks
-          maxButtons={5}
-          size="xs"
-          layout={["total", "-", "limit", "|", "pager"]}
-          total={data?.data?.length}
-          limitOptions={[5, 10, 20, 30, 50]}
-          limit={limit}
-          activePage={page}
-          onChangePage={setPage}
-          onChangeLimit={handleChangeLimit}
-          className={`${mode === "dark" ? "rs-pagination-dark" : ""}`}
-        />
-      </div>
-
       <style>
         {`
           .rs-table-scrollbar-handle {
@@ -192,7 +132,7 @@ const StudentResultsTable = (data: any) => {
           .rs-table-scrollbar-pressed .rs-table-scrollbar-handle {
             background-color: var(--primary-color1)
           }
-          .rs-table-cell {
+      .rs-table-cell {
             padding-left: 16px;
             padding-right: 16px;
           }
@@ -200,27 +140,10 @@ const StudentResultsTable = (data: any) => {
             padding-left: 16px;
             padding-right: 16px;
           }
-          .rs-pagination-btn {
-            min-width: 32px;
-            border-radius: 6px;
-            margin: 0 2px;
-          }
-          .rs-pagination-btn-active {
-            background-color: var(--primary-color1) !important;
-            color: white !important;
-          }
-          .rs-pagination-btn:hover:not(.rs-pagination-btn-active) {
-            background-color: ${
-              mode === "dark" ? "#4b5563" : "#e5e7eb"
-            } !important;
-          }
-          .rs-pagination-select {
-            border-radius: 6px;
-          }
         `}
       </style>
     </div>
   );
 };
 
-export default StudentResultsTable;
+export default TraineesTable;

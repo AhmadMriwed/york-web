@@ -91,6 +91,8 @@ import { createEndFormF, createStartFormF } from "@/lib/action/exam_action";
 import { Snippet } from "@heroui/react";
 import AddNewStudentModal from "@/components/assignments/AddStudentModal";
 import { StudentDataType } from "@/types/adminTypes/evaluation/evaluationTypes";
+import TraineesTable from "@/components/assignments/TraineesTable";
+import TrainerTable from "@/components/assignments/TrainerTable";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -238,6 +240,7 @@ const Page = () => {
             first_name: trainee.first_name || "N/A",
             last_name: trainee.last_name || "N/A",
             id_number: trainee.id_number || "N/A",
+            assignment_user_id: trainee.assignment_user_id,
             email: trainee.email || "N/A",
             submission_time:
               trainee.assignment_user?.answers?.[0]?.submission_time,
@@ -1348,9 +1351,9 @@ const Page = () => {
               </div>
             )}
             {assignmentData?.evaluation_type.id === 2 ? (
-              <StudentResultsTable data={trainees} />
+              <TraineesTable data={trainees} />
             ) : (
-              <StudentResultsTable data={examUsers} />
+              <TrainerTable data={examUsers} />
             )}
           </div>
         </>
