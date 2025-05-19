@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
-import { Export, More } from "@rsuite/icons";
+import { Export, More, Trash } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
 import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
@@ -85,6 +85,7 @@ import {
   createStartFormF,
   deleteEndForm,
   deleteExam,
+  deleteExamMessages,
   deleteStartForm,
   fetchAssignmentById,
   fetchRequirmentFieldsData,
@@ -119,6 +120,7 @@ import { Snippet } from "@heroui/react";
 import { fetchExamUsers } from "@/lib/action/assignment_action";
 import DeleteModal from "@/components/assignments/DeleteModal";
 import ExportExam from "@/components/assignments/ExportExam";
+import axios from "axios";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -155,12 +157,6 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
   );
 };
 
-interface RequirementField {
-  id: number; // or string, depending on your data
-  name: string;
-  // other fields if they exist
-}
-
 const Page = () => {
   const { id, assignment_id } = useParams();
   const [assignmentData, setAssignmentData] = useState<Assignment | null>(null);
@@ -171,6 +167,9 @@ const Page = () => {
   const [isExamStatusChanged, setIsExamStatusChanged] = useState(false);
   const [isExamDeleted, setIsExamDeleted] = useState(false);
   const [isExamDeleting, setIsExamDeleting] = useState(false);
+  const [isSuccessExamMessagesDeleting, setIsSuccessExamMessagesDeleting] =
+    useState(false);
+  const [isExamMessgesDeleting, setIsExamMessgesDeleting] = useState(false);
   const [isViewAnsersChanged, setIsViewAnswersChanged] = useState(false);
   const [isStartFormDeleted, setIsStartFormDeleted] = useState(false);
   const [isEndFormDeleted, setIsEndFormDeleted] = useState(false);
@@ -192,6 +191,8 @@ const Page = () => {
   const [showExportAssignmentModal, setShowExportAssignmentModal] =
     useState(false);
   const [showDeleteAssignmentModal, setShowDeleteAssignmentModal] =
+    useState(false);
+  const [showDeleteExamMessagesModal, setShowDeleteExamMessagesModal] =
     useState(false);
 
   useEffect(() => {
@@ -234,6 +235,7 @@ const Page = () => {
     isExamStatusChanged,
     isSuccess,
     isViewAnsersChanged,
+    isSuccessExamMessagesDeleting,
   ]);
 
   const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
@@ -241,25 +243,54 @@ const Page = () => {
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
 
   const editExamSettingsSchema = z.object({
-    count_questions_page: z.number().min(1),
-    time_questions_page: z
-      .string()
-      .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-        message: "Invalid time format (HH:MM or HH:MM:SS required)",
-      }),
-    view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
-    count_return_exam: z.number().min(0),
+    exam_config: z
+      .object({
+        condition_exams_id: z.string().optional(),
+        view_results: z.string().optional(),
+        count_questions_page: z.number().optional(),
+        count_return_exam: z.number().optional(),
+        view_answer: z.string().optional(),
+      })
+      .optional()
+      .nullable(),
+
+    duration_in_minutes: z.number().optional(),
   });
 
   type FormValues = z.infer<typeof editExamSettingsSchema>;
 
+  console.log(assignmentData);
+  useEffect(() => {
+    if (assignmentData) {
+      form.reset({
+        duration_in_minutes: assignmentData?.duration_in_minutes || undefined,
+        exam_config: assignmentData?.exam_config
+          ? {
+              view_answer: assignmentData.exam_config.view_answer || "manually",
+              view_results: assignmentData.exam_config.view_results || "",
+              count_return_exam:
+                assignmentData?.exam_config.count_return_exam || undefined,
+              count_questions_page:
+                assignmentData?.exam_config.count_questions_page || undefined,
+            }
+          : undefined,
+      });
+    }
+  }, [assignmentData, assignment_id]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(editExamSettingsSchema),
     defaultValues: {
-      count_questions_page: 1,
-      time_questions_page: "00:00",
-      view_results: "manually",
-      count_return_exam: 0,
+      duration_in_minutes: assignmentData?.duration_in_minutes || undefined,
+      exam_config: assignmentData?.exam_config
+        ? {
+            view_results: assignmentData.exam_config.view_results || "",
+            count_return_exam:
+              assignmentData.exam_config.count_return_exam || undefined,
+            count_questions_page:
+              assignmentData.exam_config.count_questions_page || undefined,
+          }
+        : undefined,
     },
   });
 
@@ -290,7 +321,7 @@ const Page = () => {
         certificate_url: assignmentData.exam_messages.certificate_url,
       });
     }
-  }, [assignmentData, messagesForm]);
+  }, [assignmentData, messagesForm, isSuccessExamMessagesDeleting]);
 
   const onSubmitMessages = async (values: MessagesFormValues) => {
     setIsSubmittingMessages(true);
@@ -335,25 +366,21 @@ const Page = () => {
 
   useEffect(() => {
     if (assignmentData) {
-      const { exam_config } = assignmentData;
       form.reset({
-        count_questions_page: exam_config?.count_questions_page,
-        time_questions_page:
-          exam_config?.time_questions_page?.split(":").slice(0, 2).join(":") ||
-          "00:00",
-        view_results: exam_config?.view_results as
-          | "after_completion"
-          | "manually"
-          | "after_each_answer",
-        count_return_exam: exam_config?.count_return_exam,
+        duration_in_minutes: assignmentData.duration_in_minutes || undefined,
+        exam_config: assignmentData.exam_config
+          ? {
+              view_results: assignmentData.exam_config.view_results || "",
+              view_answer: assignmentData.exam_config.view_answer || "",
+              count_return_exam:
+                assignmentData.exam_config.count_return_exam || undefined,
+              count_questions_page:
+                assignmentData.exam_config.count_questions_page || undefined,
+            }
+          : undefined,
       });
     }
   }, [assignmentData, form]);
-
-  const formatDateForInput = (date: Date) => {
-    return date.toISOString().split("T")[0];
-  };
-
   const EditeAnswersView = async () => {
     setIsSubmittingExamSettings(true);
     const toastId = toast.loading("changing answers view to manually ...");
@@ -397,14 +424,19 @@ const Page = () => {
       const payload = {
         ...values,
         exam_id: Number(assignment_id),
+        form_id: assignmentData?.forms[0]?.id.toString()!,
         condition_exams_id: null,
         old_condition_exams_id: null,
       };
-      console.log(payload);
-      console.log(assignmentData?.exam_config.id);
-      const response = await updateExamSettings(
+
+      const response = await axios.post(
+        `/assignment/exams/update-all`,
         payload,
-        Number(assignmentData?.exam_config.id)
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       console.log("API Response:", response);
 
@@ -445,6 +477,7 @@ const Page = () => {
     } finally {
     }
   };
+
   const generate = async () => {
     const toastId = toast.loading("generating url ...");
     try {
@@ -486,6 +519,38 @@ const Page = () => {
       });
     } finally {
       setIsExamDeleting(false);
+    }
+  };
+  const deletteExamMessages = async () => {
+    try {
+      setIsExamMessgesDeleting(true);
+      const response = await deleteExamMessages(
+        Number(assignmentData?.exam_messages?.id)
+      );
+      console.log("API Response:", response);
+
+      toast.success("Exam messages deleted successfully", {
+        description: "The exam messages has been deleted successfully.",
+        duration: 4000,
+      });
+
+      // Reset the form with empty/default values
+      messagesForm.reset({
+        success_degree: "",
+        success_message: "",
+        failure_message: "",
+        certificate_url: "",
+      });
+      setIsSuccessExamMessagesDeleting((prev) => !prev);
+    } catch (error: any) {
+      console.error("Submission Error:", error);
+      toast.error("Oops! Something went wrong", {
+        description: error.message,
+        duration: 5000,
+      });
+    } finally {
+      setIsExamMessgesDeleting(false);
+      setShowDeleteExamMessagesModal(false);
     }
   };
 
@@ -633,21 +698,7 @@ const Page = () => {
                         setShowDeleteAssignmentModal(true);
                       },
                     },
-                    ...(assignmentData?.exam_config?.view_answer !== "manually"
-                      ? [
-                          {
-                            icon: (
-                              <input
-                                type="checkbox"
-                                onChange={() => EditeAnswersView()}
-                                className="size-5 max-sm:size-4 accent-primary-color1"
-                              />
-                            ),
-                            text: "Answers View",
-                            action: () => {},
-                          },
-                        ]
-                      : []),
+
                     {
                       icon: <Export className=" size-5 max-sm:size-4" />,
                       text: "Export ",
@@ -758,21 +809,17 @@ const Page = () => {
                     <InfoItem
                       icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Students"
-                      value={`${assignmentData?.number_of_students}.`}
+                      value={`${(examUsers || []).length}`}
                     />
                     <InfoItem
                       icon={
                         <Percent className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                       }
                       label="Passing "
-                      value={`${assignmentData?.percentage}%`}
+                      value={`${assignmentData?.grade_percentage}%`}
                     />
                   </div>
-                  <InfoItem
-                    icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                    label="Answers View "
-                    value={assignmentData?.exam_config?.view_answer || " "}
-                  />
+
                   {assignmentData?.url && (
                     <Snippet
                       symbol=""
@@ -1071,57 +1118,42 @@ const Page = () => {
                           <div className="space-y-4 sm:space-y-6 dark:text-white">
                             <FormField
                               control={form.control}
-                              name="count_questions_page"
+                              name="exam_config.count_questions_page"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Questions Per Page : </FormLabel>
-
+                                  <FormLabel>Questions Per Page :</FormLabel>
                                   <FormControl>
                                     <Input
                                       type="number"
-                                      {...field}
+                                      value={field.value ?? ""}
                                       onChange={(value) =>
                                         field.onChange(Number(value))
                                       }
-                                      className="dark:bg-gray-800"
+                                      className="flex rounded-md p-1.5 border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
+                                      placeholder="e.g. 3"
                                     />
                                   </FormControl>
-
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
                             <FormField
                               control={form.control}
-                              name="time_questions_page"
+                              name="duration_in_minutes"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Time per Page :</FormLabel>
-                                  <TimePicker
-                                    format="HH:mm"
-                                    value={
-                                      field.value
-                                        ? dayjs(
-                                            typeof field.value === "string" &&
-                                              field.value.includes(":")
-                                              ? field.value
-                                              : `00:${field.value}`.slice(-5),
-                                            "HH:mm"
-                                          )
-                                        : null
-                                    }
-                                    onChange={(time, timeString) => {
-                                      if (timeString) {
-                                        field.onChange(timeString);
-                                      } else {
-                                        field.onChange(
-                                          assignmentData?.exam_config
-                                            ?.time_questions_page || ""
-                                        );
+                                  <FormLabel>Duration in Minutes :</FormLabel>
+                                  <FormControl>
+                                    <input
+                                      type="number"
+                                      value={field.value ?? ""}
+                                      onChange={(e) =>
+                                        field.onChange(Number(e.target.value))
                                       }
-                                    }}
-                                    className="w-full bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
-                                  />
+                                      className="flex p-1.5 w-full rounded-md border bg-gray-100 dark:bg-gray-700 focus-within:border-primary-color1 focus:ring-1 focus:outline-none"
+                                      placeholder="Enter duration in minutes"
+                                    />
+                                  </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -1129,7 +1161,7 @@ const Page = () => {
 
                             <FormField
                               control={form.control}
-                              name="count_return_exam"
+                              name="exam_config.count_return_exam"
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Exam Repeat Count :</FormLabel>
@@ -1141,7 +1173,7 @@ const Page = () => {
                                       onChange={(value) =>
                                         field.onChange(Number(value))
                                       }
-                                      className="dark:bg-gray-800"
+                                      className=" bg-gray-100 dark:bg-gray-700 p-1.5 border-none dark:text-white"
                                     />
                                   </FormControl>
                                   <FormMessage />
@@ -1151,26 +1183,58 @@ const Page = () => {
 
                             <FormField
                               control={form.control}
-                              name="view_results"
+                              name="exam_config.view_results"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Result View :</FormLabel>
+                                  <FormLabel>Results Display :</FormLabel>
                                   <Select
                                     onValueChange={field.onChange}
                                     value={field.value}
-                                    defaultValue="Manual"
+                                    defaultValue="manually"
                                   >
                                     <FormControl>
-                                      <SelectTrigger className="dark:bg-gray-800">
+                                      <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
                                         <SelectValue placeholder="Select option" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="dark:bg-gray-800">
+                                    <SelectContent className="dark:bg-gray-700 bg-gray-100">
                                       <SelectItem value="after_completion">
                                         After Finish
                                       </SelectItem>
                                       <SelectItem value="manually">
-                                        Manually
+                                        Manual
+                                      </SelectItem>
+                                      <SelectItem value="after_each_answer">
+                                        After Each Answer
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="exam_config.view_answer"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Answers Display :</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="manually"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                      <SelectItem value="after_completion">
+                                        After Finish
+                                      </SelectItem>
+                                      <SelectItem value="manually">
+                                        Manual
                                       </SelectItem>
                                       <SelectItem value="after_each_answer">
                                         After Each Answer
@@ -1228,17 +1292,16 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
-
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <AiOutlineFieldTime className="text-lg" />
+                            <CiTimer className="text-lg" />
                           </div>
                           <div className="space-y-1">
                             <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Time Per Page
+                              Duration (minutes)
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.exam_config?.time_questions_page}
+                              {assignmentData?.duration_in_minutes}
                             </p>
                           </div>
                         </div>
@@ -1266,6 +1329,19 @@ const Page = () => {
                             </p>
                             <p className="text-gray-900 font-medium dark:text-gray-100">
                               {assignmentData?.exam_config?.view_results}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaCheckCircle className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Answers View
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.exam_config?.view_answer}
                             </p>
                           </div>
                         </div>
@@ -1350,20 +1426,40 @@ const Page = () => {
               </h2>
 
               {!isEditingMessages && assignmentData?.exam_messages ? (
-                <Button
-                  appearance="primary"
-                  className="!bg-primary-color1 flex items-center gap-2"
-                  onClick={() => setIsEditingMessages(!isEditingMessages)}
-                >
-                  <>
-                    <FaEdit /> Edit
-                  </>
-                </Button>
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    appearance="primary"
+                    className="!bg-primary-color1 flex items-center gap-2"
+                    onClick={() => setIsEditingMessages(!isEditingMessages)}
+                  >
+                    <>
+                      <FaEdit /> Edit
+                    </>
+                  </Button>
+                  <Button
+                    appearance="ghost"
+                    color="red"
+                    className=" flex items-center gap-2"
+                    onClick={() => setShowDeleteExamMessagesModal(true)}
+                  >
+                    <>
+                      <Trash /> Delete
+                    </>
+                  </Button>
+                </div>
               ) : !isAddingMessages && !assignmentData?.exam_messages ? (
                 <Button
                   appearance="primary"
                   className="!bg-primary-color1 flex items-center gap-2"
-                  onClick={() => setIsAddingMessages(true)}
+                  onClick={() => {
+                    setIsAddingMessages(true);
+                    messagesForm.reset({
+                      success_degree: "",
+                      success_message: "",
+                      failure_message: "",
+                      certificate_url: "",
+                    });
+                  }}
                 >
                   <FaPlus /> Add Messages
                 </Button>
@@ -1415,7 +1511,7 @@ const Page = () => {
                               <Input
                                 placeholder="https://example.com/certificate"
                                 {...field}
-                                className="dark:bg-gray-700 pl-7 h-9 text-sm border focus-within::border-primary-color1 transition duration-500"
+                                className="dark:bg-gray-700 !pl-7 h-9 text-sm border focus-within::border-primary-color1 transition duration-500"
                               />
                               <FaLink className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
                             </div>
@@ -1602,6 +1698,15 @@ const Page = () => {
                 </div>
               </div>
             )}
+
+            <DeleteModal
+              title="Are you sure you want to delete exam messages?"
+              note="This action cannot be undone. All data related to this  exam messages . "
+              open={showDeleteExamMessagesModal}
+              onCancel={() => setShowDeleteExamMessagesModal(false)}
+              onConfirm={deletteExamMessages}
+              isDeleting={isExamMessgesDeleting}
+            />
           </div>
           <div className="mt-8 ">
             <h2 className="text-xl md:text-2xl font-bold mb-4">

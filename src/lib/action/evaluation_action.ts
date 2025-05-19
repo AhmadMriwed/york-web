@@ -307,10 +307,9 @@ export const getTrainees = async (id: number) => {
         },
       }
     );
-
+    console.log(response.data);
     return response.data;
   } catch (error: any) {
-    console.log(error);
     if (axios.isAxiosError(error)) {
       throw new Error(error.response?.data?.message || "Unknown error");
     }
@@ -435,13 +434,33 @@ export const loginTrainer = async (
 };
 
 // get trainee id for evaluation :
-export const getTraineeId = async (
+export const startTraineeEvaluation = async (
   evaluation_id: number,
   assignment_user_id: number
 ) => {
   try {
     const response = await axios.get(
       `/assignment/evaluation-trainers/${evaluation_id}/rate/${assignment_user_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+export const getTraineeId = async (assignment_user_id: number) => {
+  try {
+    const response = await axios.get(
+      `/assignment/rated-assignment-user/${assignment_user_id}`,
       {
         headers: {
           "Content-Type": "application/json",

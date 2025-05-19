@@ -470,7 +470,7 @@ const QuestionManager = () => {
               Incorrect :
               <input
                 type="number"
-                max="0"
+                min="0"
                 value={wrongAnswerGrade}
                 onChange={(e) => setWrongAnswerGrade(Number(e.target.value))}
                 className="w-16 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -498,27 +498,34 @@ const QuestionManager = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        Points per question
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={correctAnswerGrade}
-                        onChange={(e) =>
-                          setCorrectAnswerGrade(Number(e.target.value))
-                        }
-                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        value={wrongAnswerGrade}
-                        onChange={(e) =>
-                          setWrongAnswerGrade(Number(e.target.value))
-                        }
-                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                      />
+                      <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                          Points for correct answers
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={correctAnswerGrade}
+                          onChange={(e) =>
+                            setCorrectAnswerGrade(Number(e.target.value))
+                          }
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 mb-3 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                          Points for wrong answers
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={wrongAnswerGrade}
+                          onChange={(e) =>
+                            setWrongAnswerGrade(Number(e.target.value))
+                          }
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex gap-3">
@@ -533,8 +540,8 @@ const QuestionManager = () => {
                         appearance="primary"
                         className="flex-1 !bg-primary-color1"
                         onClick={() => {
-                          handleMarkForAllChange();
                           setShowMarkDialog(false);
+                          markAllFunc();
                         }}
                       >
                         Apply to All
@@ -585,7 +592,7 @@ const QuestionManager = () => {
           <DropdownMenuTrigger asChild>
             <Button className="flex items-center gap-2 !bg-gray-100 dark:!bg-gray-700 hover:!bg-gray-200 dark:hover:!bg-gray-600">
               <span>
-                Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 1]}
+                Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 0]}
               </span>
               <ChevronDown className="w-4 h-4" />
             </Button>
@@ -699,16 +706,18 @@ const QuestionManager = () => {
                             <div className="flex items-center gap-1.5">
                               <CheckCircleIcon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                               <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-                                +{q.points}
+                                + {q.points}
                               </span>
                             </div>
-                            {q.wrongPoints && (
+                            {q.type !== "Rating Scale" ? (
                               <div className="flex items-center gap-1.5">
                                 <XCircleIcon className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                                 <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
-                                  -{q.wrongPoints}
+                                  - {q.wrongPoints}
                                 </span>
                               </div>
+                            ) : (
+                              <></>
                             )}
                           </div>
                         </div>
@@ -774,16 +783,18 @@ const QuestionManager = () => {
                         <div className="flex items-center gap-1.5">
                           <CheckCircleIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-                            +{q.points}
+                            + {q.points}
                           </span>
                         </div>
-                        {q.wrongPoints && (
+                        {q.type !== "Rating Scale" ? (
                           <div className="flex items-center gap-1.5">
                             <XCircleIcon className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                             <span className="text-sm font-medium text-rose-700 dark:text-rose-300">
-                              -{q.wrongPoints}
+                              - {q.wrongPoints}
                             </span>
                           </div>
+                        ) : (
+                          <></>
                         )}
                       </div>
                     </div>

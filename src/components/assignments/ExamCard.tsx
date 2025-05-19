@@ -38,6 +38,7 @@ import DeleteModal from "./DeleteModal";
 import copy from "copy-to-clipboard";
 import { generateUrl } from "@/lib/action/exam_action";
 import { RiAiGenerate } from "react-icons/ri";
+import ExportExam from "./ExportExam";
 
 type ExamCardProps = {
   examId: number;
@@ -60,6 +61,9 @@ const ExamCard = ({
     useState<boolean>(false);
 
   const [isModalForGenerateUrlOpen, setIsModalForGenerateUrlOpen] =
+    useState(false);
+
+  const [showExportAssignmentModal, setShowExportAssignmentModal] =
     useState(false);
 
   const router = useRouter();
@@ -104,7 +108,7 @@ const ExamCard = ({
   };
 
   const onExportClick = () => {
-    console.log("export");
+    setShowExportAssignmentModal(true);
   };
   const onViewClick = () =>
     router.push(
@@ -395,6 +399,12 @@ const ExamCard = ({
           setIsModalOpen={setIsModalForGenerateUrlOpen}
         />
       )}
+      <ExportExam
+        isModalOpen={showExportAssignmentModal}
+        setIsModalOpen={setShowExportAssignmentModal}
+        assignmentId={Number(assignment?.id)}
+        defaultTitle={assignment?.title}
+      />
     </div>
   );
 };

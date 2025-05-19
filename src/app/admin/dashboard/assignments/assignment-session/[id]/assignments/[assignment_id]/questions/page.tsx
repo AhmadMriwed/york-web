@@ -498,27 +498,34 @@ const QuestionManager = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-                        Points per question
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={correctAnswerGrade}
-                        onChange={(e) =>
-                          setCorrectAnswerGrade(Number(e.target.value))
-                        }
-                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                      />
-                      <input
-                        type="number"
-                        min="0"
-                        value={wrongAnswerGrade}
-                        onChange={(e) =>
-                          setWrongAnswerGrade(Number(e.target.value))
-                        }
-                        className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
-                      />
+                      <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                          Points for correct answers
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={correctAnswerGrade}
+                          onChange={(e) =>
+                            setCorrectAnswerGrade(Number(e.target.value))
+                          }
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 mb-3 dark:text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+                          Points for wrong answers
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={wrongAnswerGrade}
+                          onChange={(e) =>
+                            setWrongAnswerGrade(Number(e.target.value))
+                          }
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex gap-3">
@@ -533,8 +540,8 @@ const QuestionManager = () => {
                         appearance="primary"
                         className="flex-1 !bg-primary-color1"
                         onClick={() => {
-                          handleMarkForAllChange();
                           setShowMarkDialog(false);
+                          markAllFunc();
                         }}
                       >
                         Apply to All
@@ -585,7 +592,7 @@ const QuestionManager = () => {
           <DropdownMenuTrigger asChild>
             <Button className="flex items-center gap-2 !bg-gray-100 dark:!bg-gray-700 hover:!bg-gray-200 dark:hover:!bg-gray-600">
               <span>
-                Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 1]}
+                Type: {typeDisplayMap[Number(questionsTypeFromUrl) || 0]}
               </span>
               <ChevronDown className="w-4 h-4" />
             </Button>

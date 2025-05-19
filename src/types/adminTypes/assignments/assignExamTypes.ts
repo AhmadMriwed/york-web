@@ -1,5 +1,4 @@
-export interface Category {
-}
+export interface Category {}
 
 interface Type {
   id: number;
@@ -37,7 +36,6 @@ export interface FilterAssignmentSessionsParams {
   per_page?: number;
 }
 
-
 type ConditionExam = {
   id: number;
   name: string;
@@ -65,11 +63,11 @@ export interface ExamConfig {
   time_questions_page: string;
   required_page_next: boolean;
   count_return_exam: number;
-  language: "en" | "fn"| 'ar' | string; // Update with possible language codes
+  language: "en" | "fn" | "ar" | string; // Update with possible language codes
   created_at: string;
   updated_at: string;
   condition_exams: ConditionExam[];
-  question_type_for_all:any; 
+  question_type_for_all: any;
 }
 
 interface StartForm {
@@ -79,10 +77,10 @@ interface StartForm {
   sub_title: string;
   description: string;
   show_configration: number; // likely a boolean-like number (0 or 1)
-  show_condition: number;    // likely a boolean-like number (0 or 1)
-  image: string;             // URL or file path
-  created_at: string;        // ISO date string
-  updated_at: string;        // ISO date string
+  show_condition: number; // likely a boolean-like number (0 or 1)
+  image: string; // URL or file path
+  created_at: string; // ISO date string
+  updated_at: string; // ISO date string
 }
 
 interface EndForm {
@@ -92,34 +90,33 @@ interface EndForm {
   sub_title: string;
   description: string;
   show_configration: number; // likely a boolean-like number (0 or 1)
-  show_condition: number;    // likely a boolean-like number (0 or 1)
-  image: string;             // URL or file path
-  created_at: string;        // ISO date string
+  show_condition: number; // likely a boolean-like number (0 or 1)
+  image: string; // URL or file path
+  created_at: string; // ISO date string
   updated_at: string;
   link: string;
-  url : string;        // ISO date string
+  url: string; // ISO date string
 }
-
 
 type Form = {
   id: number;
   created_at: string;
   updated_at: string;
-}
+};
 type FieldRequirment = {
   id: number;
   form_id?: number;
-  name:string; 
+  name: string;
   field_requirement_id?: number;
-}
+};
 
-export interface ExamMessage{
-       id?: number,
-      exam_id: number,
-      success_degree: string,
-      success_message: string,
-      failure_message: string,
-      certificate_url: string
+export interface ExamMessage {
+  id?: number;
+  exam_id: number;
+  success_degree: string;
+  success_message: string;
+  failure_message: string;
+  certificate_url: string;
 }
 
 export interface Assignment {
@@ -127,15 +124,14 @@ export interface Assignment {
   end_forms: EndForm[];
   id: number;
   code: string;
-  url: string|null;
+  url: string | null;
   forms: Form[];
   title: string;
   sub_title: string;
-  status: "Active" | "Inactive" | "Draft"; 
+  status: "Active" | "Inactive" | "Draft";
   image: string | null;
   number_of_questions: number;
   number_of_students: number;
-  percentage: number;
   duration_in_minutes: number;
   exam_type: ExamType;
   exam_section_id: number | null;
@@ -144,9 +140,9 @@ export interface Assignment {
   updated_at: string;
   exam_config: ExamConfig;
   field_requirements: FieldRequirment[];
-  exam_messages:ExamMessage;
+  exam_messages: ExamMessage;
+  grade_percentage: string;
 }
-
 
 interface EvaluationType {
   id: number;
@@ -154,7 +150,6 @@ interface EvaluationType {
   hint: string | null;
   description: string;
 }
-
 
 export interface EvaluationConfig {
   id: number;
@@ -171,11 +166,11 @@ export interface EvaluationConfig {
   time_questions_page: string;
   required_page_next: boolean;
   count_return_exam: number;
-  language: "en" | "fn"| 'ar' | string; // Update with possible language codes
+  language: "en" | "fn" | "ar" | string; // Update with possible language codes
   created_at: string;
   updated_at: string;
-  condition_exams: ConditionExam[]
-  question_type_for_all?:any; 
+  condition_exams: ConditionExam[];
+  question_type_for_all?: any;
 }
 
 export interface Evaluation {
@@ -183,7 +178,7 @@ export interface Evaluation {
   end_forms: EndForm[];
   id: number;
   code: string;
-  url?:string; 
+  url?: string;
   forms: Form[];
   title: string;
   sub_title: string;
@@ -200,7 +195,6 @@ export interface Evaluation {
   updated_at: string;
   evaluation_config: EvaluationConfig;
   field_requirements: FieldRequirment[];
-
 }
 
 export interface ExamData {

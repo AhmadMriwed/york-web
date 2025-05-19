@@ -65,7 +65,6 @@ import { toast } from "sonner";
 import { Modal, Checkbox } from "antd";
 import { icons } from "@/constants/icons";
 import axios from "axios";
-import { TimePicker } from "antd";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import StartInterfaceModal from "@/components/assignments/StartInterfaceModal";
@@ -884,6 +883,36 @@ const UpdateEvaluationPage = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Results Display :</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              defaultValue="manually"
+                            >
+                              <FormControl>
+                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                  <SelectValue placeholder="Select option" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                <SelectItem value="after_completion">
+                                  After Finish
+                                </SelectItem>
+                                <SelectItem value="manually">Manual</SelectItem>
+                                <SelectItem value="after_each_answer">
+                                  After Each Answer
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="evaluation_config.view_answer"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Answers Display :</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}

@@ -55,9 +55,6 @@ const QuizResultsPage = () => {
     id_number || Number(user_id)
   );
 
-  console.log(result);
-  console.log(examData);
-
   useEffect(() => {
     const fetchExamData = async () => {
       setIsLoading(true);
@@ -460,6 +457,7 @@ const QuizResultsPage = () => {
               </div>
             </div>
             {examData?.exam_type?.id === 2 &&
+              examData.exam_config.view_results !== "manually" &&
               Number(result?.grade) >=
                 Number(examData?.exam_messages?.success_degree) && (
                 <div className="bg-gradient-to-r from-[#037f86]/10 to-blue-50 p-6 rounded-lg border border-green-200 shadow-sm">
@@ -493,14 +491,14 @@ const QuizResultsPage = () => {
                 </div>
               )}
 
-            {examData?.exam_config.view_results !== "manually" && (
+            {examData?.exam_config.view_answer !== "manually" && (
               <div className="flex justify-center">
                 <button
                   onClick={() => {
                     router.push(
                       `/exam/${url}/result_view?exam_id=${
                         examData?.id
-                      }&user_id=${user_id || id_number}`
+                      }&user_id=${id_number ? result?.id : user_id}`
                     );
                   }}
                   className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"

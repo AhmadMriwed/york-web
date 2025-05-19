@@ -21,26 +21,26 @@ const QuizResultsPage = () => {
   const user_id = searchparams.get("user_id");
   const id_number = searchparams.get("id_number");
 
-  const [examData, setExamData] = useState<Evaluation | any>();
+  const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
   const [isLoading, setIsLoading] = useState(true);
 
   const { url } = useParams();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchExamData = async () => {
+    const fetchEvaluationData = async () => {
       setIsLoading(true);
       try {
         const data = await fetchEvaluationByUrl(String(url));
-        setExamData(data);
+        setEvaluationData(data);
       } catch (error) {
-        console.error("Error fetching exam data:", error);
+        console.error("Error fetching evaluation data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchExamData();
+    fetchEvaluationData();
   }, [url]);
 
   const { data: result } = useFetchWithId<UserResponse>(
@@ -58,7 +58,7 @@ const QuizResultsPage = () => {
     ? timeStringToSeconds(result.answers[0].time_to_stay_until_the_answer)
     : 0;
 
-  const examDurationSeconds = (examData?.duration_in_minutes || 0) * 60;
+  const examDurationSeconds = (evaluationData?.duration_in_minutes || 0) * 60;
 
   const progressPercent =
     examDurationSeconds > 0
@@ -96,7 +96,9 @@ const QuizResultsPage = () => {
 
           {/* Header */}
           <div className="w-full text-center mt-2 pb-6">
-            <h1 className="text-3xl text-primary-color1">{examData?.title}</h1>
+            <h1 className="text-3xl text-primary-color1">
+              {evaluationData?.title}
+            </h1>
           </div>
 
           {/* Main content */}
@@ -130,8 +132,8 @@ const QuizResultsPage = () => {
                 <div className="flex-1 min-w-0">
                   <h2 className="font-semibold text-gray-800">SUMMARY</h2>
                   <p className="text-gray-600 text-sm md:text-base">
-                    {examData?.end_forms[0]?.description ||
-                      "You've completed the exam successfully!"}
+                    {evaluationData?.end_forms[0]?.description ||
+                      "You've completed the evaluation successfully!"}
                   </p>
                 </div>
               </div>
@@ -140,13 +142,14 @@ const QuizResultsPage = () => {
             {/* Stats grid */}
             <div
               className={`grid grid-cols-1 ${
-                examData?.evaluation_config.view_results !== "manually"
+                evaluationData?.evaluation_config.view_results !== "manually"
                   ? "md:grid-cols-2"
                   : ""
               } gap-6`}
             >
               {/* Result card */}
-              {examData?.evaluation_config.view_results !== "manually" && (
+              {evaluationData?.evaluation_config.view_results !==
+                "manually" && (
                 <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                   <h2 className="font-bold text-gray-800 mb-4">RESULT</h2>
                   <div className="flex items-center flex-col gap-7">
@@ -192,7 +195,7 @@ const QuizResultsPage = () => {
                 </div>
               )}
               <div className="space-y-6">
-                {examData?.end_forms[0]?.url && (
+                {evaluationData?.end_forms[0]?.url && (
                   <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                     <h2 className="font-bold text-gray-800 mb-4">
                       RESOURCE LINK
@@ -206,7 +209,7 @@ const QuizResultsPage = () => {
                         className="pb-2 w-full flex items-center hide-scrollbar"
                       >
                         <p className="inline-block">
-                          {examData?.end_forms[0]?.url}
+                          {evaluationData?.end_forms[0]?.url}
                         </p>
                       </Snippet>
                     </div>
@@ -233,7 +236,7 @@ const QuizResultsPage = () => {
                         {result?.answers[0]?.time_to_stay_until_the_answer ||
                           "00:00:00"}
                         <span className="text-sm font-normal text-gray-500 ml-2">
-                          / {examData?.duration_in_minutes || 0}:00
+                          / {evaluationData?.duration_in_minutes || 0}:00
                         </span>
                       </p>
                     </div>
@@ -257,12 +260,12 @@ const QuizResultsPage = () => {
                 </div>
               </div>
             </div>
-            {examData?.evaluation_config?.view_results !== "manually" && (
+            {evaluationData?.evaluation_config?.view_results !== "manually" && (
               <div className="flex justify-center">
                 <button
                   onClick={() => {
                     router.push(
-                      `/evaluations/trainee/${url}/result_view?evaluation_id=${examData?.id}&user_id=${user_id}`
+                      `/evaluations/trainee/${url}/result_view?evaluation_id=${evaluationData?.id}&user_id=${user_id}`
                     );
                   }}
                   className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"

@@ -18,6 +18,7 @@ import {
   getEvaluationByUrl,
   getTraineeId,
   getTrainees,
+  startTraineeEvaluation,
 } from "@/lib/action/evaluation_action";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -27,27 +28,9 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Eye } from "lucide-react";
+import { StudentDataType } from "@/types/adminTypes/evaluation/evaluationTypes";
 
 const { Title, Text } = Typography;
-
-interface StudentDataType {
-  key: string;
-  first_name: string;
-  last_name: string;
-  id_number: string;
-  id: number;
-  email: string;
-  submission_time?: string;
-  duration?: string;
-  grade?: number;
-  correct_answers_count?: number;
-  wrong_answers_count?: number;
-  status?: string;
-  answers?: Array<{
-    submission_time?: string;
-    time_to_stay_until_the_answer?: string;
-  }>;
-}
 
 const statusColor = (status?: string) => {
   switch (status?.toLowerCase()) {
@@ -139,6 +122,8 @@ const StudentManagementPage = () => {
     }
   }, [evaluationData]);
 
+  console.log(studentData);
+
   useEffect(() => {
     if (evaluationData) {
       fetchData();
@@ -147,7 +132,10 @@ const StudentManagementPage = () => {
 
   const handleEvaluate = async (student: StudentDataType) => {
     try {
-      const response = await getTraineeId(evaluationData?.id!, student?.id);
+      const response = await startTraineeEvaluation(
+        evaluationData?.id!,
+        student?.id
+      );
       router.push(
         `/evaluations/trainee/${url}/questions?user_id=${response?.data?.id}`
       );
@@ -161,9 +149,9 @@ const StudentManagementPage = () => {
 
   const handleViewEvaluation = async (student: StudentDataType) => {
     try {
-      const response = await getTraineeId(evaluationData?.id!, student?.id);
+      const response = await getTraineeId(student?.id);
       router.push(
-        `/evaluations/trainee/${url}/result?user_id=${response?.data?.id}`
+        `/evaluations/trainee/${url}/result?user_id=${response?.data?.assignment_user_id}`
       );
     } catch (error) {
       console.log(error);

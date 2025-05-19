@@ -63,7 +63,6 @@ import {
   fetchEndFormById,
   fetchExamRequirementFields,
 } from "@/lib/action/assignment_action";
-import { updateExam } from "@/lib/action/assignment_action";
 import { toast } from "sonner";
 import { Checkbox, Modal } from "antd";
 import { icons } from "@/constants/icons";
@@ -936,6 +935,36 @@ const UpdateAssignmentPage = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Results Display :</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              defaultValue="manually"
+                            >
+                              <FormControl>
+                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                  <SelectValue placeholder="Select option" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                <SelectItem value="after_completion">
+                                  After Finish
+                                </SelectItem>
+                                <SelectItem value="manually">Manual</SelectItem>
+                                <SelectItem value="after_each_answer">
+                                  After Each Answer
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="exam_config.view_answer"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Answers Display :</FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               value={field.value}

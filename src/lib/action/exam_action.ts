@@ -706,3 +706,20 @@ export const getQuestionTypes = async () => {
     throw new Error("Unexpected error");
   }
 };
+
+export const deleteExamMessages = async (exam_messages_id: number) => {
+  try {
+    console.log(exam_messages_id);
+    const response = await axios.delete(
+      `/assignment/exam-messages/${exam_messages_id}/delete`,
+      getAuthHeaders()
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};

@@ -38,6 +38,8 @@ const QuizResultsViewPage = () => {
     fetchResult();
   }, [url]);
 
+  console.log(resultData);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -107,21 +109,23 @@ const QuizResultsViewPage = () => {
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-2">
-                      Correct answer
-                      {question.correct_answers.length > 1 ? "s" : ""}:
-                    </p>
-                    <div className="bg-white p-3 rounded border border-gray-200 space-y-2">
-                      {question.correct_answers.map((answer, i) => (
-                        <div
-                          key={i}
-                          dangerouslySetInnerHTML={{ __html: answer }}
-                          className="border-b last:border-b-0 pb-2 last:pb-0"
-                        />
-                      ))}
+                  {question.correct_answers.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 mb-2">
+                        Correct answer
+                        {question.correct_answers.length > 1 ? "s" : ""}:
+                      </p>
+                      <div className="bg-white p-3 rounded border border-gray-200 space-y-2">
+                        {question.correct_answers.map((answer, i) => (
+                          <div
+                            key={i}
+                            dangerouslySetInnerHTML={{ __html: answer }}
+                            className="border-b last:border-b-0 pb-2 last:pb-0"
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <div className="mt-3 text-sm text-gray-600">
                   <span className="font-medium">Points: </span>

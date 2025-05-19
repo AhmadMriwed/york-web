@@ -1,6 +1,6 @@
 "use client";
 import { images } from "@/constants/images";
-import { Modal, Space, Input } from "antd";
+import { Modal, Space, Input, Result } from "antd";
 import Image from "next/image";
 import {
   FaClock,
@@ -13,6 +13,8 @@ import {
   FaPlayCircle,
   FaPlay,
   FaTimes,
+  FaPauseCircle,
+  FaLock,
 } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +35,7 @@ import {
   loginTrainer,
 } from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { AxiosError } from "axios";
 
 const trainerSchema = z.object({
   id_number: z.string().min(1, "Student ID is required"),
@@ -42,14 +45,15 @@ const trainerSchema = z.object({
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
+  const [evaluationData, setEvaluationData] = useState<Evaluation | null>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [error, setError] = useState<{
+    message: string;
+    isEvaluationEnded: boolean;
+  } | null>(null);
   const router = useRouter();
   const { url } = useParams();
 
-  const [showResultDialog, setShowResultDialog] = useState(false);
-  const [showIdVerificationDialog, setShowIdVerificationDialog] =
-    useState(false);
   const [idNumberInput, setIdNumberInput] = useState("");
 
   useEffect(() => {
@@ -57,12 +61,32 @@ const Page = () => {
       try {
         const data = await getEvaluationByUrl(String(url));
         if (!data) {
-          throw new Error("no data");
+          throw new Error("No evaluation data found");
         }
         setEvaluationData(data.data);
-      } catch (error) {
-        console.error("Error fetching evaluation data:", error);
-        toast.error("Failed to load evaluation data");
+      } catch (err) {
+        let errorMessage = "This evaluation cannot be started.";
+        let isEvaluationEnded = false;
+
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 403) {
+            const serverMessage = err.response.data?.message?.toLowerCase();
+            if (serverMessage?.includes("ended")) {
+              errorMessage =
+                "This evaluation has already ended and cannot be started.";
+              isEvaluationEnded = true;
+            } else {
+              errorMessage =
+                "This evaluation is inactive and cannot be started.";
+            }
+          } else if (err.response?.status === 404) {
+            errorMessage = "evaluation not found. Please check the URL.";
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message || errorMessage;
+        }
+
+        setError({ message: errorMessage, isEvaluationEnded });
       } finally {
         setIsFetching(false);
       }
@@ -71,17 +95,7 @@ const Page = () => {
     fetchEvaluationData();
   }, [url]);
 
-  const hasEvaluationEnded = () => {
-    if (!evaluationData?.evaluation_config?.end_date) return false;
-    const endDate = new Date(evaluationData.evaluation_config.end_date);
-    return endDate < new Date();
-  };
-
   const showModal = () => {
-    if (hasEvaluationEnded()) {
-      setShowResultDialog(true);
-      return;
-    }
     setIsModalOpen(true);
   };
 
@@ -90,41 +104,35 @@ const Page = () => {
   };
 
   const onSubmit = async (values: any) => {
-    const toastId = toast.loading("Registering for evaluation...");
-
-    if (hasEvaluationEnded()) {
-      toast.dismiss(toastId);
-      setShowResultDialog(true);
-      return;
-    }
-
+    setIsLoading(true);
     const payload: any = {
       id_number: values.id_number,
       password: values.password,
     };
-
     try {
       const response = await loginTrainer(Number(evaluationData?.id), payload);
-
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
         duration: 4000,
-        id: toastId,
       });
 
       form.reset();
       setIsModalOpen(false);
       router.push(`/evaluations/trainee/${url}/students`);
     } catch (error: any) {
-      toast.dismiss(toastId);
-
       if (error.message.includes("already been taken")) {
         setIdNumberInput(payload.id_number);
         setIsModalOpen(false);
-        setShowIdVerificationDialog(true);
       } else {
+        let errorMessage = error.message || "Failed to register trainer";
+        if (error.response?.status === 403) {
+          errorMessage =
+            error.response.data?.message ||
+            "This evaluation is not currently available";
+        }
+
         toast.error("Oops! Something went wrong", {
-          description: error.message || "Failed to register trainer",
+          description: errorMessage,
           duration: 5000,
         });
       }
@@ -133,14 +141,6 @@ const Page = () => {
     }
   };
 
-  const handleIdVerification = () => {
-    if (idNumberInput.trim()) {
-      router.push(
-        `/evaluations/trainee/${url}/result?id_number=${idNumberInput}`
-      );
-      setShowIdVerificationDialog(false);
-    }
-  };
   type TrainerFormValues = z.infer<typeof trainerSchema>;
   const form = useForm<TrainerFormValues>({
     resolver: zodResolver(trainerSchema),
@@ -150,8 +150,6 @@ const Page = () => {
     },
   });
 
-  console.log(evaluationData);
-
   if (isFetching) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -160,10 +158,46 @@ const Page = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 ">
+        <Result
+          status="403"
+          title="Evaluation Access Restricted"
+          subTitle={
+            <span className="text-gray-600">
+              {error.isEvaluationEnded ? (
+                <>
+                  This evaluation has already{" "}
+                  <span className="font-bold text-primary-color1">ended</span>.
+                  <br />
+                  The submission period is closed.
+                </>
+              ) : (
+                <>
+                  This evaluation is currently{" "}
+                  <span className="font-bold text-primary-color1">
+                    inactive
+                  </span>
+                  .
+                  <br />
+                  You will be notified once it becomes available.
+                </>
+              )}
+            </span>
+          }
+        />
+        <p className="text-gray-500 text-sm italic mt-4">
+          Details: <span className="text-red-500">{error.message}</span>
+        </p>
+      </div>
+    );
+  }
+
   if (!evaluationData) {
     return (
       <div className="flex items-start my-20 justify-center h-screen">
-        <p className="text-red-500">Failed to load exam data</p>
+        <p className="text-red-500">Failed to load evaluation data</p>
       </div>
     );
   }
@@ -215,7 +249,7 @@ const Page = () => {
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>
-                      This test consists of{" "}
+                      This evaluation consists of{" "}
                       <span className="font-bold">
                         {formattedExamInfo.totalQuestions} questions
                       </span>
@@ -226,7 +260,7 @@ const Page = () => {
                   <div className="flex items-start">
                     <FaCheckCircle className="mt-1 mr-3 text-blue-600 min-w-[20px]" />
                     <p>
-                      Exam type:{" "}
+                      Evaluation type:{" "}
                       <span className="font-bold">
                         {formattedExamInfo.examType}
                       </span>
@@ -247,7 +281,7 @@ const Page = () => {
 
               <div className="bg-[#f8fafc] rounded-lg p-6 border border-gray-200 mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaBook className="mr-2 text-[#037f85]" /> Exam Details
+                  <FaBook className="mr-2 text-[#037f85]" /> Evaluation Details
                 </h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -287,7 +321,7 @@ const Page = () => {
                   onClick={showModal}
                   className="w-full bg-[#037f85] hover:bg-[#036a70] text-white h-10 rounded-lg text-lg font-medium"
                 >
-                  Start Exam
+                  Start Evaluation
                 </Button>
               </div>
             </div>
@@ -303,18 +337,18 @@ const Page = () => {
             }
             width={480}
             height={480}
-            alt="Online exam illustration"
+            alt="Online evaluation illustration"
             className="h-full w-full object-cover"
           />
         </div>
       </main>
 
-      {/* Start Exam Modal */}
+      {/* Start Evaluation Modal */}
       <Modal
         title={
           <div className="flex items-center">
             <FaPlayCircle className="mr-2 text-[#037f85]" />
-            <span>Start The Exam</span>
+            <span>Start The Evaluation</span>
           </div>
         }
         open={isModalOpen}
@@ -342,14 +376,14 @@ const Page = () => {
               ) : (
                 <>
                   <FaPlay className="text-xs size-2 h-1" />
-                  Start Exam
+                  Start Evaluation
                 </>
               )}
             </Button>
           </Space>
         }
       >
-        <p className="mb-4">Fill in the form before starting the test.</p>
+        <p className="mb-4">Fill in the form before starting the evaluation.</p>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -378,89 +412,6 @@ const Page = () => {
             />
           </form>
         </Form>
-      </Modal>
-
-      {/* Exam Ended Dialog */}
-      <Modal
-        title={
-          <div className="flex items-center">
-            <FaInfoCircle className="mr-2 text-red-500" />
-            <span>Exam Period Ended</span>
-          </div>
-        }
-        open={showResultDialog}
-        onCancel={() => setShowResultDialog(false)}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => setShowResultDialog(false)}
-            variant="outline"
-            className="mr-3"
-          >
-            Close
-          </Button>,
-          <Button
-            key="view"
-            onClick={() => {
-              setShowResultDialog(false);
-              setShowIdVerificationDialog(true);
-            }}
-            className="bg-[#037f85] hover:bg-[#036a70]"
-          >
-            View Results
-          </Button>,
-        ]}
-      >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            The exam period has ended. Registration is no longer available.
-          </p>
-          <p className="text-gray-700">
-            If you have already taken this exam, you can view your results by
-            verifying your ID number.
-          </p>
-        </div>
-      </Modal>
-
-      {/* ID Verification Dialog */}
-      <Modal
-        title={
-          <div className="flex items-center">
-            <FaUserAlt className="mr-2 text-[#037f85]" />
-            <span>Verify Your ID Number</span>
-          </div>
-        }
-        open={showIdVerificationDialog}
-        onCancel={() => setShowIdVerificationDialog(false)}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => setShowIdVerificationDialog(false)}
-            variant="outline"
-            className="mr-3"
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="verify"
-            onClick={handleIdVerification}
-            disabled={!idNumberInput.trim()}
-            className="bg-[#037f85] hover:bg-[#036a70]"
-          >
-            Verify and View Results
-          </Button>,
-        ]}
-      >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            Please enter your ID number to view your exam results:
-          </p>
-          <Input
-            value={idNumberInput}
-            onChange={(e) => setIdNumberInput(e.target.value)}
-            placeholder="Enter your ID number"
-          />
-        </div>
       </Modal>
     </>
   );

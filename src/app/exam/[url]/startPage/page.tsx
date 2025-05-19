@@ -1,6 +1,6 @@
 "use client";
 import { images } from "@/constants/images";
-import { Modal, Space, Input } from "antd";
+import { Modal, Space, Input, Result } from "antd";
 import Image from "next/image";
 import {
   FaClock,
@@ -36,9 +36,13 @@ import {
   assignUser,
   fetchStartFormFiles,
 } from "@/lib/action/user/userr_action";
-import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
+import {
+  fetchAssignmentByUrl,
+  fetchResultByIdNumber,
+} from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { icons } from "@/constants/icons";
+import { AxiosError } from "axios";
 
 const createValidationSchema = (fieldRequirements: any) => {
   const schema: Record<string, any> = {
@@ -85,6 +89,12 @@ const Page = () => {
   const [examData, setExamData] = useState<Assignment>();
   const [examFiles, setExamFiles] = useState<ExamFile[]>([]);
   const [isFetching, setIsFetching] = useState(true);
+
+  const [error, setError] = useState<{
+    message: string;
+    isExamEnded: boolean;
+  } | null>(null);
+
   const router = useRouter();
   const { url } = useParams();
 
@@ -98,17 +108,35 @@ const Page = () => {
     const fetchExamData = async () => {
       try {
         const data = await fetchAssignmentByUrl(String(url));
-        if (!data) {
-          throw new Error("no data");
-        }
+        if (!data) throw new Error("No exam data available");
         setExamData(data);
-      } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
+      } catch (err) {
+        let errorMessage = "This exam cannot be started.";
+        let isExamEnded = false;
+
+        if (err instanceof AxiosError) {
+          if (err.response?.status === 403) {
+            const serverMessage = err.response.data?.message?.toLowerCase();
+            if (serverMessage?.includes("ended")) {
+              errorMessage =
+                "This exam has already ended and cannot be started.";
+              isExamEnded = true;
+            } else {
+              errorMessage = "This exam is inactive and cannot be started.";
+            }
+          } else if (err.response?.status === 404) {
+            errorMessage = "exam not found. Please check the URL.";
+          }
+        } else if (err instanceof Error) {
+          errorMessage = err.message || errorMessage;
+        }
+
+        setError({ message: errorMessage, isExamEnded });
       } finally {
         setIsFetching(false);
       }
     };
+
     fetchExamData();
   }, [url]);
 
@@ -173,17 +201,7 @@ const Page = () => {
     },
   });
 
-  const hasExamEnded = () => {
-    if (!examData?.exam_config?.end_date) return false;
-    const endDate = new Date(examData.exam_config.end_date);
-    return endDate < new Date();
-  };
-
   const showModal = () => {
-    if (hasExamEnded()) {
-      setShowResultDialog(true);
-      return;
-    }
     setIsModalOpen(true);
   };
 
@@ -193,12 +211,6 @@ const Page = () => {
 
   const onSubmit = async (values: any) => {
     const toastId = toast.loading("Registering for exam...");
-
-    if (hasExamEnded()) {
-      toast.dismiss(toastId);
-      setShowResultDialog(true);
-      return;
-    }
 
     const payload: any = {
       form_id: examData?.forms[0]?.id,
@@ -239,10 +251,37 @@ const Page = () => {
     }
   };
 
-  const handleIdVerification = () => {
-    if (idNumberInput.trim()) {
-      router.push(`/exam/${url}/result?id_number=${idNumberInput}`);
-      setShowIdVerificationDialog(false);
+  const handleIdVerification = async () => {
+    if (!idNumberInput.trim()) return;
+
+    try {
+      setIsLoading(true);
+      const result = await fetchResultByIdNumber(idNumberInput);
+
+      if (result.message === "User Not Found") {
+        toast.error("User not found", {
+          description: "No exam results found for this ID number",
+          duration: 5000,
+        });
+      } else {
+        router.push(`/exam/${url}/result?id_number=${idNumberInput}`);
+        setShowIdVerificationDialog(false);
+        setShowResultDialog(false);
+      }
+    } catch (error: any) {
+      if (error.message.includes("User Not Found")) {
+        toast.error("User not found", {
+          description: "No exam results found for this ID number",
+          duration: 5000,
+        });
+      } else {
+        toast.error("Error", {
+          description: error.message || "Failed to fetch results",
+          duration: 5000,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -254,10 +293,98 @@ const Page = () => {
     );
   }
 
-  if (!examData) {
+  if (error) {
     return (
-      <div className="flex items-start my-20 justify-center h-screen">
-        <p className="text-red-500">Failed to load exam data</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <Result
+          status="403"
+          title="Exam Access Restricted"
+          subTitle={
+            <span className="text-gray-600">
+              {error.isExamEnded ? (
+                <>
+                  This exam has already{" "}
+                  <span className="font-bold text-primary-color1">ended</span>.
+                  <br />
+                  The submission period is closed.
+                </>
+              ) : (
+                <>
+                  This exam is currently{" "}
+                  <span className="font-bold text-primary-color1">
+                    inactive
+                  </span>
+                  .
+                  <br />
+                  You will be notified once it becomes available.
+                </>
+              )}
+            </span>
+          }
+        />
+        <p className="text-gray-500 text-sm italic mt-4">
+          Details: <span className="text-red-500">{error.message}</span>
+        </p>
+        <div className="mt-6 flex flex-col items-center space-y-4">
+          <p className="text-gray-600">
+            If you have already taken this exam, you can view your results:
+          </p>
+          <Button
+            onClick={() => setShowIdVerificationDialog(true)}
+            className="bg-[#037f85] hover:bg-[#036a70] text-white"
+          >
+            View My Results
+          </Button>
+        </div>
+        {/* ID Verification Dialog */}
+        <Modal
+          title={
+            <div className="flex items-center">
+              <FaUserAlt className="mr-2 text-[#037f85]" />
+              <span>Verify Your ID Number</span>
+            </div>
+          }
+          open={showIdVerificationDialog}
+          onCancel={() => setShowIdVerificationDialog(false)}
+          footer={[
+            <Button
+              key="cancel"
+              onClick={() => setShowIdVerificationDialog(false)}
+              variant="outline"
+              className="mr-3"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>,
+            <Button
+              key="verify"
+              onClick={handleIdVerification}
+              disabled={!idNumberInput.trim() || isLoading}
+              className="bg-[#037f85] hover:bg-[#036a70]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify and View Results"
+              )}
+            </Button>,
+          ]}
+        >
+          <div className="p-4">
+            <p className="text-gray-700 mb-4">
+              Please enter your ID number to view your exam results:
+            </p>
+            <Input
+              value={idNumberInput}
+              onChange={(e) => setIdNumberInput(e.target.value)}
+              placeholder="Enter your ID number"
+              disabled={isLoading}
+            />
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -567,89 +694,6 @@ const Page = () => {
             })}
           </form>
         </Form>
-      </Modal>
-
-      {/* Exam Ended Dialog */}
-      <Modal
-        title={
-          <div className="flex items-center">
-            <FaInfoCircle className="mr-2 text-red-500" />
-            <span>Exam Period Ended</span>
-          </div>
-        }
-        open={showResultDialog}
-        onCancel={() => setShowResultDialog(false)}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => setShowResultDialog(false)}
-            variant="outline"
-            className="mr-3"
-          >
-            Close
-          </Button>,
-          <Button
-            key="view"
-            onClick={() => {
-              setShowResultDialog(false);
-              setShowIdVerificationDialog(true);
-            }}
-            className="bg-[#037f85] hover:bg-[#036a70]"
-          >
-            View Results
-          </Button>,
-        ]}
-      >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            The exam period has ended. Registration is no longer available.
-          </p>
-          <p className="text-gray-700">
-            If you have already taken this exam, you can view your results by
-            verifying your ID number.
-          </p>
-        </div>
-      </Modal>
-
-      {/* ID Verification Dialog */}
-      <Modal
-        title={
-          <div className="flex items-center">
-            <FaUserAlt className="mr-2 text-[#037f85]" />
-            <span>Verify Your ID Number</span>
-          </div>
-        }
-        open={showIdVerificationDialog}
-        onCancel={() => setShowIdVerificationDialog(false)}
-        footer={[
-          <Button
-            key="cancel"
-            onClick={() => setShowIdVerificationDialog(false)}
-            variant="outline"
-            className="mr-3"
-          >
-            Cancel
-          </Button>,
-          <Button
-            key="verify"
-            onClick={handleIdVerification}
-            disabled={!idNumberInput.trim()}
-            className="bg-[#037f85] hover:bg-[#036a70]"
-          >
-            Verify and View Results
-          </Button>,
-        ]}
-      >
-        <div className="p-4">
-          <p className="text-gray-700 mb-4">
-            Please enter your ID number to view your exam results:
-          </p>
-          <Input
-            value={idNumberInput}
-            onChange={(e) => setIdNumberInput(e.target.value)}
-            placeholder="Enter your ID number"
-          />
-        </div>
       </Modal>
     </>
   );

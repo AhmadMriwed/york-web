@@ -539,7 +539,6 @@ const QuizQuestionPage = () => {
                           }}
                           className="ml-3 prose prose-img:max-w-[200px] prose-img:h-[200px] inline-block text-gray-700"
                         />
-                        ?
                       </h2>
                     </div>
                     {question.hint && (

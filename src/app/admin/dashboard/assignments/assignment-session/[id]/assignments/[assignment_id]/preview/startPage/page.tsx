@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { fetchStartFormFiles } from "@/lib/action/user/userr_action";
@@ -52,7 +52,7 @@ const createValidationSchema = (fieldRequirements: any) => {
         schema.last_name = z.string().optional();
         break;
       case "email":
-        schema.email = z.string().email("Invalid email address").optional();
+        schema.email = z.string().optional();
         break;
     }
   });
@@ -290,17 +290,30 @@ const Page = () => {
   return (
     <>
       <main className="flex max-md:flex-col-reverse md:h-screen md:max-h-screen max-md:min-h-screen w-full items-center rounded-lg overflow-hidden max-md:overflow-auto">
-        <section className="max-md:w-full scrollbar-hide container mb-16 w-[50%] h-full bg-white overflow-y-auto">
-          <header className="px-8 h-20   w-full bg-white  ">
-            <Image
-              src={images.logo}
-              height={70}
-              width={150}
-              alt="logo"
-              className="absolute -top-4"
-            />
+        <section className="max-md:w-full scrollbar-hide container my-16 w-[50%] h-full bg-white overflow-y-auto">
+          {/* Beautiful Header Section */}
+          <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() =>
+                    router.push(
+                      `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}`
+                    )
+                  }
+                  className="flex items-center text-[#037f85] hover:text-[#036a70] transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <span className="font-medium text-sm sm:text-[16px]">
+                    Back to Assignments
+                  </span>
+                </button>
+              </div>
+            </div>
           </header>
-          <div className="max-w-[600px] mx-auto py-12 pt-28 md:pt-[120px] px-6">
+
+          <div className="max-w-[600px] mx-auto py-8 px-6">
+            {/* Rest of your content remains the same */}
             <div className="mb-8">
               <h1 className="text-2xl text-center md:text-3xl font-bold text-[#037f85] mb-3">
                 {formattedExamInfo.title}

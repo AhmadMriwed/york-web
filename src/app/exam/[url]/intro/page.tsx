@@ -65,11 +65,11 @@ const Intro = () => {
           </h1>
           <div className="bg-[#037f85]/10 p-8 rounded-lg mb-8 border border-[#037f85]/40">
             <h2 className="text-xl font-semibold text-primary-color1 mb-4">
-              Quiz Details
+              Exam Details
             </h2>
             <div className="space-y-4 text-left">
               <div className="flex items-center bg-gray-50 p-2">
-                <span className="inline-flex items-center justify-center w-8 h-8 bg-white border border-primary-color1 rounded-full mr-3">
+                <span className="inline-flex items-center justify-center w-8 h-8 bg-white border-2 border-primary-color1 rounded-full mr-3">
                   <FiClock className="text-primary-color1" />
                 </span>
                 <span className="text-gray-700">
@@ -78,7 +78,7 @@ const Intro = () => {
                 </span>
               </div>
               <div className="flex items-center bg-gray-50 p-2">
-                <span className="inline-flex items-center justify-center w-8 h-8 bg-white border-1 border-primary-color1 rounded-full mr-3">
+                <span className="inline-flex items-center justify-center w-8 h-8 bg-white border-2 border-primary-color1 rounded-full mr-3">
                   <span className="text-primary-color1 font-medium">?</span>
                 </span>
                 <span className="text-gray-700">
@@ -121,7 +121,7 @@ const Intro = () => {
             loading={isStarting}
             className="bg-primary-color1 p-4 text-white"
           >
-            Start Quiz Now
+            Start Exam Now
           </Button>
         </div>
       </div>

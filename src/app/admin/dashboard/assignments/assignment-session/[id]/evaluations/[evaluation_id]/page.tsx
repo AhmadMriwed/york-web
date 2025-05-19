@@ -90,6 +90,7 @@ import { Modal, TimePicker } from "antd";
 import { createEndFormF, createStartFormF } from "@/lib/action/exam_action";
 import { Snippet } from "@heroui/react";
 import AddNewStudentModal from "@/components/assignments/AddStudentModal";
+import { StudentDataType } from "@/types/adminTypes/evaluation/evaluationTypes";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -125,6 +126,13 @@ const VerticalRenderIconButton = (props: any, ref: any) => {
     />
   );
 };
+const editExamSettingsSchema = z.object({
+  count_questions_page: z.number().min(1),
+
+  view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
+  view_answer: z.enum(["after_completion", "manually", "after_each_answer"]),
+  count_return_exam: z.number().min(0),
+});
 
 const Page = () => {
   const { id, evaluation_id } = useParams();
@@ -153,6 +161,7 @@ const Page = () => {
   const [isSubmittingExamSettings, setIsSubmittingExamSettings] =
     useState(false);
   const [isEdittingExamSettings, setIsEdittingExamSettings] = useState(false);
+  const [trainees, setTrainees] = useState<StudentDataType[]>([]);
 
   const [
     openGenerateTraineeEvaluationUrlModal,
@@ -179,7 +188,6 @@ const Page = () => {
 
         if (!data) {
           throw new Error("no data");
-          setIsThereErrorWhileFetchData(true);
         }
         setAssignmentData(data?.data);
 
@@ -203,6 +211,7 @@ const Page = () => {
     isViewAnsersChanged,
     isSuccessGenerateUrl,
   ]);
+
   useEffect(() => {
     const fetch = async () => {
       setLoading(true);
@@ -215,9 +224,36 @@ const Page = () => {
           console.log(users.data);
           setExamUsers(users.data);
         } else {
-          const users = await getTrainees(Number(id));
-          console.log(users.data);
-          setExamUsers(users.data);
+          const response = await getTrainees(Number(id));
+
+          const responseData = response?.data || [];
+
+          if (!Array.isArray(responseData)) {
+            throw new Error("Invalid trainees data format");
+          }
+
+          const mappedData = responseData.map((trainee) => ({
+            key: trainee.id.toString(),
+            id: trainee.id,
+            first_name: trainee.first_name || "N/A",
+            last_name: trainee.last_name || "N/A",
+            id_number: trainee.id_number || "N/A",
+            email: trainee.email || "N/A",
+            submission_time:
+              trainee.assignment_user?.answers?.[0]?.submission_time,
+            duration:
+              trainee.assignment_user?.answers?.[0]
+                ?.time_to_stay_until_the_answer,
+            grade: parseFloat(trainee.assignment_user?.grade || "0"),
+            correct_answers_count:
+              trainee.assignment_user?.correct_answers_count || 0,
+            wrong_answers_count:
+              trainee.assignment_user?.wrong_answers_count || 0,
+            status: trainee.status || "Not Started",
+            answers: trainee.assignment_user?.answers || [],
+          }));
+
+          setTrainees(mappedData);
         }
 
         console.log(assignmentData);
@@ -233,17 +269,6 @@ const Page = () => {
     fetch();
   }, [assignmentData?.evaluation_type?.id, refetchStudensResults]);
 
-  const editExamSettingsSchema = z.object({
-    count_questions_page: z.number().min(1),
-    // time_questions_page: z
-    //   .string()
-    //   .refine((v) => /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(v), {
-    //     message: "Invalid time format (HH:MM or HH:MM:SS required)",
-    //   }),
-    view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
-    count_return_exam: z.number().min(0),
-  });
-
   type FormValues = z.infer<typeof editExamSettingsSchema>;
 
   const form = useForm<FormValues>({
@@ -252,6 +277,7 @@ const Page = () => {
       count_questions_page: 1,
       // time_questions_page: "00:00",
       view_results: "manually",
+      view_answer: "manually",
       count_return_exam: 0,
     },
   });
@@ -261,12 +287,12 @@ const Page = () => {
       const { evaluation_config } = assignmentData;
       form.reset({
         count_questions_page: evaluation_config?.count_questions_page,
-        // time_questions_page:
-        //   evaluation_config?.time_questions_page
-        //     ?.split(":")
-        //     .slice(0, 2)
-        //     .join(":") || "00:00",
+
         view_results: evaluation_config?.view_results as
+          | "after_completion"
+          | "manually"
+          | "after_each_answer",
+        view_answer: evaluation_config?.view_answer as
           | "after_completion"
           | "manually"
           | "after_each_answer",
@@ -274,43 +300,6 @@ const Page = () => {
       });
     }
   }, [assignmentData, form]);
-
-  const EditeAnswersView = async () => {
-    setIsSubmittingExamSettings(true);
-    const toastId = toast.loading("changing answers view to manually ...");
-    try {
-      const payload = {
-        evaluation_id: Number(evaluation_id),
-        condition_exams_id: null,
-        old_condition_exams_id: null,
-        view_answer: "manually",
-      };
-      console.log(payload);
-      console.log(assignmentData?.evaluation_config.id);
-      const response = await updateEvaluationSettings(
-        payload,
-        Number(assignmentData?.evaluation_config.id)
-      );
-      console.log("API Response:", response);
-
-      toast.success(" Changed successfully", {
-        description:
-          "The answers view has been changed to manually successfully.",
-        duration: 4000,
-        id: toastId,
-      });
-      setIsExamDeleted((prev) => !prev);
-    } catch (error: any) {
-      console.error("Submission Error:", error);
-      toast.error("Oops! Something went wrong", {
-        description: error.message,
-        duration: 5000,
-        id: toastId,
-      });
-    } finally {
-      setIsSubmittingExamSettings(false);
-    }
-  };
 
   const onSubmitExamSittings = async (values: FormValues) => {
     setIsSubmittingExamSettings(true);
@@ -556,22 +545,22 @@ const Page = () => {
                         deletteExam();
                       },
                     },
-                    ...(assignmentData?.evaluation_config?.view_answer !==
-                    "manually"
-                      ? [
-                          {
-                            icon: (
-                              <input
-                                type="checkbox"
-                                onChange={() => EditeAnswersView()}
-                                className="size-5 max-sm:size-4 accent-primary-color1"
-                              />
-                            ),
-                            text: "Answers View",
-                            action: () => {},
-                          },
-                        ]
-                      : []),
+                    // ...(assignmentData?.evaluation_config?.view_answer !==
+                    // "manually"
+                    //   ? [
+                    //       {
+                    //         icon: (
+                    //           <input
+                    //             type="checkbox"
+                    //             onChange={() => EditeAnswersView()}
+                    //             className="size-5 max-sm:size-4 accent-primary-color1"
+                    //           />
+                    //         ),
+                    //         text: "Answers View",
+                    //         action: () => {},
+                    //       },
+                    //     ]
+                    //   : []),
 
                     {
                       icon: (
@@ -672,14 +661,14 @@ const Page = () => {
                       <ListOrdered className="w-5 h-5 max-sm:w-4 max-sm:h-4" />
                     }
                     label="Questions"
-                    value={`${assignmentData?.number_of_questions || " "}.`}
+                    value={`${assignmentData?.number_of_questions || "0"}`}
                   />
 
                   <div className="flex items-center gap-3 md:gap-4">
                     <InfoItem
                       icon={<Users className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
                       label="Students"
-                      value={`${assignmentData?.number_of_students || " "}.`}
+                      value={`${(examUsers || []).length}`}
                     />
 
                     <InfoItem
@@ -690,14 +679,6 @@ const Page = () => {
                       value={`${assignmentData?.grade_percentage}%`}
                     />
                   </div>
-
-                  <InfoItem
-                    icon={<EyeIcon className="w-5 h-5 max-sm:w-4 max-sm:h-4" />}
-                    label="Answers View "
-                    value={
-                      assignmentData?.evaluation_config?.view_answer || " "
-                    }
-                  />
 
                   {assignmentData?.evaluation_type.id === 1 &&
                     assignmentData?.url && (
@@ -1136,6 +1117,38 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
+                            <FormField
+                              control={form.control}
+                              name="view_answer"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Result View :</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="manually"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-800">
+                                        <SelectValue placeholder="Select option" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-800">
+                                      <SelectItem value="after_completion">
+                                        After Finish
+                                      </SelectItem>
+                                      <SelectItem value="manually">
+                                        Manually
+                                      </SelectItem>
+                                      <SelectItem value="after_each_answer">
+                                        After Each Answer
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                             <div className="flex items-center justify-end mt-3 gap-3">
                               <button
                                 className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
@@ -1244,6 +1257,19 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <FaCheckCircle className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Answers View
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.evaluation_config?.view_answer}
+                            </p>
+                          </div>
+                        </div>
 
                         <div className="flex justify-end mt-3">
                           <Button
@@ -1321,7 +1347,11 @@ const Page = () => {
                 />
               </div>
             )}
-            <StudentResultsTable data={examUsers} />
+            {assignmentData?.evaluation_type.id === 2 ? (
+              <StudentResultsTable data={trainees} />
+            ) : (
+              <StudentResultsTable data={examUsers} />
+            )}
           </div>
         </>
       )}
