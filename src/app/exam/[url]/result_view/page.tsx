@@ -8,7 +8,6 @@ import {
 } from "@/lib/action/assignment_action";
 import { getResultView } from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { ResultQuestionData } from "@/types/adminTypes/assignments/examTypes";
 import { Progress } from "antd";
 import { Button } from "@/components/ui/button";
@@ -16,26 +15,33 @@ import { Button } from "@/components/ui/button";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiChevronLeft, FiRefreshCw } from "react-icons/fi";
+import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 
 const QuizResultsViewPage = () => {
   const params = useSearchParams();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [hasFetched, setHasFetched] = useState<boolean>(false);
   const user_id = params.get("user_id");
   const { url } = useParams();
 
-  const exam_id = params.get("exam_id");
-  const [resultData, setResultData] = useState<ResultQuestionData[]>([]);
-  const [exam, setExam] = useState<Assignment | any>();
+  const [resultData, setResultData] = useState<ResultQuestionData[] | null>([]);
+  const [exam, setExam] = useState<Assignment | null>(null);
 
   useEffect(() => {
     const fetchResult = async () => {
+      setIsLoading(true);
       try {
         const response = await getResultView(Number(user_id));
-        setResultData(response.data);
+        setResultData(response.data || null);
         const data = await fetchAssignmentByUrl(String(url));
-        setExam(data);
+        setExam(data || null);
       } catch (error) {
         console.log(error);
+        setResultData(null);
+        setExam(null);
+      } finally {
+        setIsLoading(false);
+        setHasFetched(true);
       }
     };
     fetchResult();
@@ -52,9 +58,10 @@ const QuizResultsViewPage = () => {
     );
   }
 
-  if (resultData?.length === 0) {
+  // Only show empty state after we've completed fetching and have no data
+  if (hasFetched && (!resultData || resultData.length === 0)) {
     return (
-      <div className="min-h-screen  flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="max-w-md w-full mx-auto text-center">
           <div className="mb-6 flex justify-center">
             <div className="relative">
@@ -110,8 +117,8 @@ const QuizResultsViewPage = () => {
           {exam && (
             <p className="mt-8 text-sm text-gray-500">
               Evaluation period:{" "}
-              {new Date(exam?.start_date).toLocaleDateString()} -{" "}
-              {new Date(exam?.end_date).toLocaleDateString()}
+              {new Date(exam?.exam_config?.start_date).toLocaleDateString()} -{" "}
+              {new Date(exam?.exam_config?.end_date).toLocaleDateString()}
             </p>
           )}
         </div>

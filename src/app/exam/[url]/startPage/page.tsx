@@ -234,6 +234,7 @@ const Page = () => {
       router.push(`/exam/${url}/intro?user_id=${response.data.id}`);
     } catch (error: any) {
       if (error.message.includes("already been taken")) {
+        toast.error("The User Id is already been taken ");
         setIdNumberInput(payload.id_number);
         setShowIdVerificationDialog(true);
         setIsModalOpen(false);

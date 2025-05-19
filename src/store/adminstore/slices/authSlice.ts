@@ -6,26 +6,26 @@ import Cookie from "universal-cookie";
 import { toast } from "sonner";
 import { getAuthHeaders } from "./enums/authHeaders";
 
- const cookie = new Cookie();
+const cookie = new Cookie();
 
-
- export const loginAdmin = createAsyncThunk(
+export const loginAdmin = createAsyncThunk(
   "login",
   async (data: any, thunkAPI) => {
     const { rejectWithValue } = thunkAPI;
     const cookies = new Cookies();
 
     try {
-      const res = await axios.post(`/api/admin/login`, data,{
+      const res = await axios.post(`/api/admin/login`, data, {
         headers: {
-          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+          Authorization: `Bearer ${cookies.get("admin_token")}`,
         },
       });
+
       if (res?.status === 200) {
         let token = res.data.data.access_token;
 
         const expiryDate = new Date();
-        expiryDate.setFullYear(expiryDate.getFullYear() + 10);
+        expiryDate.setDate(expiryDate.getDate() + 15);
         cookies.set("admin_token", token, {
           path: "/",
           secure: true,
@@ -50,9 +50,9 @@ export const getAdminProfile = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.get(`/api/admin`,{
+      const res = await axios.get(`/api/admin`, {
         headers: {
-          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+          Authorization: `Bearer ${cookie.get("admin_token")}`,
         },
       });
       if (res.status === 200) {
@@ -72,9 +72,9 @@ export const adminForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(`/api/admin/forgot-password`,data,{
+      const res = await axios.post(`/api/admin/forgot-password`, data, {
         headers: {
-          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+          Authorization: `Bearer ${cookie.get("admin_token")}`,
         },
       });
       if (res.status === 200) {
@@ -96,11 +96,15 @@ export const adminValidateForgotPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(`/api/admin/validate-forgot-password-otp`, data,{
-        headers: {
-          Authorization: `Bearer ${cookie.get("admin_token")}`, 
-        },
-      });
+      const res = await axios.post(
+        `/api/admin/validate-forgot-password-otp`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${cookie.get("admin_token")}`,
+          },
+        }
+      );
       return res.data.data;
     } catch (error: any) {
       if (error?.response?.status === 422) {
@@ -118,9 +122,9 @@ export const adminResetPassword = createAsyncThunk(
     const { rejectWithValue } = thunkAPI;
 
     try {
-      const res = await axios.post(`/api/admin/reset-password`, data,{
+      const res = await axios.post(`/api/admin/reset-password`, data, {
         headers: {
-          Authorization: `Bearer ${cookie.get("admin_token")}`, 
+          Authorization: `Bearer ${cookie.get("admin_token")}`,
         },
       });
       return res.data.data;
@@ -147,7 +151,7 @@ export const adminUpdatePassword = createAsyncThunk(
           old_password: data.old_password,
           new_password: data.new_password,
           headers: {
-            Authorization: `Bearer ${cookie.get("admin_token")}`, 
+            Authorization: `Bearer ${cookie.get("admin_token")}`,
           },
         }
       );
@@ -164,13 +168,9 @@ export const adminUpdatePassword = createAsyncThunk(
 
 export const editProfile = async (formData: FormData) => {
   try {
-    const response = await axios.put(
-      "/api/admin/updateProfile",
-      formData,
-      {
-        ...getAuthHeaders('application/json')
-      }
-    );
+    const response = await axios.put("/api/admin/updateProfile", formData, {
+      ...getAuthHeaders("application/json"),
+    });
 
     console.log("API Response:", response.data);
 
@@ -182,13 +182,14 @@ export const editProfile = async (formData: FormData) => {
     throw new Error(response.data?.message || "فشل في تحديث الملف الشخصي");
   } catch (error: any) {
     console.error("API Error Details:", error);
-    
+
     let errorMessage = "حدث خطأ غير متوقع";
-    
+
     if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || 
-                   error.response?.data?.error || 
-                   error.message;
+      errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message;
     } else if (error instanceof Error) {
       errorMessage = error.message;
     }
@@ -336,5 +337,3 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
-
-

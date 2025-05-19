@@ -62,7 +62,6 @@ const QuizQuestionPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [timeLeft, setTimeLeft] = useState<number>(120);
   const [userAnswers, setUserAnswers] = useState<Map<number, UserAnswer[]>>(
@@ -76,12 +75,9 @@ const QuizQuestionPage = () => {
   );
   const [solutionData, setSolutionData] = useState<SolutionData | null>(null);
 
-  useEffect(() => {
-    const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
-    if (isSubmitted === "true") {
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
-    }
-  }, []);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isInitialized, setIsInitialized] = useState(false);
+
   // if user finish the exam :
   useEffect(() => {
     const checkuserfinish = async () => {
@@ -122,6 +118,78 @@ const QuizQuestionPage = () => {
     const formattedStartTime = `${hours}:${minutes}:${seconds}`;
     setStartTime(formattedStartTime);
   }, []);
+
+  useEffect(() => {
+    const fetchExamData = async () => {
+      try {
+        const data = await getUserById(Number(user_id));
+        const assignmentData = await fetchAssignmentByUrl(String(url));
+        if (!data || !assignmentData) {
+          throw new Error("no data");
+        }
+        setUserData(data?.data!);
+        setExamData(assignmentData!);
+        // setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
+      } catch (error) {
+        console.error("Error fetching exam data:", error);
+        toast.error("Failed to load exam data");
+      }
+    };
+
+    fetchExamData();
+  }, []);
+
+  useEffect(() => {
+    if (examData?.forms[0]?.id) {
+      fetchQuestions(currentPage);
+    }
+  }, [examData?.forms[0]?.id, currentPage]);
+
+  useEffect(() => {
+    const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
+    if (isSubmitted === "true") {
+      router.push(`/exam/${url}/result?user_id=${user_id}`);
+      return;
+    }
+  }, [url, user_id, router]);
+  useEffect(() => {
+    const savedPage = localStorage.getItem(`quizCurrentPage_${url}_${user_id}`);
+    if (savedPage) {
+      const page = parseInt(savedPage);
+      if (page !== currentPage) {
+        setCurrentPage(page);
+      }
+    }
+    setIsInitialized(true);
+  }, [url, user_id]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      `quizCurrentPage_${url}_${user_id}`,
+      currentPage.toString()
+    );
+  }, [currentPage, url, user_id]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setShowTimeEndDialog(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (examData?.forms[0]?.id && isInitialized) {
+      fetchQuestions(currentPage);
+    }
+  }, [examData?.forms[0]?.id, currentPage, isInitialized]);
 
   const fetchSolutions = async () => {
     try {
@@ -185,32 +253,6 @@ const QuizQuestionPage = () => {
     }
     return null;
   };
-
-  useEffect(() => {
-    const fetchExamData = async () => {
-      try {
-        const data = await getUserById(Number(user_id));
-        const assignmentData = await fetchAssignmentByUrl(String(url));
-        if (!data || !assignmentData) {
-          throw new Error("no data");
-        }
-        setUserData(data?.data!);
-        setExamData(assignmentData!);
-        // setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
-      } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
-      }
-    };
-
-    fetchExamData();
-  }, []);
-
-  useEffect(() => {
-    if (examData?.forms[0]?.id) {
-      fetchQuestions(currentPage);
-    }
-  }, [examData?.forms[0]?.id, currentPage]);
 
   const prepareAnswerPayload = () => {
     const currentAnswers = getCurrentPageAnswers();
@@ -341,7 +383,12 @@ const QuizQuestionPage = () => {
         setIsSubmitLoading(true);
         try {
           await submitAnswersForCurrentPage();
-          setCurrentPage((prev) => prev + 1);
+          const newPage = currentPage + 1;
+          setCurrentPage(newPage);
+          localStorage.setItem(
+            `quizCurrentPage_${url}_${user_id}`,
+            newPage.toString()
+          );
         } catch (error) {
           console.error("Error saving answers before navigation:", error);
         } finally {
@@ -362,29 +409,18 @@ const QuizQuestionPage = () => {
     }
   };
 
-  const handleTimeEndSubmit = async () => {
-    try {
-      setIsSubmitLoading(true);
-      // First submit current page answers if not already submitted
-      await submitAnswersForCurrentPage();
-      // Then get the grade
-      await getGradeAfterCreate(Number(user_id));
-      toast.success("Quiz submitted successfully!");
-      // Mark as submitted in localStorage
-      localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-      // Navigate to results
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
-      // Prevent going back
-      window.history.pushState(null, "", window.location.href);
-      window.addEventListener("popstate", () => {
-        window.history.pushState(null, "", window.location.href);
-      });
-    } catch (error) {
-      console.error("Error submitting quiz:", error);
-      toast.error("Failed to submit quiz");
-    } finally {
-      setIsSubmitLoading(false);
-    }
+  const onAnswerChange = (index: number, answer: UserAnswer) => {
+    setUserAnswers((prev) => {
+      const newAnswers = new Map(prev);
+      const pageAnswers = [...(newAnswers.get(currentPage) || [])];
+      pageAnswers[index] = answer;
+      newAnswers.set(currentPage, pageAnswers);
+      return newAnswers;
+    });
+  };
+
+  const getCurrentPageAnswers = () => {
+    return userAnswers.get(currentPage) || questions.map(() => "");
   };
 
   const handleSubmit = async () => {
@@ -394,8 +430,10 @@ const QuizQuestionPage = () => {
         await submitAnswersForCurrentPage();
         await getGradeAfterCreate(Number(user_id));
         toast.success("Quiz submitted successfully!");
-        router.push(`/exam/${url}/result?user_id=${user_id}`);
+        // Clear the saved page
+        localStorage.removeItem(`quizCurrentPage_${url}_${user_id}`);
         localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
+        router.push(`/exam/${url}/result?user_id=${user_id}`);
         window.history.pushState(null, "", window.location.href);
         window.addEventListener("popstate", () => {
           window.history.pushState(null, "", window.location.href);
@@ -410,34 +448,35 @@ const QuizQuestionPage = () => {
     setShowSubmitConfirm(true);
   };
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setShowTimeEndDialog(true);
-          return 0;
-        }
-        return prev - 1;
+  const handleTimeEndSubmit = async () => {
+    try {
+      setIsSubmitLoading(true);
+      await submitAnswersForCurrentPage();
+      await getGradeAfterCreate(Number(user_id));
+      toast.success("Quiz submitted successfully!");
+      // Clear the saved page
+      localStorage.removeItem(`quizCurrentPage_${url}_${user_id}`);
+      localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
+      router.push(`/exam/${url}/result?user_id=${user_id}`);
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("popstate", () => {
+        window.history.pushState(null, "", window.location.href);
       });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const onAnswerChange = (index: number, answer: UserAnswer) => {
-    setUserAnswers((prev) => {
-      const newAnswers = new Map(prev);
-      const pageAnswers = [...(newAnswers.get(currentPage) || [])];
-      pageAnswers[index] = answer;
-      newAnswers.set(currentPage, pageAnswers);
-      return newAnswers;
-    });
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+      toast.error("Failed to submit quiz");
+    } finally {
+      setIsSubmitLoading(false);
+    }
   };
 
-  const getCurrentPageAnswers = () => {
-    return userAnswers.get(currentPage) || questions.map(() => "");
-  };
+  if (!isInitialized) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">

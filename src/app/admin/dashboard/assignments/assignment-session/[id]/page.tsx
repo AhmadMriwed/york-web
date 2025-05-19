@@ -230,7 +230,7 @@ const Page = () => {
                           : "/register.png"
                       }
                       alt={"assignment session "}
-                      className="w-32 h-32 object-cover"
+                      className="w-32 h-32 object-fill"
                     />
                   </div>
 

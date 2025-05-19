@@ -17,8 +17,8 @@ import { Modal, Button, message, Form, Input } from "antd";
 import { Rate } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { LinkIcon } from "lucide-react";
-import { submitRating } from "@/lib/action/user/userr_action";
 import { Snippet } from "@heroui/react";
+import { submitRating } from "@/lib/action/user/userr_action";
 
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
