@@ -272,9 +272,12 @@ const Page = () => {
                 {/* Description */}
                 <div className="mb-8">
                   <h2 className="text-lg font-semibold mb-2">Description</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {assignmentSession?.description}
-                  </p>
+                  <div
+                    className="text-sm text-gray-600 dark:text-gray-300"
+                    dangerouslySetInnerHTML={{
+                      __html: assignmentSession.description,
+                    }}
+                  />
                 </div>
 
                 {/* Evaluation */}

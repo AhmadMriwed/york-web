@@ -765,7 +765,7 @@ const QuizQuestionPage = () => {
         <div className="max-w-4xl mx-auto flex justify-between">
           <button
             onClick={handlePrevious}
-            disabled={currentPage === 1}
+            disabled={true}
             className={`flex items-center px-5 py-3 rounded-lg font-medium transition-all ${
               currentPage === 1
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"

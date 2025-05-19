@@ -189,7 +189,7 @@ const QuizResultsPage = () => {
                           <LinkIcon className="inline-block size-5 text-primary-color1 mr-2" />
                         }
                         variant="bordered"
-                        className="pb-2 w-full flex items-center hide-scrollbar"
+                        className="pb-2 w-full flex text-black items-center hide-scrollbar"
                       >
                         <p className="inline-block">
                           {evaluationData?.end_forms[0]?.url}

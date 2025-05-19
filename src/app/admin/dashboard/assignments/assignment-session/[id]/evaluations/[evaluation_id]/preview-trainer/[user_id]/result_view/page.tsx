@@ -1,7 +1,9 @@
 "use client";
 
-
-import { fetchEvaluationById, getResultView } from "@/lib/action/evaluation_action";
+import {
+  fetchEvaluationById,
+  getResultView,
+} from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
 
 import { ResultQuestionData } from "@/types/adminTypes/assignments/examTypes";
@@ -51,7 +53,6 @@ const QuizResultsViewPage = () => {
           <h1 className="text-3xl text-primary-color1">{evaluation?.title}</h1>
         </div>
 
-     
         <div className="p-6 md:p-8 space-y-8">
           <div className="mt-8 space-y-6">
             <h2 className="text-xl font-bold text-gray-800 border-b pb-2">
@@ -71,7 +72,7 @@ const QuizResultsViewPage = () => {
                     <span className="text-gray-600">Question {index + 1}:</span>{" "}
                     <div
                       dangerouslySetInnerHTML={{ __html: question.question }}
-                      className="inline-block"
+                      className="inline-block text-gray-800"
                     />{" "}
                     ?
                   </h3>
@@ -97,7 +98,7 @@ const QuizResultsViewPage = () => {
                         <div
                           key={i}
                           dangerouslySetInnerHTML={{ __html: answer }}
-                          className="border-b last:border-b-0 pb-2 last:pb-0"
+                          className="border-b text-gray-600 last:border-b-0 pb-2 last:pb-0"
                         />
                       ))}
                     </div>
@@ -113,7 +114,7 @@ const QuizResultsViewPage = () => {
                           <div
                             key={i}
                             dangerouslySetInnerHTML={{ __html: answer }}
-                            className="border-b last:border-b-0 pb-2 last:pb-0"
+                            className="border-b last:border-b-0 text-gray-700 pb-2 last:pb-0"
                           />
                         ))}
                       </div>
