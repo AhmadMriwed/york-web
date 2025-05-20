@@ -65,7 +65,7 @@ const QuizQuestionPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [timeLeft, setTimeLeft] = useState<number>(120);
   const [userAnswers, setUserAnswers] = useState<Map<number, UserAnswer[]>>(
@@ -79,6 +79,21 @@ const QuizQuestionPage = () => {
   );
   const [solutionData, setSolutionData] = useState<SolutionData | null>(null);
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+  useEffect(() => {
+    const savedPage = localStorage.getItem(`quizPage_${url}_${user_id}`);
+    if (savedPage) {
+      setCurrentPage(parseInt(savedPage));
+    }
+  }, [url, user_id]);
+  useEffect(() => {
+    localStorage.setItem(`quizPage_${url}_${user_id}`, currentPage.toString());
+  }, [currentPage, url, user_id]);
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
@@ -363,7 +378,10 @@ const QuizQuestionPage = () => {
         await submitAnswersForCurrentPage();
         await getGradeAfterCreate(Number(user_id));
 
+        // Clear the page storage when submitting
+        localStorage.removeItem(`quizPage_${url}_${user_id}`);
         localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
+
         window.history.pushState(null, "", window.location.href);
         window.addEventListener("popstate", () => {
           window.history.pushState(null, "", window.location.href);
@@ -393,6 +411,13 @@ const QuizQuestionPage = () => {
   const getCurrentPageAnswers = () => {
     return userAnswers.get(currentPage) || questions.map(() => "");
   };
+  if (!isHydrated) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="animate-spin h-12 w-12 text-[#037f85]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -429,9 +454,13 @@ const QuizQuestionPage = () => {
                   </div>
                   <div className="flex items-center bg-teal-50 rounded-full px-3 py-1">
                     <BookmarkIcon className="h-3 w-3 mr-1 text-teal-600" />
-                    <span className="font-medium text-teal-800">
-                      {currentPage}
-                    </span>
+                    {isHydrated ? (
+                      <span className="font-medium text-teal-800">
+                        {currentPage}
+                      </span>
+                    ) : (
+                      <span className="font-medium text-teal-800">1</span>
+                    )}
                     <span className="mx-1 text-teal-600">of</span>
                     <span className="font-medium text-teal-800">
                       {totalPages}
@@ -473,8 +502,9 @@ const QuizQuestionPage = () => {
 
                   <div className="flex items-center bg-teal-50 rounded-full px-3 py-1 border border-teal-100">
                     <BookmarkIcon className="h-4 w-4 mr-2 text-teal-600" />
+
                     <span className="font-medium text-teal-800">
-                      {currentPage}
+                      {typeof window === "undefined" ? 1 : currentPage}
                     </span>
                     <span className="mx-1 text-teal-600">of</span>
                     <span className="font-medium text-teal-800">
@@ -488,7 +518,7 @@ const QuizQuestionPage = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto mt-52 md:mt-40 py-6 px-4 sm:px-6">
+      <div className="flex-1 overflow-y-auto mt-52 items-center md:mt-40 py-6 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto space-y-6">
           {isLoading ? (
             <div className="flex justify-center items-center h-[50vh]">
@@ -501,7 +531,6 @@ const QuizQuestionPage = () => {
               const solution = getQuestionSolution(question.id);
 
               return (
-                // In your question map function, add this className condition
                 <div
                   key={index}
                   className={`bg-white rounded-xl shadow-xs p-6 border ${
@@ -743,18 +772,6 @@ const QuizQuestionPage = () => {
                       </div>
                     )}
                   </div>
-                  {/* {solution && (
-                    <div className={`mt-4 p-4 rounded-lg border bg-green-50`}>
-                      <div className="flex justify-between items-start">
-                        <div>
-                 
-                          <p className="text-sm text-gray-700 mb-1">
-                            Your answer: {solution.userAnswer}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )} */}
                 </div>
               );
             })

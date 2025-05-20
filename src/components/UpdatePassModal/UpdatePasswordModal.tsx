@@ -44,7 +44,6 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
       console.log("trainer");
       let cookie = new Cookies();
       let token = cookie.get("trainer_token");
-      console.log(token);
 
       try {
         dispatch(trainerUpdatePassword(values)).then((res: any) => {
@@ -63,7 +62,6 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
       console.log("user");
       let cookie = new Cookies();
       let token = await cookie.get("user_token");
-      console.log(token);
       try {
         dispatch(userUpdatePassword(values)).then((res: any) => {
           if (res.error) {
@@ -87,7 +85,6 @@ const UpdatePasswordModal = ({ isOpen, onClose, onOpen, type }: ModalType) => {
       console.log("admin");
       let cookie = new Cookies();
       let token = await cookie.get("admin_token");
-      console.log(token);
       try {
         dispatch(adminUpdatePassword(values)).then((res: any) => {
           if (res.error) {
