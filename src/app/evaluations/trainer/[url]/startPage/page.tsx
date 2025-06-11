@@ -113,6 +113,7 @@ const Page = () => {
         }
 
         setError({ message: errorMessage, isEnded });
+        toast.error(errorMessage);
       } finally {
         setIsFetching(false);
       }

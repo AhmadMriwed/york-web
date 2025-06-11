@@ -8,17 +8,27 @@ import {
 } from "@/lib/action/assignment_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { UserResponse } from "@/types/adminTypes/assignments/examTypes";
-import { Progress } from "antd";
+import {
+  Progress,
+  Modal,
+  Button,
+  message,
+  Form,
+  Input,
+  Tabs,
+  Rate,
+} from "antd";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
-import { Modal, Button, message, Form, Input } from "antd";
-import { Rate } from "antd";
+import { FiChevronRight, FiCopy, FiPrinter } from "react-icons/fi";
 import TextArea from "antd/es/input/TextArea";
-import { LinkIcon } from "lucide-react";
+import { BookmarkIcon, Info, LinkIcon } from "lucide-react";
 import { Snippet } from "@heroui/react";
 import { submitRating } from "@/lib/action/user/userr_action";
+import QuizResultsViewPage from "../result_view/page";
+
+const { TabPane } = Tabs;
 
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
@@ -45,7 +55,11 @@ const QuizResultsPage = () => {
     useState(false);
   const [isSubmittingCertification, setIsSubmittingCertification] =
     useState(false);
+  const [openSaveDialog, setOpenSaveDialog] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [emailForm] = Form.useForm();
+  const [activeTab, setActiveTab] = useState("1");
+  const [currentUrl, setCurrentUrl] = useState("");
 
   const { data: result } = useFetchWithId<UserResponse>(
     id_number ? fetchResultByIdNumber : fetchResultById,
@@ -68,6 +82,12 @@ const QuizResultsPage = () => {
 
     fetchExamData();
   }, [url]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.href);
+    }
+  }, []);
 
   useEffect(() => {
     if (result && !isLoading && !hasShownRating) {
@@ -158,6 +178,28 @@ const QuizResultsPage = () => {
     }
   };
 
+  const handleEmailSubmit = async () => {
+    try {
+      const values = await emailForm.validateFields();
+      console.log("Email values:", values);
+      // Here you would typically send the email with the results
+      message.success("Results sent successfully!");
+      setOpenSaveDialog(false);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      message.error("Failed to send results. Please try again.");
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(currentUrl);
+    message.success("URL copied to clipboard!");
+  };
+
   const timeSpentSeconds = result?.answers[0]?.time_to_stay_until_the_answer
     ? timeStringToSeconds(result.answers[0]?.time_to_stay_until_the_answer)
     : 0;
@@ -182,6 +224,7 @@ const QuizResultsPage = () => {
 
   return (
     <>
+      {/* Rating Modal */}
       <Modal
         title="Rate This Exam"
         open={isRatingModalOpen}
@@ -288,12 +331,128 @@ const QuizResultsPage = () => {
         </Form>
       </Modal>
 
+      {/* Save Results Dialog */}
+      <Modal
+        title="Save Results"
+        open={openSaveDialog}
+        onCancel={() => setOpenSaveDialog(false)}
+        footer={null}
+        centered
+        width={600}
+      >
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key)}
+          className="save-results-tabs"
+        >
+          {/* Email Tab */}
+          <TabPane tab="Email" key="1">
+            <h1 className="text-xl font-semibold mt-3 text-primary-color1 ">
+              Get an email confirmation
+            </h1>
+            <p className="mt-2 text-gray-500">
+              Enter your email address to receive a confirmation of your
+              participation in the test and a link to your result page.
+            </p>
+            <Form
+              form={emailForm}
+              layout="vertical"
+              className="mt-4"
+              onFinish={handleEmailSubmit}
+            >
+              <Form.Item
+                name="email"
+                label="Email Address"
+                rules={[
+                  { required: true, message: "Please enter an email address" },
+                  { type: "email", message: "Please enter a valid email" },
+                ]}
+              >
+                <Input
+                  className=" focus:ring-primary-color1 focus:ring-1 focus:border-none"
+                  placeholder="Enter email address"
+                />
+              </Form.Item>
+
+              <div className="flex justify-end">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="bg-primary-color1 hover:!bg-primary-color2"
+                >
+                  Send Results
+                </Button>
+              </div>
+            </Form>
+          </TabPane>
+
+          {/* Print Tab */}
+          <TabPane tab="Print" key="2">
+            <div className="mt-6 text-center">
+              <div className="bg-gray-50 p-8 rounded-lg">
+                <FiPrinter className="mx-auto text-4xl text-primary-color1 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Print Results</h3>
+                <p className="text-gray-600 mb-6">
+                  Print your exam results for your records.
+                </p>
+                <Button
+                  type="primary"
+                  icon={<FiPrinter />}
+                  onClick={handlePrint}
+                  className="bg-primary-color1 hover:!bg-primary-color2"
+                >
+                  Print Now
+                </Button>
+              </div>
+            </div>
+          </TabPane>
+
+          {/* URL Tab */}
+          <TabPane tab="Link" key="3">
+            <div className="mt-3">
+              <h1 className="text-xl font-semibold mt-3 text-primary-color1 ">
+                Link to restore your test result page
+              </h1>
+              <p className="mt-2 text-gray-500">
+                If you can&apos;t use email, save the link below in order to be
+                able to restore your test result page.
+              </p>
+              <div className="flex items-center gap-2 mt-4">
+                <Input value={currentUrl} readOnly className="flex-1" />
+                <Button
+                  icon={<FiCopy />}
+                  onClick={handleCopyUrl}
+                  className="flex items-center bg-primary-color1 hover:!bg-primary-color2 text-white"
+                >
+                  Copy
+                </Button>
+              </div>
+              <div className="flex items-start gap-2 bg-gray-100 mt-8 p-4 rounded-md">
+                <Info className="text-primary-color1 h-4 w-8" />
+                <p className="text-gray-500  ">
+                  Remember to keep your link safe and don&apos;t share it with
+                  anyone. Your test result will be available to view as long as
+                  it is not deleted by the test owner.
+                </p>
+              </div>
+            </div>
+          </TabPane>
+        </Tabs>
+      </Modal>
+
       {/* Results Page */}
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto bg-white mt-8 rounded-xl shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="w-full text-center mt-4">
+          <div className=" bg-gray-50 p-6 flex items-center mx-8 justify-between text-center mt-4">
             <h1 className="text-3xl text-primary-color1">{examData?.title}</h1>
+            <Button
+              type="primary"
+              className="bg-primary-color1 hover:!bg-primary-color2"
+              onClick={() => setOpenSaveDialog(true)}
+            >
+              <BookmarkIcon className="h-4" />
+              Save the result
+            </Button>
           </div>
 
           {/* Main content */}
@@ -490,21 +649,7 @@ const QuizResultsPage = () => {
               )}
 
             {examData?.exam_config.view_answer !== "manually" && (
-              <div className="flex justify-center">
-                <button
-                  onClick={() => {
-                    router.push(
-                      `/exam/${url}/result_view?exam_id=${
-                        examData?.id
-                      }&user_id=${id_number ? result?.id : user_id}`
-                    );
-                  }}
-                  className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"
-                >
-                  Show My Answers
-                  <FiChevronRight className="ml-2" />
-                </button>
-              </div>
+              <QuizResultsViewPage />
             )}
           </div>
         </div>

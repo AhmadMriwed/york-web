@@ -20,7 +20,7 @@ const FrequentlyAskedQuestions = ({
       collapsible
       className="w-[85%] mt-16 mx-auto transition-all duration-300 grid grid-cols-1 md:grid-cols-2 gap-8"
     >
-      {questions.map((item, index) => (
+      {questions?.map((item, index) => (
         <AccordionItem
           key={index}
           value={`item-${index}`}
