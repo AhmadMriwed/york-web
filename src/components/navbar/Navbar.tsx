@@ -36,8 +36,13 @@ export function Navbar(): JSX.Element {
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [venues, setVenues] = React.useState<Venue[]>([]);
   const [data, setData] = React.useState<any>([]);
+  const [mounted, setMounted] = React.useState(false);
 
   const locale = useLocale();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navItems1: NavItem[] = [
     {
@@ -97,7 +102,7 @@ export function Navbar(): JSX.Element {
 
   return (
     <div>
-      <TopBar phone={data[1]?.content} email={data[0]?.content} />
+      {mounted && <TopBar phone={data[1]?.content} email={data[0]?.content} />}
       <NavigationMenu
         className={cn(
           "px-16 fixed max-h-24 min-w-full max-w-full z-[500] bg-[#13181e] bg-opacity-90 md:p-3 flex justify-between items-center shadow-md w-full transition-all duration-400",
@@ -108,13 +113,15 @@ export function Navbar(): JSX.Element {
         )}
       >
         {/* Mobile menu */}
-        <MobileNav
-          isMobileMenuOpen={isMobileMenuOpen}
-          setMobileMenuOpen={setMobileMenuOpen}
-          isScrolled={isScrolled}
-          venues={venues}
-          categories={categories}
-        />
+        {mounted && (
+          <MobileNav
+            isMobileMenuOpen={isMobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
+            isScrolled={isScrolled}
+            venues={venues}
+            categories={categories}
+          />
+        )}
 
         {/* Logo */}
         <Link
@@ -133,11 +140,13 @@ export function Navbar(): JSX.Element {
         </Link>
 
         {/* Desktop Menu */}
-        <DesktopNav
-          navItems={navItems}
-          venues={venues}
-          categories={categories}
-        />
+        {mounted && (
+          <DesktopNav
+            navItems={navItems}
+            venues={venues}
+            categories={categories}
+          />
+        )}
 
         {/* Search Bar */}
         <SearchBar open={searchOpen} setOpen={setSearchOpen} />

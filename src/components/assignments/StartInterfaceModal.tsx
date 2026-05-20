@@ -36,6 +36,7 @@ import {
 import Image from "next/image";
 import { toast } from "sonner";
 import ImageUploader from "../upload/ImageUploader";
+import QuillEditorWithoutDark from "./QuillEditorWithoutDark";
 
 interface InterfaceModalProps {
   open: boolean;
@@ -149,9 +150,10 @@ const StartInterfaceModal = ({
                 <p
                   className="text-gray-800 dark:text-gray-200"
                   style={{ whiteSpace: "pre-line" }}
-                >
-                  {startForm.description}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: startForm?.description,
+                  }}
+                />
               </div>
 
               {type === "assignment" && startForm.files?.length > 0 && (
@@ -407,11 +409,21 @@ const EditForm = ({
             />
           </div>
 
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
+          <FormField
             control={form.control}
-            label="Description:"
             name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description:</FormLabel>
+                <FormControl>
+                  <QuillEditorWithoutDark
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter description..."
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

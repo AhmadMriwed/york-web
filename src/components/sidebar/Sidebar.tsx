@@ -75,6 +75,7 @@ export const menuItems = {
     { id: 5, title: "Exam Types", url: "exam-types" },
     { id: 6, title: "Question Types", url: "question-types" },
     { id: 7, title: "Course Types", url: "course-types" },
+    { id: 8, title: "Field Requirments", url: "field-requirments" },
   ],
 };
 

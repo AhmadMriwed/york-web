@@ -56,6 +56,7 @@ export interface ExamConfig {
   time_exam: string;
   start_date: string;
   end_date: string;
+  access_type: "public_link" | "group_password" | "private_access_code"; // Update with possible values
   view_results: "manually" | "per_answer" | "after_finish"; // Update with possible values
   view_answer: "manually" | "per_answer" | "after_finish"; // Update with possible values
   date_view: string;
@@ -139,6 +140,7 @@ export interface Assignment {
   created_at: string;
   updated_at: string;
   exam_config: ExamConfig;
+
   field_requirements: FieldRequirment[];
   exam_messages: ExamMessage;
   grade_percentage: string;
@@ -161,6 +163,7 @@ export interface EvaluationConfig {
   end_date: string;
   view_results: "manually" | "per_answer" | "after_finish"; // Update with possible values
   view_answer: "manually" | "per_answer" | "after_finish"; // Update with possible values
+  access_type: "public_link" | "group_password" | "private_access_code";
   date_view: string;
   count_questions_page: number;
   time_questions_page: string;

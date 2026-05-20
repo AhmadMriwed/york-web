@@ -130,9 +130,10 @@ export const InterfaceModalEvaluation = ({
                 <p
                   className="text-gray-800 text-[16px] max-sm:text-[14px] dark:text-gray-200"
                   style={{ whiteSpace: "pre-line" }}
-                >
-                  {interfaceData?.description}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: interfaceData.description,
+                  }}
+                />
               </div>
 
               <div className="h-px w-full bg-gray-200 dark:bg-gray-700 my-3" />

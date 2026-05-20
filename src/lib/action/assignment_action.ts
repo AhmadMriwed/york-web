@@ -1,6 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { getServerLanguage } from "@/app/(root)/[locale]/api/getServerLanguage";
 import {
+  Assignment,
   AssignmentSession,
   Category,
   Condition,
@@ -13,14 +12,15 @@ import {
   StartFormType,
   Type,
 } from "@/types/adminTypes/assignments/assignmentsTypes";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import { toast } from "sonner";
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
 import {
+  PrivateAccessCodeType,
   ResultQuestionData,
   UserResponse,
 } from "@/types/adminTypes/assignments/examTypes";
+import { toast } from "sonner";
 
 interface ApiResponse<T> {
   data: T;
@@ -34,13 +34,6 @@ const apiClient: AxiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-// Add request interceptor for language
-// apiClient.interceptors.request.use((config) => {
-//   const language = getServerLanguage();
-//   config.headers["Accept-Language"] = language === "ar" ? "ar" : "en";
-//   return config;
-// });
 
 const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
   try {
@@ -183,10 +176,13 @@ export const deleteAssignmentSession = async (id: number): Promise<void> => {
     console.error("Error:", error);
   }
 };
-export const duplicateAssignmentSession = async (id: number): Promise<void> => {
+export const duplicateAssignmentSession = async (
+  id: number,
+  title: string
+): Promise<void> => {
   try {
     const res = await axios.get(
-      `/assignment/exam-sections/duplicate/${id}`,
+      `/assignment/exam-sections/duplicate/${id}?title=${title}`,
       getAuthHeaders()
     );
 
@@ -1165,14 +1161,32 @@ export const fetchResultById = async (id: number): Promise<UserResponse> => {
     throw new Error(errorMessage);
   }
 };
-export const fetchResultByIdNumber = async (id: any): Promise<UserResponse> => {
+export const fetchResultByIdNumber = async (
+  id: string,
+  form_id?: number,
+  password?: string
+): Promise<UserResponse> => {
   try {
-    return await get<UserResponse>(`/assignment-users/get-by-id-number/${id}`);
+    const config: AxiosRequestConfig = {
+      headers: {
+        "Content-Type": "application/json",
+        ...(form_id && { form_id: form_id.toString() }),
+        ...(password && { password }),
+        ...(id && { id_number: id }),
+      },
+    };
+
+    const response = await axios.get<UserResponse>(
+      `/assignment/assignment-users/get-by-id-number-form-id/${id}/${form_id}`,
+      config
+    );
+
+    return response.data;
   } catch (error: any) {
     const errorMessage =
       error.response?.data?.message ||
       error.message ||
-      "Failed to fetch end form";
+      "Failed to fetch user results";
     throw new Error(errorMessage);
   }
 };
@@ -1189,5 +1203,231 @@ export const fetchResultViewById = async (
       error.message ||
       "Failed to fetch end form";
     throw new Error(errorMessage);
+  }
+};
+
+//private access code  :
+
+export const addStudent = async (
+  id_number: string,
+  email: string,
+  form_id: number
+) => {
+  try {
+    const response = await axios.post(
+      `/assignment/private-access-codes`,
+      {
+        id_number,
+        email,
+        form_id,
+      },
+      getAuthHeaders() // Using the shared auth headers function
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error adding student:", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Failed to add student");
+    }
+    throw new Error("Unexpected error occurred");
+  }
+};
+
+export const addMultipleStudents = async (
+  form_id: number,
+  id_numbers: string[]
+) => {
+  try {
+    const response = await axios.post(
+      `/assignment/private-access-codes/bulk`,
+      {
+        form_id,
+        id_numbers,
+      },
+      getAuthHeaders()
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error adding multiple students:", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to add multiple students"
+      );
+    }
+    throw new Error("Unexpected error occurred");
+  }
+};
+
+export const fetchAccessCodes = async (
+  form_id: number
+): Promise<PrivateAccessCodeType[]> => {
+  try {
+    return await get<PrivateAccessCodeType[]>(
+      `/private-access-codes?form_id=${form_id}`
+    );
+  } catch (error: any) {
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to fetch assignments";
+    throw new Error(errorMessage);
+  }
+};
+
+export const deleteSpecificPrivateAccessCode = async (
+  id: number
+): Promise<void> => {
+  try {
+    const res = await axios.delete(
+      `/assignment/private-access-codes/${id}`,
+      getAuthHeaders()
+    );
+  } catch (error: any) {
+    console.error("Error:", error);
+  }
+};
+
+export const deletePrivateAccessCodes = async (
+  ids: number[]
+): Promise<void> => {
+  try {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      throw new Error("No valid IDs provided for deletion");
+    }
+
+    const validIds = ids.filter((id) => Number.isInteger(Number(id)));
+    if (validIds.length === 0) {
+      throw new Error("No valid numeric IDs provided");
+    }
+
+    const res = await axios.delete(
+      `/assignment/private-access-codes/bulk-destroy`,
+      {
+        data: { ids: validIds },
+        headers: {
+          ...getAuthHeaders("application/json").headers,
+        },
+      }
+    );
+
+    if (res.status === 200) {
+      toast.success(`${validIds.length} access codes deleted successfully`);
+    }
+  } catch (error: any) {
+    console.error("Error deleting codes:", error);
+
+    if (axios.isAxiosError(error)) {
+      // Handle different error statuses
+      if (error.response) {
+        const serverMessage =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          error.response.statusText;
+
+        if (error.response.status === 422) {
+          throw new Error(`Validation error: ${serverMessage}`);
+        }
+        throw new Error(`Server error: ${serverMessage}`);
+      }
+    }
+    throw new Error(error.message || "Failed to delete access codes");
+  }
+};
+
+export const updatePrivateAccessCode = async (id: number, email: string) => {
+  try {
+    const response = await axios.post(
+      `/assignment/private-access-codes/${id}`,
+      {
+        email,
+      },
+      getAuthHeaders()
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error updating student:", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to update student"
+      );
+    }
+    throw new Error("Unexpected update occurred");
+  }
+};
+
+export const exportAccessCodes = async (payload: {
+  form_id: number;
+  type: string;
+  file_name: string;
+}) => {
+  try {
+    const response = await axios.post(
+      "/assignment/private-access-codes/export",
+      payload,
+      {
+        responseType: "blob",
+        headers: {
+          ...getAuthHeaders("application/json").headers,
+        },
+      }
+    );
+
+    const blob = new Blob([response.data], {
+      type: response.headers["content-type"],
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    const extension = payload.type === "word" ? "docx" : payload.type;
+    link.setAttribute("download", `${payload.file_name}.${extension}`);
+
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return response;
+  } catch (error: any) {
+    console.error("Error exporting questions:", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to export questions"
+      );
+    }
+    throw new Error("Unexpected error occurred during export");
+  }
+};
+
+export const generateGroupPassword = async (
+  form_id: number,
+  password: string
+) => {
+  try {
+    const response = await axios.post(
+      `/assignment/config-exams/group-passwords`,
+      {
+        form_id,
+        password,
+      },
+      getAuthHeaders()
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error generate password:", error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || "Failed to generate password"
+      );
+    }
+    throw new Error("Unexpected error occurred");
   }
 };

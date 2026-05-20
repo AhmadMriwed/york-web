@@ -1,31 +1,25 @@
 "use client";
 import { icons } from "@/constants/icons";
-import { useFetch, useFetchWithId } from "@/hooks/useFetch";
-import {
-  fetchAssignmentByUrl,
-  fetchResultById,
-  fetchResultByIdNumber,
-} from "@/lib/action/assignment_action";
+import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
+import { fetchResultById, submitRating } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
-import { UserResponse } from "@/types/adminTypes/assignments/examTypes";
+import { Snippet } from "@heroui/react";
 import {
-  Progress,
-  Modal,
   Button,
-  message,
   Form,
   Input,
-  Tabs,
+  message,
+  Modal,
+  Progress,
   Rate,
+  Tabs,
 } from "antd";
+import TextArea from "antd/es/input/TextArea";
+import { BookmarkIcon, Download, Info, LinkIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FiChevronRight, FiCopy, FiPrinter } from "react-icons/fi";
-import TextArea from "antd/es/input/TextArea";
-import { BookmarkIcon, Info, LinkIcon } from "lucide-react";
-import { Snippet } from "@heroui/react";
-import { submitRating } from "@/lib/action/user/userr_action";
 import QuizResultsViewPage from "../result_view/page";
 
 const { TabPane } = Tabs;
@@ -34,6 +28,7 @@ const QuizResultsPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
   const id_number = searchparams.get("id_number");
+  const form_id = searchparams.get("form_id");
   const [examData, setExamData] = useState<Assignment>();
   const [isLoading, setIsLoading] = useState(true);
   const [hasShownRating, setHasShownRating] = useState(() => {
@@ -50,7 +45,6 @@ const QuizResultsPage = () => {
   const [comment, setComment] = useState("");
   const [isSubmittingRating, setIsSubmittingRating] = useState(false);
 
-  // New states for certification
   const [isCertificationModalOpen, setIsCertificationModalOpen] =
     useState(false);
   const [isSubmittingCertification, setIsSubmittingCertification] =
@@ -60,13 +54,29 @@ const QuizResultsPage = () => {
   const [emailForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState("1");
   const [currentUrl, setCurrentUrl] = useState("");
+  const [result, setResult] = useState<any>(null);
 
-  const { data: result } = useFetchWithId<UserResponse>(
-    id_number ? fetchResultByIdNumber : fetchResultById,
-    //@ts-ignore
-    id_number || Number(user_id)
-  );
+  useEffect(() => {
+    const fetchResult = async () => {
+      setIsLoading(true);
 
+      try {
+        const response = await fetchResultById(
+          Number(user_id),
+          id_number,
+          Number(form_id)
+        );
+        console.log(response);
+        setResult(response.data);
+      } catch (error) {
+        console.error("Error fetching exam data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchResult();
+  }, [url]);
   useEffect(() => {
     const fetchExamData = async () => {
       setIsLoading(true);
@@ -124,7 +134,6 @@ const QuizResultsPage = () => {
         message.success("Thank you for your feedback!");
       }
       setIsRatingModalOpen(false);
-      // Persist to localStorage
       localStorage.setItem("hasShownRating", "true");
       setHasShownRating(true);
     } catch (error) {
@@ -181,8 +190,6 @@ const QuizResultsPage = () => {
   const handleEmailSubmit = async () => {
     try {
       const values = await emailForm.validateFields();
-      console.log("Email values:", values);
-      // Here you would typically send the email with the results
       message.success("Results sent successfully!");
       setOpenSaveDialog(false);
     } catch (error) {
@@ -191,9 +198,7 @@ const QuizResultsPage = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handleExport = () => {};
 
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(currentUrl);
@@ -224,7 +229,6 @@ const QuizResultsPage = () => {
 
   return (
     <>
-      {/* Rating Modal */}
       <Modal
         title="Rate This Exam"
         open={isRatingModalOpen}
@@ -276,7 +280,6 @@ const QuizResultsPage = () => {
         </div>
       </Modal>
 
-      {/* Certification Modal */}
       <Modal
         title="Get Your Certification"
         open={isCertificationModalOpen}
@@ -331,9 +334,13 @@ const QuizResultsPage = () => {
         </Form>
       </Modal>
 
-      {/* Save Results Dialog */}
       <Modal
-        title="Save Results"
+        title={
+          <div className="flex gap-2 items-center">
+            <Save className="text-primary-color1 size-5" />
+            <p>Save Result</p>
+          </div>
+        }
         open={openSaveDialog}
         onCancel={() => setOpenSaveDialog(false)}
         footer={null}
@@ -345,7 +352,6 @@ const QuizResultsPage = () => {
           onChange={(key) => setActiveTab(key)}
           className="save-results-tabs"
         >
-          {/* Email Tab */}
           <TabPane tab="Email" key="1">
             <h1 className="text-xl font-semibold mt-3 text-primary-color1 ">
               Get an email confirmation
@@ -386,28 +392,26 @@ const QuizResultsPage = () => {
             </Form>
           </TabPane>
 
-          {/* Print Tab */}
-          <TabPane tab="Print" key="2">
+          <TabPane tab="Export" key="2">
             <div className="mt-6 text-center">
               <div className="bg-gray-50 p-8 rounded-lg">
-                <FiPrinter className="mx-auto text-4xl text-primary-color1 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Print Results</h3>
+                <Download className="mx-auto text-4xl text-primary-color1 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Export Results</h3>
                 <p className="text-gray-600 mb-6">
-                  Print your exam results for your records.
+                  export your exam results for your records.
                 </p>
                 <Button
                   type="primary"
-                  icon={<FiPrinter />}
-                  onClick={handlePrint}
+                  icon={<Download />}
+                  onClick={handleExport}
                   className="bg-primary-color1 hover:!bg-primary-color2"
                 >
-                  Print Now
+                  Export Now
                 </Button>
               </div>
             </div>
           </TabPane>
 
-          {/* URL Tab */}
           <TabPane tab="Link" key="3">
             <div className="mt-3">
               <h1 className="text-xl font-semibold mt-3 text-primary-color1 ">
@@ -440,7 +444,6 @@ const QuizResultsPage = () => {
         </Tabs>
       </Modal>
 
-      {/* Results Page */}
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto bg-white mt-8 rounded-xl shadow-lg overflow-hidden">
           <div className=" bg-gray-50 p-6 flex items-center mx-8 justify-between text-center mt-4">
@@ -455,9 +458,7 @@ const QuizResultsPage = () => {
             </Button>
           </div>
 
-          {/* Main content */}
           <div className="p-6 md:p-8 space-y-8">
-            {/* User info */}
             <div className="bg-gray-50 p-4 rounded-lg flex items-center">
               <div className="bg-white p-2 rounded-full shadow-sm">
                 <Image src={icons.userCard} width={24} height={24} alt="User" />
@@ -470,7 +471,6 @@ const QuizResultsPage = () => {
               </div>
             </div>
 
-            {/* Summary */}
             <div className="bg-gray-50 p-4 md:p-6 rounded-lg shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="bg-white p-2 rounded-full shadow-sm flex-shrink-0">
@@ -493,7 +493,6 @@ const QuizResultsPage = () => {
               </div>
             </div>
 
-            {/* Stats grid */}
             <div
               className={`grid grid-cols-1 ${
                 examData?.exam_config.view_results !== "manually"
@@ -501,7 +500,6 @@ const QuizResultsPage = () => {
                   : ""
               }   gap-6`}
             >
-              {/* Result card - unchanged */}
               {examData?.exam_config.view_results !== "manually" && (
                 <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
                   <h2 className="font-bold text-gray-800 mb-4">RESULT</h2>

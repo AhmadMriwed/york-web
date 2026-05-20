@@ -32,14 +32,14 @@ export const ExportExamStatsValidation = z.object({
 type Props = {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
-  assignmentId: number;
+  formId: number;
   defaultTitle?: string;
 };
 
 const ExportExam = ({
   isModalOpen,
   setIsModalOpen,
-  assignmentId,
+  formId,
   defaultTitle = "",
 }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,11 +62,17 @@ const ExportExam = ({
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
     try {
-      await exportExam({
-        fileName: values.title,
-        type: values.reportType === "word" ? "docx" : "xlsx",
-        id: assignmentId,
-      });
+      const payload = {
+        file_name: values.title,
+        type:
+          values.reportType === "word"
+            ? "docx"
+            : values.reportType === "excel"
+            ? "xlsx"
+            : "pdf",
+        form_id: formId,
+      };
+      await exportExam(payload);
 
       handleCancel();
     } catch (error) {
@@ -122,6 +128,7 @@ const ExportExam = ({
                     <SelectContent style={{ zIndex: 1000 }}>
                       <SelectItem value="word">Word</SelectItem>
                       <SelectItem value="excel">Excel</SelectItem>
+                      <SelectItem value="pdf">PDF</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>

@@ -22,16 +22,6 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
-      <head>
-        <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>York Academy</title>
-
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Chaparral+Pro:wght@600&display=swap"
-        />
-      </head>
       <body className="overflow-x-clip">
         <TooltipProvider>
           <NextIntlClientProvider messages={messages} locale={locale}>

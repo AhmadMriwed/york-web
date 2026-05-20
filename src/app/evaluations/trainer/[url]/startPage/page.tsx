@@ -1,43 +1,37 @@
 "use client";
-import { images } from "@/constants/images";
-import { Modal, Space, Input, Result } from "antd";
-import Image from "next/image";
-import {
-  FaClock,
-  FaCalendarAlt,
-  FaBook,
-  FaUserAlt,
-  FaQuestionCircle,
-  FaInfoCircle,
-  FaCheckCircle,
-  FaPlayCircle,
-  FaPlay,
-  FaTimes,
-  FaFilePdf,
-  FaFileWord,
-  FaFileExcel,
-  FaFileImage,
-  FaFileAlt,
-  FaDownload,
-} from "react-icons/fa";
-import React, { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Form } from "@/components/ui/form";
-import { toast } from "sonner";
 import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useParams, useRouter } from "next/navigation";
-import { assignUser } from "@/lib/action/user/userr_action";
+import { Form } from "@/components/ui/form";
 import { icons } from "@/constants/icons";
-import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
-import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { images } from "@/constants/images";
 import { fetchResultByIdNumber } from "@/lib/action/assignment_action";
+import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
+import { assignUserForTrainerEvaluation } from "@/lib/action/user/userr_action";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input, Modal, Result, Space } from "antd";
 import { AxiosError } from "axios";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  FaBook,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaInfoCircle,
+  FaLock,
+  FaPlay,
+  FaPlayCircle,
+  FaQuestionCircle,
+  FaTimes,
+  FaUserAlt,
+} from "react-icons/fa";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const createValidationSchema = (fieldRequirements: any) => {
   const schema: Record<string, any> = {
@@ -70,6 +64,10 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
   const [isFetching, setIsFetching] = useState(true);
+  const [password, setPassword] = useState("");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [tempFormValues, setTempFormValues] = useState<any>(null);
+
   const [error, setError] = useState<{
     message: string;
     isEnded: boolean;
@@ -113,7 +111,6 @@ const Page = () => {
         }
 
         setError({ message: errorMessage, isEnded });
-        toast.error(errorMessage);
       } finally {
         setIsFetching(false);
       }
@@ -141,7 +138,16 @@ const Page = () => {
     });
     setIsLoading(true);
     try {
-      const response = await assignUser(payload);
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      Object.keys(payload).forEach((key) => {
+        headers[key] = payload[key];
+      });
+
+      console.log("payload: ", payload);
+      console.log("headers: ", headers);
+      const response = await assignUserForTrainerEvaluation(payload, headers);
 
       toast.success("Registration success", {
         description: "The registration has been completed successfully.",
@@ -151,10 +157,14 @@ const Page = () => {
       form.reset();
       setIsModalOpen(false);
       router.push(
-        `/evaluations/trainer/${url}/intro?user_id=${response.data.id}`
+        `/evaluations/trainer/${url}/intro?user_id=${response.data.id}&id_number=${headers.id_number}&form_id=${headers.form_id}`
       );
     } catch (error: any) {
-      if (error.message.includes("already been taken")) {
+      if (error.message.includes("Access code is required.")) {
+        setTempFormValues(values);
+        setShowPasswordModal(true);
+        setIsModalOpen(false);
+      } else if (error.message.includes("already been taken")) {
         setIdNumberInput(payload.id_number);
         setIsModalOpen(false);
         setShowIdVerificationDialog(true);
@@ -164,6 +174,49 @@ const Page = () => {
           duration: 5000,
         });
       }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
+    if (!password) return;
+
+    setIsLoading(true);
+    try {
+      const payload = {
+        ...tempFormValues,
+        form_id: evaluationData?.forms[0]?.id,
+        password: password,
+      };
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      Object.keys(payload).forEach((key) => {
+        headers[key] = payload[key];
+      });
+
+      const response = await assignUserForTrainerEvaluation(payload, headers);
+
+      toast.success("Registration success", {
+        description: "The registration has been completed successfully.",
+        duration: 4000,
+      });
+
+      form.reset();
+      setShowPasswordModal(false);
+      setIsModalOpen(false);
+      router.push(
+        `/evaluations/trainer/${url}/intro?user_id=${response.data.id}&id_number=${headers.id_number}&form_id=${headers.form_id}`
+      );
+    } catch (error: any) {
+      setError(error.message);
+      toast.error("Oops! Something went wrong", {
+        description: error.message || "Failed to register user",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -602,6 +655,58 @@ const Page = () => {
             value={idNumberInput}
             onChange={(e) => setIdNumberInput(e.target.value)}
             placeholder="Enter your ID number"
+          />
+        </div>
+      </Modal>
+
+      {/* evaluation password required */}
+
+      <Modal
+        title={
+          <div className="flex items-center">
+            <FaLock className="mr-2 text-[#037f85]" />
+            <span>Exam Password Required</span>
+          </div>
+        }
+        open={showPasswordModal}
+        onCancel={() => setShowPasswordModal(false)}
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setShowPasswordModal(false)}
+            variant="outline"
+            className="mr-3"
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            onClick={handlePasswordSubmit}
+            disabled={!password || isLoading}
+            className="bg-[#037f85] hover:bg-[#036a70]"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                Verifying...
+              </>
+            ) : (
+              "Submit"
+            )}
+          </Button>,
+        ]}
+      >
+        <div className="p-4">
+          <p className="text-gray-700 mb-4">
+            This exam is password protected. Please enter the password to
+            continue:
+          </p>
+          <Input.Password
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter exam password"
+            disabled={isLoading}
           />
         </div>
       </Modal>

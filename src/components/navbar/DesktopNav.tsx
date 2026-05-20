@@ -71,30 +71,29 @@ export default function DesktopNav({
     >
       {navItems.map((item) => (
         <NavigationMenuItem key={item.title}>
-          <Link href={`/${locale}/${item.href}`} legacyBehavior>
-            <NavigationMenuLink
-              className={cn(
-                `text-white hover:no-underline cursor-pointer ${
-                  path.startsWith(item.href) ? "text-primary-color1" : ""
-                }`,
-                navigationMenuTriggerStyle()
-              )}
-            >
-              {item.title}
-            </NavigationMenuLink>
+          <Link
+            href={`/${locale}/${item.href}`}
+            className={cn(
+              `text-white hover:no-underline cursor-pointer ${
+                path.startsWith(item.href) ? "text-primary-color1" : ""
+              }`,
+              navigationMenuTriggerStyle()
+            )}
+          >
+            {item.title}
           </Link>
         </NavigationMenuItem>
       ))}
 
       {/* Dropdowns for Categories and Venues */}
-      {categories.length > 0 && (
+      {categories?.length > 0 && (
         <DropdownSection
           title={locale === "en" ? "Categories" : "الفئات"}
           items={categories}
           basePath={`/${locale}/categories`}
         />
       )}
-      {venues.length > 0 && (
+      {venues?.length > 0 && (
         <DropdownSection
           title={locale === "en" ? "Venues" : "المدن"}
           items={venues}

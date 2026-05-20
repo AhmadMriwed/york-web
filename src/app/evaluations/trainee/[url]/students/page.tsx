@@ -20,7 +20,7 @@ import {
   getTrainees,
   startTraineeEvaluation,
 } from "@/lib/action/evaluation_action";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   LoadingOutlined,
   InfoCircleOutlined,
@@ -63,6 +63,8 @@ const StudentManagementPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [evaluationData, setEvaluationData] = useState<Evaluation | null>(null);
   const { url } = useParams();
+  const searchParams = useSearchParams();
+  const form_id = searchParams.get("form_id");
   const router = useRouter();
 
   useEffect(() => {
@@ -137,7 +139,7 @@ const StudentManagementPage = () => {
         student?.id
       );
       router.push(
-        `/evaluations/trainee/${url}/questions?user_id=${response?.data?.id}`
+        `/evaluations/trainee/${url}/questions?user_id=${response?.data?.id}&id_number=${response?.data?.id_number}&form_id=${form_id}`
       );
     } catch (error) {
       console.log(error);
@@ -151,7 +153,7 @@ const StudentManagementPage = () => {
     try {
       const response = await getTraineeId(student?.id);
       router.push(
-        `/evaluations/trainee/${url}/result?user_id=${response?.data?.assignment_user_id}`
+        `/evaluations/trainee/${url}/result?user_id=${response?.data?.assignment_user_id}&id_number=${response?.data?.id_number}&form_id=${form_id}`
       );
     } catch (error) {
       console.log(error);

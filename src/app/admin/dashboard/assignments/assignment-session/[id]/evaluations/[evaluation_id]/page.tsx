@@ -21,12 +21,13 @@ import {
   View,
   EyeIcon,
   Link,
+  LockIcon,
 } from "lucide-react";
 import { GoChecklist } from "react-icons/go";
 import { Dropdown, IconButton } from "rsuite";
 import { More } from "@rsuite/icons";
 import { PiToggleRightFill } from "react-icons/pi";
-import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
+import { CiCalendarDate, CiExport, CiLock, CiTimer } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
 import dayjs from "dayjs";
 import {
@@ -93,6 +94,8 @@ import AddNewStudentModal from "@/components/assignments/AddStudentModal";
 import { StudentDataType } from "@/types/adminTypes/evaluation/evaluationTypes";
 import TraineesTable from "@/components/assignments/TraineesTable";
 import TrainerTable from "@/components/assignments/TrainerTable";
+import QuillEditorWithoutDark from "@/components/assignments/QuillEditorWithoutDark";
+import ExamRequirementsManager from "@/components/assignments/ExamRequirementsManager";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -133,6 +136,7 @@ const editExamSettingsSchema = z.object({
 
   view_results: z.enum(["after_completion", "manually", "after_each_answer"]),
   view_answer: z.enum(["after_completion", "manually", "after_each_answer"]),
+  access_type: z.enum(["public_link", "group_password", "private_access_code"]),
   count_return_exam: z.number().min(0),
 });
 
@@ -281,6 +285,7 @@ const Page = () => {
       // time_questions_page: "00:00",
       view_results: "manually",
       view_answer: "manually",
+      access_type: "public_link",
       count_return_exam: 0,
     },
   });
@@ -299,6 +304,10 @@ const Page = () => {
           | "after_completion"
           | "manually"
           | "after_each_answer",
+        access_type: evaluation_config?.access_type as
+          | "public_link"
+          | "group_password"
+          | "private_access_code",
         count_return_exam: evaluation_config?.count_return_exam,
       });
     }
@@ -548,22 +557,6 @@ const Page = () => {
                         deletteExam();
                       },
                     },
-                    // ...(assignmentData?.evaluation_config?.view_answer !==
-                    // "manually"
-                    //   ? [
-                    //       {
-                    //         icon: (
-                    //           <input
-                    //             type="checkbox"
-                    //             onChange={() => EditeAnswersView()}
-                    //             className="size-5 max-sm:size-4 accent-primary-color1"
-                    //           />
-                    //         ),
-                    //         text: "Answers View",
-                    //         action: () => {},
-                    //       },
-                    //     ]
-                    //   : []),
 
                     {
                       icon: (
@@ -577,16 +570,17 @@ const Page = () => {
                         changgeExamStatus();
                       },
                     },
-
-                    {
-                      icon: <Link className=" size-5 max-sm:size-4" />,
-                      text: "Generate Url",
-                      action: () => {
-                        assignmentData?.evaluation_type.id === 1
-                          ? generate()
-                          : setOpenGenerateTraineeEvaluationUrlModal(true);
-                      },
-                    },
+                    ...(assignmentData?.evaluation_type.id !== 1
+                      ? [
+                          {
+                            icon: <Link className="size-5 max-sm:size-4" />,
+                            text: "Generate Url",
+                            action: () => {
+                              setOpenGenerateTraineeEvaluationUrlModal(true);
+                            },
+                          },
+                        ]
+                      : []),
                   ].map((item, index) => (
                     <Dropdown.Item
                       key={index}
@@ -777,9 +771,13 @@ const Page = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                      {assignmentData?.start_forms[0]?.description}
-                    </p>
+                    <p
+                      className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: assignmentData?.start_forms[0]?.description,
+                      }}
+                    />
+
                     <div className="flex items-center justify-end mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                       <button
                         onClick={() => {
@@ -895,9 +893,13 @@ const Page = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                      {assignmentData?.end_forms[0]?.description}
-                    </p>
+                    <p
+                      className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: assignmentData?.end_forms[0]?.description,
+                      }}
+                    />
+
                     <div className="flex items-center justify-end  mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                       <Button
                         onClick={() => {
@@ -1152,6 +1154,40 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
+                            {assignmentData?.evaluation_type.id === 1 && (
+                              <FormField
+                                control={form.control}
+                                name="access_type"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Access Type:</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      value={field.value}
+                                      defaultValue="public_link"
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                          <SelectValue placeholder="Select access type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                        <SelectItem value="public_link">
+                                          Public Link
+                                        </SelectItem>
+                                        <SelectItem value="group_password">
+                                          Group Password
+                                        </SelectItem>
+                                        <SelectItem value="private_access_code">
+                                          Private Access Code
+                                        </SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
                             <div className="flex items-center justify-end mt-3 gap-3">
                               <button
                                 className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
@@ -1183,20 +1219,6 @@ const Page = () => {
                       </Form>
                     ) : (
                       <div className="grid grid-cols-1 gap-6 pt-4">
-                        {/* <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <CiTimer className="text-lg " />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Duration in Minutes
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {assignmentData?.duration_in_minutes}
-                            </p>
-                          </div>
-                        </div> */}
-
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
                             <FaRegNewspaper className="text-lg" />
@@ -1213,23 +1235,6 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
-
-                        {/* <div className="flex items-center space-x-4">
-                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
-                            <AiOutlineFieldTime className="text-lg" />
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                              Time Per Page
-                            </p>
-                            <p className="text-gray-900 font-medium dark:text-gray-100">
-                              {
-                                assignmentData?.evaluation_config
-                                  ?.time_questions_page
-                              }
-                            </p>
-                          </div>
-                        </div> */}
 
                         <div className="flex items-center space-x-4">
                           <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
@@ -1273,7 +1278,22 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
-
+                        {assignmentData?.evaluation_type.id === 1 && (
+                          <div className="flex items-center space-x-4">
+                            <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                              <CiLock className="text-lg" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                                Access Type
+                              </p>
+                              <p className="text-gray-900 font-medium dark:text-gray-100">
+                                {assignmentData?.evaluation_config
+                                  ?.access_type || "public_link"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex justify-end mt-3">
                           <Button
                             appearance="primary"
@@ -1301,12 +1321,20 @@ const Page = () => {
                         </p>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent>
+                    {/* <AccordionContent>
                       <div className="mt-2 flex flex-col gap-y-1">
                         {assignmentData?.field_requirements?.map((r) => {
                           return <p key={r.id}>{r?.name || "Unknown field"}</p>;
                         })}
                       </div>
+                    </AccordionContent> */}
+                    <AccordionContent>
+                      <ExamRequirementsManager
+                        formId={Number(assignmentData?.forms[0]?.id)}
+                        requirements={assignmentData?.field_requirements || []}
+                        assignmentId={Number(evaluation_id)}
+                        onUpdate={() => setIsSuccess(!isSuccess)}
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 )}
@@ -1327,6 +1355,25 @@ const Page = () => {
                     </div>
                   </button>
                 </div>
+                {assignmentData?.evaluation_type?.id === 1 && (
+                  <div className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => {
+                        router.push(
+                          `/admin/dashboard/assignments/assignment-session/${id}/evaluations/${evaluation_id}/access`
+                        );
+                      }}
+                      className="h-14 p-1"
+                    >
+                      <div className="flex items-center  gap-2 sm:gap-4">
+                        <CiLock className="text-xl sm:text-2xl text-primary-color1" />
+                        <p className="text-sm sm:text-base">
+                          Evaluation Access
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                )}
               </Accordion>
             </div>
           </div>
@@ -1525,12 +1572,28 @@ const AddEndFormInterface = ({
             />
 
             <div className="md:col-span-2">
-              <CustomFormField
+              {/* <CustomFormField
                 fieldType={FormFieldType.TEXTAREA}
                 control={addendinterfaceform.control}
                 label="Description:"
                 name="description"
                 placeholder="Enter description"
+              /> */}
+              <FormField
+                control={addendinterfaceform.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description:</FormLabel>
+                    <FormControl>
+                      <QuillEditorWithoutDark
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Enter description..."
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
             </div>
 
@@ -1676,12 +1739,21 @@ const AddStartFormInterface = ({
           </div>
 
           <div className="flex items-start flex-1 mt-4">
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
+            <FormField
               control={form.control}
-              label="Description:"
               name="description"
-              placeholder="Enter description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description:</FormLabel>
+                  <FormControl>
+                    <QuillEditorWithoutDark
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter description..."
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
 

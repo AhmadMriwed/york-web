@@ -134,3 +134,14 @@ export interface UserData {
   created_at: string;
   updated_at: string;
 }
+
+export interface PrivateAccessCodeType {
+  id: number;
+  form_id: number;
+  email: string | null;
+  access_code: string;
+  id_number: string;
+  entry_time: null | string;
+  created_at: string;
+  updated_at: string;
+}

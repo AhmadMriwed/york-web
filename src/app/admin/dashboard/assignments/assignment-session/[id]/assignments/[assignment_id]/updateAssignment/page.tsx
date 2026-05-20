@@ -72,6 +72,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import StartInterfaceModal from "@/components/assignments/StartInterfaceModal";
 import EndInterfaceModal from "@/components/assignments/EndInterfaceModal";
+import QuillEditorWithoutDark from "@/components/assignments/QuillEditorWithoutDark";
 
 dayjs.extend(customParseFormat);
 
@@ -163,6 +164,7 @@ const UpdateAssignmentPage = () => {
       exam_config: assignment?.exam_config
         ? {
             condition_exams_id: assignment.exam_config.id?.toString() || "",
+            access_type: assignment.exam_config.access_type || "public_link",
             date_view: assignment.exam_config.date_view || undefined,
             view_answer: assignment.exam_config.view_answer || "manually",
             view_results: assignment.exam_config.view_results || "",
@@ -227,6 +229,7 @@ const UpdateAssignmentPage = () => {
         exam_config: assignment?.exam_config
           ? {
               date_view: assignment.exam_config.date_view || undefined,
+              access_type: assignment.exam_config.access_type || "public_link",
               view_answer: assignment.exam_config.view_answer || "manually",
               view_results: assignment.exam_config.view_results || "",
               count_return_exam:
@@ -725,9 +728,13 @@ const UpdateAssignmentPage = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {startForm?.description}
-                      </p>
+                      <p
+                        className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html: startForm?.description,
+                        }}
+                      />
+
                       <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                         <Button
                           onClick={() => setShowStartingInterfaceModal(true)}
@@ -794,9 +801,12 @@ const UpdateAssignmentPage = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {endForm?.description}
-                      </p>
+                      <p
+                        className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html: endForm?.description,
+                        }}
+                      />
                       <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                         <Button
                           type="button"
@@ -982,6 +992,38 @@ const UpdateAssignmentPage = () => {
                                 <SelectItem value="manually">Manual</SelectItem>
                                 <SelectItem value="after_each_answer">
                                   After Each Answer
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="exam_config.access_type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Access Type:</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              defaultValue="public_link"
+                            >
+                              <FormControl>
+                                <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                  <SelectValue placeholder="Select access type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                <SelectItem value="public_link">
+                                  Public Link
+                                </SelectItem>
+                                <SelectItem value="group_password">
+                                  Group Password
+                                </SelectItem>
+                                <SelectItem value="private_access_code">
+                                  Private Access Code
                                 </SelectItem>
                               </SelectContent>
                             </Select>
@@ -1288,12 +1330,28 @@ const AddStartFormInterface = ({
       </div>
 
       <div className="flex items-start flex-1 mt-4">
-        <CustomFormField
+        {/* <CustomFormField
           fieldType={FormFieldType.TEXTAREA}
           control={control}
           label="Description:"
           name="start_form.description"
           placeholder="Enter description"
+        /> */}
+        <FormField
+          control={control}
+          name="start_form.description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description:</FormLabel>
+              <FormControl>
+                <QuillEditorWithoutDark
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  placeholder="Enter description..."
+                />
+              </FormControl>
+            </FormItem>
+          )}
         />
       </div>
 
@@ -1395,12 +1453,28 @@ const AddEndFormInterface = ({
         />
 
         <div className="md:col-span-2">
-          <CustomFormField
+          {/* <CustomFormField
             fieldType={FormFieldType.TEXTAREA}
             control={control}
             label="Description:"
             name="end_form.description"
             placeholder="Enter description"
+          /> */}
+          <FormField
+            control={control}
+            name="end_form.description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description:</FormLabel>
+                <FormControl>
+                  <QuillEditorWithoutDark
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter description..."
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
         </div>
 

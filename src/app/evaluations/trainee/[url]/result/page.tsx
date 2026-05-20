@@ -1,28 +1,28 @@
 "use client";
 import { icons } from "@/constants/icons";
-import { useFetchWithId } from "@/hooks/useFetch";
 import {
   fetchEvaluationByUrl,
-  fetchResultById,
   fetchResultByIdNumber,
 } from "@/lib/action/assignment_action";
-import { UserResponse } from "@/types/adminTypes/assignments/examTypes";
+import { fetchResultById } from "@/lib/action/user/userr_action";
+import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { Snippet } from "@heroui/react";
 import { Progress } from "antd";
+import { LinkIcon } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
-import { LinkIcon } from "lucide-react";
-import { Snippet } from "@heroui/react";
-import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const QuizResultsPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
   const id_number = searchparams.get("id_number");
+  const form_id = searchparams.get("form_id");
 
   const [evaluationData, setEvaluationData] = useState<Evaluation | any>();
   const [isLoading, setIsLoading] = useState(true);
+  const [result, setResult] = useState<any>(null);
 
   const { url } = useParams();
   const router = useRouter();
@@ -43,11 +43,27 @@ const QuizResultsPage = () => {
     fetchEvaluationData();
   }, [url]);
 
-  const { data: result } = useFetchWithId<UserResponse>(
-    id_number ? fetchResultByIdNumber : fetchResultById,
-    //@ts-ignore
-    id_number || Number(user_id)
-  );
+  useEffect(() => {
+    const fetchResult = async () => {
+      setIsLoading(true);
+
+      try {
+        const response = await fetchResultById(
+          Number(user_id),
+          id_number,
+          Number(form_id)
+        );
+        console.log(response);
+        setResult(response.data);
+      } catch (error) {
+        console.error("Error fetching exam data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchResult();
+  }, [url]);
 
   function timeStringToSeconds(timeString: string) {
     const [hours, minutes, seconds] = timeString.split(":").map(Number);
@@ -85,7 +101,9 @@ const QuizResultsPage = () => {
           <div className="px-6 pt-6">
             <button
               onClick={() =>
-                router.push(`/evaluations/trainee/${url}/students`)
+                router.push(
+                  `/evaluations/trainee/${url}/students?form_id=${form_id}`
+                )
               }
               className="flex items-center text-primary-color1 border border-primary-color1 rounded-sm p-1 hover:text-primary-color2 transition-colors"
             >
@@ -265,7 +283,7 @@ const QuizResultsPage = () => {
                 <button
                   onClick={() => {
                     router.push(
-                      `/evaluations/trainee/${url}/result_view?evaluation_id=${evaluationData?.id}&user_id=${user_id}`
+                      `/evaluations/trainee/${url}/result_view?evaluation_id=${evaluationData?.id}&user_id=${user_id}&form_id=${form_id}`
                     );
                   }}
                   className="px-6 py-3 bg-primary-color1 hover:bg-primary-color2 text-white rounded-lg font-medium transition-colors shadow-md flex items-center"

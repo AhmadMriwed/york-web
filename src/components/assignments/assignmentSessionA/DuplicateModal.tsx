@@ -1,61 +1,87 @@
-import { Button, Modal, Space, Typography } from "antd";
-import { CopyOutlined } from "@ant-design/icons";
-import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { GrDuplicate } from "react-icons/gr";
+import { Modal, Button, Input, Form } from "antd";
+
+interface DuplicateModalProps {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: (title: string) => Promise<void>;
+  isDuplicating: boolean;
+  title: string;
+  note: string;
+  defaultTitle?: string;
+  defaultCode?: string;
+}
 
 const DuplicateModal = ({
   open,
   onCancel,
   onConfirm,
+  isDuplicating,
   title,
   note,
-  isDuplicating = false,
-}: {
-  open: boolean;
-  title?: string;
-  note?: string;
-  isDuplicating?: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) => {
-  const { Text, Title } = Typography;
+  defaultTitle,
+}: DuplicateModalProps) => {
+  const [form] = Form.useForm();
+  const [newTitle, setNewTitle] = useState(defaultTitle || "");
+
+  useEffect(() => {
+    if (open) {
+      form.setFieldsValue({ title: defaultTitle });
+      setNewTitle(defaultTitle || "");
+    }
+  }, [open, defaultTitle, form]);
+
+  const handleConfirm = async () => {
+    try {
+      const values = await form.validateFields();
+      await onConfirm(values.title);
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
+  };
 
   return (
     <Modal
-      title={
-        <Space>
-          <CopyOutlined style={{ color: "#1890ff", fontSize: 20 }} />
-          <span>Confirm Duplication</span>
-        </Space>
-      }
       open={open}
       onCancel={onCancel}
-      footer={
-        <Space>
-          <Button onClick={onCancel} disabled={isDuplicating}>
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            icon={isDuplicating ? null : <CopyOutlined />}
-            onClick={onConfirm}
-            loading={isDuplicating}
-            className="pb-1"
-          >
-            {isDuplicating ? "Duplicating..." : "Duplicate"}
-          </Button>
-        </Space>
+      title={
+        <div className="flex items-center gap-2">
+          <GrDuplicate className="text-primary-color1" />
+          {title}
+        </div>
       }
+      footer={[
+        <Button key="cancel" onClick={onCancel}>
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={isDuplicating}
+          onClick={handleConfirm}
+          className="bg-primary-color1"
+        >
+          Duplicate
+        </Button>,
+      ]}
       centered
-      width={450}
+      maskClosable={false}
     >
-      <div style={{ padding: "16px 0" }}>
-        <Title level={5} style={{ marginBottom: 8 }}>
-          {title || "Are you sure you want to duplicate this item?"}
-        </Title>
-        <Text type="secondary">
-          {note || "This will create an identical copy of the item."}
-        </Text>
-      </div>
+      <p className="mb-4">{note}</p>
+      <Form form={form} layout="vertical">
+        <Form.Item
+          name="title"
+          label="Session Title"
+          rules={[{ required: false, message: "Please enter a session title" }]}
+        >
+          <Input
+            placeholder="Enter new session title"
+            onChange={(e) => setNewTitle(e.target.value)}
+            className="border-primary-color1 focus:border-primary-color1"
+          />
+        </Form.Item>
+      </Form>
     </Modal>
   );
 };

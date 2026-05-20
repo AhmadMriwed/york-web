@@ -1,41 +1,36 @@
 "use client";
-import { images } from "@/constants/images";
-import { Modal, Space, Input, Result } from "antd";
-import Image from "next/image";
-import {
-  FaClock,
-  FaCalendarAlt,
-  FaBook,
-  FaUserAlt,
-  FaQuestionCircle,
-  FaInfoCircle,
-  FaCheckCircle,
-  FaPlayCircle,
-  FaPlay,
-  FaTimes,
-  FaPauseCircle,
-  FaLock,
-} from "react-icons/fa";
-import React, { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Form } from "@/components/ui/form";
-import { toast } from "sonner";
 import CustomFormField, {
   FormFieldType,
 } from "@/components/review/CustomFormField";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useParams, useRouter } from "next/navigation";
-import { assignUser } from "@/lib/action/user/userr_action";
+import { Form } from "@/components/ui/form";
 import { icons } from "@/constants/icons";
+import { images } from "@/constants/images";
 import {
   getEvaluationByUrl,
   loginTrainer,
 } from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Modal, Result, Space } from "antd";
 import { AxiosError } from "axios";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  FaBook,
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaInfoCircle,
+  FaPlay,
+  FaPlayCircle,
+  FaQuestionCircle,
+  FaTimes,
+} from "react-icons/fa";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const trainerSchema = z.object({
   id_number: z.string().min(1, "Student ID is required"),
@@ -118,7 +113,9 @@ const Page = () => {
 
       form.reset();
       setIsModalOpen(false);
-      router.push(`/evaluations/trainee/${url}/students`);
+      router.push(
+        `/evaluations/trainee/${url}/students?form_id=${evaluationData?.forms[0].id}`
+      );
     } catch (error: any) {
       if (error.message.includes("already been taken")) {
         setIdNumberInput(payload.id_number);

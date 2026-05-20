@@ -1,18 +1,10 @@
 "use client";
-import { useFetchWithId } from "@/hooks/useFetch";
-import {
-  fetchEvaluationById,
-  fetchEvaluationByUrl,
-  fetchResultViewById,
-} from "@/lib/action/assignment_action";
+import { fetchEvaluationByUrl } from "@/lib/action/assignment_action";
 import { getResultView } from "@/lib/action/evaluation_action";
 import { Evaluation } from "@/types/adminTypes/assignments/assignExamTypes";
-import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { ResultQuestionData } from "@/types/adminTypes/assignments/examTypes";
-import { Progress } from "antd";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const QuizResultsViewPage = () => {
   const params = useSearchParams();

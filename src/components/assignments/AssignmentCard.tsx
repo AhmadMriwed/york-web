@@ -1,21 +1,20 @@
-import { useContext, useState } from "react";
-import { useRouter } from "next/navigation";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
-import { Calendar, More, Edit, Trash, Paragraph, Copy } from "@rsuite/icons";
-import { PiToggleRightFill, PiToggleLeft } from "react-icons/pi";
-import Image from "next/image";
-import { Dropdown, IconButton, Progress } from "rsuite";
-import { Users } from "lucide-react";
-import DeleteModal from "./DeleteModal";
-import { AssignmentSession } from "@/types/adminTypes/assignments/assignmentsTypes";
 import { icons } from "@/constants/icons";
 import {
   changeStatus,
   deleteAssignmentSession,
   duplicateAssignmentSession,
 } from "@/lib/action/assignment_action";
+import { AssignmentSession } from "@/types/adminTypes/assignments/assignmentsTypes";
+import { Calendar, Copy, Edit, More, Paragraph, Trash } from "@rsuite/icons";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useContext, useState } from "react";
+import { PiToggleLeft, PiToggleRightFill } from "react-icons/pi";
+import { Dropdown, IconButton } from "rsuite";
 import { toast } from "sonner";
 import DuplicateModal from "./assignmentSessionA/DuplicateModal";
+import DeleteModal from "./DeleteModal";
 
 interface AssignmentCardProps {
   assignmentSession: AssignmentSession;
@@ -53,18 +52,17 @@ const AssignmentCard = ({
     router.replace("/admin/dashboard/assignments/assignment-session");
   };
 
-  const handleDuplicate = async () => {
+  const handleDuplicate = async (newTitle: string) => {
     setIsDuplicating(true);
     try {
-      await duplicateAssignmentSession(Number(assignmentSession.id));
+      await duplicateAssignmentSession(Number(assignmentSession.id), newTitle);
       refetch();
     } catch (error) {
-      toast.error("Failed to duplicateAssignmentSession assignment");
+      toast.error("Failed to duplicate assignment session");
     } finally {
-      setIsDeleting(false);
+      setIsDuplicating(false);
     }
     setIsDuplicateModalOpen(false);
-    router.replace("/admin/dashboard/assignments/assignment-session");
   };
 
   const changeSessionStatus = async () => {
@@ -120,7 +118,7 @@ const AssignmentCard = ({
 
       <div className="flex flex-col sm:hidden gap-4">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="cursor-pointer " onClick={handleShowDetails}>
             <h3 className="text-base font-bold">
               {assignmentSession?.title || "Untitled"}
             </h3>
@@ -178,6 +176,7 @@ const AssignmentCard = ({
           onConfirm={deleteAssignment}
           isDeleting={isDeleting}
         />
+
         <DuplicateModal
           open={isDuplicateModalOpen}
           onCancel={() => setIsDuplicateModalOpen(false)}
@@ -185,9 +184,13 @@ const AssignmentCard = ({
           isDuplicating={isDuplicating}
           title="Duplicate this item?"
           note="All settings and configurations will be copied."
+          defaultTitle={assignmentSession.title}
+          defaultCode={assignmentSession.code}
         />
-
-        <div className="flex items-center justify-between">
+        <div
+          className="flex items-center justify-between cursor-pointer "
+          onClick={handleShowDetails}
+        >
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Calendar className="text-primary-color1" />
@@ -209,9 +212,12 @@ const AssignmentCard = ({
         </div>
       </div>
 
-      <div className="hidden sm:flex flex-col sm:flex-row justify-between gap-4 w-full">
+      <div className="hidden sm:flex flex-col sm:flex-row justify-between gap-4 w-full ">
         <div className="flex flex-col sm:flex-row gap-4 w-full">
-          <div className="w-full sm:w-[120px] lg:w-[150px] h-[100px] sm:h-auto flex-shrink-0">
+          <div
+            className="w-full sm:w-[120px] lg:w-[150px] h-[100px] sm:h-auto flex-shrink-0 cursor-pointer "
+            onClick={handleShowDetails}
+          >
             <Image
               src={
                 assignmentSession?.image
@@ -227,7 +233,10 @@ const AssignmentCard = ({
 
           <div className="flex-1 flex flex-col gap-2 min-w-0">
             <div className="flex flex-row flex-1 sm:items-center gap-2">
-              <div className="flex-1 flex gap-2">
+              <div
+                className="flex-1 flex gap-2 cursor-pointer "
+                onClick={handleShowDetails}
+              >
                 <h3 className="text-sm sm:text-base lg:text-lg font-bold max-w-52 truncate ">
                   {assignmentSession?.title || "Untitled"}
                 </h3>
@@ -285,7 +294,10 @@ const AssignmentCard = ({
                 </Dropdown>
               </div>
             </div>
-            <div className="flex md:flex-row flex-col gap-10">
+            <div
+              className="flex md:flex-row flex-col gap-10 cursor-pointer "
+              onClick={handleShowDetails}
+            >
               <div className="space-y-3">
                 {assignmentSession?.code && (
                   <p className="text text-gray-500 flex items-center gap-2 ">

@@ -937,27 +937,24 @@
 // export default QuestionCreator;
 
 "use client";
-import MyEditor from "@/components/editor/QuillEditor";
-import Image from "next/image";
-import React, { useContext, useState, useEffect } from "react";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
-import { IoArrowBackSharp } from "react-icons/io5";
 import { createQuestion, getQuestionTypes } from "@/lib/action/exam_action";
-import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
+import { IoArrowBackSharp } from "react-icons/io5";
 import "react-quill/dist/quill.snow.css";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { toast } from "sonner";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 

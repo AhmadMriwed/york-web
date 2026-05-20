@@ -45,6 +45,8 @@ const Page = ({ params }: Props) => {
     return <Loader />;
   }
 
+  console.log(courses);
+
   return (
     <main className="h-full relative">
       {/* Hero Section */}

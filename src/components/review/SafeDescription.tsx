@@ -1,5 +1,5 @@
 import sanitizeHtml from "sanitize-html";
-import he from "he"; // Library to decode HTML entities
+import he from "he"; 
 
 export const SafeDescription = ({
   description,
@@ -11,7 +11,7 @@ export const SafeDescription = ({
   color: string;
 }) => {
   // Step 1: Decode HTML entities and remove non-breaking spaces
-  const decodedDescription = he.decode(description).replace(/\u00A0/g, " ");
+  const decodedDescription = he.decode(description?description:"").replace(/\u00A0/g, " ");
 
   // Step 2: Sanitize the description to allow specific HTML tags
   const sanitizedDescription = sanitizeHtml(decodedDescription, {

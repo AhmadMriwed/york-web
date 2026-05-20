@@ -10,7 +10,6 @@ export interface Category {
   updated_at: string;
 }
 
-
 export interface Type {
   id: number;
   type: string;
@@ -30,10 +29,10 @@ export interface Requirement {
   id: number;
   name?: string;
   form_id?: number;
-  field_requirement_id:number;
+  field_requirement_id: number;
 }
 
-export interface  ExamConfig {
+export interface ExamConfig {
   id: number;
   exam_id?: number;
   evaluation_id?: number;
@@ -42,6 +41,7 @@ export interface  ExamConfig {
   end_date: string;
   view_results: string;
   view_answer: string;
+  access_type: "public_link" | "group_password" | "private_access_code";
   date_view: string | null;
   count_questions_page: number;
   time_questions_page: string;
@@ -51,7 +51,6 @@ export interface  ExamConfig {
   created_at: string;
   updated_at: string;
   condition_exams?: Condition[];
-
 }
 
 export interface Forms {
@@ -67,11 +66,11 @@ export interface StartFormType {
   sub_title: string;
   description: string;
   show_configration: number;
-  show_condition: number ;
+  show_condition: number;
   image: string | null;
   created_at: string;
   updated_at: string;
-  files:any[]
+  files: any[];
 }
 
 export interface EndFormType {
@@ -84,15 +83,16 @@ export interface EndFormType {
   image: string | null;
   created_at: string;
   updated_at: string;
-  files:any[];
+  files: any[];
 }
 
 export interface Assignment {
+  assignment_user_count: number;
   id: number;
   code: string;
   title: string;
   sub_title: string;
-  url?:string; 
+  url?: string;
   status: string;
   image: string | null;
   number_of_questions: number;
@@ -106,13 +106,13 @@ export interface Assignment {
   exam_config: ExamConfig;
   forms: Forms[];
   start_forms: StartFormType[];
-  start_form_image:string|null ;
+  start_form_image: string | null;
   end_forms: EndFormType[];
-  end_form_image:string|null ;
+  end_form_image: string | null;
   field_requirements: Requirement[];
   condition_exams?: Condition[];
-  grade_percentage?:number; 
-    exam_messages:ExamMessage;
+  grade_percentage?: number;
+  exam_messages: ExamMessage;
 }
 
 export interface AssignmentSession {
@@ -130,9 +130,9 @@ export interface AssignmentSession {
   category: Category;
   created_at: string;
   updated_at: string;
-  evaluations:Evaluation[]
-  post_exams:Assignment[];
-  pre_exams:Assignment[];
+  evaluations: Evaluation[];
+  post_exams: Assignment[];
+  pre_exams: Assignment[];
 }
 
 export interface SectionType {
@@ -150,11 +150,10 @@ export interface FilterAssignmentSessionsParams {
   per_page?: number;
 }
 export interface Evaluation extends Assignment {
-  evaluation_type_id:number;
-  evaluation_config:ExamConfig; 
-  evaluation_type:Type
+  evaluation_type_id: number;
+  evaluation_config: ExamConfig;
+  evaluation_type: Type;
 }
-
 
 export type UserAnswer = string | string[] | boolean | null;
 export type QuestionField = {
@@ -186,4 +185,3 @@ export type QuestionData = {
   created_at: string;
   updated_at: string;
 };
-

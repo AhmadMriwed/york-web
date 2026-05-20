@@ -70,6 +70,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import StartInterfaceModal from "@/components/assignments/StartInterfaceModal";
 import EndInterfaceModal from "@/components/assignments/EndInterfaceModal";
 import { updateEvaluationValidationSchema } from "@/lib/admin/evaluationValidation";
+import QuillEditorWithoutDark from "@/components/assignments/QuillEditorWithoutDark";
 
 dayjs.extend(customParseFormat);
 
@@ -694,9 +695,13 @@ const UpdateEvaluationPage = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {startForm?.description}
-                      </p>
+                      <p
+                        className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html: startForm?.description,
+                        }}
+                      />
+
                       <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                         <Button
                           onClick={() => setShowStartingInterfaceModal(true)}
@@ -763,9 +768,13 @@ const UpdateEvaluationPage = () => {
                           </p>
                         </div>
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                        {endForm?.description}
-                      </p>
+                      <p
+                        className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html: startForm?.description || "",
+                        }}
+                      />
+
                       <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                         <Button
                           type="button"
@@ -1136,12 +1145,21 @@ const AddStartFormInterface = ({
       </div>
 
       <div className="flex items-start flex-1 mt-4">
-        <CustomFormField
-          fieldType={FormFieldType.TEXTAREA}
+        <FormField
           control={control}
-          label="Description:"
           name="start_form.description"
-          placeholder="Enter description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description:</FormLabel>
+              <FormControl>
+                <QuillEditorWithoutDark
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  placeholder="Enter description..."
+                />
+              </FormControl>
+            </FormItem>
+          )}
         />
       </div>
 
@@ -1243,12 +1261,21 @@ const AddEndFormInterface = ({
         />
 
         <div className="md:col-span-2">
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
+          <FormField
             control={control}
-            label="Description:"
             name="end_form.description"
-            placeholder="Enter description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description:</FormLabel>
+                <FormControl>
+                  <QuillEditorWithoutDark
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter description..."
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
         </div>
 

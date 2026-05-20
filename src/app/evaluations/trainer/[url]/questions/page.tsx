@@ -3,13 +3,12 @@
 import { images } from "@/constants/images";
 import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
 import {
+  checkIfUserIsFinishForTrainerEvaluation,
   createAnswer,
-  getUserById,
+  getGradeAfterCreate,
   getQuestionsByFormId,
   getSolution,
-  getGradeAfterCreate,
-  checkIfUserIsFinish,
-  getTimers,
+  getUserByIdForTrainerEvaluation,
 } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
 import {
@@ -20,7 +19,7 @@ import { BookmarkIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiChevronLeft, FiChevronRight, FiClock } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { toast } from "sonner";
 
 type Field = {
@@ -47,6 +46,8 @@ type SolutionData = {
 const QuizQuestionPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
+  const id_number = searchparams.get("id_number");
+  const form_id = searchparams.get("form_id");
   const { url } = useParams();
   const router = useRouter();
 
@@ -54,25 +55,16 @@ const QuizQuestionPage = () => {
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionData[]>([]);
-  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [timeLeft, setTimeLeft] = useState<number>(120);
   const [userAnswers, setUserAnswers] = useState<Map<number, UserAnswer[]>>(
     new Map()
   );
   const [userData, setUserData] = useState<UserData>();
-  const [examData, setExamData] = useState<Assignment>();
+  const [evaluationData, setEvaluationData] = useState<Assignment>();
   const [startTime, setStartTime] = useState<string>("");
   const [answerPagesMap, setAnswerPagesMap] = useState<Map<number, number>>(
     new Map()
@@ -81,6 +73,38 @@ const QuizQuestionPage = () => {
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const formattedStartTime = `${hours}:${minutes}:${seconds}`;
+    setStartTime(formattedStartTime);
+  }, []);
+  useEffect(() => {
+    const fetchExamData = async () => {
+      try {
+        const data = await getUserByIdForTrainerEvaluation(
+          Number(user_id),
+          id_number,
+          Number(form_id)
+        );
+        console.log(data);
+        const evaluationData = await getEvaluationByUrl(String(url));
+
+        console.log(evaluationData);
+        setUserData(data?.data!);
+        setEvaluationData(evaluationData.data!);
+        setTimeLeft(Number(evaluationData?.data?.duration_in_minutes!) * 60);
+      } catch (error) {
+        console.error("Error fetching exam data:", error);
+        toast.error("Failed to load exam data");
+      }
+    };
+
+    fetchExamData();
+  }, []);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -97,39 +121,33 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
-      router.push(`/evaluations/trainer/${url}/result?user_id=${user_id}`);
+      router.push(
+        `/evaluations/trainer/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+      );
     }
   }, []);
+
   useEffect(() => {
     const checkuserfinish = async () => {
       try {
-        const data = await checkIfUserIsFinish(Number(user_id));
+        const data = await checkIfUserIsFinishForTrainerEvaluation(
+          Number(user_id),
+          Number(form_id),
+          id_number
+        );
         console.log(data);
         if (data.status !== false) {
-          router.push(`/evaluations/trainer/${url}/result?user_id=${user_id}`);
+          router.push(
+            `/evaluations/trainer/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+          );
         }
       } catch (error) {
-        router.push(`/evaluations/trainer/${url}/result?user_id=${user_id}`);
+        router.push(
+          `/evaluations/trainer/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+        );
       }
     };
     checkuserfinish();
-  }, []);
-
-  useEffect(() => {
-    const gettimsers = async () => {
-      const data = await getTimers(Number(user_id));
-      setTimeLeft(Number(data?.remaining_minutes!) * 60);
-    };
-    gettimsers();
-  }, []);
-
-  useEffect(() => {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    const formattedStartTime = `${hours}:${minutes}:${seconds}`;
-    setStartTime(formattedStartTime);
   }, []);
 
   const fetchSolutions = async () => {
@@ -144,11 +162,11 @@ const QuizQuestionPage = () => {
   };
 
   const fetchQuestions = async (page: number) => {
-    if (!examData?.forms[0]?.id) return;
+    if (!evaluationData?.forms[0]?.id) return;
 
     setIsLoading(true);
     const values = {
-      form_id: Number(examData.forms[0].id),
+      form_id: Number(evaluationData.forms[0].id),
       page: page,
     };
 
@@ -196,30 +214,10 @@ const QuizQuestionPage = () => {
   };
 
   useEffect(() => {
-    const fetchExamData = async () => {
-      try {
-        const data = await getUserById(Number(user_id));
-        const assignmentData = await getEvaluationByUrl(String(url));
-        if (!data || !assignmentData) {
-          throw new Error("no data");
-        }
-        setUserData(data?.data!);
-        setExamData(assignmentData.data!);
-        setTimeLeft(Number(assignmentData?.data?.duration_in_minutes!) * 60);
-      } catch (error) {
-        console.error("Error fetching exam data:", error);
-        toast.error("Failed to load exam data");
-      }
-    };
-
-    fetchExamData();
-  }, []);
-
-  useEffect(() => {
-    if (examData?.forms[0]?.id) {
+    if (evaluationData?.forms[0]?.id) {
       fetchQuestions(currentPage);
     }
-  }, [examData?.forms[0]?.id, currentPage]);
+  }, [evaluationData?.forms[0]?.id, currentPage]);
 
   const prepareAnswerPayload = () => {
     const currentAnswers = getCurrentPageAnswers();
@@ -387,7 +385,9 @@ const QuizQuestionPage = () => {
           window.history.pushState(null, "", window.location.href);
         });
         toast.success("Evaluation submitted successfully!");
-        router.push(`/evaluations/trainer/${url}/result?user_id=${user_id}`);
+        router.push(
+          `//evaluations/trainer/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+        );
       } catch (error) {
         console.error("Error submitting quiz:", error);
         toast.error("Failed to submit quiz");
@@ -438,7 +438,7 @@ const QuizQuestionPage = () => {
                 </div>
 
                 <h2 className="text-lg font-bold text-primary-color1 text-center">
-                  {examData?.title}
+                  {evaluationData?.title}
                 </h2>
 
                 <div className="flex justify-between items-center text-sm">
@@ -481,7 +481,7 @@ const QuizQuestionPage = () => {
                 </div>
 
                 <h2 className="text-xl font-bold text-primary-color1 flex-1 text-center">
-                  {examData?.title}
+                  {evaluationData?.title}
                 </h2>
 
                 <div className="flex gap-3 items-center">

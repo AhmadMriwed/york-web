@@ -51,6 +51,7 @@ import { Loader2 } from "lucide-react";
 import CustomFormField, { FormFieldType } from "../review/CustomFormField";
 import { useForm } from "react-hook-form";
 import { RiAiGenerate } from "react-icons/ri";
+import { BsPerson } from "react-icons/bs";
 
 type EvaluationCardProps = {
   evaluationId: number;
@@ -209,7 +210,7 @@ const EvaluationCard = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-xl shadow-sm border ${currentColor.border} ${currentColor.bg} ${className}`}
+      className={`p-4 sm:p-5  rounded-xl shadow-sm border ${currentColor.border} ${currentColor.bg} ${className}`}
     >
       {/* Header with icon, title and status */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
@@ -218,7 +219,10 @@ const EvaluationCard = ({
             {currentColor.icon}
           </div>
           <div className="flex items-center mb-3 w-full justify-between  flex-1">
-            <div className="flex-1 min-w-0">
+            <div
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={onViewClick}
+            >
               <h3
                 className={`font-semibold text-base sm:text-lg truncate ${currentColor.text}`}
               >
@@ -310,7 +314,7 @@ const EvaluationCard = ({
       </div>
 
       {/* Progress bar with percentage */}
-      <div className="mb-4">
+      <div className="mb-4 cursor-pointer" onClick={onViewClick}>
         <div className="flex justify-between items-center mb-1">
           <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
             Completion Rate:
@@ -338,7 +342,10 @@ const EvaluationCard = ({
       </div>
 
       {/* Additional information with icons */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 text-sm">
+      <div
+        className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4 text-sm cursor-pointer"
+        onClick={onViewClick}
+      >
         {evaluation?.sub_title && (
           <div className="flex items-start gap-2">
             <MdTitle className="text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
@@ -366,6 +373,16 @@ const EvaluationCard = ({
                   <span className="md:hidden">E: </span>
                   {evaluation?.evaluation_config?.end_date}
                 </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <BsPerson className="text-gray-500 dark:text-gray-400 text-sm" />
+                <p className="text-gray-500 dark:text-gray-400">Students:</p>
+                <div>
+                  <p className="font-medium">
+                    {evaluation?.assignment_user_count}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

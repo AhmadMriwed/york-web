@@ -35,6 +35,7 @@ import {
 } from "@/lib/action/exam_action";
 import { Checkbox } from "@/components/ui/checkbox";
 import Loading from "@/components/Pars/Loading";
+import QuillEditor from "@/components/assignments/QuillEditor";
 
 const EditForm = ({
   initialValues,
@@ -189,11 +190,21 @@ const EditForm = ({
             />
           </div>
 
-          <CustomFormField
-            fieldType={FormFieldType.TEXTAREA}
+          <FormField
             control={form.control}
-            label="Description:"
             name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description:</FormLabel>
+                <FormControl>
+                  <QuillEditor
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    placeholder="Enter description..."
+                  />
+                </FormControl>
+              </FormItem>
+            )}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -640,56 +640,56 @@ export const createCategory = async (title: string) => {
   }
 };
 
-export const exportExam = async ({
-  id,
-  fileName,
-  type,
-}: {
-  id?: number;
-  fileName: string;
+export const exportExam = async (payload: {
+  form_id: number;
   type: string;
+  file_name: string;
 }) => {
   try {
-    const validFormats = ["xlsx", "csv", "pdf", "docx"];
-    if (!validFormats.includes(type)) {
-      throw new Error(
-        `Invalid format. Allowed types: ${validFormats.join(", ")}`
-      );
-    }
+    console.log(payload);
+    const response = await axios.post(
+      `/assignment/reports/export-assignment`,
+      payload,
+      {
+        responseType: "blob", // Important for file downloads
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const payload: Record<string, any> = {
-      file_name: fileName,
-      type: type,
-      id: id,
-    };
-
-    const res = await axios.post("/assignment/exams/export-exam", payload, {
-      headers: {
-        ...getAuthHeaders("application/json").headers,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      responseType: "blob",
+    // Create a blob from the response data
+    const blob = new Blob([response.data], {
+      type: response.headers["content-type"],
     });
 
-    if (res.status === 200) {
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${fileName}.${type}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    // Create a download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
 
-      toast.success("File exported successfully");
-      return res.data;
-    }
+    // Determine file extension based on type
+    const extension = payload.type === "word" ? "docx" : payload.type;
+    link.setAttribute("download", `${payload.file_name}.${extension}`);
+
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return response;
   } catch (error: any) {
-    console.error("Export Error:", error);
-    toast.error(error.response?.data?.message || "Failed to export file(s)");
-    throw error;
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
   }
 };
+
 export const getQuestionTypes = async () => {
   try {
     const response = await axios.get(`/assignment/question-types`, {
@@ -721,5 +721,131 @@ export const deleteExamMessages = async (exam_messages_id: number) => {
       throw new Error(error.response?.data?.message || "Unknown error");
     }
     throw new Error("Unexpected error");
+  }
+};
+export const addFieldRequirment = async (name: string) => {
+  try {
+    console.log(name);
+    const response = await axios.post(
+      `/assignment/field-requirements`,
+      {
+        name: name.trim(),
+      },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+export const exportQuestions = async (payload: {
+  form_id: number;
+  type: string;
+  file_name: string;
+}) => {
+  try {
+    const response = await axios.post(
+      `/assignment/reports/export-questions`,
+      payload,
+      {
+        responseType: "blob", // Important for file downloads
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Create a blob from the response data
+    const blob = new Blob([response.data], {
+      type: response.headers["content-type"],
+    });
+
+    // Create a download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+
+    // Determine file extension based on type
+    const extension = payload.type === "word" ? "docx" : payload.type;
+    link.setAttribute("download", `${payload.file_name}.${extension}`);
+
+    // Trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return response;
+  } catch (error: any) {
+    console.log(error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || "Unknown error");
+    }
+    throw new Error("Unexpected error");
+  }
+};
+
+export const exportExamSection = async ({
+  id,
+  fileName,
+  type,
+}: {
+  id?: number;
+  fileName: string;
+  type: string;
+}) => {
+  try {
+    const validFormats = ["xlsx", "csv", "pdf", "docx"];
+    if (!validFormats.includes(type)) {
+      throw new Error(
+        `Invalid format. Allowed types: ${validFormats.join(", ")}`
+      );
+    }
+
+    const payload: Record<string, any> = {
+      file_name: fileName,
+      type: type,
+      exam_section_id: id,
+    };
+
+    const res = await axios.post(
+      "/assignment/reports/export-assignment-section",
+      payload,
+      {
+        headers: {
+          ...getAuthHeaders("application/json").headers,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        responseType: "blob",
+      }
+    );
+
+    if (res.status === 200) {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${fileName}.${type}`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success("File exported successfully");
+      return res.data;
+    }
+  } catch (error: any) {
+    console.error("Export Error:", error);
+    toast.error(error.response?.data?.message || "Failed to export file(s)");
+    throw error;
   }
 };

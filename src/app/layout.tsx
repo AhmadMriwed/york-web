@@ -1,5 +1,5 @@
-import "rsuite/dist/rsuite.min.css";
 import StoreProvider from "@/store/adminstore/StoreProvider";
+import RsuiteStyles from "@/components/RsuiteStyles";
 
 import "./globals.css";
 import { Metadata } from "next";
@@ -18,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="">
+        <RsuiteStyles />
         <StoreProvider>
           {children}
 

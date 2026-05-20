@@ -1,5 +1,6 @@
 import { getAuthHeaders } from "@/store/adminstore/slices/enums/authHeaders";
 import axios from "axios";
+import { toast } from "sonner";
 import Cookie from "universal-cookie";
 const cookie = new Cookie();
 
@@ -414,6 +415,8 @@ export const loginTrainer = async (
       }
     );
 
+    cookie.set("trainer_password_for_evaluate_trainee", trainerData.password);
+
     return {
       data: response.data,
       message: "trainer login successfully",
@@ -475,5 +478,36 @@ export const getTraineeId = async (assignment_user_id: number) => {
       throw new Error(error.response?.data?.message || "Unknown error");
     }
     throw new Error("Unexpected error");
+  }
+};
+
+export const getTraineeById = async (
+  user_id: number,
+  id_number: any,
+  form_id: number
+) => {
+  try {
+    const password = cookie.get("trainer_password_for_evaluate_trainee");
+    const response = await axios.get(
+      `/assignment/assignment-users/${user_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          id_number: id_number,
+          form_id: form_id,
+          ...(password && { password: password }),
+        },
+      }
+    );
+    console.log(response);
+    if (response.status === 200) {
+      return response.data;
+    }
+
+    throw new Error(response.data?.message || "Failed to create evaluation");
+  } catch (error: any) {
+    console.error("Error creating evaluation:", error);
+    toast.error(error.response?.data?.message || "Failed to create evaluation");
+    throw error;
   }
 };

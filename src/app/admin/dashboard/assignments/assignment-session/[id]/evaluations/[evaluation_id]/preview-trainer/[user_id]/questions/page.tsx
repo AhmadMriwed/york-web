@@ -50,12 +50,12 @@ const AdminPreviewTraniee = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        const data = await getUserById(Number(user_id));
+        // const data = await getUserById(Number(user_id));
         const assignmentData = await fetchEvaluationById(Number(evaluation_id));
-        if (!data || !assignmentData) {
-          throw new Error("no data");
-        }
-        setUserData(data?.data!);
+        // if (!data || !assignmentData) {
+        //   throw new Error("no data");
+        // }
+        // setUserData(data?.data!);
         setExamData(assignmentData.data!);
       } catch (error) {
         console.error("Error fetching evaluation data:", error);

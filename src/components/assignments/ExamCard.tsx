@@ -38,6 +38,8 @@ import DeleteModal from "./DeleteModal";
 import copy from "copy-to-clipboard";
 import { generateUrl } from "@/lib/action/exam_action";
 import { RiAiGenerate } from "react-icons/ri";
+
+import { BsPerson } from "react-icons/bs";
 import ExportExam from "./ExportExam";
 
 type ExamCardProps = {
@@ -193,7 +195,7 @@ const ExamCard = ({
 
   return (
     <div
-      className={`p-4 sm:p-5 rounded-xl w-full shadow-sm border ${currentColor.border} ${currentColor.bg} transition-all duration-200 hover:shadow-md`}
+      className={`p-4  sm:p-5 rounded-xl w-full shadow-sm border ${currentColor.border} ${currentColor.bg} transition-all duration-200 hover:shadow-md`}
     >
       {/* Header with icon, title and status */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
@@ -204,7 +206,8 @@ const ExamCard = ({
           <div className="flex-1 min-w-0">
             <div className="flex flex-1 justify-between items-center">
               <h3
-                className={`font-semibold ${currentColor.text} text-lg truncate`}
+                className={`font-semibold ${currentColor.text} text-lg truncate cursor-pointer`}
+                onClick={onViewClick}
               >
                 {assignment?.title}
               </h3>
@@ -277,7 +280,10 @@ const ExamCard = ({
                 isDeleting={isDeleting}
               />
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-1">
+            <div
+              className="flex flex-wrap items-center gap-2 mt-1 cursor-pointer"
+              onClick={onViewClick}
+            >
               <span
                 className={`px-2 py-1 text-xs rounded-full flex items-center gap-1 flex-shrink-0 ${
                   assignment?.status === "Active"
@@ -305,7 +311,10 @@ const ExamCard = ({
         </div>
       </div>
 
-      <div className="flex items-center flex-col md:flex-row-reverse">
+      <div
+        className="flex items-center flex-col md:flex-row-reverse cursor-pointer"
+        onClick={onViewClick}
+      >
         {/* Rating information with circular progress */}
         <div className="mb-4 flex flex-col items-center mt-4 md:mt-0">
           {assignment?.grade_percentage !== null ? (
@@ -342,7 +351,7 @@ const ExamCard = ({
 
         {/* Additional information */}
         <div className="grid grid-cols-2 flex-1 gap-3 sm:gap-4 text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ">
             <FaQuestionCircle className="text-gray-500 dark:text-gray-400 text-sm" />
             <p className="text-gray-500 dark:text-gray-400">Questions:</p>
             <div>
@@ -352,14 +361,13 @@ const ExamCard = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-xs:-ml-6">
             <MdQuestionAnswer className="text-gray-500 dark:text-gray-400 text-sm" />
             <p className="text-gray-500 dark:text-gray-400">View Answers:</p>
             <div>
               <p className="font-medium">
                 {assignment?.exam_config?.view_answer}
               </p>{" "}
-              {/* Update this with actual data */}
             </div>
           </div>
 
@@ -382,11 +390,22 @@ const ExamCard = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <FaClock className="text-gray-500 dark:text-gray-400 text-sm" />
-            <p className="text-gray-500 dark:text-gray-400">Duration:</p>
-            <div>
-              <p className="font-medium">{assignment?.duration_in_minutes}</p>
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <FaClock className="text-gray-500 dark:text-gray-400 text-sm" />
+              <p className="text-gray-500 dark:text-gray-400">Duration:</p>
+              <div>
+                <p className="font-medium">{assignment?.duration_in_minutes}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <BsPerson className="text-gray-500 dark:text-gray-400 text-sm" />
+              <p className="text-gray-500 dark:text-gray-400">Students:</p>
+              <div>
+                <p className="font-medium">
+                  {assignment?.assignment_user_count}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -402,7 +421,8 @@ const ExamCard = ({
       <ExportExam
         isModalOpen={showExportAssignmentModal}
         setIsModalOpen={setShowExportAssignmentModal}
-        assignmentId={Number(assignment?.id)}
+        formId={Number(assignment?.forms[0]?.id)}
+        // assignmentId={Number(assignment?.id)}
         defaultTitle={assignment?.title}
       />
     </div>

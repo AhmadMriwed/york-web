@@ -7,43 +7,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import {
-  BookmarkIcon,
-  CheckCircleIcon,
-  EditIcon,
-  Trash,
-  XCircleIcon,
-} from "lucide-react";
+import { CheckCircleIcon, EditIcon, Trash, XCircleIcon } from "lucide-react";
 
+import Loading from "@/components/Pars/Loading";
+import { ThemeContext } from "@/components/Pars/ThemeContext";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
-import { IoArrowBackSharp, IoSearch, IoClose } from "react-icons/io5";
-import { TfiMoreAlt } from "react-icons/tfi";
-import { Button, Header } from "rsuite";
-import { Star, ChevronDown } from "lucide-react";
-import { toast } from "sonner";
-import Loading from "@/components/Pars/Loading";
-import { MdQuestionMark } from "react-icons/md";
-import { Tooltip as ReactTooltip } from "react-tooltip";
+import { images } from "@/constants/images";
 import {
   deletedQuestions,
   deleteQuestion,
+  exportQuestions,
   markAll,
   updateExamSettings,
 } from "@/lib/action/exam_action";
 import { getQuestionsByFormId } from "@/lib/action/user/userr_action";
+import { ChevronDown, Star } from "lucide-react";
 import Image from "next/image";
-import { images } from "@/constants/images";
-import { ThemeContext } from "@/components/Pars/ThemeContext";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
+import { IoArrowBackSharp, IoClose, IoSearch } from "react-icons/io5";
+import { MdQuestionMark } from "react-icons/md";
+import { TfiMoreAlt } from "react-icons/tfi";
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import { Button, Header } from "rsuite";
+import { toast } from "sonner";
+import { Modal, Input, Select, Button as AntdButton, message } from "antd";
+import { Export } from "@rsuite/icons";
+import { PiExportBold } from "react-icons/pi";
+const { Option } = Select;
 
 type Field = {
   id: number;
@@ -105,6 +103,12 @@ const QuestionManager = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isChangeGrades, setIsChangGrades] = useState(false);
   const [questionnsTypeAll, setQuesitonnsTypeAll] = useState<any>();
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFormData, setExportFormData] = useState({
+    file_name: "",
+    type: "pdf",
+  });
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -300,6 +304,56 @@ const QuestionManager = () => {
     }
   };
 
+  const showExportModal = () => {
+    setIsExportModalOpen(true);
+  };
+
+  const handleExportCancel = () => {
+    setIsExportModalOpen(false);
+  };
+
+  const handleExportSubmit = async () => {
+    if (!exportFormData.file_name) {
+      message.error("Please enter a file name");
+      return;
+    }
+
+    setExportLoading(true);
+    const payload = {
+      form_id: Number(form_id),
+      type: exportFormData.type,
+      file_name: exportFormData.file_name,
+    };
+
+    const toastId = toast.loading("Exporting questions...");
+    try {
+      await exportQuestions(payload);
+
+      toast.success("Questions exported successfully", {
+        id: toastId,
+        description: `The questions have been exported as ${exportFormData.type.toUpperCase()}`,
+        duration: 4000,
+      });
+      setIsExportModalOpen(false);
+    } catch (error: any) {
+      console.error("Export Error:", error);
+      toast.error("Export failed", {
+        id: toastId,
+        description: error.message,
+        duration: 5000,
+      });
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const handleExportFormChange = (field: string, value: string) => {
+    setExportFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   return (
     <div
       className={`bg-gray-100 overflow-x-hidden dark:bg-gray-900  my-3 mx-1 sm:mx-2 rounded-lg  px-1 sm:px-4 py-2  min-h-screen `}
@@ -314,17 +368,29 @@ const QuestionManager = () => {
             Questions Manager
           </h3>
         </Header>
-        <button
-          onClick={() =>
-            router.push(
-              `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion?form_id=${form_id}&questionsType=${questionsTypeFromUrl}`
-            )
-          }
-          className="px-6 max-sm:px-3 py-2 sm:py-[9px]  rounded-[8px]   !bg-primary-color1 active:!bg-primary-color1
-      !text-white"
-        >
-          <p className="sm:tracking-wide max-sm:text-[15px] ">Add Question</p>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={showExportModal}
+            className="px-6 max-sm:px-3 py-2 sm:py-[9px] rounded-[8px] bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white"
+          >
+            <div className="flex items-center justify-center gap-2 sm:tracking-wide max-sm:text-[15px]">
+              <PiExportBold size={18} />
+              Export
+            </div>
+          </button>
+          <button
+            onClick={() =>
+              router.push(
+                `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/addQuestion?form_id=${form_id}&questionsType=${questionsTypeFromUrl}`
+              )
+            }
+            className="px-6 max-sm:px-3 py-2 sm:py-[9px] rounded-[8px] !bg-primary-color1 active:!bg-primary-color1 !text-white"
+          >
+            <p className="sm:tracking-wide max-sm:text-[15px]">
+              + Add Question
+            </p>
+          </button>
+        </div>
       </div>
 
       <div className="flex justify-between items-center bg-white mx-1 mb-4 dark:bg-gray-800 py-3 px-3 rounded-sm gap-5">
@@ -971,6 +1037,62 @@ const QuestionManager = () => {
           `}
         </style>
       )}
+
+      {/* Export Modal */}
+      <Modal
+        title="Export Questions"
+        open={isExportModalOpen}
+        onOk={handleExportSubmit}
+        onCancel={handleExportCancel}
+        confirmLoading={exportLoading}
+        footer={[
+          <AntdButton
+            key="back"
+            onClick={handleExportCancel}
+            disabled={exportLoading}
+          >
+            Cancel
+          </AntdButton>,
+          <AntdButton
+            key="submit"
+            type="primary"
+            onClick={handleExportSubmit}
+            className="!bg-primary-color1"
+            loading={exportLoading}
+          >
+            Export
+          </AntdButton>,
+        ]}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              File Name
+            </label>
+            <Input
+              placeholder="Enter file name"
+              value={exportFormData.file_name}
+              onChange={(e) =>
+                handleExportFormChange("file_name", e.target.value)
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              File Type
+            </label>
+            <Select
+              className="w-full"
+              value={exportFormData.type}
+              onChange={(value) => handleExportFormChange("type", value)}
+            >
+              <Option value="pdf">PDF</Option>
+              <Option value="word">Word</Option>
+              <Option value="excel">Excel</Option>
+            </Select>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

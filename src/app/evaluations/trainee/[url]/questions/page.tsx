@@ -1,14 +1,15 @@
 "use client";
 
 import { images } from "@/constants/images";
-import { getEvaluationByUrl } from "@/lib/action/evaluation_action";
+import {
+  getEvaluationByUrl,
+  getTraineeById,
+} from "@/lib/action/evaluation_action";
 import {
   createAnswer,
-  getUserById,
+  getGradeAfterCreate,
   getQuestionsByFormId,
   getSolution,
-  getGradeAfterCreate,
-  checkIfUserIsFinish,
   getTimers,
 } from "@/lib/action/user/userr_action";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
@@ -20,7 +21,7 @@ import { BookmarkIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FiChevronLeft, FiChevronRight, FiClock } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { toast } from "sonner";
 
 type Field = {
@@ -47,6 +48,8 @@ type SolutionData = {
 const QuizQuestionPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
+  const form_id = searchparams.get("form_id");
+  const id_number = searchparams.get("id_number");
   const { url } = useParams();
   const router = useRouter();
 
@@ -82,27 +85,33 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
     if (isSubmitted === "true") {
-      router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
+      router.push(
+        `/evaluations/trainee/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+      );
     }
   }, []);
-  useEffect(() => {
-    const checkuserfinish = async () => {
-      try {
-        const data = await checkIfUserIsFinish(Number(user_id));
-        console.log(data);
-        if (data.status !== false) {
-          router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
-        }
-      } catch (error) {
-        router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
-      }
-    };
-    checkuserfinish();
-  }, []);
+  // useEffect(() => {
+  //   const checkuserfinish = async () => {
+  //     try {
+  //       const data = await checkIfUserIsFinish(
+  //         Number(user_id),
+  //         Number(form_id),
+  //         id_number
+  //       );
+  //       console.log(data);
+  //       if (data.status !== false) {
+  //         router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
+  //       }
+  //     } catch (error) {
+  //       router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
+  //     }
+  //   };
+  //   checkuserfinish();
+  // }, []);
 
   useEffect(() => {
     const gettimsers = async () => {
-      const data = await getTimers(Number(user_id));
+      const data = await getTimers(Number(user_id), Number(form_id), id_number);
       setTimeLeft(Number(data?.remaining_minutes!) * 60);
     };
     gettimsers();
@@ -183,14 +192,18 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        const data = await getUserById(Number(user_id));
-        const assignmentData = await getEvaluationByUrl(String(url));
-        if (!data || !assignmentData) {
+        const data = await getTraineeById(
+          Number(user_id),
+          id_number,
+          Number(form_id)
+        );
+        const evaluation_data = await getEvaluationByUrl(String(url));
+        if (!data || !evaluation_data) {
           throw new Error("no data");
         }
         setUserData(data?.data!);
-        setExamData(assignmentData.data!);
-        setTimeLeft(Number(assignmentData?.data?.duration_in_minutes!) * 60);
+        setExamData(evaluation_data.data!);
+        setTimeLeft(Number(evaluation_data?.data?.duration_in_minutes!) * 60);
       } catch (error) {
         console.error("Error fetching evaluation data:", error);
         toast.error("Failed to load evaluation data");
@@ -369,7 +382,9 @@ const QuizQuestionPage = () => {
           window.history.pushState(null, "", window.location.href);
         });
         toast.success("Evaluation submitted successfully!");
-        router.push(`/evaluations/trainee/${url}/result?user_id=${user_id}`);
+        router.push(
+          `/evaluations/trainee/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+        );
       } catch (error) {
         console.error("Error submitting quiz:", error);
         toast.error("Failed to submit quiz");

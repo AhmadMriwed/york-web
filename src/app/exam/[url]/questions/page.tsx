@@ -1,16 +1,15 @@
 "use client";
 
 import { images } from "@/constants/images";
-import { useFetchWithId } from "@/hooks/useFetch";
 import { fetchAssignmentByUrl } from "@/lib/action/assignment_action";
 import {
+  checkIfUserIsFinish,
   createAnswer,
-  getUserById,
+  getGradeAfterCreate,
   getQuestionsByFormId,
   getSolution,
-  getGradeAfterCreate,
-  checkIfUserIsFinish,
   getTimers,
+  getUserById,
 } from "@/lib/action/user/userr_action";
 import { formatTime } from "@/lib/utils";
 import { Assignment } from "@/types/adminTypes/assignments/assignmentsTypes";
@@ -18,12 +17,18 @@ import {
   QuestionData,
   UserData,
 } from "@/types/adminTypes/assignments/examTypes";
-import { Button } from "antd";
-import { data } from "jquery";
-import { BookmarkIcon, Loader2 } from "lucide-react";
+import { Button, Modal } from "antd";
+import {
+  BookmarkIcon,
+  Loader2,
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+} from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiClock } from "react-icons/fi";
 import { toast } from "sonner";
 
@@ -48,9 +53,17 @@ type SolutionData = {
   }>;
 };
 
+type ExamCondition = {
+  id: number;
+  name: string;
+  type: string;
+};
+
 const QuizQuestionPage = () => {
   const searchparams = useSearchParams();
   const user_id = searchparams.get("user_id");
+  const id_number = searchparams.get("id_number");
+  const form_id = searchparams.get("form_id");
   const { url } = useParams();
   const router = useRouter();
 
@@ -74,21 +87,241 @@ const QuizQuestionPage = () => {
     new Map()
   );
   const [solutionData, setSolutionData] = useState<SolutionData | null>(null);
-
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [micAccessGranted, setMicAccessGranted] = useState(false);
+  const [micActive, setMicActive] = useState(false);
+  const [showMicRequest, setShowMicRequest] = useState(false);
 
+  const [cameraAccessGranted, setCameraAccessGranted] = useState(false);
+  const [showCameraRequest, setShowCameraRequest] = useState(false);
+  const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+
+  const requestCameraAccess = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setVideoStream(stream);
+      setCameraAccessGranted(true);
+      startCameraActivityDetection(stream);
+      toast.success("Camera access granted");
+      return true;
+    } catch (error) {
+      console.error("Camera access error:", error);
+      toast.error("Camera access was denied");
+      return false;
+    }
+  };
+
+  const startCameraActivityDetection = (stream: MediaStream) => {
+    setIsCameraActive(true);
+
+    return () => {
+      // Cleanup function
+      setIsCameraActive(false);
+    };
+  };
+
+  const handleEnableCamera = async () => {
+    const granted = await requestCameraAccess();
+    if (granted) {
+      setShowCameraRequest(false);
+    }
+  };
+
+  // Microphone access functions
+  const requestMicrophoneAccess = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMediaStream(stream);
+      setMicAccessGranted(true);
+      startMicActivityDetection(stream);
+      toast.success("Microphone access granted");
+      return true;
+    } catch (error) {
+      console.error("Microphone access error:", error);
+      toast.error("Microphone access was denied");
+      return false;
+    }
+  };
+
+  const startMicActivityDetection = (stream: MediaStream) => {
+    const audioContext = new AudioContext();
+    const analyser = audioContext.createAnalyser();
+    const microphone = audioContext.createMediaStreamSource(stream);
+    microphone.connect(analyser);
+    analyser.fftSize = 256;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const detectActivity = () => {
+      analyser.getByteFrequencyData(dataArray);
+      const sum = dataArray.reduce((a, b) => a + b, 0);
+      setMicActive(sum > 10); // Adjust threshold as needed
+      if (micAccessGranted) {
+        requestAnimationFrame(detectActivity);
+      }
+    };
+
+    detectActivity();
+
+    return () => {
+      microphone.disconnect();
+      audioContext.close();
+    };
+  };
+
+  const handleEnableMicrophone = async () => {
+    const granted = await requestMicrophoneAccess();
+    if (granted) {
+      setShowMicRequest(false);
+    }
+  };
+
+  const handleDeviceConditions = async (conditions: ExamCondition[]) => {
+    const cleaners: (() => void)[] = [];
+
+    if (conditions.some((c) => c.name === "No Copying")) {
+      const handleCopy = (e: ClipboardEvent) => {
+        e.preventDefault();
+        toast.warning("Copying is not allowed during the exam");
+      };
+      document.addEventListener("copy", handleCopy);
+      cleaners.push(() => document.removeEventListener("copy", handleCopy));
+    }
+
+    if (conditions.some((c) => c.name === "No Pasting")) {
+      const handlePaste = (e: ClipboardEvent) => {
+        e.preventDefault();
+        toast.warning("Pasting is not allowed during the exam");
+      };
+      document.addEventListener("paste", handlePaste);
+      cleaners.push(() => document.removeEventListener("paste", handlePaste));
+    }
+
+    if (conditions.some((c) => c.name === "No Translation")) {
+      document.documentElement.translate = false;
+      const handleTranslate = () => {
+        toast.warning("Translation is not allowed during the exam");
+      };
+      document.addEventListener("translate", handleTranslate);
+      cleaners.push(() =>
+        document.removeEventListener("translate", handleTranslate)
+      );
+    }
+
+    // Handle device access conditions
+    try {
+      if (conditions.some((c) => c.name === "Open Camera")) {
+        setShowCameraRequest(true);
+      }
+
+      if (conditions.some((c) => c.name === "Enable Microphone")) {
+        setShowMicRequest(true);
+      }
+
+      if (conditions.some((c) => c.name === "Capture Surroundings")) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          cleaners.push(() => {
+            stream.getTracks().forEach((track) => track.stop());
+          });
+          setVideoStream(stream);
+          setCameraAccessGranted(true);
+          startCameraActivityDetection(stream);
+          setMediaStream(stream);
+          setMicAccessGranted(true);
+          startMicActivityDetection(stream);
+        } catch (error) {
+          console.error("Media access error:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error setting up device conditions:", error);
+    }
+
+    return cleaners;
+  };
+
+  useEffect(() => {
+    return () => {
+      if (videoStream) {
+        videoStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [videoStream]);
+
+  useEffect(() => {
+    if (!examData?.exam_config?.condition_exams) return;
+
+    const conditions = examData.exam_config.condition_exams;
+    const cleaners: (() => void)[] = [];
+
+    // Add security measures
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey &&
+          e.shiftKey &&
+          ["i", "j", "c"].includes(e.key.toLowerCase()))
+      ) {
+        e.preventDefault();
+        toast.warning("This action is disabled during the exam");
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      toast.warning("Right-click is disabled during the exam");
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    cleaners.push(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("contextmenu", handleContextMenu);
+    });
+
+    // Handle device conditions
+    const setupDeviceConditions = async () => {
+      const deviceCleaners = await handleDeviceConditions(conditions);
+      cleaners.push(...deviceCleaners);
+    };
+
+    setupDeviceConditions();
+
+    return () => {
+      cleaners.forEach((cleaner) => cleaner());
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [examData?.exam_config?.condition_exams]);
   // if user finish the exam :
   useEffect(() => {
     const checkuserfinish = async () => {
       try {
-        const data = await checkIfUserIsFinish(Number(user_id));
+        const data = await checkIfUserIsFinish(
+          Number(user_id),
+          Number(form_id),
+          id_number
+        );
         console.log(data);
         if (data.status !== false) {
-          router.push(`/exam/${url}/result?user_id=${user_id}`);
+          router.push(
+            `/exam/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+          );
         }
       } catch (error) {
-        router.push(`/exam/${url}/result?user_id=${user_id}`);
+        router.push(
+          `/exam/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+        );
       }
     };
     checkuserfinish();
@@ -96,7 +329,7 @@ const QuizQuestionPage = () => {
 
   useEffect(() => {
     const gettimsers = async () => {
-      const data = await getTimers(Number(user_id));
+      const data = await getTimers(Number(user_id), Number(form_id), id_number);
       console.log(data);
 
       if (data?.remaining_time) {
@@ -122,14 +355,17 @@ const QuizQuestionPage = () => {
   useEffect(() => {
     const fetchExamData = async () => {
       try {
-        const data = await getUserById(Number(user_id));
+        const data = await getUserById(
+          Number(user_id),
+          id_number,
+          Number(form_id)
+        );
         const assignmentData = await fetchAssignmentByUrl(String(url));
         if (!data || !assignmentData) {
           throw new Error("no data");
         }
         setUserData(data?.data!);
         setExamData(assignmentData!);
-        // setTimeLeft(Number(assignmentData?.duration_in_minutes!) * 60);
       } catch (error) {
         console.error("Error fetching exam data:", error);
         toast.error("Failed to load exam data");
@@ -145,13 +381,6 @@ const QuizQuestionPage = () => {
     }
   }, [examData?.forms[0]?.id, currentPage]);
 
-  useEffect(() => {
-    const isSubmitted = localStorage.getItem(`quizSubmitted_${url}_${user_id}`);
-    if (isSubmitted === "true") {
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
-      return;
-    }
-  }, [url, user_id, router]);
   useEffect(() => {
     const savedPage = localStorage.getItem(`quizCurrentPage_${url}_${user_id}`);
     if (savedPage) {
@@ -185,13 +414,7 @@ const QuizQuestionPage = () => {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (examData?.forms[0]?.id && isInitialized) {
-      fetchQuestions(currentPage);
-    }
-  }, [examData?.forms[0]?.id, currentPage, isInitialized]);
-
-  const fetchSolutions = async () => {
+  const fetchSolutions = useCallback(async () => {
     try {
       const response = await getSolution(Number(user_id));
       if (response?.data) {
@@ -200,9 +423,9 @@ const QuizQuestionPage = () => {
     } catch (error) {
       console.error("Error fetching solutions:", error);
     }
-  };
+  }, [user_id]);
 
-  const fetchQuestions = async (page: number) => {
+  const fetchQuestions = useCallback(async (page: number) => {
     if (!examData?.forms[0]?.id) return;
 
     setIsLoading(true);
@@ -234,7 +457,13 @@ const QuizQuestionPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [examData?.forms, userAnswers, fetchSolutions]);
+
+  useEffect(() => {
+    if (examData?.forms[0]?.id && isInitialized) {
+      fetchQuestions(currentPage);
+    }
+  }, [examData?.forms, currentPage, isInitialized, fetchQuestions]);
 
   const getQuestionSolution = (questionId: number) => {
     if (!solutionData) return null;
@@ -430,14 +659,9 @@ const QuizQuestionPage = () => {
         await submitAnswersForCurrentPage();
         await getGradeAfterCreate(Number(user_id));
         toast.success("Quiz submitted successfully!");
-        // Clear the saved page
-        localStorage.removeItem(`quizCurrentPage_${url}_${user_id}`);
-        localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-        router.push(`/exam/${url}/result?user_id=${user_id}`);
-        window.history.pushState(null, "", window.location.href);
-        window.addEventListener("popstate", () => {
-          window.history.pushState(null, "", window.location.href);
-        });
+        router.push(
+          `/exam/${url}/result?user_id=${user_id}&id_number=${id_number}&form_id=${form_id}`
+        );
       } catch (error) {
         console.error("Error submitting quiz:", error);
         toast.error("Failed to submit quiz");
@@ -454,14 +678,6 @@ const QuizQuestionPage = () => {
       await submitAnswersForCurrentPage();
       await getGradeAfterCreate(Number(user_id));
       toast.success("Quiz submitted successfully!");
-      // Clear the saved page
-      localStorage.removeItem(`quizCurrentPage_${url}_${user_id}`);
-      localStorage.setItem(`quizSubmitted_${url}_${user_id}`, "true");
-      router.push(`/exam/${url}/result?user_id=${user_id}`);
-      window.history.pushState(null, "", window.location.href);
-      window.addEventListener("popstate", () => {
-        window.history.pushState(null, "", window.location.href);
-      });
     } catch (error) {
       console.error("Error submitting quiz:", error);
       toast.error("Failed to submit quiz");
@@ -480,6 +696,144 @@ const QuizQuestionPage = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      {/* Camera Access Modal */}
+      <Modal
+        title={
+          <div className="flex items-center">
+            <Video className="h-5 w-5 mr-2" />
+            <span>Camera Access Required</span>
+          </div>
+        }
+        open={showCameraRequest && !cameraAccessGranted}
+        onCancel={() => setShowCameraRequest(false)}
+        footer={null}
+        centered
+        closable={false}
+        maskClosable={false}
+        width={450}
+      >
+        <div className="flex flex-col items-center text-center">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <VideoOff className="h-8 w-8 text-blue-600" />
+          </div>
+
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Camera Permission Needed
+          </h3>
+
+          <p className="text-gray-600 mb-6">
+            This exam requires camera access for proctoring. Please click
+            &quot;Allow&quot; when prompted by your browser.
+          </p>
+
+          <div className="flex gap-3 w-full">
+            <Button onClick={() => router.push("/")} className="flex-1">
+              Exit Exam
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleEnableCamera}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              icon={<Video className="h-4 w-4" />}
+              loading={isSubmitLoading}
+            >
+              Enable Camera
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Camera Status Indicator */}
+      {cameraAccessGranted && (
+        <div className="fixed top-20 right-4 z-50">
+          <div className="flex items-center bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 p-2">
+            {isCameraActive ? (
+              <>
+                <div className="relative mr-2">
+                  <div className="absolute inset-0 bg-green-400 rounded-full opacity-75 animate-ping"></div>
+                  <div className="relative w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <Video className="h-5 w-5 text-green-600" />
+              </>
+            ) : (
+              <Video className="h-5 w-5 text-gray-500" />
+            )}
+            <span className="ml-2 text-sm font-medium hidden md:inline">
+              {isCameraActive ? "Active" : "Standby"}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Microphone Access Modal */}
+      <Modal
+        title={
+          <div className="flex items-center">
+            <Mic className="h-5 w-5 mr-2" />
+            <span>Microphone Access Required</span>
+          </div>
+        }
+        open={showMicRequest && !micAccessGranted}
+        onCancel={() => setShowMicRequest(false)}
+        footer={null}
+        centered
+        closable={false}
+        maskClosable={false}
+        width={450}
+      >
+        <div className="flex flex-col items-center text-center">
+          <div className="bg-blue-50 p-4 rounded-full mb-4">
+            <MicOff className="h-8 w-8 text-blue-600" />
+          </div>
+
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Microphone Permission Needed
+          </h3>
+
+          <p className="text-gray-600 mb-6">
+            This exam requires microphone access for proctoring. Please click
+            &quot;Allow&quot; when prompted by your browser.
+          </p>
+
+          <div className="flex gap-3 w-full">
+            <Button onClick={() => router.push("/")} className="flex-1">
+              Exit Exam
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleEnableMicrophone}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              icon={<Mic className="h-4 w-4" />}
+              loading={isSubmitLoading}
+            >
+              Enable Microphone
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Microphone Status Indicator */}
+      {micAccessGranted && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="flex items-center bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 p-2">
+            {micActive ? (
+              <>
+                <div className="relative mr-2">
+                  <div className="absolute inset-0 bg-green-400 rounded-full opacity-75 animate-ping"></div>
+                  <div className="relative w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <Mic className="h-5 w-5 text-green-600" />
+              </>
+            ) : (
+              <Mic className="h-5 w-5 text-gray-500" />
+            )}
+            <span className="ml-2 text-sm font-medium hidden md:inline">
+              {micActive ? "Active" : "Standby"}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="shadow-md border-b bg-white fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white shadow-sm p-3 border-b border-gray-100 w-full">
@@ -806,7 +1160,7 @@ const QuizQuestionPage = () => {
                               }
                               className="!w-3/4 md:!w-1/2 h-1.5 bg-gray-300 rounded-lg cursor-pointer dark:bg-gray-600 accent-primary-color1 dark:accent-primary-color1-light"
                             />
-                            <div className=" !w-3/4 md:!w-1/2 flex justify-between mt-2 gap-4">
+                            <div className="!w-3/4 md:!w-1/2 flex justify-between mt-2 gap-4">
                               {Array.from(
                                 {
                                   length:
@@ -914,7 +1268,6 @@ const QuizQuestionPage = () => {
         onSubmit={handleTimeEndSubmit}
         isLoading={isSubmitLoading}
       />
-      ;
     </div>
   );
 };
@@ -959,6 +1312,7 @@ const ConfirmationDialog = ({
     </div>
   );
 };
+
 const TimeEndDialog = ({
   isOpen,
   onSubmit,

@@ -1,55 +1,44 @@
 "use client";
-import { useParams } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/components/Pars/ThemeContext";
 import "@/components/assignments/assignmentSessionA/assignmentSessionAdd/style.css";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Button, Input, InputGroup, Header } from "rsuite";
+import { Export, More, Trash } from "@rsuite/icons";
 import {
   Calendar,
-  Users,
-  Clock,
-  Languages,
-  Percent,
-  ListOrdered,
   EditIcon,
-  TrashIcon,
   Hash,
-  Settings,
-  Loader2,
-  View,
-  EyeIcon,
+  Languages,
   Link,
+  ListOrdered,
+  Loader2,
+  Percent,
+  Settings,
+  TrashIcon,
+  Users,
 } from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import React, { useContext, useEffect, useState } from "react";
+import { CiLock, CiTimer } from "react-icons/ci";
 import { GoChecklist } from "react-icons/go";
-import { Dropdown, IconButton } from "rsuite";
-import { Export, More, Trash } from "@rsuite/icons";
-import { PiToggleRightFill } from "react-icons/pi";
-import { CiCalendarDate, CiExport, CiTimer } from "react-icons/ci";
-import { IoMdMore } from "react-icons/io";
 import { GrCertificate } from "react-icons/gr";
+import { IoMdMore } from "react-icons/io";
+import { PiToggleRightFill } from "react-icons/pi";
+import { Button, Dropdown, Header, IconButton, Input } from "rsuite";
 
-import {
-  MdTitle,
-  MdSubtitles,
-  MdCategory,
-  MdVisibility,
-  MdVisibilityOff,
-  MdOutlineAppSettingsAlt,
-} from "react-icons/md";
+import Loading from "@/components/Pars/Loading";
+import DeleteModal from "@/components/assignments/DeleteModal";
+import ExamRequirementsManager from "@/components/assignments/ExamRequirementsManager";
+import ExportExam from "@/components/assignments/ExportExam";
 import StudentResultsTable from "@/components/assignments/assignmentSessionA/StudentResultsTable ";
+import CustomFormField, {
+  FormFieldType,
+} from "@/components/review/CustomFormField";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { Control, FieldValues, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -65,19 +54,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FiFlag, FiPlay, FiPlus } from "react-icons/fi";
-import { IoArrowBackSharp } from "react-icons/io5";
-import {
-  FaCheckCircle,
-  FaClock,
-  FaLanguage,
-  FaQuestionCircle,
-  FaRedo,
-  FaRegNewspaper,
-} from "react-icons/fa";
-import { RiSlideshowLine } from "react-icons/ri";
-import { AiOutlineFieldTime } from "react-icons/ai";
+import ImageUploader from "@/components/upload/ImageUploader";
+import { fetchExamUsers } from "@/lib/action/assignment_action";
 import {
   addExamMessages,
   changeExamStatus,
@@ -88,39 +66,47 @@ import {
   deleteExamMessages,
   deleteStartForm,
   fetchAssignmentById,
-  fetchRequirmentFieldsData,
   generateUrl,
   updateExamMessages,
   updateExamSettings,
 } from "@/lib/action/exam_action";
+import { Assignment } from "@/types/adminTypes/assignments/assignExamTypes";
+import { Snippet } from "@heroui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Modal } from "antd";
+import axios from "axios";
+import { Control, useForm } from "react-hook-form";
 import {
-  FaEnvelopeOpenText,
+  FaCheckCircle,
+  FaComment,
+  FaCopy,
   FaEdit,
-  FaTimes,
+  FaEnvelopeOpenText,
+  FaExternalLinkAlt,
+  FaLink,
+  FaPercent,
   FaPlus,
+  FaRedo,
+  FaRegFrown,
+  FaRegNewspaper,
+  FaRegSmile,
   FaSave,
   FaSpinner,
-  FaPercent,
-  FaCertificate,
-  FaLink,
-  FaComment,
-  FaExternalLinkAlt,
-  FaCopy,
+  FaTimes,
 } from "react-icons/fa";
-import { FaRegSmile, FaRegFrown } from "react-icons/fa";
-import Loading from "@/components/Pars/Loading";
+import { FiFlag, FiPlay, FiPlus } from "react-icons/fi";
+import { IoArrowBackSharp } from "react-icons/io5";
+import {
+  MdCategory,
+  MdOutlineAppSettingsAlt,
+  MdSubtitles,
+  MdTitle,
+  MdVisibility,
+} from "react-icons/md";
 import { toast } from "sonner";
-import { Assignment } from "@/types/adminTypes/assignments/assignExamTypes";
-import CustomFormField, {
-  FormFieldType,
-} from "@/components/review/CustomFormField";
-import ImageUploader from "@/components/upload/ImageUploader";
-import { Modal, TimePicker } from "antd";
-import { Snippet } from "@heroui/react";
-import { fetchExamUsers } from "@/lib/action/assignment_action";
-import DeleteModal from "@/components/assignments/DeleteModal";
-import ExportExam from "@/components/assignments/ExportExam";
-import axios from "axios";
+import { z } from "zod";
+import QuillEditor from "@/components/assignments/QuillEditor";
+import QuillEditorWithoutDark from "@/components/assignments/QuillEditorWithoutDark";
 
 const RenderIconButton = (props: any, ref: any) => {
   const { mode }: { mode: "dark" | "light" } = useContext(ThemeContext);
@@ -250,6 +236,9 @@ const Page = () => {
         count_questions_page: z.number().optional(),
         count_return_exam: z.number().optional(),
         view_answer: z.string().optional(),
+        access_type: z
+          .enum(["public_link", "group_password", "private_access_code"])
+          .optional(),
       })
       .optional()
       .nullable(),
@@ -266,6 +255,8 @@ const Page = () => {
         duration_in_minutes: assignmentData?.duration_in_minutes || undefined,
         exam_config: assignmentData?.exam_config
           ? {
+              access_type:
+                assignmentData.exam_config.access_type || "public_link",
               view_answer: assignmentData.exam_config.view_answer || "manually",
               view_results: assignmentData.exam_config.view_results || "",
               count_return_exam:
@@ -284,6 +275,7 @@ const Page = () => {
       duration_in_minutes: assignmentData?.duration_in_minutes || undefined,
       exam_config: assignmentData?.exam_config
         ? {
+            access_type: assignmentData.exam_config.access_type || "",
             view_results: assignmentData.exam_config.view_results || "",
             count_return_exam:
               assignmentData.exam_config.count_return_exam || undefined,
@@ -325,7 +317,6 @@ const Page = () => {
 
   const onSubmitMessages = async (values: MessagesFormValues) => {
     setIsSubmittingMessages(true);
-    // const toastId = toast.loading("Updating exam messages...");
     const payload = {
       ...values,
       exam_id: assignment_id,
@@ -370,6 +361,7 @@ const Page = () => {
         duration_in_minutes: assignmentData.duration_in_minutes || undefined,
         exam_config: assignmentData.exam_config
           ? {
+              access_type: assignmentData.exam_config.access_type || "",
               view_results: assignmentData.exam_config.view_results || "",
               view_answer: assignmentData.exam_config.view_answer || "",
               count_return_exam:
@@ -727,13 +719,6 @@ const Page = () => {
                         );
                       },
                     },
-                    {
-                      icon: <Link className=" size-5 max-sm:size-4" />,
-                      text: "Generate Url",
-                      action: () => {
-                        generate();
-                      },
-                    },
                   ].map((item, index) => (
                     <Dropdown.Item
                       key={index}
@@ -841,7 +826,7 @@ const Page = () => {
               <ExportExam
                 isModalOpen={showExportAssignmentModal}
                 setIsModalOpen={setShowExportAssignmentModal}
-                assignmentId={Number(assignment_id)}
+                formId={Number(assignmentData?.forms[0].id)}
                 defaultTitle={assignmentData?.title}
               />
               <DeleteModal
@@ -912,9 +897,12 @@ const Page = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                      {assignmentData?.start_forms[0]?.description}
-                    </p>
+                    <p
+                      className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: assignmentData?.start_forms[0]?.description,
+                      }}
+                    />
                     <div className="mt-4 sm:mt-6 pt-3 flex items-center justify-end sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                       <button
                         onClick={() => {
@@ -1030,9 +1018,12 @@ const Page = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed">
-                      {assignmentData?.end_forms[0]?.description}
-                    </p>
+                    <p
+                      className="text-gray-700 dark:text-gray-300 text-sm sm:text-base leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: assignmentData?.end_forms[0]?.description,
+                      }}
+                    />
                     <div className="flex items-center justify-end mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
                       <button
                         onClick={() => {
@@ -1245,6 +1236,38 @@ const Page = () => {
                                 </FormItem>
                               )}
                             />
+                            <FormField
+                              control={form.control}
+                              name="exam_config.access_type"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Access Type:</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                    defaultValue="public_link"
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger className="dark:bg-gray-700 bg-gray-100">
+                                        <SelectValue placeholder="Select access type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="dark:bg-gray-700 bg-gray-100">
+                                      <SelectItem value="public_link">
+                                        Public Link
+                                      </SelectItem>
+                                      <SelectItem value="group_password">
+                                        Group Password
+                                      </SelectItem>
+                                      <SelectItem value="private_access_code">
+                                        Private Access Code
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                             <div className="flex items-center justify-end mt-3 gap-3">
                               <button
                                 className="py-[7px] bg-transparent border-primary-color1 border-1 rounded-[8px]  !px-4"
@@ -1345,6 +1368,20 @@ const Page = () => {
                             </p>
                           </div>
                         </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="p-[6px] bg-gray-100 dark:bg-gray-600 rounded-lg">
+                            <CiLock className="text-lg" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                              Access Type
+                            </p>
+                            <p className="text-gray-900 font-medium dark:text-gray-100">
+                              {assignmentData?.exam_config?.access_type ||
+                                "public_link"}
+                            </p>
+                          </div>
+                        </div>
 
                         <div className="flex justify-end mt-3">
                           <Button
@@ -1382,20 +1419,21 @@ const Page = () => {
 
                 <AccordionItem
                   value="item-3"
-                  className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700"
+                  className="bg-white dark:bg-gray-900 px-4 py-3 rounded-lg shadow border border-gray-200 dark:border-gray-700"
                 >
                   <AccordionTrigger className="h-14 p-1">
-                    <div className="flex items-center  gap-2 sm:gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                       <GoChecklist className="text-xl sm:text-2xl text-primary-color1" />
-                      <p className="text-sm sm:text-base">Exam Requirments</p>
+                      <p className="text-sm sm:text-base">Exam Requirements</p>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="mt-2 flex flex-col gap-y-1">
-                      {assignmentData?.field_requirements?.map((r) => {
-                        return <p key={r.id}>{r?.name || "Unknown field"}</p>;
-                      })}
-                    </div>
+                    <ExamRequirementsManager
+                      formId={Number(assignmentData?.forms[0]?.id)}
+                      requirements={assignmentData?.field_requirements || []}
+                      assignmentId={Number(assignment_id)}
+                      onUpdate={() => setIsSuccess(!isSuccess)}
+                    />
                   </AccordionContent>
                 </AccordionItem>
                 <div className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -1412,6 +1450,21 @@ const Page = () => {
                       <p className="text-sm sm:text-base">
                         Exam&apos;s Questions
                       </p>
+                    </div>
+                  </button>
+                </div>
+                <div className="bg-white dark:bg-gray-900 px-4 py-3  rounded-lg shadow border border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => {
+                      router.push(
+                        `/admin/dashboard/assignments/assignment-session/${id}/assignments/${assignment_id}/access`
+                      );
+                    }}
+                    className="h-14 p-1"
+                  >
+                    <div className="flex items-center  gap-2 sm:gap-4">
+                      <CiLock className="text-xl sm:text-2xl text-primary-color1" />
+                      <p className="text-sm sm:text-base">Test Access</p>
                     </div>
                   </button>
                 </div>
@@ -1659,7 +1712,6 @@ const Page = () => {
                   )}
                 </div>
 
-                {/* Success Message Card */}
                 <div className="bg-green-50 dark:bg-green-700/10 p-4 rounded-[6px] border border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-md">
@@ -1678,7 +1730,6 @@ const Page = () => {
                   )}
                 </div>
 
-                {/* Failure Message Card */}
                 <div className="bg-red-50 dark:bg-red-700/10 p-4 rounded-[6px] border border-red-200 dark:border-red-800 ">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-md">
@@ -1883,12 +1934,21 @@ const AddEndFormInterface = ({
             />
 
             <div className="md:col-span-2">
-              <CustomFormField
-                fieldType={FormFieldType.TEXTAREA}
+              <FormField
                 control={addendinterfaceform.control}
-                label="Description:"
                 name="description"
-                placeholder="Enter description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description:</FormLabel>
+                    <FormControl>
+                      <QuillEditorWithoutDark
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Enter description..."
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
             </div>
 
@@ -2034,12 +2094,21 @@ const AddStartFormInterface = ({
           </div>
 
           <div className="flex items-start flex-1 mt-4">
-            <CustomFormField
-              fieldType={FormFieldType.TEXTAREA}
+            <FormField
               control={form.control}
-              label="Description:"
               name="description"
-              placeholder="Enter description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description:</FormLabel>
+                  <FormControl>
+                    <QuillEditorWithoutDark
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Enter description..."
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
           </div>
 
